@@ -54,9 +54,19 @@ export async function createListing(formData: FormData) {
     const ownerId = formData.get('ownerId') ? Number(formData.get('ownerId')) : userId;
     const authorizedPersonId = formData.get('authorizedPersonId') ? Number(formData.get('authorizedPersonId')) : undefined;
 
-    // 8. Amenities
+    // 8. Amenities & Nearby Locations
     const selectedAmenities = formData.getAll('amenities') as string[];
-    const amenities = selectedAmenities.map(type => ({ type }));
+    const amenityTypes = selectedAmenities.map(type => ({ type }));
+
+    const nearbyNames = formData.getAll('nearby_location_name') as string[];
+    const nearbyDistances = formData.getAll('nearby_location_distance') as string[];
+    const nearbyAmenities = nearbyNames.map((name, idx) => ({
+        type: 'landmark',
+        name,
+        distance: nearbyDistances[idx] ? `${nearbyDistances[idx]}m` : undefined
+    }));
+
+    const amenities = [...amenityTypes, ...nearbyAmenities];
 
     // 9. Media
     const imageUrls = formData.getAll('image_url') as string[];
