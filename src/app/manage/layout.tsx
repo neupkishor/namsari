@@ -28,6 +28,7 @@ export default function ManageLayout({ children }: { children: React.ReactNode }
                         <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <Link href="/manage" className="sidebar-link active">Manage</Link>
                             <Link href="/manage/properties" className="sidebar-link">Properties</Link>
+                            <Link href="/manage/featured" className="sidebar-link">Featured</Link>
                             <Link href="/manage/users" className="sidebar-link">User Management</Link>
                             <a href="#" className="sidebar-link">Financials</a>
                             <div style={{ margin: '20px 24px 8px', fontSize: '0.75rem', fontWeight: '700', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>

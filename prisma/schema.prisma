@@ -16,6 +16,7 @@ model User {
   name           String
   contact_number String?
   account_type   String?
+  bio            String?
   created_on     DateTime @default(now())
   updated_at     DateTime @updatedAt
 
@@ -43,6 +44,8 @@ model Property {
   longitude               Float?
   google_maps_url         String?
   
+  is_featured             Boolean   @default(false)
+  
   created_on              DateTime @default(now())
   listed_on               DateTime @default(now())
   updated_at              DateTime @updatedAt
@@ -52,6 +55,16 @@ model Property {
 
   comments                Comment[]
   property_likes          Like[]
+  featured_history        FeaturedInformation[]
+}
+
+model FeaturedInformation {
+  id          Int       @id @default(autoincrement())
+  property_id Int
+  property    Property  @relation(fields: [property_id], references: [id])
+  is_active   Boolean   @default(true)
+  featured_on DateTime  @default(now())
+  featured_till DateTime?
 }
 
 model Comment {

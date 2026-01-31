@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { logoutAction } from './actions/auth';
 import { toggleLike, addComment } from './actions/social';
 import { Input } from '@/components/ui';
+import { CreatePostCard } from '@/components/CreatePostCard';
+import { PopularCategories, FeaturedProjects } from '@/components/HomeSections';
 
 export default function Home({ user }: { user: any }) {
   const [viewType, setViewType] = useState('card');
@@ -203,8 +205,15 @@ function ClassicView({ properties }: { properties: any[] }) {
           <p style={{ color: 'var(--color-text-muted)', fontSize: '1.25rem' }}>The premier marketplace for premium residential and commercial assets.</p>
         </div>
       </section>
+
+      <div className="layout-container">
+        <PopularCategories />
+        <FeaturedProjects properties={properties} />
+      </div>
+
       <div className="layout-container" style={{ paddingBottom: '100px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '32px' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#10172A', marginBottom: '24px' }}>Latest Listings</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '32px' }}>
           {properties.map(p => {
             const slug = p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
             const pUrl = `/properties/${slug}-${p.id}`;
@@ -335,6 +344,7 @@ function FeedView({ properties, user, onRefresh, onLoadMore, isFetchingMore, has
 
       {/* Main Social Feed */}
       <div style={{ flex: 1, maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: '24px', margin: '0 auto' }}>
+        <CreatePostCard user={user} />
         {properties.map((p, index) => {
           const isTrigger = index === properties.length - 5;
           return (
