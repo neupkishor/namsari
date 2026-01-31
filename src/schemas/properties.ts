@@ -1,34 +1,22 @@
 export const properties = {
-    fields: {
-        id: ['integer', 'auto-increment'],
-        author: ['string'],
-        title: ['string'],
-        price: ['string'],
-        location: ['string'],
-        specs: ['string'],
-        main_category: ['string'], // House, Land, Apartment, Building
-        commercial_sub_category: ['string'],
-        property_types: ['string'], // stored as JSON string for multi-select
-        purposes: ['string'], // stored as JSON string for multi-select
-        images: ['string'], // stored as JSON array string
-        likes: ['string', 'default.value', '0'],
-        timestamp: ['string'],
-        created_on: ['string'],
-        listed_by: ['integer', 'foreignKey.users.id']
-    },
-    insertableFields: [
-        'author', 'title', 'price', 'location', 'specs',
-        'main_category', 'commercial_sub_category',
-        'property_types', 'purposes', 'images', 'likes', 'timestamp',
-        'created_on', 'listed_by'
+    fields: [
+        { name: 'id', type: 'integer', isPrimary: true, autoIncrement: true },
+        { name: 'author', type: 'string', notNull: true },
+        { name: 'title', type: 'string', notNull: true },
+        { name: 'price', type: 'string', notNull: true },
+        { name: 'location', type: 'string', notNull: true },
+        { name: 'specs', type: 'string', notNull: true },
+        { name: 'main_category', type: 'string', notNull: true },
+        { name: 'commercial_sub_category', type: 'string' },
+        { name: 'property_types', type: 'string' },
+        { name: 'purposes', type: 'string' },
+        { name: 'images', type: 'text' },
+        { name: 'likes', type: 'string', defaultValue: "0" },
+        { name: 'timestamp', type: 'string' }
     ],
-    updatableFields: [
-        'title', 'price', 'location', 'specs',
-        'main_category', 'commercial_sub_category',
-        'property_types', 'purposes', 'images', 'likes',
-        'listed_by'
-    ],
-    massUpdateable: true,
-    massDeletable: true,
-    usesConnection: 'namsari'
+    insertableFields: ['author', 'title', 'price', 'location', 'specs', 'main_category', 'commercial_sub_category', 'property_types', 'purposes', 'images', 'likes', 'timestamp'],
+    updatableFields: ['author', 'title', 'price', 'location', 'specs', 'main_category', 'commercial_sub_category', 'property_types', 'purposes', 'images', 'likes', 'timestamp'],
+    massUpdateable: false,
+    massDeletable: false,
+    usesConnection: 'default'
 };

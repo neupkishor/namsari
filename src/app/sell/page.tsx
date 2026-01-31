@@ -6,6 +6,36 @@ import { createListing } from './actions/listing';
 
 export default function SellPage() {
     const [category, setCategory] = useState('House');
+    const [uploading, setUploading] = useState(false);
+    const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files?.[0]) return;
+
+        const file = e.target.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('platform', 'namsari');
+
+        setUploading(true);
+        try {
+            const res = await fetch('https://cdn.neupgroup.com/bridge/api/v1/upload', {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await res.json();
+            if (data.success) {
+                setUploadedUrl(data.url);
+            } else {
+                alert('Upload failed: ' + data.message);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Upload error');
+        } finally {
+            setUploading(false);
+        }
+    };
 
     return (
         <main style={{ backgroundColor: '#f8fafc', minHeight: '100vh', paddingBottom: '100px' }}>
@@ -115,6 +145,42 @@ export default function SellPage() {
                             style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', resize: 'none' }}
                             required
                         ></textarea>
+                    </div>
+
+                    <div className="form-group">
+                        <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>Property Image</label>
+                        <div style={{ border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '20px', textAlign: 'center', background: '#f8fafc' }}>
+                            {uploadedUrl ? (
+                                <div style={{ position: 'relative' }}>
+                                    <img src={uploadedUrl} alt="Property" style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '4px' }} />
+                                    <button
+                                        type="button"
+                                        onClick={() => setUploadedUrl(null)}
+                                        style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer' }}
+                                    >
+                                        ×
+                                    </button>
+                                    <input type="hidden" name="image_url" value={uploadedUrl || ''} />
+                                </div>
+                            ) : (
+                                <>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        id="file-upload"
+                                        style={{ display: 'none' }}
+                                    />
+                                    <label htmlFor="file-upload" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                                        <div style={{ fontSize: '2rem' }}>📷</div>
+                                        <span style={{ color: 'var(--color-primary)', fontWeight: '600' }}>
+                                            {uploading ? 'Uploading...' : 'Click to upload image'}
+                                        </span>
+                                        <span style={{ fontSize: '0.8rem', color: '#64748b' }}>JPG, PNG, WEBP allowed</span>
+                                    </label>
+                                </>
+                            )}
+                        </div>
                     </div>
 
                     <div style={{ marginTop: '12px' }}>

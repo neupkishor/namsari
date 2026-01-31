@@ -1,10 +1,8 @@
 import React from 'react';
-import { initMapper } from '@/mapper';
+import mapper from '@neupgroup/mapper';
 import Link from 'next/link';
 
 export default async function ManageUsersPage() {
-    const mapper = initMapper();
-
     // Fetch all users
     const users = await mapper.use('users').get();
 

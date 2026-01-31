@@ -3,25 +3,25 @@ import { TableMigrator } from '@neupgroup/mapper';
 export async function up() {
     const table = new TableMigrator('properties');
 
-    // Add a new column
-    table.addColumn('listed_by').type('integer').foreignKey('users', 'id');
+    // Add column
+    table.addColumn('created_on').type('string');
 
     // Execute the migration
     await table.exec();
 
     // Publish the message
-    console.log('Migrating up: added listed_by to properties.');
+    console.log('Migrating up: Added created_on to properties');
 }
 
 export async function down() {
     const table = new TableMigrator('properties');
 
-    // Drop the column
-    table.dropColumn('listed_by');
+    // Drop column
+    table.dropColumn('created_on');
 
     // Execute the migration
     await table.exec();
 
     // Publish the message
-    console.log('Migrating down: properties');
+    console.log('Migrating down: Reverting created_on from properties');
 }

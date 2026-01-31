@@ -30,9 +30,22 @@ export async function up() {
     table.addColumn('likes').type('string').default('0');
     table.addColumn('timestamp').type('string');
 
-    console.log('Migrating up: properties table defined with advanced categorization.');
+    // Execute the migration
+    await table.exec();
+
+    // Publish the message
+    console.log('Migrating up: properties');
 }
 
 export async function down() {
+    const table = new TableMigrator('properties');
+
+    // Drop the table
+    table.dropTable()
+
+    // Execute the command
+    await table.exec();
+
+    // Publish the message
     console.log('Migrating down: properties');
 }

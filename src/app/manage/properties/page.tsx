@@ -1,10 +1,8 @@
 import React from 'react';
-import { initMapper } from '@/mapper';
+import mapper from '@neupgroup/mapper';
 import Link from 'next/link';
 
 export default async function ManagePropertiesPage() {
-    const mapper = initMapper();
-
     // Fetch properties and join with users to get author details
     const properties = await mapper.use('properties').get();
     const users = await mapper.use('users').get();

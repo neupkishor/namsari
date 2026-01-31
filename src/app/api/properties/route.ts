@@ -1,9 +1,8 @@
-import { initMapper } from '@/mapper';
+import mapper from '@neupgroup/mapper';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
     try {
-        const mapper = initMapper();
         // Fetch from SQLite via mapper
         const dbProperties = await mapper.use('properties').get();
 

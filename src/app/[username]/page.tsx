@@ -1,5 +1,5 @@
 import React from 'react';
-import { initMapper } from '@/mapper';
+import mapper from '@neupgroup/mapper';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import HomeClient from '../HomeClient';
@@ -25,8 +25,6 @@ export default async function ProfilePage({ params }: PageProps) {
         // but our logic assumes this page handles the @ routes primarily.
         // If we strictly only want to support /@..., this check is fine.
     }
-
-    const mapper = initMapper();
 
     // Find user by username
     const user = await mapper.use('users').where('username', decoded).getOne();

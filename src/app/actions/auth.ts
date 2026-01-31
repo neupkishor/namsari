@@ -1,11 +1,10 @@
 "use server";
 
-import { initMapper } from '@/mapper';
-import { setSession, clearSession } from '@/lib/auth';
+import mapper from '@neupgroup/mapper';
+import { clearSession, setSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
 export async function registerAction(formData: FormData) {
-    const mapper = initMapper();
     const username = formData.get('username');
     const name = formData.get('name');
     const contact_number = formData.get('contact_number');
@@ -37,7 +36,6 @@ export async function registerAction(formData: FormData) {
 }
 
 export async function loginAction(formData: FormData) {
-    const mapper = initMapper();
     const username = formData.get('username');
 
     try {
