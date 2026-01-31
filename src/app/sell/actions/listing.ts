@@ -7,9 +7,14 @@ import { getSession } from '@/lib/auth';
 export async function createListing(formData: FormData) {
 
     const title = formData.get('title') as string;
-    const price = formData.get('price') as string;
+    const priceString = formData.get('price') as string;
+    const price = parseFloat(priceString.replace(/[^0-9.-]+/g, ""));
     const location = formData.get('location') as string;
     const main_category = formData.get('main_category') as string;
+
+    // Generate slug
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
     const commercial_sub_category = formData.get('commercial_sub_category') as string;
     const specs = formData.get('specs') as string;
 
@@ -31,7 +36,10 @@ export async function createListing(formData: FormData) {
         await prisma.property.create({
             data: {
                 title,
+                slug,
                 price,
+                latitude: 27.7 + (Math.random() - 0.5) * 0.05,
+                longitude: 85.3 + (Math.random() - 0.5) * 0.05,
                 location,
                 main_category,
                 commercial_sub_category: commercial_sub_category || null,

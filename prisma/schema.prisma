@@ -17,15 +17,19 @@ model User {
   name           String
   contact_number String?
   account_type   String?
-  created_at     DateTime @default(now())
+  created_on     DateTime @default(now())
+  updated_at     DateTime @updatedAt
 
   properties     Property[]
+  comments       Comment[]
+  user_likes     Like[]
 }
 
 model Property {
   id                      Int      @id @default(autoincrement())
   title                   String
-  price                   String
+  slug                    String?
+  price                   Float
   location                String
   main_category           String
   commercial_sub_category String?
@@ -36,8 +40,41 @@ model Property {
   property_types          String   // Stored as JSON string
   purposes                String   // Stored as JSON string
   
+  latitude                Float?
+  longitude               Float?
+  
   created_on              DateTime @default(now())
+  listed_on               DateTime @default(now())
+  updated_at              DateTime @updatedAt
   
   listed_by               Int
-  user                    User     @relation(fields: [listed_by], references: [id])
+  user                    User      @relation(fields: [listed_by], references: [id])
+
+  comments                Comment[]
+  property_likes          Like[]
+}
+
+model Comment {
+  id          Int      @id @default(autoincrement())
+  content     String
+  created_at  DateTime @default(now())
+  
+  property_id Int
+  property    Property @relation(fields: [property_id], references: [id])
+  
+  user_id     Int
+  user        User     @relation(fields: [user_id], references: [id])
+}
+
+model Like {
+  id          Int      @id @default(autoincrement())
+  created_at  DateTime @default(now())
+  
+  property_id Int
+  property    Property @relation(fields: [property_id], references: [id])
+  
+  user_id     Int
+  user        User     @relation(fields: [user_id], references: [id])
+
+  @@unique([property_id, user_id])
 }

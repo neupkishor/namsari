@@ -3,30 +3,30 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { logoutAction } from './actions/auth';
+import { toggleLike, addComment } from './actions/social';
 
 export default function Home({ user }: { user: any }) {
   const [viewType, setViewType] = useState('card');
   const [isLoading, setIsLoading] = useState(true);
   const [properties, setProperties] = useState<any[]>([]);
 
+  const fetchProperties = async () => {
+    try {
+      const res = await fetch('/api/properties');
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setProperties(data);
+      }
+    } catch (err) {
+      console.error("Failed to load properties:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const saved = localStorage.getItem('namsari-home-view');
     if (saved) setViewType(saved);
-
-    const fetchProperties = async () => {
-      try {
-        const res = await fetch('/api/properties');
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setProperties(data);
-        }
-      } catch (err) {
-        console.error("Failed to load properties:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchProperties();
   }, []);
 
@@ -46,7 +46,7 @@ export default function Home({ user }: { user: any }) {
             Namsari<span style={{ color: 'var(--color-gold)', marginLeft: '1px' }}>.</span>
           </Link>
           <nav style={{ display: 'flex', gap: '24px', fontWeight: '500', fontSize: '0.9rem', alignItems: 'center' }}>
-            <a href="#" style={{ color: 'var(--color-text-muted)' }}>Explore</a>
+            <Link href="/explore" style={{ color: 'var(--color-text-muted)', textDecoration: 'none' }}>Explore</Link>
             <Link href="/sell" style={{ color: 'var(--color-primary)', fontWeight: '700' }}>Sell</Link>
 
             {!user ? (
@@ -76,7 +76,7 @@ export default function Home({ user }: { user: any }) {
       {isLoading ? (
         viewType === 'card' ? <ClassicSkeleton /> : <FeedSkeleton />
       ) : (
-        viewType === 'card' ? <ClassicView properties={properties} /> : <FeedView properties={properties} />
+        viewType === 'card' ? <ClassicView properties={properties} /> : <FeedView properties={properties} user={user} onRefresh={fetchProperties} />
       )}
     </main>
   );
@@ -164,26 +164,34 @@ function ClassicView({ properties }: { properties: any[] }) {
       </section>
       <div className="layout-container" style={{ paddingBottom: '100px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '32px' }}>
-          {properties.map(p => (
-            <div key={p.id} className="card" style={{ padding: '0', overflow: 'hidden' }}>
-              <img src={p.images?.[0] || 'https://via.placeholder.com/400x240'} style={{ width: '100%', height: '240px', objectFit: 'cover' }} />
-              <div style={{ padding: '24px' }}>
-                <h3 style={{ marginBottom: '8px' }}>{p.title}</h3>
-                <p style={{ color: 'var(--color-gold)', fontWeight: '700', fontSize: '1.25rem', marginBottom: '8px' }}>{p.price}</p>
-                <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>{p.location}</p>
-                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--color-border)', fontSize: '0.85rem' }}>
-                  {p.specs}
+          {properties.map(p => {
+            const slug = p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            const pUrl = `/properties/${slug}-${p.id}`;
+            return (
+              <div key={p.id} className="card" style={{ padding: '0', overflow: 'hidden' }}>
+                <Link href={pUrl} style={{ display: 'block' }}>
+                  <img src={p.images?.[0] || 'https://via.placeholder.com/400x240'} style={{ width: '100%', height: '240px', objectFit: 'cover', cursor: 'pointer' }} />
+                </Link>
+                <div style={{ padding: '24px' }}>
+                  <Link href={pUrl} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <h3 style={{ marginBottom: '8px', cursor: 'pointer' }}>{p.title}</h3>
+                  </Link>
+                  <p style={{ color: 'var(--color-gold)', fontWeight: '700', fontSize: '1.25rem', marginBottom: '8px' }}>{p.price}</p>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>{p.location}</p>
+                  <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--color-border)', fontSize: '0.85rem' }}>
+                    {p.specs}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </>
   );
 }
 
-function FeedView({ properties }: { properties: any[] }) {
+function FeedView({ properties, user, onRefresh }: { properties: any[], user: any, onRefresh: () => void }) {
   const sidebarItems = [
     { label: 'Profile', icon: '👤' },
     { label: 'Houses', icon: '🏠' },
@@ -257,16 +265,27 @@ function FeedView({ properties }: { properties: any[] }) {
       {/* Main Social Feed */}
       <div style={{ flex: 1, maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: '24px', margin: '0 auto' }}>
         {properties.map((p) => (
-          <PropertyPost key={p.id} property={p} />
+          <PropertyPost key={p.id} property={p} user={user} onRefresh={onRefresh} />
         ))}
       </div>
     </div>
   );
 }
 
-function PropertyPost({ property }: { property: any }) {
+function PropertyPost({ property, user, onRefresh }: { property: any, user: any, onRefresh: () => void }) {
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = React.useState(0);
+  const [showComments, setShowComments] = React.useState(false);
+  const [commentDraft, setCommentDraft] = React.useState('');
+  const [isLiking, setIsLiking] = React.useState(false);
+
+  // Derived social states
+  const isLiked = user && property.property_likes?.some((l: any) => l.user_id === user.id);
+  const likeCount = property.property_likes?.length || 0;
+  const comments = property.comments || [];
+
+  const slug = property.slug || property.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const propertyUrl = `/properties/${slug}-${property.id}`;
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
@@ -290,6 +309,46 @@ function PropertyPost({ property }: { property: any }) {
     }
   };
 
+  const handleLike = async () => {
+    if (!user) {
+      window.location.href = '/login';
+      return;
+    }
+    setIsLiking(true);
+    try {
+      await toggleLike(property.id);
+      onRefresh();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLiking(false);
+    }
+  };
+
+  const handleShare = () => {
+    const shareUrl = `${window.location.origin}${propertyUrl}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      alert("Property link copied to clipboard!");
+    });
+  };
+
+  const handleAddComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) {
+      window.location.href = '/login';
+      return;
+    }
+    if (!commentDraft.trim()) return;
+
+    try {
+      await addComment(property.id, commentDraft);
+      setCommentDraft('');
+      onRefresh();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const images = property.images || [];
 
   return (
@@ -301,7 +360,7 @@ function PropertyPost({ property }: { property: any }) {
             {(property.author_name || property.author || 'A')[0]}
           </div>
         </Link>
-        <div>
+        <div style={{ flex: 1 }}>
           <Link href={`/@${property.author_username || property.author}`} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>{property.author_name || property.author}</div>
           </Link>
@@ -309,15 +368,15 @@ function PropertyPost({ property }: { property: any }) {
         </div>
       </div>
 
-      {/* Caption Area - Moved to top as per user request */}
       <div style={{ padding: '0 16px 12px', fontSize: '0.975rem', lineHeight: '1.4' }}>
         <span style={{ fontWeight: '600', color: 'var(--color-gold)', marginRight: '6px' }}>{property.price}</span>
-        <span>{property.title}. {property.specs}</span>
+        <Link href={propertyUrl} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <span style={{ cursor: 'pointer' }}>{property.title}. {property.specs}</span>
+        </Link>
       </div>
 
       {/* Post Media Carousel Container */}
       <div style={{ position: 'relative', background: '#000' }}>
-        {/* Navigation Arrows */}
         {images.length > 1 && (
           <>
             {activeIndex > 0 && (
@@ -326,7 +385,7 @@ function PropertyPost({ property }: { property: any }) {
                 style={{
                   position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)',
                   background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%',
-                  width: '32px', height: '32px', cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', color: '#000'
+                  width: '32px', height: '32px', cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', color: '#000'
                 }}>‹</button>
             )}
             {activeIndex < images.length - 1 && (
@@ -335,7 +394,7 @@ function PropertyPost({ property }: { property: any }) {
                 style={{
                   position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
                   background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%',
-                  width: '32px', height: '32px', cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', color: '#000'
+                  width: '32px', height: '32px', cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', color: '#000'
                 }}>›</button>
             )}
           </>
@@ -351,113 +410,96 @@ function PropertyPost({ property }: { property: any }) {
             msOverflowStyle: 'none',
             scrollbarWidth: 'none'
           }}>
-          <style dangerouslySetInnerHTML={{
-            __html: `
-            div::-webkit-scrollbar { display: none; }
-          `}} />
+          <style dangerouslySetInnerHTML={{ __html: `div::-webkit-scrollbar { display: none; }` }} />
 
           {images.map((imgUrl: string, imgIndex: number) => (
-            <div key={imgIndex} style={{
-              minWidth: '100%',
-              scrollSnapAlign: 'start',
-              height: '400px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: '#f8fafc'
-            }}>
-              <img src={imgUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <div key={imgIndex} style={{ minWidth: '100%', scrollSnapAlign: 'start', height: '400px', background: '#f8fafc' }}>
+              <Link href={propertyUrl} style={{ display: 'block', width: '100%', height: '100%' }}>
+                <img src={imgUrl} style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'pointer' }} />
+              </Link>
             </div>
           ))}
-          {images.length === 0 && (
-            <div style={{ minWidth: '100%', height: '400px', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
-              No Images Available
-            </div>
-          )}
         </div>
-
-        {/* Indicators Panel */}
-        {images.length > 1 && (
-          <div style={{
-            position: 'absolute',
-            bottom: '16px',
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '6px',
-            pointerEvents: 'none'
-          }}>
-            {images.map((_: any, i: number) => (
-              <div key={i} style={{
-                width: '6px',
-                height: '6px',
-                borderRadius: '50%',
-                background: i === activeIndex ? 'white' : 'rgba(255,255,255,0.4)',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.3)',
-                transition: 'all 0.2s',
-                transform: i === activeIndex ? 'scale(1.2)' : 'scale(1)'
-              }} />
-            ))}
-          </div>
-        )}
-
-        {/* Status Count Tag */}
-        {images.length > 1 && (
-          <div style={{
-            position: 'absolute', top: '16px', right: '16px',
-            background: 'rgba(0, 0, 0, 0.6)', color: 'white',
-            padding: '4px 10px', borderRadius: '12px',
-            fontSize: '0.7rem', fontWeight: '700', zIndex: '5'
-          }}>
-            {activeIndex + 1} / {images.length}
-          </div>
-        )}
       </div>
 
       {/* Post Feed Actions */}
-      <div style={{ padding: '12px 16px' }}>
-        {/* Social Counts Row */}
-
-        {/* Action Buttons Row */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '4px' }}>
-          <ActionButton icon="👍" label="Like" count={property.likes} />
-          <ActionButton icon="💬" label="Comment" />
-          <ActionButton icon="↗️" label="Share" count="12" />
-          <ActionButton icon="📞" label="Contact" highlight />
-          <ActionButton icon="🤝" label="Offer" highlight />
+      <div style={{ padding: '8px 16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: showComments || comments.length > 0 ? '1px solid #f1f5f9' : 'none', paddingBottom: '8px' }}>
+          <ActionButton
+            icon={isLiked ? "❤️" : "🤍"}
+            label="Like"
+            count={likeCount}
+            active={isLiked}
+            onClick={handleLike}
+          />
+          <ActionButton
+            icon="💬"
+            label="Comment"
+            count={comments.length}
+            onClick={() => setShowComments(!showComments)}
+          />
+          <ActionButton
+            icon="↗️"
+            label="Share"
+            onClick={handleShare}
+          />
         </div>
 
+        {/* Comment Section */}
+        {(showComments || comments.length > 0) && (
+          <div style={{ marginTop: '12px' }}>
+            {comments.map((c: any) => (
+              <div key={c.id} style={{ display: 'flex', gap: '8px', marginBottom: '12px', fontSize: '0.85rem' }}>
+                <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '0.6rem', flexShrink: 0 }}>
+                  {(c.user?.name || 'U')[0]}
+                </div>
+                <div>
+                  <span style={{ fontWeight: '700', marginRight: '6px' }}>{c.user?.name || 'User'}</span>
+                  <span>{c.content}</span>
+                </div>
+              </div>
+            ))}
+
+            {user && (
+              <form onSubmit={handleAddComment} style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                <input
+                  type="text"
+                  value={commentDraft}
+                  onChange={(e) => setCommentDraft(e.target.value)}
+                  placeholder="Write a comment..."
+                  style={{ flex: 1, padding: '8px 12px', borderRadius: '20px', border: '1px solid #e2e8f0', fontSize: '0.85rem', outline: 'none' }}
+                />
+                <button type="submit" style={{ background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '12px', padding: '0 12px', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer' }}>
+                  Post
+                </button>
+              </form>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function ActionButton({ icon, label, count, highlight = false }: { icon: string, label: string, count?: string | number, highlight?: boolean }) {
+function ActionButton({ icon, label, count, active = false, onClick }: { icon: string, label: string, count?: number, active?: boolean, onClick?: () => void }) {
   return (
-    <button style={{
+    <button onClick={onClick} style={{
       display: 'flex',
       alignItems: 'center',
       gap: '6px',
-      background: highlight ? 'var(--color-surface)' : 'transparent',
+      background: 'transparent',
       border: 'none',
-      padding: '8px 4px',
+      padding: '8px 12px',
       borderRadius: '4px',
       cursor: 'pointer',
-      color: highlight ? 'var(--color-primary)' : '#64748b',
+      color: active ? '#ef4444' : '#64748b',
       fontSize: '0.9rem',
       fontWeight: '600',
-      flex: 1,
-      justifyContent: 'center',
       transition: 'background 0.2s',
-      whiteSpace: 'nowrap'
-    }}
-      onMouseOver={(e) => e.currentTarget.style.background = highlight ? '#e2e8f0' : '#f1f5f9'}
-      onMouseOut={(e) => e.currentTarget.style.background = highlight ? 'var(--color-surface)' : 'transparent'}
-    >
-      <span style={{ fontSize: '1.1rem' }}>{icon}</span>
-      <span style={{ display: 'none', '@media (min-width: 400px)': { display: 'inline' } } as any}>{label} {count && `(${count})`}</span>
-      {/* Mobile-hack inline style not working perfectly with media queries in inline styles. Using simple display for now. */}
-      <span>{label} {count && <span style={{ marginLeft: '4px', opacity: 0.8 }}>{count}</span>}</span>
+    }} onMouseOver={(e) => e.currentTarget.style.background = '#f1f5f9'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+      <span style={{ fontSize: '1.2rem' }}>{icon}</span>
+      <span>{label} {count !== undefined && count > 0 ? count : ''}</span>
     </button>
   );
 }
+

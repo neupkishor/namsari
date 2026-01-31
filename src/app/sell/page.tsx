@@ -3,16 +3,85 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { createListing } from './actions/listing';
+import imageCompression from 'browser-image-compression';
 
 export default function SellPage() {
     const [category, setCategory] = useState('House');
     const [uploading, setUploading] = useState(false);
+    const [compressing, setCompressing] = useState(false);
     const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+    const [price, setPrice] = useState('');
+
+    const getPriceInWords = (priceStr: string) => {
+        const num = parseInt(priceStr.replace(/,/g, ''), 10);
+        if (isNaN(num) || num === 0) return '';
+
+        const units = [
+            { value: 10000000, label: 'Crore' },
+            { value: 100000, label: 'Laksh' },
+            { value: 1000, label: 'Thousands' },
+            { value: 100, label: 'Hundred' }
+        ];
+
+        let result = '';
+        let remaining = num;
+
+        for (const unit of units) {
+            if (remaining >= unit.value) {
+                const count = Math.floor(remaining / unit.value);
+                result += `${count} ${unit.label} `;
+                remaining %= unit.value;
+            }
+        }
+
+        if (remaining > 0 || result === '') {
+            const smallNumbers: { [key: number]: string } = {
+                1: 'One', 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five',
+                6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine', 10: 'Ten',
+                11: 'Eleven', 12: 'Twelve', 13: 'Thirteen', 14: 'Fourteen', 15: 'Fifteen',
+                16: 'Sixteen', 17: 'Seventeen', 18: 'Eighteen', 19: 'Nineteen', 20: 'Twenty',
+                30: 'Thirty', 40: 'Forty', 50: 'Fifty', 60: 'Sixty', 70: 'Seventy', 80: 'Eighty', 90: 'Ninety'
+            };
+
+            if (remaining <= 20) {
+                result += smallNumbers[remaining] || remaining;
+            } else {
+                const tens = Math.floor(remaining / 10) * 10;
+                const ones = remaining % 10;
+                result += smallNumbers[tens] || '';
+                if (ones > 0) result += ' ' + (smallNumbers[ones] || ones);
+            }
+        }
+
+        return result.trim().toLowerCase();
+    };
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files?.[0]) return;
 
-        const file = e.target.files[0];
+        const originalFile = e.target.files[0];
+        let file = originalFile;
+
+        // Client-side compression
+        setCompressing(true);
+        try {
+            const options = {
+                maxSizeMB: 1,
+                maxWidthOrHeight: 1920,
+                useWebWorker: true,
+            };
+            const compressedBlob = await imageCompression(originalFile, options);
+            // Re-wrap in File to preserve the original name/extension
+            file = new File([compressedBlob], originalFile.name, {
+                type: compressedBlob.type,
+                lastModified: Date.now()
+            });
+        } catch (error) {
+            console.error("Compression error:", error);
+        } finally {
+            setCompressing(false);
+        }
+
         const formData = new FormData();
         formData.append('file', file);
         formData.append('platform', 'namsari');
@@ -119,10 +188,23 @@ export default function SellPage() {
                             <input
                                 type="text"
                                 name="price"
-                                placeholder="e.g. $2,500,000"
+                                placeholder="e.g. 2500000"
+                                value={price}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    // Allow only numbers and one decimal point
+                                    if (/^\d*\.?\d*$/.test(val)) {
+                                        setPrice(val);
+                                    }
+                                }}
                                 style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
                                 required
                             />
+                            {price && (
+                                <div style={{ marginTop: '4px', fontSize: '0.85rem', color: 'var(--color-primary)', fontWeight: '600', textTransform: 'capitalize' }}>
+                                    {getPriceInWords(price)}
+                                </div>
+                            )}
                         </div>
                         <div className="form-group">
                             <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>Location</label>
@@ -174,7 +256,7 @@ export default function SellPage() {
                                     <label htmlFor="file-upload" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
                                         <div style={{ fontSize: '2rem' }}>📷</div>
                                         <span style={{ color: 'var(--color-primary)', fontWeight: '600' }}>
-                                            {uploading ? 'Uploading...' : 'Click to upload image'}
+                                            {compressing ? 'Compressing...' : uploading ? 'Uploading...' : 'Click to upload image'}
                                         </span>
                                         <span style={{ fontSize: '0.8rem', color: '#64748b' }}>JPG, PNG, WEBP allowed</span>
                                     </label>

@@ -47,6 +47,7 @@ export default async function ProfilePage({ params }: PageProps) {
     // Enriched properties for the view (similar to API logic)
     const enrichedProperties = properties.map((p) => ({
         ...p,
+        price: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Number(p.price)),
         images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images,
         property_types: typeof p.property_types === 'string' ? JSON.parse(p.property_types) : p.property_types,
         purposes: typeof p.purposes === 'string' ? JSON.parse(p.purposes) : p.purposes,
