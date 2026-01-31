@@ -170,18 +170,6 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
 
 
 
-            <FormCard padding="0" background="transparent" border="none" style={{ marginBottom: '40px' }}>
-                <SectionTitle color="#92400e">Open House</SectionTitle>
-                <div style={{ marginBottom: '16px' }}>
-                    <Checkbox label="Mark as Open House" name="markOpenHouse" />
-                </div>
-                <FormGrid cols={3} gap="16px">
-                    <Input label="Date" name="openHouse_date" type="date" />
-                    <Input label="Start Time" name="openHouse_start" type="time" />
-                    <Input label="End Time" name="openHouse_end" type="time" />
-                </FormGrid>
-            </FormCard>
-
             <div style={{ marginBottom: '40px' }}>
                 <FormLabel>Property Media</FormLabel>
                 <FormGrid minWidth="130px" gap="16px">
