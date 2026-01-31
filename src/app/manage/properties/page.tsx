@@ -3,20 +3,43 @@ import prisma from '@/lib/prisma';
 import Link from 'next/link';
 
 export default async function ManagePropertiesPage() {
-    // Fetch properties and join with users to get author details
+    // Fetch properties and join with relations for full details
     const properties = await prisma.property.findMany({
-        include: { user: true },
+        include: {
+            listedBy: true,
+            pricing: true,
+            location: true,
+            images: true,
+            types: true
+        },
         orderBy: { created_on: 'desc' }
     });
 
     const enrichedProperties = properties.map((p) => {
+        const priceValue = p.pricing?.price || 0;
+        const formattedPrice = new Intl.NumberFormat('en-NP', {
+            style: 'currency',
+            currency: 'NPR',
+            maximumFractionDigits: 0
+        }).format(Number(priceValue)).replace('NPR', 'NRs.');
+
+        const locationStr = p.location
+            ? `${p.location.area}, ${p.location.district}`
+            : 'Unspecified';
+
+        const mainCategory = p.types && p.types.length > 0
+            ? p.types[0].name.charAt(0).toUpperCase() + p.types[0].name.slice(1)
+            : 'Other';
+
         return {
             ...p,
-            price: new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(Number(p.price)).replace('NPR', 'NRs.'),
-            author_name: p.user ? p.user.name : (p.author || 'Unknown'),
-            author_username: p.user ? p.user.username : null,
-            // Parse JSON fields if they are strings (SQLite storage)
-            images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images,
+            price: formattedPrice,
+            location: locationStr,
+            author_name: p.listedBy?.name || 'Unknown',
+            author_username: p.listedBy?.username || '',
+            main_category: mainCategory,
+            // Images overwrites the relation with a simple array of URLs for the UI
+            images: p.images.map(img => img.url),
         };
     });
 
