@@ -16,6 +16,7 @@ export async function GET(request: Request) {
                 pricing: true,
                 images: true,
                 types: true,
+                features: true,
                 comments: {
                     include: { user: true },
                     orderBy: { created_at: 'asc' }
@@ -56,12 +57,17 @@ export async function GET(request: Request) {
                 ? `${p.location.area}, ${p.location.district}`
                 : 'Unspecified';
 
+            const specs = p.features
+                ? `${p.features.bedrooms || 0}BHK • ${p.features.bathrooms || 0} Bath • ${p.features.builtUpArea || 0} ${p.features.builtUpAreaUnit || ''}`
+                : 'Details unspecified';
+
             return {
                 ...p,
                 price: formattedPrice,
                 location: locationStr,
                 images: p.images.map(img => img.url),
                 property_types: p.types.map(t => t.name),
+                specs: specs,
                 // Enrich with author details
                 author_username: authorUser ? authorUser.username : null,
                 author_name: authorUser ? authorUser.name : 'Unknown',

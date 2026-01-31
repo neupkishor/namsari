@@ -19,7 +19,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     const property = await prisma.property.findUnique({
         where: { id },
         include: {
-            user: true,
+            listedBy: true,
+            pricing: true,
+            location: true,
+            images: true,
+            types: true,
+            features: true,
             comments: {
                 include: { user: true },
                 orderBy: { created_at: 'desc' }
@@ -31,8 +36,20 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     if (!property) return notFound();
 
     const session = await getSession();
-    const images = typeof property.images === 'string' ? JSON.parse(property.images) : (property.images || []);
+    const images = property.images.map(img => img.url);
+    const locationStr = property.location
+        ? `${property.location.area}, ${property.location.district}`
+        : 'Unspecified';
+    const priceValue = property.pricing?.price || 0;
     const isLiked = session && property.property_likes.some(l => l.user_id === Number(session.id));
+
+    const specs = property.features
+        ? `${property.features.bedrooms || 0}BHK • ${property.features.bathrooms || 0} Bath • ${property.features.builtUpArea || 0} ${property.features.builtUpAreaUnit || ''}`
+        : 'Details unspecified';
+
+    const mainCategory = property.types && property.types.length > 0
+        ? property.types[0].name.charAt(0).toUpperCase() + property.types[0].name.slice(1)
+        : 'Property';
 
     return (
         <main style={{ backgroundColor: '#f8fafc', minHeight: '100vh', paddingBottom: '100px' }}>
@@ -77,26 +94,23 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                                 <div>
                                     <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: '700' }}>Price</div>
                                     <div style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--color-primary)' }}>
-                                        {new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(property.price).replace('NPR', 'NRs.')}
+                                        {new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(priceValue).replace('NPR', 'NRs.')}
                                     </div>
                                 </div>
                                 <div style={{ width: '1px', background: '#e2e8f0' }} />
                                 <div>
                                     <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: '700' }}>Location</div>
-                                    <div style={{ fontSize: '1.25rem', fontWeight: '600' }}>{property.location}</div>
+                                    <div style={{ fontSize: '1.25rem', fontWeight: '600' }}>{locationStr}</div>
                                 </div>
                             </div>
 
                             <h3 style={{ marginBottom: '12px', fontWeight: '700' }}>Specifications</h3>
-                            <p style={{ fontSize: '1.1rem', lineHeight: '1.6', color: '#475569', whiteSpace: 'pre-wrap' }}>{property.specs}</p>
+                            <p style={{ fontSize: '1.1rem', lineHeight: '1.6', color: '#475569', whiteSpace: 'pre-wrap' }}>{specs}</p>
 
                             <div style={{ marginTop: '40px', paddingTop: '32px', borderTop: '1px solid #f1f5f9' }}>
                                 <h3 style={{ marginBottom: '20px', fontWeight: '700' }}>Property Category</h3>
                                 <div style={{ display: 'flex', gap: '8px' }}>
-                                    <span style={{ padding: '6px 16px', background: '#e2e8f0', borderRadius: '20px', fontSize: '0.9rem' }}>{property.main_category}</span>
-                                    {property.commercial_sub_category && (
-                                        <span style={{ padding: '6px 16px', background: '#e2e8f0', borderRadius: '20px', fontSize: '0.9rem' }}>{property.commercial_sub_category}</span>
-                                    )}
+                                    <span style={{ padding: '6px 16px', background: '#e2e8f0', borderRadius: '20px', fontSize: '0.9rem' }}>{mainCategory}</span>
                                 </div>
                             </div>
                         </div>
@@ -107,12 +121,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         <div className="card" style={{ padding: '24px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
                                 <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '1.5rem', fontWeight: 'bold' }}>
-                                    {(property.user?.name || property.author || 'A')[0]}
+                                    {(property.listedBy?.name || 'A')[0]}
                                 </div>
                                 <div>
                                     <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '600' }}>Listed By</div>
-                                    <div style={{ fontSize: '1.1rem', fontWeight: '700' }}>{property.user?.name || property.author}</div>
-                                    <Link href={`/@${property.user?.username}`} style={{ fontSize: '0.85rem', color: 'var(--color-primary)', textDecoration: 'none' }}>View Profile</Link>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: '700' }}>{property.listedBy?.name || 'Unknown'}</div>
+                                    <Link href={`/@${property.listedBy?.username}`} style={{ fontSize: '0.85rem', color: 'var(--color-primary)', textDecoration: 'none' }}>View Profile</Link>
                                 </div>
                             </div>
 
@@ -139,30 +153,28 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                             </div>
                         </div>
 
-                        {(property.google_maps_url || (property.latitude && property.longitude)) && (
+                        {(property.location?.latitude && property.location?.longitude) && (
                             <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
                                 <div style={{ padding: '24px 24px 12px' }}>
                                     <h4 style={{ marginBottom: '4px', fontWeight: '700' }}>Location</h4>
-                                    <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '16px' }}>{property.location}</p>
+                                    <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '16px' }}>{locationStr}</p>
                                 </div>
 
-                                {property.latitude && property.longitude && (
-                                    <PropertyMap
-                                        property={{
-                                            id: property.id,
-                                            title: property.title,
-                                            price: property.price,
-                                            latitude: property.latitude,
-                                            longitude: property.longitude,
-                                            location: property.location
-                                        }}
-                                        images={images}
-                                    />
-                                )}
+                                <PropertyMap
+                                    property={{
+                                        id: property.id,
+                                        title: property.title,
+                                        price: priceValue,
+                                        latitude: property.location.latitude,
+                                        longitude: property.location.longitude,
+                                        location: locationStr
+                                    }}
+                                    images={images}
+                                />
 
                                 <div style={{ padding: '16px 24px 24px' }}>
                                     <a
-                                        href={property.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${property.latitude},${property.longitude}`}
+                                        href={`https://www.google.com/maps/search/?api=1&query=${property.location.latitude},${property.location.longitude}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         style={{

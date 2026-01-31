@@ -40,24 +40,55 @@ export default async function ProfilePage({ params }: PageProps) {
         );
     }
 
-    // Fetch user's properties
+    // Fetch user's properties with relations
     const properties = await prisma.property.findMany({
-        where: { listed_by: user.id },
+        where: { listedById: user.id },
         orderBy: { created_on: 'desc' },
-        include: { user: true }
+        include: {
+            listedBy: true,
+            pricing: true,
+            location: true,
+            images: true,
+            types: true,
+            features: true,
+            property_likes: true
+        }
     });
 
-    // Enriched properties for the view (similar to API logic)
-    const enrichedProperties = properties.map((p) => ({
-        ...p,
-        price: new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(Number(p.price)).replace('NPR', 'NRs.'),
-        images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images,
-        property_types: typeof p.property_types === 'string' ? JSON.parse(p.property_types) : p.property_types,
-        purposes: typeof p.purposes === 'string' ? JSON.parse(p.purposes) : p.purposes,
-        author_username: user.username,
-        author_name: user.name,
-        author_avatar: (user.name || 'U')[0]
-    }));
+    // Enriched properties for the view
+    const enrichedProperties = properties.map((p) => {
+        const priceValue = p.pricing?.price || 0;
+        const formattedPrice = new Intl.NumberFormat('en-NP', {
+            style: 'currency',
+            currency: 'NPR',
+            maximumFractionDigits: 0
+        }).format(Number(priceValue)).replace('NPR', 'NRs.');
+
+        const locationStr = p.location
+            ? `${p.location.area}, ${p.location.district}`
+            : 'Unspecified';
+
+        const mainCategory = p.types && p.types.length > 0
+            ? p.types[0].name.charAt(0).toUpperCase() + p.types[0].name.slice(1)
+            : 'Other';
+
+        const specs = p.features
+            ? `${p.features.bedrooms || 0}BHK • ${p.features.bathrooms || 0} Bath • ${p.features.builtUpArea || 0} ${p.features.builtUpAreaUnit || ''}`
+            : 'Details unspecified';
+
+        return {
+            ...p,
+            price: formattedPrice,
+            location: locationStr,
+            images: p.images.map(img => img.url),
+            main_category: mainCategory,
+            specs: specs,
+            likes_count: p.property_likes?.length || 0,
+            author_username: user.username,
+            author_name: user.name,
+            author_avatar: (user.name || 'U')[0]
+        };
+    });
 
     return (
         <main style={{ backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
@@ -200,10 +231,10 @@ export default async function ProfilePage({ params }: PageProps) {
                                 <div style={{ padding: '0 20px 16px' }}>
                                     <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
                                         <span style={{ padding: '4px 10px', background: '#f1f5f9', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '700', color: '#475569' }}>{p.main_category}</span>
-                                        {p.is_featured && <span style={{ padding: '4px 10px', background: '#fef3c7', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '700', color: '#d97706' }}>FEATURED</span>}
+                                        {p.isFeatured && <span style={{ padding: '4px 10px', background: '#fef3c7', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '700', color: '#d97706' }}>FEATURED</span>}
                                     </div>
                                     <h4 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '6px', color: '#1e293b' }}>{p.title}</h4>
-                                    <p style={{ fontSize: '0.95rem', color: '#475569', lineHeight: '1.5', margin: '0' }}>{p.specs.length > 150 ? p.specs.substring(0, 150) + '...' : p.specs}</p>
+                                    <p style={{ fontSize: '0.95rem', color: '#475569', lineHeight: '1.5', margin: '0' }}>{p.specs}</p>
                                 </div>
 
                                 <div style={{ height: '480px', background: '#f8fafc', position: 'relative', overflow: 'hidden' }}>
@@ -220,7 +251,7 @@ export default async function ProfilePage({ params }: PageProps) {
                                 <div style={{ padding: '16px 20px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
                                         <button style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#64748b', fontWeight: '600', transition: 'background 0.2s', borderRadius: '8px' }}>
-                                            <span>👍</span> Like {p.likes > 0 && p.likes}
+                                            <span>👍</span> Like {p.likes_count > 0 && p.likes_count}
                                         </button>
                                         <button style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#64748b', fontWeight: '600', transition: 'background 0.2s', borderRadius: '8px' }}>
                                             <span>💬</span> Comment

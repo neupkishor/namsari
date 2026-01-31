@@ -52,7 +52,7 @@ export default function FeaturedManagementClient({ properties }: { properties: a
                                     </div>
                                 </td>
                                 <td style={{ padding: '16px 24px' }}>
-                                    {p.is_featured ? (
+                                    {p.isFeatured ? (
                                         <span style={{ background: '#ecfdf5', color: '#059669', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '700' }}>
                                             Featured
                                         </span>
@@ -70,14 +70,14 @@ export default function FeaturedManagementClient({ properties }: { properties: a
                                             padding: '8px 16px',
                                             borderRadius: '6px',
                                             border: 'none',
-                                            background: p.is_featured ? '#fee2e2' : 'var(--color-primary)',
-                                            color: p.is_featured ? '#ef4444' : 'white',
+                                            background: p.isFeatured ? '#fee2e2' : 'var(--color-primary)',
+                                            color: p.isFeatured ? '#ef4444' : 'white',
                                             fontWeight: '600',
                                             cursor: 'pointer',
                                             opacity: loadingId === p.id ? 0.5 : 1
                                         }}
                                     >
-                                        {loadingId === p.id ? 'Updating...' : p.is_featured ? 'Remove Featured' : 'Mark as Featured'}
+                                        {loadingId === p.id ? 'Updating...' : p.isFeatured ? 'Remove Featured' : 'Mark as Featured'}
                                     </button>
                                 </td>
                             </tr>

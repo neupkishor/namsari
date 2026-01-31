@@ -109,7 +109,7 @@ const featuredProjects = [
 ];
 
 export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) => {
-    const displayProjects = properties.length > 0 ? properties.filter(p => p.is_featured) : [];
+    const displayProjects = properties.length > 0 ? properties.filter(p => p.isFeatured) : [];
 
     // If no real featured projects, show fallback or just the ones we have
     const finalProjects = displayProjects.length > 0 ? displayProjects : [];

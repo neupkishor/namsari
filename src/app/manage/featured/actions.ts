@@ -10,14 +10,14 @@ export async function toggleFeatured(propertyId: number) {
 
     if (!property) throw new Error('Property not found');
 
-    const newStatus = !property.is_featured;
+    const newStatus = !property.isFeatured;
 
     // Use a transaction to ensure database consistency
     await prisma.$transaction(async (tx) => {
         // 1. Update the property status
         await tx.property.update({
             where: { id: propertyId },
-            data: { is_featured: newStatus }
+            data: { isFeatured: newStatus }
         });
 
         if (newStatus) {
