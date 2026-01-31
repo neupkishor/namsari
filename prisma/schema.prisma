@@ -259,3 +259,27 @@ model Like {
 
   @@unique([property_id, user_id])
 }
+
+model Agency {
+  id              Int      @id @default(autoincrement())
+  name            String
+  username        String   @unique
+  profile_picture String?
+  email           String?
+  phone           String?
+  bio             String?
+  website         String?
+  
+  // Social Medias
+  facebook        String?
+  instagram       String?
+  twitter         String?
+  linkedin        String?
+  
+  // Status
+  is_verified     Boolean  @default(false)
+  
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+}
+

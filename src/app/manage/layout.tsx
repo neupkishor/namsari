@@ -30,6 +30,7 @@ export default function ManageLayout({ children }: { children: React.ReactNode }
                             <Link href="/manage/properties" className="sidebar-link">Properties</Link>
                             <Link href="/manage/featured" className="sidebar-link">Featured</Link>
                             <Link href="/manage/users" className="sidebar-link">User Management</Link>
+                            <Link href="/manage/agencies" className="sidebar-link">Agencies</Link>
                             <a href="#" className="sidebar-link">Financials</a>
                             <div style={{ margin: '20px 24px 8px', fontSize: '0.75rem', fontWeight: '700', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                 Settings
