@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { createListing } from './actions/listing';
 import imageCompression from 'browser-image-compression';
+import { Input, TextArea, Select } from '@/components/ui';
 
 export default function SellPage() {
     const [category, setCategory] = useState('House');
@@ -174,105 +175,90 @@ export default function SellPage() {
                 <form action={createListing} className="card" style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                        <div className="form-group">
-                            <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>Main Category</label>
-                            <select
-                                name="main_category"
-                                value={category}
-                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value)}
-                                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white' }}
-                                required
-                            >
-                                <option value="House">House</option>
-                                <option value="Land">Land</option>
-                                <option value="Apartment">Apartment</option>
-                                <option value="Building">Building (Complex, Hospital, etc.)</option>
-                            </select>
-                        </div>
-
-                        <div className="form-group">
-                            <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>Sub-Category (Optional)</label>
-                            <select name="commercial_sub_category" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white' }}>
-                                <option value="">Select Sub-type</option>
-                                {category === 'Land' && (
-                                    <>
-                                        <option value="Agriculture">Agriculture/Farm Land</option>
-                                        <option value="Factory">Factory Land</option>
-                                    </>
-                                )}
-                                {category === 'Building' && (
-                                    <>
-                                        <option value="Office">Office Space</option>
-                                        <option value="Rental">Rental Building</option>
-                                        <option value="Complex">Complex</option>
-                                        <option value="Hospital">Hospital</option>
-                                        <option value="Hotel">Hotel</option>
-                                    </>
-                                )}
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className="form-group">
-                        <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>Property Title</label>
-                        <input
-                            type="text"
-                            name="title"
-                            placeholder="e.g. The Sterling Penthouse"
-                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                        <Select
+                            label="Main Category"
+                            name="main_category"
+                            value={category}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value)}
                             required
+                            options={[
+                                { label: 'House', value: 'House' },
+                                { label: 'Land', value: 'Land' },
+                                { label: 'Apartment', value: 'Apartment' },
+                                { label: 'Building (Complex, Hospital, etc.)', value: 'Building' },
+                            ]}
+                        />
+
+                        <Select
+                            label="Sub-Category (Optional)"
+                            name="commercial_sub_category"
+                            placeholder="Select Sub-type"
+                            options={[
+                                ...(category === 'Land' ? [
+                                    { label: 'Agriculture/Farm Land', value: 'Agriculture' },
+                                    { label: 'Factory Land', value: 'Factory' },
+                                ] : []),
+                                ...(category === 'Building' ? [
+                                    { label: 'Office Space', value: 'Office' },
+                                    { label: 'Rental Building', value: 'Rental' },
+                                    { label: 'Complex', value: 'Complex' },
+                                    { label: 'Hospital', value: 'Hospital' },
+                                    { label: 'Hotel', value: 'Hotel' },
+                                ] : []),
+                                { label: 'Other', value: 'Other' },
+                            ]}
                         />
                     </div>
 
+                    <Input
+                        label="Property Title"
+                        type="text"
+                        name="title"
+                        placeholder="e.g. The Sterling Penthouse"
+                        required
+                    />
+
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                        <div className="form-group">
-                            <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>Price</label>
-                            <input
+                        <div>
+                            <Input
+                                label="Price"
                                 type="text"
                                 name="price"
                                 placeholder="e.g. 2500000"
                                 value={price}
                                 onChange={(e) => {
                                     const val = e.target.value;
-                                    // Allow only numbers and one decimal point
                                     if (/^\d*\.?\d*$/.test(val)) {
                                         setPrice(val);
                                     }
                                 }}
-                                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
                                 required
                             />
                             {price && (
-                                <div style={{ marginTop: '4px', fontSize: '0.85rem', color: 'var(--color-primary)', fontWeight: '600', textTransform: 'capitalize' }}>
+                                <div style={{ marginTop: '-8px', marginBottom: '12px', fontSize: '0.85rem', color: 'var(--color-primary)', fontWeight: '600', textTransform: 'capitalize' }}>
                                     {getPriceInWords(price)}
                                 </div>
                             )}
                         </div>
                     </div>
-                    <div className="form-group">
-                        <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>Location Name</label>
-                        <input
-                            type="text"
-                            name="location"
-                            placeholder="e.g. Manhattan, NY"
-                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-                            required
-                        />
-                    </div>
+
+                    <Input
+                        label="Location Name"
+                        type="text"
+                        name="location"
+                        placeholder="e.g. Manhattan, NY"
+                        required
+                    />
 
                     <div style={{ padding: '24px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                        <div className="form-group" style={{ marginBottom: '12px' }}>
-                            <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>Paste Google Maps location, or paste Geo location</label>
-                            <input
-                                type="text"
-                                name="google_maps_url"
-                                value={locationSource}
-                                onChange={(e) => handleLocationSourceChange(e.target.value)}
-                                placeholder="Link or Coordinates (e.g. 27.7, 85.3)..."
-                                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.95rem' }}
-                            />
-                        </div>
+                        <Input
+                            label="Paste Google Maps location, or paste Geo location"
+                            type="text"
+                            name="google_maps_url"
+                            value={locationSource}
+                            onChange={(e) => handleLocationSourceChange(e.target.value)}
+                            placeholder="Link or Coordinates (e.g. 27.7, 85.3)..."
+                        />
 
                         <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                             <button
@@ -303,16 +289,13 @@ export default function SellPage() {
                         <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '12px' }}>Properties with coordinates appear on the interactive Explore map.</p>
                     </div>
 
-                    <div className="form-group">
-                        <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>Specifications & Description</label>
-                        <textarea
-                            name="specs"
-                            rows={4}
-                            placeholder="e.g. 4 Beds • 5 Baths • 4500 Sqft"
-                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', resize: 'none' }}
-                            required
-                        ></textarea>
-                    </div>
+                    <TextArea
+                        label="Specifications & Description"
+                        name="specs"
+                        rows={4}
+                        placeholder="e.g. 4 Beds • 5 Baths • 4500 Sqft"
+                        required
+                    />
 
                     <div className="form-group">
                         <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>Property Image</label>

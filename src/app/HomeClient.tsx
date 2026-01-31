@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { logoutAction } from './actions/auth';
 import { toggleLike, addComment } from './actions/social';
+import { Input } from '@/components/ui';
 
 export default function Home({ user }: { user: any }) {
   const [viewType, setViewType] = useState('card');
@@ -569,15 +570,16 @@ function PropertyPost({ property, user, onRefresh, onVisible }: { property: any,
             ))}
 
             {user && (
-              <form onSubmit={handleAddComment} style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-                <input
-                  type="text"
-                  value={commentDraft}
-                  onChange={(e) => setCommentDraft(e.target.value)}
-                  placeholder="Write a comment..."
-                  style={{ flex: 1, padding: '8px 12px', borderRadius: '20px', border: '1px solid #e2e8f0', fontSize: '0.85rem', outline: 'none' }}
-                />
-                <button type="submit" style={{ background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '12px', padding: '0 12px', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer' }}>
+              <form onSubmit={handleAddComment} style={{ display: 'flex', gap: '8px', marginTop: '12px', alignItems: 'flex-start' }}>
+                <div style={{ flex: 1 }}>
+                  <Input
+                    type="text"
+                    value={commentDraft}
+                    onChange={(e) => setCommentDraft(e.target.value)}
+                    placeholder="Write a comment..."
+                  />
+                </div>
+                <button type="submit" style={{ background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '12px', padding: '12px 20px', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer', marginTop: '1px' }}>
                   Post
                 </button>
               </form>

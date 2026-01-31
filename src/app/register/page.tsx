@@ -5,6 +5,7 @@ import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
 import prisma from '@/lib/prisma';
+import { Input, Select } from '@/components/ui';
 
 export default async function RegisterPage() {
     const session = await getSession();
@@ -30,52 +31,41 @@ export default async function RegisterPage() {
                     <p style={{ color: '#64748b', marginTop: '8px' }}>Join the premier real estate network.</p>
                 </div>
 
-                <form action={registerAction} className="card" style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    <div className="form-group">
-                        <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.85rem' }}>Username</label>
-                        <input
-                            name="username"
-                            type="text"
-                            placeholder="Pick a unique handle"
-                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-                            required
-                        />
-                    </div>
+                <form action={registerAction} className="card" style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <Input
+                        label="Username"
+                        name="username"
+                        type="text"
+                        placeholder="Pick a unique handle"
+                        required
+                    />
 
-                    <div className="form-group">
-                        <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.85rem' }}>Full Name</label>
-                        <input
-                            name="name"
-                            type="text"
-                            placeholder="Enter your name"
-                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-                            required
-                        />
-                    </div>
+                    <Input
+                        label="Full Name"
+                        name="name"
+                        type="text"
+                        placeholder="Enter your name"
+                        required
+                    />
 
-                    <div className="form-group">
-                        <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.85rem' }}>Contact Number</label>
-                        <input
-                            name="contact_number"
-                            type="text"
-                            placeholder="+1 (555) 000-0000"
-                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-                            required
-                        />
-                    </div>
+                    <Input
+                        label="Contact Number"
+                        name="contact_number"
+                        type="text"
+                        placeholder="+1 (555) 000-0000"
+                        required
+                    />
 
-                    <div className="form-group">
-                        <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.85rem' }}>Account Type</label>
-                        <select
-                            name="account_type"
-                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white' }}
-                            required
-                        >
-                            <option value="owner">Property Owner</option>
-                            <option value="agent">Professional Agent</option>
-                            <option value="agency">Real Estate Agency</option>
-                        </select>
-                    </div>
+                    <Select
+                        label="Account Type"
+                        name="account_type"
+                        required
+                        options={[
+                            { label: 'Property Owner', value: 'owner' },
+                            { label: 'Professional Agent', value: 'agent' },
+                            { label: 'Real Estate Agency', value: 'agency' },
+                        ]}
+                    />
 
                     <button
                         type="submit"

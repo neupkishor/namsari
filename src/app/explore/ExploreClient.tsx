@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { Input } from '@/components/ui';
 
 // Dynamically import map to avoid SSR issues
 const MapComponent = dynamic(() => import('./MapComponent'), {
@@ -71,22 +72,12 @@ export default function ExploreClient({ initialUser }: { initialUser: any }) {
                         Namsari<span style={{ color: 'var(--color-gold)' }}>.</span>
                     </Link>
 
-                    <div style={{ flex: 1, position: 'relative', maxWidth: '600px' }}>
-                        <input
+                    <div style={{ flex: 1, maxWidth: '600px', paddingTop: '16px' }}>
+                        <Input
                             type="text"
                             placeholder="Search properties, locations..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            style={{
-                                width: '100%',
-                                padding: '12px 20px',
-                                borderRadius: '30px',
-                                border: '1px solid #e2e8f0',
-                                background: '#f8fafc',
-                                fontSize: '0.95rem',
-                                outline: 'none',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-                            }}
                         />
                     </div>
 

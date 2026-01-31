@@ -5,6 +5,7 @@ import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
 import prisma from '@/lib/prisma';
+import { Input } from '@/components/ui';
 
 export default async function LoginPage() {
     const session = await getSession();
@@ -34,17 +35,14 @@ export default async function LoginPage() {
                     <p style={{ color: '#64748b', marginTop: '8px' }}>Log in to manage your real estate assets.</p>
                 </div>
 
-                <form action={loginAction} className="card" style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    <div className="form-group">
-                        <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.85rem' }}>Username</label>
-                        <input
-                            name="username"
-                            type="text"
-                            placeholder="Enter your username"
-                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-                            required
-                        />
-                    </div>
+                <form action={loginAction} className="card" style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <Input
+                        label="Username"
+                        name="username"
+                        type="text"
+                        placeholder="Enter your username"
+                        required
+                    />
 
                     <button
                         type="submit"
