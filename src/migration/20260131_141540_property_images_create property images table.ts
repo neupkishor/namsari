@@ -3,6 +3,9 @@ import { TableMigrator } from '@neupgroup/mapper';
 export async function up() {
     const table = new TableMigrator('property_images');
 
+    //Define the connection.
+    table.useConnection('default');
+
     // Add columns
     table.addColumn('id').type('integer').isPrimary().autoIncrement();
     table.addColumn('property_id').type('integer').notNull(); // Foreign key to properties

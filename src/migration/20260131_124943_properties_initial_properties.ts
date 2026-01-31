@@ -3,6 +3,9 @@ import { TableMigrator } from '@neupgroup/mapper';
 export async function up() {
     const table = new TableMigrator('properties');
 
+    // Define the connection.
+    table.useConnection('default');
+
     table.addColumn('id').type('integer').isPrimary().autoIncrement();
     table.addColumn('author').type('string').notNull();
     table.addColumn('title').type('string').notNull();

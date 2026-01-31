@@ -4,6 +4,9 @@ export async function up() {
     // Create a new table migrator
     const table = new TableMigrator('users');
 
+    // Define the connection.
+    table.useConnection('default');
+
     // Add columns
     table.addColumn('id').type('integer').isPrimary().autoIncrement();
     table.addColumn('username').type('string').isUnique().notNull();

@@ -3,6 +3,9 @@ import { TableMigrator } from '@neupgroup/mapper';
 export async function up() {
     const table = new TableMigrator('properties');
 
+    // Define the connection.
+    table.useConnection('default');
+
     // Add column
     table.addColumn('created_on').type('string');
 

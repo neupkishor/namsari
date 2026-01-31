@@ -4,6 +4,9 @@ export async function up() {
     // Create a new table migrator
     const table = new TableMigrator('properties');
 
+    // Define the connection.
+    table.useConnection('default');
+
     // Add a new column
     table.addColumn('created_on').type('string');
 
