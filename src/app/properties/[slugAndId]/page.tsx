@@ -3,6 +3,7 @@ import Link from 'next/link';
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { getSession } from '@/lib/auth';
+import PropertyMap from './PropertyMap';
 
 export default async function PropertyDetailPage({ params }: { params: Promise<{ slugAndId: string }> }) {
     const resolvedParams = await params;
@@ -139,30 +140,51 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         </div>
 
                         {(property.google_maps_url || (property.latitude && property.longitude)) && (
-                            <div className="card" style={{ padding: '24px' }}>
-                                <h4 style={{ marginBottom: '12px', fontWeight: '700' }}>Location</h4>
-                                <a
-                                    href={property.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${property.latitude},${property.longitude}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '10px',
-                                        width: '100%',
-                                        padding: '12px',
-                                        background: '#f1f5f9',
-                                        color: '#0f172a',
-                                        borderRadius: '8px',
-                                        textDecoration: 'none',
-                                        fontWeight: '600',
-                                        fontSize: '0.9rem',
-                                        border: '1px solid #e2e8f0'
-                                    }}
-                                >
-                                    <span>📍</span> View on Google Maps
-                                </a>
+                            <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
+                                <div style={{ padding: '24px 24px 12px' }}>
+                                    <h4 style={{ marginBottom: '4px', fontWeight: '700' }}>Location</h4>
+                                    <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '16px' }}>{property.location}</p>
+                                </div>
+
+                                {property.latitude && property.longitude && (
+                                    <PropertyMap
+                                        property={{
+                                            id: property.id,
+                                            title: property.title,
+                                            price: property.price,
+                                            latitude: property.latitude,
+                                            longitude: property.longitude,
+                                            location: property.location
+                                        }}
+                                        images={images}
+                                    />
+                                )}
+
+                                <div style={{ padding: '16px 24px 24px' }}>
+                                    <a
+                                        href={property.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${property.latitude},${property.longitude}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '10px',
+                                            width: '100%',
+                                            padding: '12px',
+                                            background: '#f1f5f9',
+                                            color: '#0f172a',
+                                            borderRadius: '8px',
+                                            textDecoration: 'none',
+                                            fontWeight: '700',
+                                            fontSize: '0.9rem',
+                                            border: '1px solid #e2e8f0',
+                                            transition: 'background 0.2s'
+                                        }}
+                                    >
+                                        <span>📍</span> Open in Google Maps
+                                    </a>
+                                </div>
                             </div>
                         )}
                     </div>

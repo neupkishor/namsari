@@ -39,6 +39,7 @@ interface MapProps {
     zoom?: number;
     onMarkerClick?: (id: number) => void;
     selectedId?: number | null;
+    disablePopups?: boolean;
 }
 
 // Helper to auto-center map when properties change
@@ -50,7 +51,15 @@ function ChangeView({ center, zoom }: { center: [number, number]; zoom: number }
     return null;
 }
 
-export default function MapComponent({ properties, center = [27.7172, 85.324], userLocation, zoom = 13, onMarkerClick, selectedId }: MapProps) {
+export default function MapComponent({
+    properties,
+    center = [27.7172, 85.324],
+    userLocation,
+    zoom = 13,
+    onMarkerClick,
+    selectedId,
+    disablePopups = false
+}: MapProps) {
     return (
         <MapContainer
             center={center}
@@ -96,17 +105,29 @@ export default function MapComponent({ properties, center = [27.7172, 85.324], u
                             click: () => onMarkerClick?.(p.id)
                         }}
                     >
-                        <Popup>
-                            <div style={{ minWidth: '150px' }}>
-                                <img
-                                    src={p.images?.[0] || 'https://via.placeholder.com/150'}
-                                    style={{ width: '100%', borderRadius: '4px', marginBottom: '8px', height: '80px', objectFit: 'cover' }}
-                                />
-                                <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{p.price}</div>
-                                <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>{p.title}</div>
-                                <div style={{ fontSize: '11px', color: '#999' }}>{p.location}</div>
-                            </div>
-                        </Popup>
+                        {!disablePopups && (
+                            <Popup>
+                                <div style={{ minWidth: '180px', fontFamily: 'var(--font-outfit), sans-serif', padding: '4px' }}>
+                                    <img
+                                        src={p.images?.[0] || 'https://via.placeholder.com/150'}
+                                        style={{ width: '100%', borderRadius: '8px', marginBottom: '12px', height: '100px', objectFit: 'cover' }}
+                                    />
+                                    <div style={{ fontWeight: '800', fontSize: '1.1rem', color: 'var(--color-primary)', marginBottom: '4px' }}>{p.price}</div>
+                                    <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#1e293b', marginBottom: '4px', lineHeight: '1.2' }}>{p.title}</div>
+                                    <div style={{ fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <span>📍</span> {p.location}
+                                    </div>
+                                    <div style={{ marginTop: '12px', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
+                                        <a
+                                            href={`/properties/${p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`}
+                                            style={{ color: 'var(--color-gold)', textDecoration: 'none', fontWeight: '700', fontSize: '0.8rem' }}
+                                        >
+                                            View Details →
+                                        </a>
+                                    </div>
+                                </div>
+                            </Popup>
+                        )}
                     </Marker>
                 );
             })}
