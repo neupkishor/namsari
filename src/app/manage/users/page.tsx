@@ -1,10 +1,12 @@
 import React from 'react';
-import mapper from '@neupgroup/mapper';
+import prisma from '@/lib/prisma';
 import Link from 'next/link';
 
 export default async function ManageUsersPage() {
     // Fetch all users
-    const users = await mapper.use('users').get();
+    const users = await prisma.user.findMany({
+        orderBy: { name: 'asc' }
+    });
 
     return (
         <div>

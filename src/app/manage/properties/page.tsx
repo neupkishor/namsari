@@ -1,19 +1,19 @@
 import React from 'react';
-import mapper from '@neupgroup/mapper';
+import prisma from '@/lib/prisma';
 import Link from 'next/link';
 
 export default async function ManagePropertiesPage() {
     // Fetch properties and join with users to get author details
-    const properties = await mapper.use('properties').get();
-    const users = await mapper.use('users').get();
-    const userMap = new Map(users.map((u: any) => [u.id, u]));
+    const properties = await prisma.property.findMany({
+        include: { user: true },
+        orderBy: { created_on: 'desc' }
+    });
 
-    const enrichedProperties = properties.map((p: any) => {
-        const author = userMap.get(p.listed_by);
+    const enrichedProperties = properties.map((p) => {
         return {
             ...p,
-            author_name: author ? author.name : (p.author || 'Unknown'),
-            author_username: author ? author.username : null,
+            author_name: p.user ? p.user.name : (p.author || 'Unknown'),
+            author_username: p.user ? p.user.username : null,
             // Parse JSON fields if they are strings (SQLite storage)
             images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images,
         };

@@ -1,18 +1,31 @@
-import mapper from '@neupgroup/mapper';
+import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+
+import { Property, User } from '@/generated/prisma';
 
 export async function GET() {
     try {
-        // Fetch from SQLite via mapper
-        const dbProperties = await mapper.use('properties').get();
-
-        // Fetch all users to join manually (since mapper might not support joins yet or for simplicity)
-        const users = await mapper.use('users').get();
-        const userMap = new Map(users.map((u: any) => [u.id, u]));
+        const dbProperties = await prisma.property.findMany({
+            include: { user: true },
+            orderBy: { created_on: 'desc' }
+        });
 
         // Normalize data
-        const normalized = dbProperties.map((p: any) => {
-            const authorUser = userMap.get(p.listed_by);
+        const normalized = dbProperties.map((p: Property & { user: User }) => {
+            const authorUser = p.user;
+
+            // Basic relative time calculation
+            const now = new Date();
+            const diff = now.getTime() - p.created_on.getTime();
+            let timestamp = "Just now";
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            if (days > 0) timestamp = `${days}d ago`;
+            else if (hours > 0) timestamp = `${hours}h ago`;
+            else if (minutes > 0) timestamp = `${minutes}m ago`;
+
             return {
                 ...p,
                 images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images,
@@ -21,7 +34,8 @@ export async function GET() {
                 // Enrich with author details
                 author_username: authorUser ? authorUser.username : null,
                 author_name: authorUser ? authorUser.name : (p.author || 'Unknown'),
-                author_avatar: authorUser ? (authorUser.name || 'U')[0] : 'U'
+                author_avatar: authorUser ? (authorUser.name || 'U')[0] : 'U',
+                timestamp
             };
         });
 

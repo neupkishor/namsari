@@ -7,13 +7,10 @@
     "dev": "next dev -p 6267",
     "build": "next build",
     "start": "next start -p 6267",
-    "lint": "eslint",
-    "create-migration": "create-migration",
-    "create-connection": "create-connection",
-    "migrate": "migrate"
+    "lint": "eslint"
   },
   "dependencies": {
-    "@neupgroup/mapper": "^1.6.1",
+    "@prisma/client": "^5.22.0",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -25,6 +22,7 @@
     "@types/react-dom": "^19.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "prisma": "^5.22.0",
     "typescript": "^5.9.3"
   }
 }

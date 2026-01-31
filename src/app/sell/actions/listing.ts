@@ -1,50 +1,48 @@
 "use server";
 
-import mapper from '@neupgroup/mapper';
+import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 
 export async function createListing(formData: FormData) {
 
-    const title = formData.get('title');
-    const price = formData.get('price');
-    const location = formData.get('location');
-    const main_category = formData.get('main_category');
-    const commercial_sub_category = formData.get('commercial_sub_category');
-    const specs = formData.get('specs');
+    const title = formData.get('title') as string;
+    const price = formData.get('price') as string;
+    const location = formData.get('location') as string;
+    const main_category = formData.get('main_category') as string;
+    const commercial_sub_category = formData.get('commercial_sub_category') as string;
+    const specs = formData.get('specs') as string;
 
-    // Dummy data for now since we don't have auth yet
     const session = await getSession();
     if (!session || !session.id) {
         redirect('/login');
     }
 
-    const user = await mapper.use('users').where('id', session.id).getOne();
+    const userId = Number(session.id);
+    const user = await prisma.user.findUnique({ where: { id: userId } });
     const author = user ? user.name : "Unknown Agent";
-    const listed_by = session.id;
-    const likes = "0";
-    const timestamp = "Just now";
+
     const imageUrl = formData.get('image_url') as string;
     const images = JSON.stringify([
         imageUrl || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&q=80&w=1080"
     ]);
 
     try {
-        await mapper.use('properties').add({
-            title: title as string,
-            price: price as string,
-            location: location as string,
-            main_category: main_category as string,
-            commercial_sub_category: commercial_sub_category ? commercial_sub_category as string : null,
-            specs: specs as string,
-            author,
-            likes,
-            timestamp,
-            images,
-            property_types: JSON.stringify(['Residential']), // Default
-            purposes: JSON.stringify(['Available for Sale']), // Default
-            listed_by: Number(listed_by), // Ensure integer for foreign key
-            created_on: new Date().toISOString()
+        await prisma.property.create({
+            data: {
+                title,
+                price,
+                location,
+                main_category,
+                commercial_sub_category: commercial_sub_category || null,
+                specs,
+                author,
+                likes: 0,
+                images,
+                property_types: JSON.stringify(['Residential']), // Default
+                purposes: JSON.stringify(['Available for Sale']), // Default
+                listed_by: userId
+            }
         });
     } catch (error: any) {
         console.error("Failed to add property:", error);

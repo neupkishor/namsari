@@ -4,10 +4,19 @@ import { registerAction } from '../actions/auth';
 import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
+import prisma from '@/lib/prisma';
+
 export default async function RegisterPage() {
     const session = await getSession();
     if (session) {
-        redirect('/');
+        // Verify if user actually exists in the new DB
+        const user = await prisma.user.findUnique({
+            where: { id: Number(session.id) }
+        });
+
+        if (user) {
+            redirect('/');
+        }
     }
 
     return (

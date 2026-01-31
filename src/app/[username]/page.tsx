@@ -1,8 +1,8 @@
-import React from 'react';
-import mapper from '@neupgroup/mapper';
+import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import HomeClient from '../HomeClient';
+import { Property, User } from '@/generated/prisma';
 
 interface PageProps {
     params: Promise<{
@@ -20,19 +20,12 @@ export default async function ProfilePage({ params }: PageProps) {
     // If users navigate to /@john, params.username is "%40john" -> decoded "@john"
     if (decoded.startsWith('@')) {
         decoded = decoded.substring(1);
-    } else {
-        // If the route was somehow accessed without @ (e.g. /john directly if we didn't use special char),
-        // but our logic assumes this page handles the @ routes primarily.
-        // If we strictly only want to support /@..., this check is fine.
     }
 
     // Find user by username
-    const user = await mapper.use('users').where('username', decoded).getOne();
-
-    if (!user) {
-        // Fallback: Try to find by name if username lookup failed (legacy support for old "Anonymous User" etc)
-        // This is optional but might help with old data
-    }
+    const user = await prisma.user.findUnique({
+        where: { username: decoded }
+    });
 
     if (!user) {
         return (
@@ -45,10 +38,14 @@ export default async function ProfilePage({ params }: PageProps) {
     }
 
     // Fetch user's properties
-    const properties = await mapper.use('properties').where('listed_by', user.id).get();
+    const properties = await prisma.property.findMany({
+        where: { listed_by: user.id },
+        orderBy: { created_on: 'desc' },
+        include: { user: true }
+    });
 
     // Enriched properties for the view (similar to API logic)
-    const enrichedProperties = properties.map((p: any) => ({
+    const enrichedProperties = properties.map((p) => ({
         ...p,
         images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images,
         property_types: typeof p.property_types === 'string' ? JSON.parse(p.property_types) : p.property_types,
