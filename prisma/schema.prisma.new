@@ -38,19 +38,14 @@ model KYC {
   name           String
   email          String
   phone          String
-  // Additional KYC fields
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+  // You can add more KYC fields like citizen ship number, address etc here
 }
 
 model Property {
   id                      Int      @id @default(autoincrement())
   propertyId              String?  @unique // if unfilled (same as the id) - logic in app
-  
-  // Relations for multi-selection
-  types                  PropertyType[]
-  purposes               PropertyPurpose[]
-  natures                PropertyNature[]
+  propertyType            String   // land, apartment, house, space
+  propertyPurpose         String   // sale, rent
 
   // Listing Data
   isPrivate               Boolean  @default(false)
@@ -66,7 +61,7 @@ model Property {
   roadSize               String?
   facingDirection        String?
 
-  // Location Information
+  // Location Information (Moved to separate table for normalization if complex, but keeping here for simplicity if preferred, or separate if requested "join operations")
   location               PropertyLocation?
   
   // Pricing Details
@@ -74,9 +69,6 @@ model Property {
 
   // Open House
   openHouse              PropertyOpenHouse?
-
-  // Specific Features (varying by property type)
-  features               PropertyFeatures?
 
   // Relations
   images                 PropertyImage[]
@@ -93,7 +85,7 @@ model Property {
   authorizedPersonId     Int?
   authorizedPerson       User?    @relation("AuthorizedPerson", fields: [authorizedPersonId], references: [id])
 
-  // Core metadata
+  // Legacy/Meta fields
   title                  String
   slug                   String?
   created_on             DateTime @default(now())
@@ -104,52 +96,6 @@ model Property {
   property_likes         Like[]
   featured_history       FeaturedInformation[]
 }
-
-model PropertyType {
-  id          Int        @id @default(autoincrement())
-  name        String     @unique // house, bungalow, land, apartment, commercial space, villa, penthouse
-  properties  Property[]
-}
-
-model PropertyPurpose {
-  id          Int        @id @default(autoincrement())
-  name        String     @unique // sale, rent
-  properties  Property[]
-}
-
-model PropertyNature {
-  id          Int        @id @default(autoincrement())
-  name        String     @unique // commercial, semi commercial, residential, agricultural, industrial
-  properties  Property[]
-}
-
-
-model PropertyFeatures {
-  id               Int      @id @default(autoincrement())
-  propertyId       Int      @unique
-  property         Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-
-  // Residential/Building (House, Apartment)
-  bedrooms         Int?
-  bathrooms        Int?
-  kitchens         Int?
-  livingRooms      Int?
-  floorNumber      Int?
-  totalFloors      Int?
-  furnishing       String? // Unfurnished, Semi-furnished, Full-furnished
-  
-  // Size/Area details (Additional to Pricing)
-  builtUpArea      Float?
-  builtUpAreaUnit  String? // sqft, sqm, aana, ropani
-  
-  // Commercial/Space specific
-  parkingAvailable Boolean?
-  elevator         Boolean?
-  security         Boolean?
-  waterSupply      Boolean?
-  electricity      Boolean?
-}
-
 
 model PropertyLocation {
   id               Int      @id @default(autoincrement())
@@ -164,7 +110,7 @@ model PropertyLocation {
   area             String
   ward             String?
   landmark         String?
-  distanceFrom     String? // suggestions (swyambhunath, pashupatinath, fewataal, 0km, ringroad, bouddha, bhatbhateni)
+  distanceFrom     String? // Base suggestion string or specific landmark
 }
 
 model PropertyAmenity {
@@ -172,9 +118,9 @@ model PropertyAmenity {
   propertyId       Int
   property         Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   
-  type             String   // hospital, gym, park, pokhara, woda office, public transport, school, pharmacy, banquete, restaurant, hotel, atm, police station
-  name             String?  
-  distance         String?  
+  type             String   // hospital, gym, park, school, etc.
+  name             String?  // Name of the specific amenity
+  distance         String?  // Distance from property
 }
 
 model PropertyPricing {

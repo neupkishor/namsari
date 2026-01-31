@@ -43,6 +43,16 @@
     transform: translateY(-1px);
 }
 
+.input:disabled,
+.textarea:disabled,
+.select:disabled {
+    cursor: not-allowed;
+    background-color: #f1f5f9;
+    opacity: 0.6;
+    transform: none;
+    box-shadow: none;
+}
+
 .input::placeholder,
 .textarea::placeholder {
     color: var(--color-text-muted);
