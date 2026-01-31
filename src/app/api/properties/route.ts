@@ -3,7 +3,11 @@ import { NextResponse } from 'next/server';
 
 import { Property, User } from '@prisma/client';
 
-export async function GET() {
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
+    const skip = parseInt(searchParams.get('skip') || '0');
+    const take = parseInt(searchParams.get('take') || '10');
+
     try {
         const dbProperties = await prisma.property.findMany({
             include: {
@@ -14,7 +18,9 @@ export async function GET() {
                 },
                 property_likes: true
             },
-            orderBy: { created_on: 'desc' }
+            orderBy: { created_on: 'desc' },
+            skip,
+            take
         });
 
         // Normalize data

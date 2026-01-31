@@ -9,25 +9,49 @@ export default function Home({ user }: { user: any }) {
   const [viewType, setViewType] = useState('card');
   const [isLoading, setIsLoading] = useState(true);
   const [properties, setProperties] = useState<any[]>([]);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
 
-  const fetchProperties = async () => {
+  const fetchProperties = async (reset = false) => {
+    if (!reset && (!hasMore || isFetchingMore)) return;
+
+    if (reset) {
+      setIsLoading(true);
+      setPage(0);
+      setHasMore(true);
+    } else {
+      setIsFetchingMore(true);
+    }
+
     try {
-      const res = await fetch('/api/properties');
+      const currentSkip = reset ? 0 : (page + 1) * 10;
+      const res = await fetch(`/api/properties?skip=${currentSkip}&take=10`);
       const data = await res.json();
+
       if (Array.isArray(data)) {
-        setProperties(data);
+        if (data.length < 10) setHasMore(false);
+
+        if (reset) {
+          setProperties(data);
+          setPage(0);
+        } else {
+          setProperties(prev => [...prev, ...data]);
+          setPage(prev => prev + 1);
+        }
       }
     } catch (err) {
       console.error("Failed to load properties:", err);
     } finally {
       setIsLoading(false);
+      setIsFetchingMore(false);
     }
   };
 
   useEffect(() => {
     const saved = localStorage.getItem('namsari-home-view');
     if (saved) setViewType(saved);
-    fetchProperties();
+    fetchProperties(true);
   }, []);
 
   return (
@@ -76,7 +100,7 @@ export default function Home({ user }: { user: any }) {
       {isLoading ? (
         viewType === 'card' ? <ClassicSkeleton /> : <FeedSkeleton />
       ) : (
-        viewType === 'card' ? <ClassicView properties={properties} /> : <FeedView properties={properties} user={user} onRefresh={fetchProperties} />
+        viewType === 'card' ? <ClassicView properties={properties} /> : <FeedView properties={properties} user={user} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} />
       )}
     </main>
   );
@@ -191,7 +215,7 @@ function ClassicView({ properties }: { properties: any[] }) {
   );
 }
 
-function FeedView({ properties, user, onRefresh }: { properties: any[], user: any, onRefresh: () => void }) {
+function FeedView({ properties, user, onRefresh, onLoadMore, isFetchingMore, hasMore }: { properties: any[], user: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean }) {
   const sidebarItems = [
     { label: 'Profile', icon: '👤' },
     { label: 'Houses', icon: '🏠' },
@@ -264,15 +288,53 @@ function FeedView({ properties, user, onRefresh }: { properties: any[], user: an
 
       {/* Main Social Feed */}
       <div style={{ flex: 1, maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: '24px', margin: '0 auto' }}>
-        {properties.map((p) => (
-          <PropertyPost key={p.id} property={p} user={user} onRefresh={onRefresh} />
-        ))}
+        {properties.map((p, index) => {
+          const isTrigger = index === properties.length - 5;
+          return (
+            <div key={p.id}>
+              <PropertyPost
+                property={p}
+                user={user}
+                onRefresh={onRefresh}
+                onVisible={isTrigger ? onLoadMore : undefined}
+              />
+            </div>
+          );
+        })}
+
+        {isFetchingMore && (
+          <div style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)', fontWeight: '600' }}>
+            🔄 Loading more premium assets...
+          </div>
+        )}
+
+        {!hasMore && properties.length > 0 && (
+          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+            You've reached the end of the registry.
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function PropertyPost({ property, user, onRefresh }: { property: any, user: any, onRefresh: () => void }) {
+function PropertyPost({ property, user, onRefresh, onVisible }: { property: any, user: any, onRefresh: () => void, onVisible?: () => void }) {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!onVisible || !containerRef.current) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        onVisible();
+        observer.disconnect();
+      }
+    }, { threshold: 0.1 });
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [onVisible]);
+
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [showComments, setShowComments] = React.useState(false);
@@ -352,7 +414,7 @@ function PropertyPost({ property, user, onRefresh }: { property: any, user: any,
   const images = property.images || [];
 
   return (
-    <div className="card" style={{ padding: '0', borderRadius: '8px', border: '1px solid #ddd', overflow: 'hidden', background: 'white' }}>
+    <div ref={containerRef} className="card" style={{ padding: '0', borderRadius: '8px', border: '1px solid #ddd', overflow: 'hidden', background: 'white' }}>
       {/* Post Header */}
       <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
         <Link href={`/@${property.author_username || property.author}`} style={{ textDecoration: 'none', color: 'inherit' }}>
