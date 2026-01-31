@@ -93,14 +93,17 @@ export default function MapComponent({
             )}
 
             {properties.map((p) => {
-                if (!p.latitude || !p.longitude) return null;
+                const lat = typeof p.latitude === 'string' ? parseFloat(p.latitude) : p.latitude;
+                const lng = typeof p.longitude === 'string' ? parseFloat(p.longitude) : p.longitude;
+
+                if (!lat || !lng || isNaN(lat) || isNaN(lng)) return null;
 
                 const isSelected = selectedId === p.id;
 
                 return (
                     <Marker
                         key={p.id}
-                        position={[p.latitude, p.longitude]}
+                        position={[lat, lng]}
                         eventHandlers={{
                             click: () => onMarkerClick?.(p.id)
                         }}

@@ -47,11 +47,13 @@ export default function ExploreClient({ initialUser }: { initialUser: any }) {
         }
     }, []);
 
-    const filteredProperties = properties.filter(p =>
-        p.latitude !== null && p.longitude !== null &&
-        (p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            p.location.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+    const filteredProperties = properties.filter(p => {
+        const lat = Number(p.latitude);
+        const lng = Number(p.longitude);
+        return lat && lng && !isNaN(lat) && !isNaN(lng) &&
+            (p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                p.location.toLowerCase().includes(searchQuery.toLowerCase()));
+    });
 
     const handleCardClick = (p: any) => {
         setSelectedId(p.id);

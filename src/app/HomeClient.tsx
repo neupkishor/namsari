@@ -69,28 +69,44 @@ export default function Home({ user }: { user: any }) {
           <Link href="/" style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary)', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
             Namsari<span style={{ color: 'var(--color-gold)', marginLeft: '1px' }}>.</span>
           </Link>
-          <nav style={{ display: 'flex', gap: '24px', fontWeight: '500', fontSize: '0.9rem', alignItems: 'center' }}>
-            <Link href="/explore" style={{ color: 'var(--color-text-muted)', textDecoration: 'none' }}>Explore</Link>
-            <Link href="/sell" style={{ color: 'var(--color-primary)', fontWeight: '700' }}>Sell</Link>
+          <nav style={{ display: 'flex', gap: '8px', fontWeight: '500', fontSize: '0.9rem', alignItems: 'center' }}>
+            <Link
+              href="/explore"
+              className="header-link"
+              style={{ padding: '8px 16px', borderRadius: '8px', color: 'var(--color-text-muted)', textDecoration: 'none', transition: 'all 0.2s' }}
+            >
+              Explore
+            </Link>
+            <Link
+              href="/sell"
+              className="header-link"
+              style={{ padding: '8px 16px', borderRadius: '8px', color: 'var(--color-primary)', fontWeight: '700', textDecoration: 'none', transition: 'all 0.2s' }}
+            >
+              Sell
+            </Link>
 
             {!user ? (
               <>
-                <Link href="/login" style={{ color: 'var(--color-primary)', fontWeight: '600' }}>Sign In</Link>
-                <Link href="/register" style={{ background: 'var(--color-primary)', color: 'white', padding: '8px 16px', borderRadius: '4px', textDecoration: 'none' }}>
+                <Link
+                  href="/login"
+                  className="header-link"
+                  style={{ padding: '8px 16px', borderRadius: '8px', color: 'var(--color-primary)', fontWeight: '600', textDecoration: 'none', transition: 'all 0.2s' }}
+                >
+                  Sign In
+                </Link>
+                <Link href="/register" style={{ background: 'var(--color-primary)', color: 'white', padding: '8px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' }}>
                   Register
                 </Link>
               </>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                <Link href="/manage" style={{ color: 'var(--color-primary)', fontWeight: '600' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Link
+                  href="/manage"
+                  className="header-link"
+                  style={{ padding: '8px 16px', borderRadius: '8px', color: 'var(--color-primary)', fontWeight: '700', textDecoration: 'none', transition: 'all 0.2s' }}
+                >
                   {user.name}
                 </Link>
-                <button
-                  onClick={() => logoutAction()}
-                  style={{ background: 'none', border: '1px solid #e2e8f0', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}
-                >
-                  Logout
-                </button>
               </div>
             )}
           </nav>
@@ -279,6 +295,32 @@ function FeedView({ properties, user, onRefresh, onLoadMore, isFetchingMore, has
               <span>{item.label}</span>
             </div>
           ))}
+
+          <div style={{ margin: '16px 0', height: '1px', background: 'rgba(0,0,0,0.05)' }} />
+
+          {/* Logout Option */}
+          {user && (
+            <div
+              onClick={() => logoutAction()}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                color: '#ef4444',
+                fontWeight: '600',
+                transition: 'background 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.background = '#fee2e2'}
+              onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+            >
+              <span style={{ fontSize: '1.1rem' }}>🚪</span>
+              <span>Logout</span>
+            </div>
+          )}
 
           <div style={{ padding: '20px 16px', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
             Namsari Estate &copy; 2026<br />A Neup Group Standard

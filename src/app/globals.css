@@ -210,3 +210,8 @@ h3 {
 #nprogress .peg {
   box-shadow: 0 0 10px #2563eb, 0 0 5px #2563eb !important;
 }
+
+.header-link:hover {
+  background-color: #f0f2f5;
+  color: var(--color-primary) !important;
+}
