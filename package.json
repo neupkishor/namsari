@@ -1,6 +1,7 @@
 {
   "name": "namsari",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "next dev -p 6267",
@@ -8,13 +9,15 @@
     "start": "next start -p 6267",
     "lint": "eslint",
     "create-migration": "create-migration",
-    "create-connection": "create-connection"
+    "create-connection": "create-connection",
+    "migrate": "migrate"
   },
   "dependencies": {
-    "@neupgroup/mapper": "^1.4.0",
+    "@neupgroup/mapper": "^1.4.1",
     "next": "16.1.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "eslint": "^9",
