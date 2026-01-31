@@ -11,7 +11,11 @@ export async function GET(request: Request) {
     try {
         const dbProperties = await prisma.property.findMany({
             include: {
-                user: true,
+                listedBy: true,
+                location: true,
+                pricing: true,
+                images: true,
+                types: true,
                 comments: {
                     include: { user: true },
                     orderBy: { created_at: 'asc' }
@@ -24,8 +28,8 @@ export async function GET(request: Request) {
         });
 
         // Normalize data
-        const normalized = dbProperties.map((p: Property & { user: User }) => {
-            const authorUser = p.user;
+        const normalized = dbProperties.map((p) => {
+            const authorUser = p.listedBy;
 
             // Basic relative time calculation
             const now = new Date();
@@ -39,15 +43,28 @@ export async function GET(request: Request) {
             else if (hours > 0) timestamp = `${hours}h ago`;
             else if (minutes > 0) timestamp = `${minutes}m ago`;
 
+            // Format price
+            const priceValue = p.pricing?.price || 0;
+            const formattedPrice = new Intl.NumberFormat('en-NP', {
+                style: 'currency',
+                currency: 'NPR',
+                maximumFractionDigits: 0
+            }).format(Number(priceValue)).replace('NPR', 'NRs.');
+
+            // Format location
+            const locationStr = p.location
+                ? `${p.location.area}, ${p.location.district}`
+                : 'Unspecified';
+
             return {
                 ...p,
-                price: new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(Number(p.price)).replace('NPR', 'NRs.'),
-                images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images,
-                property_types: typeof p.property_types === 'string' ? JSON.parse(p.property_types) : p.property_types,
-                purposes: typeof p.purposes === 'string' ? JSON.parse(p.purposes) : p.purposes,
+                price: formattedPrice,
+                location: locationStr,
+                images: p.images.map(img => img.url),
+                property_types: p.types.map(t => t.name),
                 // Enrich with author details
                 author_username: authorUser ? authorUser.username : null,
-                author_name: authorUser ? authorUser.name : (p.author || 'Unknown'),
+                author_name: authorUser ? authorUser.name : 'Unknown',
                 author_avatar: authorUser ? (authorUser.name || 'U')[0] : 'U',
                 timestamp
             };
