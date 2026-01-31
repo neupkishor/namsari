@@ -6,7 +6,9 @@
     "dev": "next dev -p 6267",
     "build": "next build",
     "start": "next start -p 6267",
-    "lint": "eslint"
+    "lint": "eslint",
+    "create-migration": "create-migration",
+    "create-connection": "create-connection"
   },
   "dependencies": {
     "@neupgroup/mapper": "^1.4.0",
