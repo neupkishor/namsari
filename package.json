@@ -1,14 +1,15 @@
 {
   "name": "namsari",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 6267",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 6267",
     "lint": "eslint"
   },
   "dependencies": {
+    "@neupgroup/mapper": "^1.4.0",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"
