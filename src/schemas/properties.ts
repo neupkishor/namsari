@@ -13,13 +13,14 @@ export const properties = {
         images: ['string'], // stored as JSON array string
         likes: ['string', 'default.value', '0'],
         timestamp: ['string'],
+        created_on: ['string'],
         listed_by: ['integer', 'foreignKey.users.id']
     },
     insertableFields: [
         'author', 'title', 'price', 'location', 'specs',
         'main_category', 'commercial_sub_category',
         'property_types', 'purposes', 'images', 'likes', 'timestamp',
-        'listed_by'
+        'created_on', 'listed_by'
     ],
     updatableFields: [
         'title', 'price', 'location', 'specs',

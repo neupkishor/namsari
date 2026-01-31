@@ -14,7 +14,7 @@ export async function registerAction(formData: FormData) {
     // Check if username already exists
     const existing = await mapper.use('users').where('username', username).getOne();
     if (existing) {
-        return { error: "Username already taken." };
+        throw new Error("Username already taken.");
     }
 
     try {
@@ -30,7 +30,7 @@ export async function registerAction(formData: FormData) {
         await setSession(String(result));
     } catch (error) {
         console.error("Registration error:", error);
-        return { error: "Failed to create account." };
+        throw new Error("Failed to create account.");
     }
 
     redirect('/');
@@ -44,13 +44,13 @@ export async function loginAction(formData: FormData) {
         const user = await mapper.use('users').where('username', username).getOne();
 
         if (!user) {
-            return { error: "User not found." };
+            throw new Error("User not found.");
         }
 
         await setSession(String(user.id));
     } catch (error) {
         console.error("Login error:", error);
-        return { error: "Failed to login." };
+        throw new Error("Failed to login.");
     }
 
     redirect('/');

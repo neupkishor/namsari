@@ -10,7 +10,7 @@ export default function SettingsPage() {
         if (saved) setViewType(saved);
     }, []);
 
-    const handleSave = (type) => {
+    const handleSave = (type: string) => {
         setViewType(type);
         localStorage.setItem('namsari-home-view', type);
         alert(`Homepage view updated to ${type === 'feed' ? 'Social Feed' : 'Classic Listing'}`);

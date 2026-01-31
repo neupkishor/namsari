@@ -37,7 +37,7 @@ export default function SellPage() {
                             <select
                                 name="main_category"
                                 value={category}
-                                onChange={(e) => setCategory(e.target.value)}
+                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value)}
                                 style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white' }}
                                 required
                             >
@@ -110,7 +110,7 @@ export default function SellPage() {
                         <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>Specifications & Description</label>
                         <textarea
                             name="specs"
-                            rows="4"
+                            rows={4}
                             placeholder="e.g. 4 Beds • 5 Baths • 4500 Sqft"
                             style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', resize: 'none' }}
                             required

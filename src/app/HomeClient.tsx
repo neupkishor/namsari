@@ -296,13 +296,23 @@ function PropertyPost({ property }: { property: any }) {
     <div className="card" style={{ padding: '0', borderRadius: '8px', border: '1px solid #ddd', overflow: 'hidden', background: 'white' }}>
       {/* Post Header */}
       <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
-          {(property.author || 'A')[0]}
-        </div>
+        <Link href={`/@${property.author_username || property.author}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
+            {(property.author_name || property.author || 'A')[0]}
+          </div>
+        </Link>
         <div>
-          <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>{property.author}</div>
+          <Link href={`/@${property.author_username || property.author}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>{property.author_name || property.author}</div>
+          </Link>
           <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{property.location} • {property.timestamp}</div>
         </div>
+      </div>
+
+      {/* Caption Area - Moved to top as per user request */}
+      <div style={{ padding: '0 16px 12px', fontSize: '0.975rem', lineHeight: '1.4' }}>
+        <span style={{ fontWeight: '600', color: 'var(--color-gold)', marginRight: '6px' }}>{property.price}</span>
+        <span>{property.title}. {property.specs}</span>
       </div>
 
       {/* Post Media Carousel Container */}
@@ -356,7 +366,7 @@ function PropertyPost({ property }: { property: any }) {
               justifyContent: 'center',
               background: '#f8fafc'
             }}>
-              <img src={imgUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              <img src={imgUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
           ))}
           {images.length === 0 && (
@@ -405,19 +415,49 @@ function PropertyPost({ property }: { property: any }) {
       </div>
 
       {/* Post Feed Actions */}
-      <div style={{ padding: '16px' }}>
-        <div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
-          <span style={{ cursor: 'pointer', fontSize: '1.25rem' }}>❤️</span>
-          <span style={{ cursor: 'pointer', fontSize: '1.25rem' }}>💬</span>
-          <span style={{ cursor: 'pointer', fontSize: '1.25rem' }}>✈️</span>
+      <div style={{ padding: '12px 16px' }}>
+        {/* Social Counts Row */}
+
+        {/* Action Buttons Row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '4px' }}>
+          <ActionButton icon="👍" label="Like" count={property.likes} />
+          <ActionButton icon="💬" label="Comment" />
+          <ActionButton icon="↗️" label="Share" count="12" />
+          <ActionButton icon="📞" label="Contact" highlight />
+          <ActionButton icon="🤝" label="Offer" highlight />
         </div>
-        <div style={{ fontWeight: '700', marginBottom: '4px' }}>{property.likes} likes</div>
-        <div style={{ fontSize: '1rem', marginBottom: '8px' }}>
-          <span style={{ fontWeight: '700', marginRight: '8px' }}>{property.author}</span>
-          <span style={{ fontWeight: '600', color: 'var(--color-gold)' }}>{property.price}</span> — {property.title}. {property.specs}
-        </div>
-        <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', cursor: 'pointer' }}>View all inquiries</div>
+
       </div>
     </div>
+  );
+}
+
+function ActionButton({ icon, label, count, highlight = false }: { icon: string, label: string, count?: string | number, highlight?: boolean }) {
+  return (
+    <button style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+      background: highlight ? 'var(--color-surface)' : 'transparent',
+      border: 'none',
+      padding: '8px 4px',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      color: highlight ? 'var(--color-primary)' : '#64748b',
+      fontSize: '0.9rem',
+      fontWeight: '600',
+      flex: 1,
+      justifyContent: 'center',
+      transition: 'background 0.2s',
+      whiteSpace: 'nowrap'
+    }}
+      onMouseOver={(e) => e.currentTarget.style.background = highlight ? '#e2e8f0' : '#f1f5f9'}
+      onMouseOut={(e) => e.currentTarget.style.background = highlight ? 'var(--color-surface)' : 'transparent'}
+    >
+      <span style={{ fontSize: '1.1rem' }}>{icon}</span>
+      <span style={{ display: 'none', '@media (min-width: 400px)': { display: 'inline' } } as any}>{label} {count && `(${count})`}</span>
+      {/* Mobile-hack inline style not working perfectly with media queries in inline styles. Using simple display for now. */}
+      <span>{label} {count && <span style={{ marginLeft: '4px', opacity: 0.8 }}>{count}</span>}</span>
+    </button>
   );
 }
