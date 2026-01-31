@@ -3,74 +3,30 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-// Mock Data
-const properties = [
-  {
-    id: 1,
-    author: "Namsari Properties",
-    title: "The Horizon Complex",
-    price: "$12,500,000",
-    location: "Metropolis East Side",
-    specs: "4 Blocks • 240 Units • Commercial Grade",
-    images: [
-      "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&q=80&w=1080",
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=1080",
-      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&q=80&w=1080",
-      "https://images.unsplash.com/photo-1598228723793-52759bba239c?auto=format&fit=crop&q=80&w=1080",
-      "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&q=80&w=1080",
-      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=1080",
-      "https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&q=80&w=1080",
-      "https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?auto=format&fit=crop&q=80&w=1080",
-      "https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&q=80&w=1080",
-      "https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?auto=format&fit=crop&q=80&w=1080",
-      "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?auto=format&fit=crop&q=80&w=1080",
-      "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&q=80&w=1080"
-    ],
-    type: "Commercial Complex",
-    likes: "2.4k",
-    timestamp: "2h ago"
-  },
-  {
-    id: 2,
-    author: "Premier Asset Management",
-    title: "The Sterling Heights",
-    price: "$8,200,000",
-    location: "Downtown Core",
-    specs: "Luxury Condos • Full Amenities • 60 Units",
-    images: [
-      "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&q=80&w=1080"
-    ],
-    type: "Residential Development",
-    likes: "1.5k",
-    timestamp: "5h ago"
-  },
-  {
-    id: 3,
-    author: "Skyline Estates",
-    title: "Skyline Executive Penthouse",
-    price: "$6,800,000",
-    location: "Financial District",
-    specs: "4 Beds • 5 Baths • Private Heliport Access",
-    images: [
-      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=1080"
-    ],
-    type: "Residential Luxury",
-    likes: "890",
-    timestamp: "1d ago"
-  }
-];
-
 export default function Home() {
   const [viewType, setViewType] = useState('card');
   const [isLoading, setIsLoading] = useState(true);
+  const [properties, setProperties] = useState([]);
 
   useEffect(() => {
     const saved = localStorage.getItem('namsari-home-view');
     if (saved) setViewType(saved);
 
-    // Simulate premium loading
-    const timer = setTimeout(() => setIsLoading(false), 1500);
-    return () => clearTimeout(timer);
+    const fetchProperties = async () => {
+      try {
+        const res = await fetch('/api/properties');
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setProperties(data);
+        }
+      } catch (err) {
+        console.error("Failed to load properties:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProperties();
   }, []);
 
   return (
@@ -90,7 +46,7 @@ export default function Home() {
           </Link>
           <nav style={{ display: 'flex', gap: '32px', fontWeight: '500', fontSize: '0.9rem', alignItems: 'center' }}>
             <a href="#">Explore</a>
-            <a href="#">Map</a>
+            <Link href="/sell" style={{ color: 'var(--color-primary)', fontWeight: '700' }}>Sell</Link>
             <Link href="/manage" style={{ background: 'var(--color-primary)', color: 'white', padding: '8px 16px', borderRadius: '4px', textDecoration: 'none' }}>
               Management
             </Link>
@@ -101,7 +57,7 @@ export default function Home() {
       {isLoading ? (
         viewType === 'card' ? <ClassicSkeleton /> : <FeedSkeleton />
       ) : (
-        viewType === 'card' ? <ClassicView /> : <FeedView />
+        viewType === 'card' ? <ClassicView properties={properties} /> : <FeedView properties={properties} />
       )}
     </main>
   );
@@ -169,7 +125,16 @@ function FeedSkeleton() {
   );
 }
 
-function ClassicView() {
+function ClassicView({ properties }) {
+  if (!properties || properties.length === 0) {
+    return (
+      <div className="layout-container" style={{ padding: '100px 0', textAlign: 'center' }}>
+        <h3>No listings found.</h3>
+        <Link href="/sell" style={{ color: 'var(--color-primary)' }}>Create the first one!</Link>
+      </div>
+    );
+  }
+
   return (
     <>
       <section style={{ padding: '80px 0', background: 'white', textAlign: 'center' }}>
@@ -182,7 +147,7 @@ function ClassicView() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '32px' }}>
           {properties.map(p => (
             <div key={p.id} className="card" style={{ padding: '0', overflow: 'hidden' }}>
-              <img src={p.images[0]} style={{ width: '100%', height: '240px', objectFit: 'cover' }} />
+              <img src={p.images?.[0] || 'https://via.placeholder.com/400x240'} style={{ width: '100%', height: '240px', objectFit: 'cover' }} />
               <div style={{ padding: '24px' }}>
                 <h3 style={{ marginBottom: '8px' }}>{p.title}</h3>
                 <p style={{ color: 'var(--color-gold)', fontWeight: '700', fontSize: '1.25rem', marginBottom: '8px' }}>{p.price}</p>
@@ -199,7 +164,7 @@ function ClassicView() {
   );
 }
 
-function FeedView() {
+function FeedView({ properties }) {
   const sidebarItems = [
     { label: 'Profile', icon: '👤' },
     { label: 'Houses', icon: '🏠' },
@@ -214,15 +179,17 @@ function FeedView() {
     { label: 'Privacy', icon: '🛡️' },
   ];
 
+  if (!properties || properties.length === 0) {
+    return (
+      <div className="layout-container" style={{ padding: '100px 0', textAlign: 'center' }}>
+        <h3>The feed is empty.</h3>
+        <Link href="/sell" style={{ color: 'var(--color-primary)' }}>Start the conversation by listing a property.</Link>
+      </div>
+    );
+  }
+
   return (
     <div className="layout-container" style={{ display: 'flex', gap: '40px', paddingTop: '40px', paddingBottom: '100px' }}>
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        @media (min-width: 1025px) {
-          .feed-sidebar-desktop { display: block !important; }
-        }
-      `}} />
-
       {/* Social Media Style Sidebar */}
       <aside className="feed-sidebar-desktop" style={{ width: '240px', flexShrink: 0, position: 'sticky', top: '112px', height: 'fit-content', display: 'none' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -303,12 +270,14 @@ function PropertyPost({ property }) {
     }
   };
 
+  const images = property.images || [];
+
   return (
     <div className="card" style={{ padding: '0', borderRadius: '8px', border: '1px solid #ddd', overflow: 'hidden', background: 'white' }}>
       {/* Post Header */}
       <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
         <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
-          {property.author[0]}
+          {(property.author || 'A')[0]}
         </div>
         <div>
           <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>{property.author}</div>
@@ -319,7 +288,7 @@ function PropertyPost({ property }) {
       {/* Post Media Carousel Container */}
       <div style={{ position: 'relative', background: '#000' }}>
         {/* Navigation Arrows */}
-        {property.images.length > 1 && (
+        {images.length > 1 && (
           <>
             {activeIndex > 0 && (
               <button
@@ -330,7 +299,7 @@ function PropertyPost({ property }) {
                   width: '32px', height: '32px', cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', color: '#000'
                 }}>‹</button>
             )}
-            {activeIndex < property.images.length - 1 && (
+            {activeIndex < images.length - 1 && (
               <button
                 onClick={() => scrollTo(activeIndex + 1)}
                 style={{
@@ -357,7 +326,7 @@ function PropertyPost({ property }) {
             div::-webkit-scrollbar { display: none; }
           `}} />
 
-          {property.images.map((imgUrl, imgIndex) => (
+          {images.map((imgUrl, imgIndex) => (
             <div key={imgIndex} style={{
               minWidth: '100%',
               scrollSnapAlign: 'start',
@@ -370,10 +339,15 @@ function PropertyPost({ property }) {
               <img src={imgUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
           ))}
+          {images.length === 0 && (
+            <div style={{ minWidth: '100%', height: '400px', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+              No Images Available
+            </div>
+          )}
         </div>
 
         {/* Indicators Panel */}
-        {property.images.length > 1 && (
+        {images.length > 1 && (
           <div style={{
             position: 'absolute',
             bottom: '16px',
@@ -383,7 +357,7 @@ function PropertyPost({ property }) {
             gap: '6px',
             pointerEvents: 'none'
           }}>
-            {property.images.map((_, i) => (
+            {images.map((_, i) => (
               <div key={i} style={{
                 width: '6px',
                 height: '6px',
@@ -398,14 +372,14 @@ function PropertyPost({ property }) {
         )}
 
         {/* Status Count Tag */}
-        {property.images.length > 1 && (
+        {images.length > 1 && (
           <div style={{
             position: 'absolute', top: '16px', right: '16px',
             background: 'rgba(0, 0, 0, 0.6)', color: 'white',
             padding: '4px 10px', borderRadius: '12px',
             fontSize: '0.7rem', fontWeight: '700', zIndex: '5'
           }}>
-            {activeIndex + 1} / {property.images.length}
+            {activeIndex + 1} / {images.length}
           </div>
         )}
       </div>
@@ -422,7 +396,7 @@ function PropertyPost({ property }) {
           <span style={{ fontWeight: '700', marginRight: '8px' }}>{property.author}</span>
           <span style={{ fontWeight: '600', color: 'var(--color-gold)' }}>{property.price}</span> — {property.title}. {property.specs}
         </div>
-        <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', cursor: 'pointer' }}>View all 42 inquiries</div>
+        <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', cursor: 'pointer' }}>View all inquiries</div>
       </div>
     </div>
   );

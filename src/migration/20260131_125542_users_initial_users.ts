@@ -7,7 +7,7 @@ export async function up() {
     table.addColumn('username').type('string').isUnique().notNull();
     table.addColumn('name').type('string').notNull();
     table.addColumn('contact_number').type('string').notNull();
-    table.addColumn('account_type').type('string').values(['agency', 'agent', 'owner']).notNull();
+    table.addColumn('account_type').type('enum').values(['agency', 'agent', 'owner']).notNull();
 
     console.log('Migrating up: users table defined.');
 }
