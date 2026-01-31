@@ -8,7 +8,7 @@ export async function GET() {
         const dbProperties = await mapper.use('properties').get();
 
         // Normalize data (parse JSON strings for images/tags if necessary, though mapper might handle simple mapping)
-        const normalized = dbProperties.map(p => ({
+        const normalized = dbProperties.map((p: any) => ({
             ...p,
             images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images,
             property_types: typeof p.property_types === 'string' ? JSON.parse(p.property_types) : p.property_types,

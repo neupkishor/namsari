@@ -39,7 +39,7 @@ export default function ManageDashboard() {
                 </div>
                 <div style={{ padding: '24px' }}>
                     <div style={{ height: '200px', display: 'flex', alignItems: 'flex-end', gap: '20px', padding: '20px 0' }}>
-                        {[60, 85, 45, 90, 70, 55, 100].map((h, i) => (
+                        {[60, 85, 45, 90, 70, 55, 100].map((h: number, i: number) => (
                             <div key={i} style={{ flex: 1, background: i === 6 ? 'var(--color-gold)' : 'var(--color-primary)', height: `${h}%`, borderRadius: '4px 4px 0 0', opacity: 0.8 }} />
                         ))}
                     </div>
@@ -65,7 +65,7 @@ export default function ManageDashboard() {
                                 { name: 'The Sterling Heights', status: 'Active', eff: '98%' },
                                 { name: 'Wellness Estate A', status: 'Pending', eff: '0%' },
                                 { name: 'Financial District Penthouse', status: 'Active', eff: '100%' }
-                            ].map((row, i) => (
+                            ].map((row, i: number) => (
                                 <tr key={i} style={{ borderBottom: i === 2 ? 'none' : '1px solid var(--color-border)' }}>
                                     <td style={{ padding: '16px 0', fontWeight: '500' }}>{row.name}</td>
                                     <td style={{ padding: '16px 0' }}>

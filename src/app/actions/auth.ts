@@ -4,7 +4,7 @@ import { initMapper } from '@/mapper';
 import { setSession, clearSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
-export async function registerAction(formData) {
+export async function registerAction(formData: FormData) {
     const mapper = initMapper();
     const username = formData.get('username');
     const name = formData.get('name');
@@ -25,11 +25,9 @@ export async function registerAction(formData) {
             account_type
         });
 
-        // In some adapters, result is the inserted ID. 
-        // If not, we fetch it back by username.
-        const newUser = await mapper.use('users').where('username', username).getOne();
-
-        await setSession(String(newUser.id));
+        // In SQLite, result is the inserted ID (string)
+        // So we can use it directly
+        await setSession(String(result));
     } catch (error) {
         console.error("Registration error:", error);
         return { error: "Failed to create account." };
@@ -38,7 +36,7 @@ export async function registerAction(formData) {
     redirect('/');
 }
 
-export async function loginAction(formData) {
+export async function loginAction(formData: FormData) {
     const mapper = initMapper();
     const username = formData.get('username');
 

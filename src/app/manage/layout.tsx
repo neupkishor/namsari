@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-export default function ManageLayout({ children }) {
+export default function ManageLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="manage-root" style={{ backgroundColor: 'var(--color-bg)', minHeight: '100vh' }}>
             {/* Full-width Header */}

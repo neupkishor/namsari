@@ -3,7 +3,7 @@
 import { initMapper } from '@/mapper';
 import { redirect } from 'next/navigation';
 
-export async function createListing(formData) {
+export async function createListing(formData: FormData) {
     const mapper = initMapper();
 
     const title = formData.get('title');

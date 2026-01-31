@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { logoutAction } from './actions/auth';
 
-export default function Home({ user }) {
+export default function Home({ user }: { user: any }) {
   const [viewType, setViewType] = useState('card');
   const [isLoading, setIsLoading] = useState(true);
-  const [properties, setProperties] = useState([]);
+  const [properties, setProperties] = useState<any[]>([]);
 
   useEffect(() => {
     const saved = localStorage.getItem('namsari-home-view');
@@ -144,7 +144,7 @@ function FeedSkeleton() {
   );
 }
 
-function ClassicView({ properties }) {
+function ClassicView({ properties }: { properties: any[] }) {
   if (!properties || properties.length === 0) {
     return (
       <div className="layout-container" style={{ padding: '100px 0', textAlign: 'center' }}>
@@ -183,7 +183,7 @@ function ClassicView({ properties }) {
   );
 }
 
-function FeedView({ properties }) {
+function FeedView({ properties }: { properties: any[] }) {
   const sidebarItems = [
     { label: 'Profile', icon: '👤' },
     { label: 'Houses', icon: '🏠' },
@@ -264,13 +264,14 @@ function FeedView({ properties }) {
   );
 }
 
-function PropertyPost({ property }) {
-  const scrollRef = React.useRef(null);
+function PropertyPost({ property }: { property: any }) {
+  const scrollRef = React.useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = React.useState(0);
 
-  const handleScroll = (e) => {
-    const scrollLeft = e.target.scrollLeft;
-    const width = e.target.offsetWidth;
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const scrollLeft = target.scrollLeft;
+    const width = target.offsetWidth;
     if (width > 0) {
       const newIndex = Math.round(scrollLeft / width);
       if (newIndex !== activeIndex) {
@@ -279,7 +280,7 @@ function PropertyPost({ property }) {
     }
   };
 
-  const scrollTo = (index) => {
+  const scrollTo = (index: number) => {
     if (scrollRef.current) {
       const width = scrollRef.current.offsetWidth;
       scrollRef.current.scrollTo({
@@ -345,7 +346,7 @@ function PropertyPost({ property }) {
             div::-webkit-scrollbar { display: none; }
           `}} />
 
-          {images.map((imgUrl, imgIndex) => (
+          {images.map((imgUrl: string, imgIndex: number) => (
             <div key={imgIndex} style={{
               minWidth: '100%',
               scrollSnapAlign: 'start',
@@ -376,7 +377,7 @@ function PropertyPost({ property }) {
             gap: '6px',
             pointerEvents: 'none'
           }}>
-            {images.map((_, i) => (
+            {images.map((_: any, i: number) => (
               <div key={i} style={{
                 width: '6px',
                 height: '6px',

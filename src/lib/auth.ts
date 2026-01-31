@@ -7,7 +7,7 @@ export async function getSession() {
     return { id: userId };
 }
 
-export async function setSession(userId) {
+export async function setSession(userId: string) {
     const cookieStore = await cookies();
     cookieStore.set('namsari_user_id', userId, {
         httpOnly: true,
