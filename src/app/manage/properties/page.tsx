@@ -116,6 +116,9 @@ export default async function ManagePropertiesPage() {
                                         <Link href={`/@${p.author_username}`} style={{ color: 'var(--color-primary)', fontSize: '0.9rem', fontWeight: '500', marginRight: '16px', textDecoration: 'none' }}>
                                             View
                                         </Link>
+                                        <Link href={`/manage/properties/${p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`} style={{ color: 'var(--color-gold)', fontSize: '0.9rem', fontWeight: '700', marginRight: '16px', textDecoration: 'none' }}>
+                                            Manage
+                                        </Link>
                                         <button style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.9rem', fontWeight: '500', cursor: 'pointer' }}>
                                             Remove
                                         </button>

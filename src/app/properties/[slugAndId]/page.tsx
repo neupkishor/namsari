@@ -35,6 +35,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
     if (!property) return notFound();
 
+    // Increment view count asynchronously
+    await prisma.property.update({
+        where: { id: property.id },
+        data: { views: { increment: 1 } }
+    });
+
     const session = await getSession();
     const images = property.images.map(img => img.url);
     const locationStr = property.location
