@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import HomeClient from '../HomeClient';
 import { Property, User } from '@prisma/client';
+import { getSession } from '@/lib/auth';
+import ProfileImageUpload from './ProfileImageUpload';
 
 interface PageProps {
     params: Promise<{
@@ -39,6 +41,9 @@ export default async function ProfilePage({ params }: PageProps) {
             </div>
         );
     }
+
+    const session = await getSession();
+    const isOwner = session?.id === user.id.toString();
 
     // Fetch user's properties with relations
     const properties = await prisma.property.findMany({
@@ -86,7 +91,7 @@ export default async function ProfilePage({ params }: PageProps) {
             likes_count: p.property_likes?.length || 0,
             author_username: user.username,
             author_name: user.name,
-            author_avatar: (user.name || 'U')[0]
+            author_avatar: user.profile_picture || (user.name || 'U')[0]
         };
     });
 
@@ -116,9 +121,12 @@ export default async function ProfilePage({ params }: PageProps) {
                     </div>
                     <div style={{ padding: '0 24px', marginTop: '-80px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '24px', position: 'relative', zIndex: 10 }}>
                         <div style={{ display: 'flex', alignItems: 'flex-end', gap: '24px' }}>
-                            <div style={{ width: '168px', height: '168px', borderRadius: '50%', border: '6px solid white', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '4rem', fontWeight: 'bold', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-                                {(user.name || 'U')[0]}
-                            </div>
+                            <ProfileImageUpload
+                                userId={user.id}
+                                currentImage={user.profile_picture}
+                                userName={user.name}
+                                isOwner={isOwner}
+                            />
                             <div style={{ paddingBottom: '16px' }}>
                                 <h1 style={{ fontSize: '2.25rem', fontWeight: '800', marginBottom: '4px', color: '#1e293b' }}>{user.name}</h1>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -217,8 +225,12 @@ export default async function ProfilePage({ params }: PageProps) {
                             <div key={p.id} className="card" style={{ padding: '0', borderRadius: '16px', overflow: 'hidden', background: 'white', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                                 <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
-                                            {p.author_avatar}
+                                        <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', overflow: 'hidden' }}>
+                                            {typeof p.author_avatar === 'string' && p.author_avatar.startsWith('http') ? (
+                                                <img src={p.author_avatar} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.author_name} />
+                                            ) : (
+                                                p.author_avatar
+                                            )}
                                         </div>
                                         <div>
                                             <div style={{ fontWeight: '700', fontSize: '1rem', color: '#1e293b' }}>{p.author_name}</div>

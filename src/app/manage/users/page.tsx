@@ -48,8 +48,12 @@ export default async function ManageUsersPage() {
                                 <tr key={u.id} style={{ borderBottom: '1px solid var(--color-border)', transition: 'background 0.2s' }}>
                                     <td style={{ padding: '16px 24px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-                                                {(u.name || 'U')[0]}
+                                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', overflow: 'hidden' }}>
+                                                {u.profile_picture ? (
+                                                    <img src={u.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={u.name} />
+                                                ) : (
+                                                    (u.name || 'U')[0]
+                                                )}
                                             </div>
                                             <div>
                                                 <div style={{ fontWeight: '600', color: '#1e293b' }}>{u.name}</div>

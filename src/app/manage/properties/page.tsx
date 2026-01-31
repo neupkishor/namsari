@@ -37,6 +37,7 @@ export default async function ManagePropertiesPage() {
             location: locationStr,
             author_name: p.listedBy?.name || 'Unknown',
             author_username: p.listedBy?.username || '',
+            author_avatar: p.listedBy?.profile_picture || (p.listedBy?.name || 'U')[0],
             main_category: mainCategory,
             // Images overwrites the relation with a simple array of URLs for the UI
             images: p.images.map(img => img.url),
@@ -98,8 +99,12 @@ export default async function ManagePropertiesPage() {
                                     </td>
                                     <td style={{ padding: '16px 24px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--color-gold)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>
-                                                {(p.author_name || 'U')[0]}
+                                            <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--color-gold)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', overflow: 'hidden' }}>
+                                                {typeof p.author_avatar === 'string' && p.author_avatar.startsWith('http') ? (
+                                                    <img src={p.author_avatar} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.author_name} />
+                                                ) : (
+                                                    p.author_avatar
+                                                )}
                                             </div>
                                             <span style={{ fontSize: '0.9rem' }}>{p.author_name}</span>
                                         </div>

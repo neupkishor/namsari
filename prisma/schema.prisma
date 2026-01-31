@@ -17,6 +17,7 @@ model User {
   contact_number String?
   account_type   String?
   bio            String?
+  profile_picture String?
   created_on     DateTime @default(now())
   updated_at     DateTime @updatedAt
 

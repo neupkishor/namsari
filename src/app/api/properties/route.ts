@@ -71,7 +71,7 @@ export async function GET(request: Request) {
                 // Enrich with author details
                 author_username: authorUser ? authorUser.username : null,
                 author_name: authorUser ? authorUser.name : 'Unknown',
-                author_avatar: authorUser ? (authorUser.name || 'U')[0] : 'U',
+                author_avatar: authorUser ? (authorUser.profile_picture || (authorUser.name || 'U')[0]) : 'U',
                 timestamp
             };
         });

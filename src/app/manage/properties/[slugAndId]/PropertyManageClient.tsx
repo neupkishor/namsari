@@ -207,8 +207,12 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
                     <div className="card" style={{ padding: '24px' }}>
                         <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '16px' }}>Owner Info</h3>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
-                                {(property.listedBy?.name || 'A')[0]}
+                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', overflow: 'hidden' }}>
+                                {property.listedBy?.profile_picture ? (
+                                    <img src={property.listedBy.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={property.listedBy.name} />
+                                ) : (
+                                    (property.listedBy?.name || 'A')[0]
+                                )}
                             </div>
                             <div>
                                 <div style={{ fontSize: '0.95rem', fontWeight: '700' }}>{property.listedBy?.name}</div>

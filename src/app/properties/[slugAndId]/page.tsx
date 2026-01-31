@@ -36,7 +36,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     if (!property) return notFound();
 
     // Increment view count asynchronously
-    await prisma.property.update({
+    await (prisma as any).property.update({
         where: { id: property.id },
         data: { views: { increment: 1 } }
     });
@@ -126,8 +126,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                         <div className="card" style={{ padding: '24px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-                                <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '1.5rem', fontWeight: 'bold' }}>
-                                    {(property.listedBy?.name || 'A')[0]}
+                                <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '1.5rem', fontWeight: 'bold', overflow: 'hidden' }}>
+                                    {property.listedBy?.profile_picture ? (
+                                        <img src={property.listedBy.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={property.listedBy.name} />
+                                    ) : (
+                                        (property.listedBy?.name || 'A')[0]
+                                    )}
                                 </div>
                                 <div>
                                     <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '600' }}>Listed By</div>
