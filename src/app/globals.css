@@ -198,3 +198,15 @@ h3 {
 .skeleton-card {
   border-radius: var(--radius-lg);
 }
+
+/* NProgress Custom Styling */
+#nprogress .bar {
+  background: #2563eb !important;
+  /* Vibrant Blue */
+  height: 4px !important;
+  z-index: 9999 !important;
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 10px #2563eb, 0 0 5px #2563eb !important;
+}

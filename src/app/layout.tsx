@@ -12,11 +12,15 @@ export const metadata = {
   description: "Experience the difference with Namsari.",
 };
 
+import Providers from "./providers";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className={outfit.className}>
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
