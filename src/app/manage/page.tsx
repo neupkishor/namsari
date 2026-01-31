@@ -26,7 +26,7 @@ export default function ManageDashboard() {
                 <div className="card">
                     <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: '8px' }}>Operational Revenue</p>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                        <span style={{ fontSize: '1.75rem', fontWeight: '600' }}>$2.4M</span>
+                        <span style={{ fontSize: '1.75rem', fontWeight: '600' }}>NRs. 2.4B</span>
                         <span style={{ color: '#10b981', fontSize: '0.875rem', fontWeight: '500' }}>+8.4%</span>
                     </div>
                 </div>

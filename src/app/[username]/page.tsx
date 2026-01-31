@@ -2,7 +2,7 @@ import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import HomeClient from '../HomeClient';
-import { Property, User } from '@/generated/prisma';
+import { Property, User } from '@prisma/client';
 
 interface PageProps {
     params: Promise<{
@@ -47,7 +47,7 @@ export default async function ProfilePage({ params }: PageProps) {
     // Enriched properties for the view (similar to API logic)
     const enrichedProperties = properties.map((p) => ({
         ...p,
-        price: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Number(p.price)),
+        price: new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(Number(p.price)).replace('NPR', 'NRs.'),
         images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images,
         property_types: typeof p.property_types === 'string' ? JSON.parse(p.property_types) : p.property_types,
         purposes: typeof p.purposes === 'string' ? JSON.parse(p.purposes) : p.purposes,

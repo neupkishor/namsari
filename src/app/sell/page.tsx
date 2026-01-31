@@ -13,14 +13,22 @@ export default function SellPage() {
     const [price, setPrice] = useState('');
     const [coords, setCoords] = useState<{ lat: string; lng: string }>({ lat: '', lng: '' });
     const [fetchingCoords, setFetchingCoords] = useState(false);
-    const [googleMapsUrl, setGoogleMapsUrl] = useState('');
+    const [locationSource, setLocationSource] = useState('');
 
-    const parseGoogleMapsUrl = (url: string) => {
-        setGoogleMapsUrl(url);
-        // regex to find coordinates in google maps url like @27.7,85.3
-        const match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-        if (match) {
-            setCoords({ lat: match[1], lng: match[2] });
+    const handleLocationSourceChange = (val: string) => {
+        setLocationSource(val);
+
+        // 1. Try Google Maps URL
+        const urlMatch = val.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+        if (urlMatch) {
+            setCoords({ lat: urlMatch[1], lng: urlMatch[2] });
+            return;
+        }
+
+        // 2. Try raw Lat, Lng format (e.g. 27.7172, 85.3240)
+        const geoMatch = val.match(/^(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)$/);
+        if (geoMatch) {
+            setCoords({ lat: geoMatch[1], lng: geoMatch[2] });
         }
     };
 
@@ -33,10 +41,10 @@ export default function SellPage() {
         setFetchingCoords(true);
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                setCoords({
-                    lat: position.coords.latitude.toString(),
-                    lng: position.coords.longitude.toString()
-                });
+                const lat = position.coords.latitude.toString();
+                const lng = position.coords.longitude.toString();
+                setCoords({ lat, lng });
+                setLocationSource(`${lat}, ${lng}`);
                 setFetchingCoords(false);
             },
             (error) => {
@@ -254,64 +262,45 @@ export default function SellPage() {
                     </div>
 
                     <div style={{ padding: '24px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--color-primary)' }}>Map Pointer (Optional)</h3>
+                        <div className="form-group" style={{ marginBottom: '12px' }}>
+                            <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>Paste Google Maps location, or paste Geo location</label>
+                            <input
+                                type="text"
+                                name="google_maps_url"
+                                value={locationSource}
+                                onChange={(e) => handleLocationSourceChange(e.target.value)}
+                                placeholder="Link or Coordinates (e.g. 27.7, 85.3)..."
+                                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.95rem' }}
+                            />
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                             <button
                                 type="button"
                                 onClick={fetchCoordinates}
                                 style={{
-                                    background: 'var(--color-gold)',
-                                    color: 'white',
+                                    background: 'none',
                                     border: 'none',
-                                    padding: '6px 14px',
-                                    borderRadius: '20px',
-                                    fontSize: '0.8rem',
+                                    color: 'var(--color-gold)',
+                                    fontSize: '0.85rem',
                                     fontWeight: '700',
-                                    cursor: 'pointer'
+                                    cursor: 'pointer',
+                                    textDecoration: 'underline',
+                                    paddingLeft: '0'
                                 }}
                             >
-                                {fetchingCoords ? '📍 Fetching...' : '📍 Fetch now coordinates'}
+                                {fetchingCoords ? '📍 Fetching location...' : '📍 Or fetch your current location'}
                             </button>
                         </div>
 
-                        <div className="form-group" style={{ marginBottom: '16px' }}>
-                            <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.85rem' }}>Google Maps URL</label>
-                            <input
-                                type="text"
-                                name="google_maps_url"
-                                value={googleMapsUrl}
-                                onChange={(e) => parseGoogleMapsUrl(e.target.value)}
-                                placeholder="Paste Google Maps link here..."
-                                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}
-                            />
-                            <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '6px' }}>Coordinates will be auto-extracted from the URL if possible.</p>
-                        </div>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                            <div className="form-group">
-                                <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.85rem' }}>Latitude</label>
-                                <input
-                                    type="text"
-                                    name="latitude"
-                                    value={coords.lat}
-                                    onChange={(e) => setCoords({ ...coords, lat: e.target.value })}
-                                    placeholder="e.g. 27.7172"
-                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}
-                                />
+                        {coords.lat && coords.lng && (
+                            <div style={{ marginTop: '16px', fontSize: '0.8rem', color: '#1e293b', fontWeight: '600', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <span style={{ color: '#22c55e' }}>✓</span> Coordinates Locked: {coords.lat}, {coords.lng}
+                                <input type="hidden" name="latitude" value={coords.lat} />
+                                <input type="hidden" name="longitude" value={coords.lng} />
                             </div>
-                            <div className="form-group">
-                                <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.85rem' }}>Longitude</label>
-                                <input
-                                    type="text"
-                                    name="longitude"
-                                    value={coords.lng}
-                                    onChange={(e) => setCoords({ ...coords, lng: e.target.value })}
-                                    placeholder="e.g. 85.3240"
-                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}
-                                />
-                            </div>
-                        </div>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--color-gold)', marginTop: '12px', fontWeight: '600' }}>Properties with coordinates appear on the interactive Explore map.</p>
+                        )}
+                        <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '12px' }}>Properties with coordinates appear on the interactive Explore map.</p>
                     </div>
 
                     <div className="form-group">

@@ -1,7 +1,7 @@
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
-import { Property, User } from '@/generated/prisma';
+import { Property, User } from '@prisma/client';
 
 export async function GET() {
     try {
@@ -35,7 +35,7 @@ export async function GET() {
 
             return {
                 ...p,
-                price: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Number(p.price)),
+                price: new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(Number(p.price)).replace('NPR', 'NRs.'),
                 images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images,
                 property_types: typeof p.property_types === 'string' ? JSON.parse(p.property_types) : p.property_types,
                 purposes: typeof p.purposes === 'string' ? JSON.parse(p.purposes) : p.purposes,

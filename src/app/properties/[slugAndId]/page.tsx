@@ -76,7 +76,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                                 <div>
                                     <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: '700' }}>Price</div>
                                     <div style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--color-primary)' }}>
-                                        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(property.price)}
+                                        {new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(property.price).replace('NPR', 'NRs.')}
                                     </div>
                                 </div>
                                 <div style={{ width: '1px', background: '#e2e8f0' }} />

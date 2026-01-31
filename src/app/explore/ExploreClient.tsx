@@ -16,6 +16,7 @@ export default function ExploreClient({ initialUser }: { initialUser: any }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [mapCenter, setMapCenter] = useState<[number, number]>([27.7172, 85.324]);
+    const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
     const fetchProperties = async () => {
         try {
@@ -31,6 +32,19 @@ export default function ExploreClient({ initialUser }: { initialUser: any }) {
 
     useEffect(() => {
         fetchProperties();
+
+        // Detect user location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const loc: [number, number] = [position.coords.latitude, position.coords.longitude];
+                    setUserLocation(loc);
+                    // Center map on user if they are the first result or if we want to show their area immediately
+                    setMapCenter(loc);
+                },
+                (err) => console.warn("User denied location access or error:", err)
+            );
+        }
     }, []);
 
     const filteredProperties = properties.filter(p =>
@@ -141,6 +155,7 @@ export default function ExploreClient({ initialUser }: { initialUser: any }) {
                     <MapComponent
                         properties={filteredProperties}
                         center={mapCenter}
+                        userLocation={userLocation}
                         selectedId={selectedId}
                         onMarkerClick={(id) => setSelectedId(id)}
                     />

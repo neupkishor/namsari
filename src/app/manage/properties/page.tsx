@@ -12,7 +12,7 @@ export default async function ManagePropertiesPage() {
     const enrichedProperties = properties.map((p) => {
         return {
             ...p,
-            price: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Number(p.price)),
+            price: new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(Number(p.price)).replace('NPR', 'NRs.'),
             author_name: p.user ? p.user.name : (p.author || 'Unknown'),
             author_username: p.user ? p.user.username : null,
             // Parse JSON fields if they are strings (SQLite storage)

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -11,6 +11,13 @@ const DefaultIcon = L.icon({
     shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
     iconSize: [25, 41],
     iconAnchor: [12, 41],
+});
+
+const UserLocationIcon = L.divIcon({
+    html: `<div style="background-color: #3b82f6; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.3);"></div>`,
+    className: '',
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
 });
 
 L.Marker.prototype.options.icon = DefaultIcon;
@@ -28,6 +35,7 @@ interface Property {
 interface MapProps {
     properties: Property[];
     center?: [number, number];
+    userLocation?: [number, number] | null;
     zoom?: number;
     onMarkerClick?: (id: number) => void;
     selectedId?: number | null;
@@ -42,7 +50,7 @@ function ChangeView({ center, zoom }: { center: [number, number]; zoom: number }
     return null;
 }
 
-export default function MapComponent({ properties, center = [27.7172, 85.324], zoom = 13, onMarkerClick, selectedId }: MapProps) {
+export default function MapComponent({ properties, center = [27.7172, 85.324], userLocation, zoom = 13, onMarkerClick, selectedId }: MapProps) {
     return (
         <MapContainer
             center={center}
@@ -56,6 +64,24 @@ export default function MapComponent({ properties, center = [27.7172, 85.324], z
             />
 
             <ChangeView center={center} zoom={zoom} />
+
+            {/* User Current Location Circle */}
+            {userLocation && (
+                <>
+                    <Circle
+                        center={userLocation}
+                        radius={500} // 500 meters radius
+                        pathOptions={{
+                            fillColor: '#3b82f6',
+                            fillOpacity: 0.15,
+                            color: '#3b82f6',
+                            weight: 1,
+                            opacity: 0.3
+                        }}
+                    />
+                    <Marker position={userLocation} icon={UserLocationIcon} interactive={false} />
+                </>
+            )}
 
             {properties.map((p) => {
                 if (!p.latitude || !p.longitude) return null;
