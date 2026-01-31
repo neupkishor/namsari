@@ -11,6 +11,41 @@ export default function SellPage() {
     const [compressing, setCompressing] = useState(false);
     const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
     const [price, setPrice] = useState('');
+    const [coords, setCoords] = useState<{ lat: string; lng: string }>({ lat: '', lng: '' });
+    const [fetchingCoords, setFetchingCoords] = useState(false);
+    const [googleMapsUrl, setGoogleMapsUrl] = useState('');
+
+    const parseGoogleMapsUrl = (url: string) => {
+        setGoogleMapsUrl(url);
+        // regex to find coordinates in google maps url like @27.7,85.3
+        const match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+        if (match) {
+            setCoords({ lat: match[1], lng: match[2] });
+        }
+    };
+
+    const fetchCoordinates = () => {
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser");
+            return;
+        }
+
+        setFetchingCoords(true);
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setCoords({
+                    lat: position.coords.latitude.toString(),
+                    lng: position.coords.longitude.toString()
+                });
+                setFetchingCoords(false);
+            },
+            (error) => {
+                console.error("Error fetching coordinates:", error);
+                alert("Unable to retrieve your location");
+                setFetchingCoords(false);
+            }
+        );
+    };
 
     const getPriceInWords = (priceStr: string) => {
         const num = parseInt(priceStr.replace(/,/g, ''), 10);
@@ -206,16 +241,77 @@ export default function SellPage() {
                                 </div>
                             )}
                         </div>
-                        <div className="form-group">
-                            <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>Location</label>
+                    </div>
+                    <div className="form-group">
+                        <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>Location Name</label>
+                        <input
+                            type="text"
+                            name="location"
+                            placeholder="e.g. Manhattan, NY"
+                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                            required
+                        />
+                    </div>
+
+                    <div style={{ padding: '24px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--color-primary)' }}>Map Pointer (Optional)</h3>
+                            <button
+                                type="button"
+                                onClick={fetchCoordinates}
+                                style={{
+                                    background: 'var(--color-gold)',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '6px 14px',
+                                    borderRadius: '20px',
+                                    fontSize: '0.8rem',
+                                    fontWeight: '700',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                {fetchingCoords ? '📍 Fetching...' : '📍 Fetch now coordinates'}
+                            </button>
+                        </div>
+
+                        <div className="form-group" style={{ marginBottom: '16px' }}>
+                            <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.85rem' }}>Google Maps URL</label>
                             <input
                                 type="text"
-                                name="location"
-                                placeholder="e.g. Manhattan, NY"
-                                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-                                required
+                                name="google_maps_url"
+                                value={googleMapsUrl}
+                                onChange={(e) => parseGoogleMapsUrl(e.target.value)}
+                                placeholder="Paste Google Maps link here..."
+                                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}
                             />
+                            <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '6px' }}>Coordinates will be auto-extracted from the URL if possible.</p>
                         </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div className="form-group">
+                                <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.85rem' }}>Latitude</label>
+                                <input
+                                    type="text"
+                                    name="latitude"
+                                    value={coords.lat}
+                                    onChange={(e) => setCoords({ ...coords, lat: e.target.value })}
+                                    placeholder="e.g. 27.7172"
+                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px', fontSize: '0.85rem' }}>Longitude</label>
+                                <input
+                                    type="text"
+                                    name="longitude"
+                                    value={coords.lng}
+                                    onChange={(e) => setCoords({ ...coords, lng: e.target.value })}
+                                    placeholder="e.g. 85.3240"
+                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}
+                                />
+                            </div>
+                        </div>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--color-gold)', marginTop: '12px', fontWeight: '600' }}>Properties with coordinates appear on the interactive Explore map.</p>
                     </div>
 
                     <div className="form-group">

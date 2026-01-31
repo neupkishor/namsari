@@ -137,6 +137,34 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                                 </button>
                             </div>
                         </div>
+
+                        {(property.google_maps_url || (property.latitude && property.longitude)) && (
+                            <div className="card" style={{ padding: '24px' }}>
+                                <h4 style={{ marginBottom: '12px', fontWeight: '700' }}>Location</h4>
+                                <a
+                                    href={property.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${property.latitude},${property.longitude}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '10px',
+                                        width: '100%',
+                                        padding: '12px',
+                                        background: '#f1f5f9',
+                                        color: '#0f172a',
+                                        borderRadius: '8px',
+                                        textDecoration: 'none',
+                                        fontWeight: '600',
+                                        fontSize: '0.9rem',
+                                        border: '1px solid #e2e8f0'
+                                    }}
+                                >
+                                    <span>📍</span> View on Google Maps
+                                </a>
+                            </div>
+                        )}
                     </div>
 
                 </div>

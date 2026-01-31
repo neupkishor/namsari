@@ -12,6 +12,12 @@ export async function createListing(formData: FormData) {
     const location = formData.get('location') as string;
     const main_category = formData.get('main_category') as string;
 
+    const latStr = formData.get('latitude') as string;
+    const lngStr = formData.get('longitude') as string;
+    const latitude = latStr ? parseFloat(latStr) : null;
+    const longitude = lngStr ? parseFloat(lngStr) : null;
+    const google_maps_url = formData.get('google_maps_url') as string;
+
     // Generate slug
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
@@ -38,8 +44,9 @@ export async function createListing(formData: FormData) {
                 title,
                 slug,
                 price,
-                latitude: 27.7 + (Math.random() - 0.5) * 0.05,
-                longitude: 85.3 + (Math.random() - 0.5) * 0.05,
+                latitude,
+                longitude,
+                google_maps_url: google_maps_url || null,
                 location,
                 main_category,
                 commercial_sub_category: commercial_sub_category || null,

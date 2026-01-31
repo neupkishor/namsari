@@ -42,6 +42,7 @@ model Property {
   
   latitude                Float?
   longitude               Float?
+  google_maps_url         String?
   
   created_on              DateTime @default(now())
   listed_on               DateTime @default(now())

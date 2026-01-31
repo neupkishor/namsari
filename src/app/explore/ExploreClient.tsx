@@ -34,8 +34,9 @@ export default function ExploreClient({ initialUser }: { initialUser: any }) {
     }, []);
 
     const filteredProperties = properties.filter(p =>
-        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.location.toLowerCase().includes(searchQuery.toLowerCase())
+        p.latitude !== null && p.longitude !== null &&
+        (p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            p.location.toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
     const handleCardClick = (p: any) => {
