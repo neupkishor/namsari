@@ -8,8 +8,8 @@ import { Input } from '@/components/ui';
 import { CreatePostCard } from '@/components/CreatePostCard';
 import { PopularCategories, FeaturedProjects } from '@/components/HomeSections';
 
-export default function Home({ user }: { user: any }) {
-  const [viewType, setViewType] = useState('card');
+export default function Home({ user, settings }: { user: any, settings: any }) {
+  const viewType = settings?.view_mode || 'card';
   const [isLoading, setIsLoading] = useState(true);
   const [properties, setProperties] = useState<any[]>([]);
   const [page, setPage] = useState(0);
@@ -52,8 +52,6 @@ export default function Home({ user }: { user: any }) {
   };
 
   useEffect(() => {
-    const saved = localStorage.getItem('namsari-home-view');
-    if (saved) setViewType(saved);
     fetchProperties(true);
   }, []);
 
@@ -119,7 +117,7 @@ export default function Home({ user }: { user: any }) {
       {isLoading ? (
         viewType === 'card' ? <ClassicSkeleton /> : <FeedSkeleton />
       ) : (
-        viewType === 'card' ? <ClassicView properties={properties} /> : <FeedView properties={properties} user={user} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} />
+        viewType === 'card' ? <ClassicView properties={properties} /> : <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} />
       )}
     </main>
   );
@@ -241,7 +239,7 @@ function ClassicView({ properties }: { properties: any[] }) {
   );
 }
 
-function FeedView({ properties, user, onRefresh, onLoadMore, isFetchingMore, hasMore }: { properties: any[], user: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean }) {
+function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchingMore, hasMore }: { properties: any[], user: any, settings: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean }) {
   const sidebarItems = [
     { label: 'Profile', icon: '👤', href: user ? `/@${user.username}` : '/login' },
     { label: 'Houses', icon: '🏠', href: '/find/houses' },
@@ -352,6 +350,7 @@ function FeedView({ properties, user, onRefresh, onLoadMore, isFetchingMore, has
               <PropertyPost
                 property={p}
                 user={user}
+                settings={settings}
                 onRefresh={onRefresh}
                 onVisible={isTrigger ? onLoadMore : undefined}
               />
@@ -375,7 +374,7 @@ function FeedView({ properties, user, onRefresh, onLoadMore, isFetchingMore, has
   );
 }
 
-function PropertyPost({ property, user, onRefresh, onVisible }: { property: any, user: any, onRefresh: () => void, onVisible?: () => void }) {
+function PropertyPost({ property, user, settings, onRefresh, onVisible }: { property: any, user: any, settings: any, onRefresh: () => void, onVisible?: () => void }) {
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -543,25 +542,76 @@ function PropertyPost({ property, user, onRefresh, onVisible }: { property: any,
 
       {/* Post Feed Actions */}
       <div style={{ padding: '8px 16px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: showComments || comments.length > 0 ? '1px solid #f1f5f9' : 'none', paddingBottom: '8px' }}>
-          <ActionButton
-            icon={isLiked ? "❤️" : "🤍"}
-            label="Like"
-            count={likeCount}
-            active={isLiked}
-            onClick={handleLike}
-          />
-          <ActionButton
-            icon="💬"
-            label="Comment"
-            count={comments.length}
-            onClick={() => setShowComments(!showComments)}
-          />
-          <ActionButton
-            icon="↗️"
-            label="Share"
-            onClick={handleShare}
-          />
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: (showComments || comments.length > 0) ? '1px solid #f1f5f9' : 'none',
+          paddingBottom: '8px'
+        }}>
+          {(() => {
+            const result: any[] = [];
+
+            // Set 1: Social
+            if (settings?.show_like_button !== false || settings?.show_comment_button !== false) {
+              result.push(
+                <div key="set1" style={{ display: 'flex', gap: '4px' }}>
+                  {settings?.show_like_button !== false && (
+                    <ActionButton
+                      icon={<svg width="18" height="18" viewBox="0 0 24 24" fill={isLiked ? "#ef4444" : "none"} stroke={isLiked ? "#ef4444" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>}
+                      label="Like"
+                      count={likeCount}
+                      active={isLiked}
+                      onClick={handleLike}
+                    />
+                  )}
+                  {settings?.show_comment_button !== false && (
+                    <ActionButton
+                      icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>}
+                      label="Comment"
+                      count={comments.length}
+                      onClick={() => setShowComments(!showComments)}
+                    />
+                  )}
+                </div>
+              );
+            }
+
+            // Set 2: Real Estate Actions
+            if (settings?.show_contact_agent !== false || settings?.show_make_offer !== false) {
+              result.push(
+                <div key="set2" style={{ display: 'flex', gap: '4px' }}>
+                  {settings?.show_contact_agent !== false && (
+                    <ActionButton
+                      icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.81 12.81 0 0 0 .62 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.62A2 2 0 0 1 22 16.92z"></path></svg>}
+                      label="Contact"
+                    />
+                  )}
+                  {settings?.show_make_offer !== false && (
+                    <ActionButton
+                      icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"></path><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"></path><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path></svg>}
+                      label="Offer"
+                    />
+                  )}
+                </div>
+              );
+            }
+
+            // Set 3: Share
+            if (settings?.show_share_button !== false) {
+              result.push(
+                <div key="set3" style={{ display: 'flex', gap: '4px' }}>
+                  <ActionButton
+                    icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>}
+                    label="Share"
+                    onClick={handleShare}
+                  />
+                </div>
+              );
+            }
+
+            return result;
+          })()}
         </div>
 
         {/* Comment Section */}
@@ -601,24 +651,32 @@ function PropertyPost({ property, user, onRefresh, onVisible }: { property: any,
   );
 }
 
-function ActionButton({ icon, label, count, active = false, onClick }: { icon: string, label: string, count?: number, active?: boolean, onClick?: () => void }) {
+function ActionButton({ icon, label, count, active = false, onClick }: { icon: React.ReactNode, label: string, count?: number, active?: boolean, onClick?: () => void }) {
   return (
     <button onClick={onClick} style={{
       display: 'flex',
       alignItems: 'center',
+      justifyContent: 'center',
       gap: '6px',
-      background: 'transparent',
-      border: 'none',
-      padding: '8px 12px',
-      borderRadius: '4px',
+      background: 'white',
+      border: '1px solid #e2e8f0',
+      padding: '8px 10px',
+      borderRadius: '8px',
       cursor: 'pointer',
-      color: active ? '#ef4444' : '#64748b',
-      fontSize: '0.9rem',
+      color: active ? '#ef4444' : '#1e293b',
+      fontSize: '0.825rem',
       fontWeight: '600',
-      transition: 'background 0.2s',
-    }} onMouseOver={(e) => e.currentTarget.style.background = '#f1f5f9'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
-      <span style={{ fontSize: '1.2rem' }}>{icon}</span>
-      <span>{label} {count !== undefined && count > 0 ? count : ''}</span>
+      transition: 'all 0.2s',
+      whiteSpace: 'nowrap'
+    }} onMouseOver={(e) => {
+      e.currentTarget.style.background = '#f8fafc';
+      e.currentTarget.style.borderColor = '#cbd5e1';
+    }} onMouseOut={(e) => {
+      e.currentTarget.style.background = 'white';
+      e.currentTarget.style.borderColor = '#e2e8f0';
+    }}>
+      <span style={{ fontSize: '1.2rem', display: 'flex', alignItems: 'center' }}>{icon}</span>
+      <span>{label}{count !== undefined && count > 0 ? ` ${count}` : ''}</span>
     </button>
   );
 }

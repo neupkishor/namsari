@@ -284,3 +284,15 @@ model Agency {
   updated_at      DateTime @updatedAt
 }
 
+model SystemSettings {
+  id                      Int      @id @default(1)
+  view_mode               String   @default("classic") // classic, social
+  show_like_button        Boolean  @default(true)
+  show_share_button       Boolean  @default(true)
+  show_comment_button     Boolean  @default(true)
+  show_contact_agent      Boolean  @default(true)
+  show_make_offer         Boolean  @default(true)
+  updated_at              DateTime @updatedAt
+}
+
+

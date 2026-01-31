@@ -3,7 +3,22 @@ import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 
 export default async function HomePage() {
-    const session = await getSession();
+    const [session, settings] = await Promise.all([
+        getSession(),
+        (prisma as any).systemSettings.findFirst() ||
+        (prisma as any).systemSettings.create({
+            data: {
+                id: 1,
+                view_mode: 'classic',
+                show_like_button: true,
+                show_share_button: true,
+                show_comment_button: true,
+                show_contact_agent: true,
+                show_make_offer: true
+            }
+        })
+    ]);
+
     let user = null;
 
     if (session?.id) {
@@ -15,5 +30,5 @@ export default async function HomePage() {
             console.error("Failed to fetch user", e);
         }
     }
-    return <HomeClient user={user} />;
+    return <HomeClient user={user} settings={settings} />;
 }

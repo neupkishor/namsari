@@ -42,7 +42,11 @@ export default async function ProfilePage({ params }: PageProps) {
         );
     }
 
-    const session = await getSession();
+    // Fetch data and settings
+    const [session, settings] = await Promise.all([
+        getSession(),
+        (prisma as any).systemSettings.findFirst()
+    ]);
     const isOwner = session?.id === user.id.toString();
 
     // Fetch user's properties with relations
@@ -91,7 +95,7 @@ export default async function ProfilePage({ params }: PageProps) {
             likes_count: p.property_likes?.length || 0,
             author_username: user.username,
             author_name: user.name,
-            author_avatar: user.profile_picture || (user.name || 'U')[0]
+            author_avatar: (user as any).profile_picture || (user.name || 'U')[0]
         };
     });
 
@@ -123,7 +127,7 @@ export default async function ProfilePage({ params }: PageProps) {
                         <div style={{ display: 'flex', alignItems: 'flex-end', gap: '24px' }}>
                             <ProfileImageUpload
                                 userId={user.id}
-                                currentImage={user.profile_picture}
+                                currentImage={(user as any).profile_picture}
                                 userName={user.name}
                                 isOwner={isOwner}
                             />
@@ -261,16 +265,38 @@ export default async function ProfilePage({ params }: PageProps) {
                                 </div>
 
                                 <div style={{ padding: '16px 20px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
-                                        <button style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#64748b', fontWeight: '600', transition: 'background 0.2s', borderRadius: '8px' }}>
-                                            <span>👍</span> Like {p.likes_count > 0 && p.likes_count}
-                                        </button>
-                                        <button style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#64748b', fontWeight: '600', transition: 'background 0.2s', borderRadius: '8px' }}>
-                                            <span>💬</span> Comment
-                                        </button>
-                                        <Link href={`/properties/${p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--color-primary)', fontWeight: '700', textDecoration: 'none', transition: 'background 0.2s', borderRadius: '8px' }}>
-                                            <span>👁️</span> View Details
-                                        </Link>
+                                    <div style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        borderTop: '1px solid #f1f5f9',
+                                        paddingTop: '12px'
+                                    }}>
+                                        {/* Set 1: Social */}
+                                        {(settings?.show_like_button !== false || settings?.show_comment_button !== false) && (
+                                            <div style={{ display: 'flex', gap: '4px' }}>
+                                                {settings?.show_like_button !== false && (
+                                                    <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px 10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', color: '#1e293b', fontWeight: '600', transition: 'all 0.2s', borderRadius: '8px', fontSize: '0.825rem' }}>
+                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                                                        Like {p.likes_count > 0 && p.likes_count}
+                                                    </button>
+                                                )}
+                                                {settings?.show_comment_button !== false && (
+                                                    <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px 10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', color: '#1e293b', fontWeight: '600', transition: 'all 0.2s', borderRadius: '8px', fontSize: '0.825rem' }}>
+                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                                                        Comment
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Set 2: View Details */}
+                                        <div style={{ display: 'flex' }}>
+                                            <Link href={`/properties/${p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px 10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', color: 'var(--color-primary)', fontWeight: '700', textDecoration: 'none', transition: 'all 0.2s', borderRadius: '8px', fontSize: '0.825rem' }}>
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                                View Details
+                                            </Link>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
