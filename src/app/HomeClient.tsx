@@ -233,17 +233,17 @@ function ClassicView({ properties }: { properties: any[] }) {
 
 function FeedView({ properties, user, onRefresh, onLoadMore, isFetchingMore, hasMore }: { properties: any[], user: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean }) {
   const sidebarItems = [
-    { label: 'Profile', icon: '👤' },
-    { label: 'Houses', icon: '🏠' },
-    { label: 'Commercial Buildings', icon: '🏢' },
-    { label: 'Saved Estates', icon: '🔖' },
-    { label: 'Market Trends', icon: '📈' },
+    { label: 'Profile', icon: '👤', href: user ? `/@${user.username}` : '/login' },
+    { label: 'Houses', icon: '🏠', href: '/find/houses' },
+    { label: 'Commercial Buildings', icon: '🏢', href: '/find/commercial-buildings' },
+    { label: 'Saved Estates', icon: '🔖', href: '/profile/saved' },
+    { label: 'Market Trends', icon: '📈', href: '/market' },
   ];
 
   const secondaryItems = [
-    { label: 'Settings', icon: '⚙️' },
-    { label: 'Help Center', icon: '❓' },
-    { label: 'Privacy', icon: '🛡️' },
+    { label: 'Settings', icon: '⚙️', href: '/manage/settings' },
+    { label: 'Help Center', icon: '❓', href: '/support' },
+    { label: 'Privacy', icon: '🛡️', href: '/terms/privacy' },
   ];
 
   if (!properties || properties.length === 0) {
@@ -261,39 +261,43 @@ function FeedView({ properties, user, onRefresh, onLoadMore, isFetchingMore, has
       <aside className="feed-sidebar-desktop" style={{ width: '240px', flexShrink: 0, position: 'sticky', top: '112px', height: 'fit-content', display: 'none' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {sidebarItems.map((item, idx) => (
-            <div key={idx} style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              padding: '12px 16px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: idx === 0 ? '700' : '500',
-              color: 'var(--color-primary)',
-              transition: 'background 0.2s'
-            }} onMouseOver={(e) => e.currentTarget.style.background = '#e4e6eb'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
-              <span style={{ fontSize: '1.25rem' }}>{item.icon}</span>
-              <span>{item.label}</span>
-            </div>
+            <Link key={idx} href={item.href} style={{ textDecoration: 'none' }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '12px 16px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: idx === 0 ? '700' : '500',
+                color: 'var(--color-primary)',
+                transition: 'background 0.2s'
+              }} onMouseOver={(e) => e.currentTarget.style.background = '#e4e6eb'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+                <span style={{ fontSize: '1.25rem' }}>{item.icon}</span>
+                <span>{item.label}</span>
+              </div>
+            </Link>
           ))}
 
           <div style={{ margin: '16px 0', height: '1px', background: 'rgba(0,0,0,0.05)' }} />
 
           {secondaryItems.map((item, idx) => (
-            <div key={idx} style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              padding: '10px 16px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              color: 'var(--color-text-muted)',
-              transition: 'background 0.2s'
-            }} onMouseOver={(e) => e.currentTarget.style.background = '#f0f2f5'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
-              <span style={{ fontSize: '1.1rem' }}>{item.icon}</span>
-              <span>{item.label}</span>
-            </div>
+            <Link key={idx} href={item.href} style={{ textDecoration: 'none' }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                color: 'var(--color-text-muted)',
+                transition: 'background 0.2s'
+              }} onMouseOver={(e) => e.currentTarget.style.background = '#f0f2f5'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+                <span style={{ fontSize: '1.1rem' }}>{item.icon}</span>
+                <span>{item.label}</span>
+              </div>
+            </Link>
           ))}
 
           <div style={{ margin: '16px 0', height: '1px', background: 'rgba(0,0,0,0.05)' }} />

@@ -6,21 +6,24 @@ import { Property, User } from '@prisma/client';
 
 interface PageProps {
     params: Promise<{
-        username: string;
+        '@username': string;
     }>;
 }
 
 export default async function ProfilePage({ params }: PageProps) {
-    const { username } = await params;
+    const resolvedParams = await params;
+    const username = resolvedParams['@username'];
 
     // Decode the username (it comes as %40username from the URL /@username)
     let decoded = decodeURIComponent(username);
 
-    // Check if it starts with @ (or %40 which is decoded to @)
-    // If users navigate to /@john, params.username is "%40john" -> decoded "@john"
-    if (decoded.startsWith('@')) {
-        decoded = decoded.substring(1);
+    // Strictly require @ prefix for profile routes
+    if (!decoded.startsWith('@')) {
+        return notFound();
     }
+
+    // Strip the @ for database lookup
+    decoded = decoded.substring(1);
 
     // Find user by username
     const user = await prisma.user.findUnique({
