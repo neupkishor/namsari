@@ -19,10 +19,15 @@ export default function Home({ user, settings, featuredCollections }: { user: an
   const viewType = settings?.view_mode || 'classic';
   const [isLoading, setIsLoading] = useState(true);
 
-  // Force refresh when coming back or when settings update is suspected
+  // Toggle footer visibility based on view type
   useEffect(() => {
-    router.refresh();
-  }, [settings?.view_mode]);
+    if (viewType === 'social') {
+      document.body.classList.add('footer-hidden');
+    } else {
+      document.body.classList.remove('footer-hidden');
+    }
+    return () => document.body.classList.remove('footer-hidden');
+  }, [viewType]);
 
   const [properties, setProperties] = useState<any[]>([]);
   const [page, setPage] = useState(0);

@@ -42,11 +42,17 @@ interface MapProps {
     disablePopups?: boolean;
 }
 
-// Helper to auto-center map when properties change
-function ChangeView({ center, zoom }: { center: [number, number]; zoom: number }) {
+// Helper to auto-center map when properties change and invalidate size to fix rendering bugs
+function MapResizer({ center, zoom }: { center: [number, number]; zoom: number }) {
     const map = useMap();
     useEffect(() => {
-        map.setView(center, zoom);
+        if (map) {
+            map.setView(center, zoom);
+            // Invalidate size helps fix the "gray box" or "broken tiles" issue common in React-Leaflet
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 500);
+        }
     }, [center, zoom, map]);
     return null;
 }
@@ -72,7 +78,7 @@ export default function MapComponent({
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
-            <ChangeView center={center} zoom={zoom} />
+            <MapResizer center={center} zoom={zoom} />
 
             {/* User Current Location Circle */}
             {userLocation && (

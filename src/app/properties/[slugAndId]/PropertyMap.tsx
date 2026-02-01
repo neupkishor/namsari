@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 
 const MiniMap = dynamic(() => import('@/app/explore/MapComponent'), {
     ssr: false,
-    loading: () => <div style={{ height: '200px', background: '#f1f5f9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Map...</div>
+    loading: () => <div style={{ height: '100%', width: '100%', background: '#f1f5f9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Map...</div>
 });
 
 interface PropertyMapProps {
@@ -22,7 +22,7 @@ interface PropertyMapProps {
 
 export default function PropertyMap({ property, images }: PropertyMapProps) {
     return (
-        <div style={{ height: '200px', width: '100%', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
+        <div style={{ height: '100%', width: '100%' }}>
             <MiniMap
                 properties={[{
                     id: property.id,
