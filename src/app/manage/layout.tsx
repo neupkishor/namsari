@@ -9,13 +9,13 @@ export default async function ManageLayout({ children }: { children: React.React
     const currentUser = session ? await prisma.user.findUnique({ where: { id: Number(session.id) } }) : null;
 
     return (
-        <div className="manage-root" style={{ backgroundColor: 'var(--color-bg)', minHeight: '100vh' }}>
+        <div className="manage-root" style={{ backgroundColor: 'var(--color-bg)', minHeight: '100vh', overflow: 'visible' }}>
             {/* Full-width Header */}
             <SiteHeader user={currentUser} />
 
             {/* Main Content Area inside the Centered Container */}
-            <div className="layout-container">
-                <div className="main-layout-wrapper">
+            <div className="layout-container" style={{ overflow: 'visible' }}>
+                <div className="main-layout-wrapper" style={{ overflow: 'visible' }}>
                     {/* Sidebar */}
                     <aside className="sidebar">
                         <SidebarContent />
@@ -32,7 +32,7 @@ export default async function ManageLayout({ children }: { children: React.React
                     </aside>
 
                     {/* Main Body */}
-                    <main className="main-body">
+                    <main className="main-body" style={{ overflow: 'visible' }}>
                         {children}
 
                         {/* Footer moved inside main scrolling area */}

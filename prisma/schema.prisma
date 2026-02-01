@@ -412,15 +412,15 @@ model JobListing {
 }
 
 model JobApplication {
-  id              Int           @id @default(autoincrement())
-  jobId           Int
-  job             JobListing    @relation(fields: [jobId], references: [id])
-  full_name       String
-  email           String
-  phone           String
-  resume_url      String?       
-  cover_letter    String?
-  answers         String?       @default("[]") // JSON string of moreinformation
-  status          String        @default("pending") // pending, reviewed, rejected, hired
-  created_at      DateTime      @default(now())
+  id                 Int           @id @default(autoincrement())
+  application_for_id Int
+  application_for    JobListing    @relation(fields: [application_for_id], references: [id])
+  applicant_name     String
+  applicant_email    String
+  applicant_phone    String
+  resume_url         String?       
+  cover_letter       String?
+  moreinformation    String?       @default("[]") 
+  status             String        @default("pending") // pending, reviewed, rejected, hired
+  created_at         DateTime      @default(now())
 }

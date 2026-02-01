@@ -82,7 +82,7 @@ export async function updateJobListing(id: number, data: any) {
 
 export async function deleteJobListing(id: number) {
     await (prisma as any).jobApplication.deleteMany({
-        where: { jobId: id }
+        where: { application_for_id: id }
     });
     await (prisma as any).jobListing.delete({
         where: { id }
@@ -95,31 +95,28 @@ export async function updateApplicationStatus(id: number, status: string) {
         where: { id },
         data: { status }
     });
-    const job = await (prisma as any).jobListing.findUnique({
-        where: { id: application.jobId }
-    });
-    revalidatePath(`/manage/careers/${job?.id}`);
+    revalidatePath(`/manage/careers/${application.application_for_id}`);
     return application;
 }
 
 export async function submitJobApplication(data: {
     jobId: number;
-    full_name: string;
-    email: string;
-    phone: string;
+    applicant_name: string;
+    applicant_email: string;
+    applicant_phone: string;
     resume_url?: string;
     cover_letter?: string;
-    answers: string; // JSON string
+    moreinformation: string; // JSON string
 }) {
     const application = await (prisma as any).jobApplication.create({
         data: {
-            jobId: data.jobId,
-            full_name: data.full_name,
-            email: data.email,
-            phone: data.phone,
+            application_for_id: data.jobId,
+            applicant_name: data.applicant_name,
+            applicant_email: data.applicant_email,
+            applicant_phone: data.applicant_phone,
             resume_url: data.resume_url,
             cover_letter: data.cover_letter,
-            answers: data.answers,
+            moreinformation: data.moreinformation,
         }
     });
     revalidatePath(`/manage/careers/${data.jobId}`);

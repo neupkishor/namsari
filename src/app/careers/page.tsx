@@ -1,7 +1,9 @@
 import React from 'react';
+import Link from 'next/link';
 import { SiteHeader } from '@/components/SiteHeader';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { getJobListings } from '@/app/manage/careers/actions';
 
 export default async function CareersPage() {
     const session = await getSession();
@@ -10,11 +12,16 @@ export default async function CareersPage() {
         user = await prisma.user.findUnique({ where: { id: Number(session.id) } });
     }
 
-    const positions = [
-        { title: 'Senior Full Stack Engineer', location: 'Remote / Kathmandu', department: 'Engineering' },
-        { title: 'Real Estate Data Analyst', location: 'Kathmandu', department: 'Operations' },
-        { title: 'Community Growth Manager', location: 'Remote', department: 'Marketing' }
-    ];
+    // Fetch real jobs from the database
+    let positions = [];
+    try {
+        positions = await getJobListings();
+    } catch (e) {
+        console.error("Failed to fetch jobs", e);
+    }
+
+    // Filter only open positions for public view
+    const openPositions = positions.filter((p: any) => p.status === 'open');
 
     return (
         <main style={{ background: 'white', minHeight: '100vh' }}>
@@ -30,31 +37,44 @@ export default async function CareersPage() {
                 </div>
 
                 <div style={{ display: 'grid', gap: '20px' }}>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '10px' }}>Open Roles</h2>
-                    {positions.map((pos, i) => (
-                        <div key={i} className="card" style={{
-                            padding: '32px',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            transition: 'border-color 0.2s'
-                        }}>
-                            <div>
-                                <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '4px' }}>{pos.title}</h3>
-                                <p style={{ color: '#64748b', fontSize: '0.95rem' }}>{pos.department} • {pos.location}</p>
-                            </div>
-                            <button style={{
-                                background: 'white',
-                                border: '1px solid #e2e8f0',
-                                padding: '10px 20px',
-                                borderRadius: '12px',
-                                fontWeight: '600',
-                                cursor: 'pointer'
-                            }}>
-                                Apply Now
-                            </button>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '10px' }}>Open Roles ({openPositions.length})</h2>
+                    {openPositions.length === 0 ? (
+                        <div className="card" style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
+                            We don't have any open roles at the moment. Please check back later!
                         </div>
-                    ))}
+                    ) : (
+                        openPositions.map((pos: any) => (
+                            <Link
+                                href={`/careers/${pos.slug}`}
+                                key={pos.id}
+                                style={{ textDecoration: 'none', color: 'inherit' }}
+                            >
+                                <div className="card job-card" style={{
+                                    padding: '32px',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    cursor: 'pointer'
+                                }}>
+                                    <div>
+                                        <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '4px', color: 'var(--color-primary)' }}>{pos.title}</h3>
+                                        <p style={{ color: '#64748b', fontSize: '0.95rem' }}>{pos.department} • {pos.location} • {pos.type}</p>
+                                    </div>
+                                    <div style={{
+                                        background: 'white',
+                                        border: '1px solid #e2e8f0',
+                                        padding: '10px 24px',
+                                        borderRadius: '12px',
+                                        fontWeight: '700',
+                                        color: 'var(--color-gold)',
+                                        fontSize: '0.9rem'
+                                    }}>
+                                        Apply Now →
+                                    </div>
+                                </div>
+                            </Link>
+                        ))
+                    )}
                 </div>
 
                 <div style={{ marginTop: '80px', padding: '60px', background: 'var(--color-primary)', borderRadius: '32px', color: 'white', textAlign: 'center' }}>

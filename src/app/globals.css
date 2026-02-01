@@ -74,10 +74,8 @@ body {
 
 .main-layout-wrapper {
   display: flex;
-  height: calc(100vh - var(--header-height));
-  /* Fixed height to force scroll within */
-  overflow: hidden;
-  /* Prevent outer scroll */
+  min-height: calc(100vh - var(--header-height));
+  overflow: visible !important;
 }
 
 .sidebar {
@@ -88,20 +86,22 @@ body {
   padding: 32px 0;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  /* Fill wrapper */
+  position: fixed;
+  /* Fixed relative to viewport */
+  top: var(--header-height);
+  bottom: 0;
+  height: calc(100vh - var(--header-height));
   overflow-y: auto;
-  /* Independent scroll */
+  z-index: 10;
 }
 
 .main-body {
   flex-grow: 1;
   padding: 40px;
   min-width: 0;
-  height: 100%;
-  /* Fill wrapper */
-  overflow-y: auto;
-  /* Independent scroll */
+  margin-left: var(--sidebar-width);
+  /* Add margin to account for fixed sidebar */
+  overflow: visible !important;
 }
 
 /* Typography */
@@ -232,4 +232,15 @@ h3 {
 .header-link:hover {
   background-color: #f0f2f5;
   color: var(--color-primary) !important;
+}
+/* Career Page Enhancements */
+.job-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.job-card:hover {
+  border-color: var(--color-gold) !important;
+  box-shadow: var(--shadow-md) !important;
+  transform: translateY(-4px);
+  background: white !important;
 }

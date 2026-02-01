@@ -14,13 +14,13 @@ export default function JobApplicationForm({ job, steps, currentStepIndex, sessi
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem(`job_app_${session}`);
             return saved ? JSON.parse(saved) : {
-                full_name: '',
-                email: '',
-                phone: '',
-                moreinformation: {}
+                applicant_name: '',
+                applicant_email: '',
+                applicant_phone: '',
+                moreinformation_responses: {}
             };
         }
-        return { full_name: '', email: '', phone: '', moreinformation: {} };
+        return { applicant_name: '', applicant_email: '', applicant_phone: '', moreinformation_responses: {} };
     });
 
     useEffect(() => {
@@ -30,8 +30,8 @@ export default function JobApplicationForm({ job, steps, currentStepIndex, sessi
     const handleAnswerChange = (itemId: string, value: any) => {
         setAnswers((prev: any) => ({
             ...prev,
-            moreinformation: {
-                ...prev.moreinformation,
+            moreinformation_responses: {
+                ...prev.moreinformation_responses,
                 [itemId]: value
             }
         }));
@@ -54,13 +54,11 @@ export default function JobApplicationForm({ job, steps, currentStepIndex, sessi
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            // Transform moreinformation from { itemId: value } to [{ "field name": "users answer" }] format as requested
-            // We'll mapping itemId to the content/question label
             const formattedMoreInfo: any[] = [];
             steps.forEach((step: any) => {
                 step.items.forEach((item: any) => {
                     if (['mcq', 'short_answer', 'long_answer'].includes(item.type)) {
-                        const answer = answers.moreinformation[item.id] || '';
+                        const answer = answers.moreinformation_responses[item.id] || '';
                         formattedMoreInfo.push({
                             [item.content]: answer
                         });
@@ -70,10 +68,10 @@ export default function JobApplicationForm({ job, steps, currentStepIndex, sessi
 
             await submitJobApplication({
                 jobId: job.id,
-                full_name: answers.full_name,
-                email: answers.email,
-                phone: answers.phone,
-                answers: JSON.stringify(formattedMoreInfo)
+                applicant_name: answers.applicant_name,
+                applicant_email: answers.applicant_email,
+                applicant_phone: answers.applicant_phone,
+                moreinformation: JSON.stringify(formattedMoreInfo)
             });
 
             setIsSuccess(true);
@@ -113,22 +111,22 @@ export default function JobApplicationForm({ job, steps, currentStepIndex, sessi
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontWeight: '700', fontSize: '0.9rem' }}>Full Name</label>
-                        <input name="full_name" value={answers.full_name} onChange={handleBaseInfoChange} placeholder="John Doe" required style={{ padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '1rem' }} />
+                        <input name="applicant_name" value={answers.applicant_name} onChange={handleBaseInfoChange} placeholder="John Doe" required style={{ padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '1rem' }} />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontWeight: '700', fontSize: '0.9rem' }}>Email Address</label>
-                        <input type="email" name="email" value={answers.email} onChange={handleBaseInfoChange} placeholder="john@example.com" required style={{ padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '1rem' }} />
+                        <input type="email" name="applicant_email" value={answers.applicant_email} onChange={handleBaseInfoChange} placeholder="john@example.com" required style={{ padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '1rem' }} />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontWeight: '700', fontSize: '0.9rem' }}>Phone Number</label>
-                        <input type="tel" name="phone" value={answers.phone} onChange={handleBaseInfoChange} placeholder="+977 98..." required style={{ padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '1rem' }} />
+                        <input type="tel" name="applicant_phone" value={answers.applicant_phone} onChange={handleBaseInfoChange} placeholder="+977 98..." required style={{ padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '1rem' }} />
                     </div>
 
                     <button
                         onClick={nextStep}
-                        disabled={!answers.full_name || !answers.email || !answers.phone}
+                        disabled={!answers.applicant_name || !answers.applicant_email || !answers.applicant_phone}
                         className="btn-corporate"
-                        style={{ marginTop: '12px', opacity: (!answers.full_name || !answers.email || !answers.phone) ? 0.6 : 1 }}
+                        style={{ marginTop: '12px', opacity: (!answers.applicant_name || !answers.applicant_email || !answers.applicant_phone) ? 0.6 : 1 }}
                     >
                         Continue to Application →
                     </button>
@@ -178,14 +176,14 @@ export default function JobApplicationForm({ job, steps, currentStepIndex, sessi
                                         <label key={idx} style={{
                                             padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0', cursor: 'pointer',
                                             display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s',
-                                            background: answers.moreinformation[item.id] === opt ? '#fffbeb' : 'white',
-                                            borderColor: answers.moreinformation[item.id] === opt ? 'var(--color-gold)' : '#e2e8f0'
+                                            background: answers.moreinformation_responses[item.id] === opt ? '#fffbeb' : 'white',
+                                            borderColor: answers.moreinformation_responses[item.id] === opt ? 'var(--color-gold)' : '#e2e8f0'
                                         }}>
                                             <input
                                                 type="radio"
                                                 name={item.id}
                                                 value={opt}
-                                                checked={answers.moreinformation[item.id] === opt}
+                                                checked={answers.moreinformation_responses[item.id] === opt}
                                                 onChange={() => handleAnswerChange(item.id, opt)}
                                                 style={{ width: '18px', height: '18px', accentColor: 'var(--color-gold)' }}
                                             />
@@ -200,14 +198,14 @@ export default function JobApplicationForm({ job, steps, currentStepIndex, sessi
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label style={{ fontWeight: '700', fontSize: '1rem' }}>{item.content} {item.required && '*'}</label>
                                 <input
-                                    value={answers.moreinformation[item.id] || ''}
+                                    value={answers.moreinformation_responses[item.id] || ''}
                                     onChange={(e) => handleAnswerChange(item.id, e.target.value)}
                                     maxLength={item.maxLength}
                                     style={{ padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '1rem' }}
                                     placeholder="Type your answer..."
                                 />
                                 <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textAlign: 'right' }}>
-                                    {(answers.moreinformation[item.id] || '').length} / {item.maxLength}
+                                    {(answers.moreinformation_responses[item.id] || '').length} / {item.maxLength}
                                 </span>
                             </div>
                         )}
@@ -216,7 +214,7 @@ export default function JobApplicationForm({ job, steps, currentStepIndex, sessi
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label style={{ fontWeight: '700', fontSize: '1rem' }}>{item.content} {item.required && '*'}</label>
                                 <textarea
-                                    value={answers.moreinformation[item.id] || ''}
+                                    value={answers.moreinformation_responses[item.id] || ''}
                                     onChange={(e) => handleAnswerChange(item.id, e.target.value)}
                                     maxLength={item.maxLength}
                                     rows={6}
@@ -224,7 +222,7 @@ export default function JobApplicationForm({ job, steps, currentStepIndex, sessi
                                     placeholder="Tell us more..."
                                 />
                                 <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textAlign: 'right' }}>
-                                    {(answers.moreinformation[item.id] || '').length} / {item.maxLength}
+                                    {(answers.moreinformation_responses[item.id] || '').length} / {item.maxLength}
                                 </span>
                             </div>
                         )}

@@ -4,6 +4,7 @@ import JobApplicationForm from './JobApplicationForm';
 import { SiteHeader } from '@/components/SiteHeader';
 import { getSession } from "@/lib/auth";
 import prisma from '@/lib/prisma';
+import { cookies } from 'next/headers';
 
 export default async function PublicJobPage({
     params,
@@ -26,10 +27,15 @@ export default async function PublicJobPage({
         });
     }
 
-    // Handle session tracking
-    let session = querySession;
+    // Handle session tracking via cookie as requested
+    const cookieStore = await cookies();
+    let session = querySession || cookieStore.get('job_application_session')?.value;
+
     if (!session) {
         session = Math.random().toString(36).substring(2, 15);
+        // We still use query param for the very first step to ensure persistence in URL, 
+        // but we'll also save to cookie.
+        cookieStore.set('job_application_session', session, { path: '/' });
         redirect(`/careers/${slug}?step=0&session=${session}`);
     }
 

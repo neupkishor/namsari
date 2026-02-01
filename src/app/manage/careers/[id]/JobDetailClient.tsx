@@ -73,7 +73,7 @@ export default function JobDetailClient({ job }: { job: any }) {
                             </div>
                         ) : (
                             applications.map((app: any) => {
-                                const moreInfo = JSON.parse(app.answers || '[]');
+                                const moreInfo = JSON.parse(app.moreinformation || '[]');
                                 return (
                                     <div key={app.id} className="card" style={{ padding: '0', overflow: 'hidden' }}>
                                         <div style={{ padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -82,15 +82,15 @@ export default function JobDetailClient({ job }: { job: any }) {
                                                     onClick={() => toggleAppExpand(app.id)}
                                                     style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '1.2rem', color: 'var(--color-gold)', cursor: 'pointer' }}
                                                 >
-                                                    {app.full_name[0].toUpperCase()}
+                                                    {app.applicant_name[0].toUpperCase()}
                                                 </div>
                                                 <div>
                                                     <div style={{ fontWeight: '700', fontSize: '1.1rem', marginBottom: '4px', cursor: 'pointer' }} onClick={() => toggleAppExpand(app.id)}>
-                                                        {app.full_name} {expandedApp === app.id ? '↑' : '↓'}
+                                                        {app.applicant_name} {expandedApp === app.id ? '↑' : '↓'}
                                                     </div>
                                                     <div style={{ display: 'flex', gap: '16px', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                                                        <span>📧 {app.email}</span>
-                                                        <span>📱 {app.phone}</span>
+                                                        <span>📧 {app.applicant_email}</span>
+                                                        <span>📱 {app.applicant_phone}</span>
                                                         <span>📅 {new Date(app.created_at).toLocaleDateString()}</span>
                                                     </div>
                                                 </div>

@@ -20,12 +20,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={outfit.className}>
         <Providers>
-          <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <div style={{ flex: 1 }}>
-              {children}
-            </div>
-            <Footer />
-          </div>
+          {children}
+          <Footer />
         </Providers>
       </body>
     </html>
