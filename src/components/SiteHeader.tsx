@@ -74,7 +74,7 @@ export function SiteHeader({ user, fullWidth }: { user?: any, fullWidth?: boolea
                         </>
                     ) : (
                         <Link
-                            href="/manage"
+                            href="/profile"
                             className="header-link"
                             style={{
                                 padding: '8px 16px', borderRadius: 'var(--radius-inner)'
@@ -84,7 +84,7 @@ export function SiteHeader({ user, fullWidth }: { user?: any, fullWidth?: boolea
                             {user.profile_picture ? (
                                 <img src={user.profile_picture} alt={user.name} style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} />
                             ) : (
-                                <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>{user.name[0]}</div>
+                                <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>{user.name?.[0] || 'U'}</div>
                             )}
                             {user.name}
                         </Link>

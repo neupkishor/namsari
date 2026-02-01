@@ -20,6 +20,7 @@ export default async function ManageLayout({ children }: { children: React.React
                         <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <Link href="/manage" className="sidebar-link active">Manage</Link>
                             <Link href="/manage/properties" className="sidebar-link">Properties</Link>
+                            <Link href="/manage/requirements" className="sidebar-link">Requirements</Link>
                             <Link href="/manage/featured" className="sidebar-link">Featured</Link>
                             <Link href="/manage/users" className="sidebar-link">User Management</Link>
                             <Link href="/manage/agencies" className="sidebar-link">Agencies</Link>

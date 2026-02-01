@@ -34,6 +34,53 @@ export default function RequirementsClient({ currentUser }: { currentUser: any }
     const [simpleDemand, setSimpleDemand] = useState('');
     const [showMap, setShowMap] = useState(false);
     const [coords, setCoords] = useState<[number, number] | null>(null);
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleSubmit = async () => {
+        setSubmitting(true);
+        try {
+            const body = mode === 'simple' ? {
+                mode,
+                content: simpleDemand,
+                userId: currentUser?.id
+            } : {
+                mode,
+                propertyTypes: propertyTypes.join(','),
+                purposes: purposes.join(','),
+                natures: natures.join(','),
+                facings: facings.join(','),
+                district,
+                cityVillage: city,
+                area,
+                roadAccess,
+                minPrice: minPrice ? parseFloat(minPrice) : null,
+                maxPrice: maxPrice ? parseFloat(maxPrice) : null,
+                pricingUnit,
+                latitude: coords ? coords[0] : null,
+                longitude: coords ? coords[1] : null,
+                remarks,
+                userId: currentUser?.id
+            };
+
+            const res = await fetch('/api/requirements', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (res.ok) {
+                // alert('Requirement posted successfully!');
+                window.location.href = '/manage/requirements';
+            } else {
+                alert('Failed to post requirement.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('An error occurred.');
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     const typeOptions = [
         { label: 'House', value: 'house' },
@@ -140,12 +187,17 @@ export default function RequirementsClient({ currentUser }: { currentUser: any }
                                     }}
                                 />
                             </div>
-                            <button style={{
-                                background: 'var(--color-primary)', color: 'white', padding: '16px', borderRadius: '12px',
-                                border: 'none', fontWeight: '800', fontSize: '1rem', cursor: 'pointer',
-                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', transition: 'all 0.2s'
-                            }}>
-                                POST MY DEMAND
+                            <button
+                                onClick={handleSubmit}
+                                disabled={submitting}
+                                style={{
+                                    background: 'var(--color-primary)', color: 'white', padding: '16px', borderRadius: '12px',
+                                    border: 'none', fontWeight: '800', fontSize: '1rem', cursor: 'pointer',
+                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', transition: 'all 0.2s',
+                                    opacity: submitting ? 0.7 : 1
+                                }}
+                            >
+                                {submitting ? 'POSTING...' : 'POST MY DEMAND'}
                             </button>
                         </div>
                     ) : (
@@ -340,12 +392,17 @@ export default function RequirementsClient({ currentUser }: { currentUser: any }
                                 />
                             </div>
 
-                            <button style={{
-                                background: 'var(--color-primary)', color: 'white', padding: '18px', borderRadius: '12px',
-                                border: 'none', fontWeight: '800', fontSize: '1.1rem', cursor: 'pointer',
-                                marginTop: '20px', transition: 'all 0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-                            }}>
-                                🚀 POST MY REQUIREMENTS
+                            <button
+                                onClick={handleSubmit}
+                                disabled={submitting}
+                                style={{
+                                    background: 'var(--color-primary)', color: 'white', padding: '18px', borderRadius: '12px',
+                                    border: 'none', fontWeight: '800', fontSize: '1.1rem', cursor: 'pointer',
+                                    marginTop: '20px', transition: 'all 0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                                    opacity: submitting ? 0.7 : 1
+                                }}
+                            >
+                                {submitting ? 'POSTING...' : '🚀 POST MY REQUIREMENTS'}
                             </button>
                         </div>
                     )}

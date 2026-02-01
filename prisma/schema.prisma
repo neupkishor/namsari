@@ -31,6 +31,7 @@ model User {
   comments       Comment[]
   user_likes     Like[]
   collections    Collection[]
+  requirements   Requirement[]
 }
 
 model KYC {
@@ -332,3 +333,31 @@ model CollectionProperty {
 }
 
 
+model Requirement {
+  id                Int      @id @default(autoincrement())
+  userId            Int?
+  user              User?    @relation(fields: [userId], references: [id])
+  
+  mode              String   @default("simple") // simple, detailed
+  content           String?  // For simple mode
+  
+  // Detailed Mode Fields
+  propertyTypes     String?  // Comma separated list
+  purposes          String?  // Comma separated list
+  natures           String?  // Comma separated list
+  facings           String?  // Comma separated list
+  district          String?
+  cityVillage       String?
+  area              String?
+  roadAccess        String?
+  minPrice          Float?
+  maxPrice          Float?
+  pricingUnit       String?
+  latitude          Float?
+  longitude         Float?
+  remarks           String?
+  
+  status            String   @default("active")
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+}
