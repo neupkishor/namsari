@@ -14,10 +14,14 @@ model User {
   id             Int      @id @default(autoincrement())
   username       String   @unique
   name           String
+  email          String?  @unique
+  password       String?
   contact_number String?
   account_type   String?
   bio            String?
   profile_picture String?
+  cover_image    String?
+  status         String   @default("active")
   created_on     DateTime @default(now())
   updated_at     DateTime @updatedAt
 
