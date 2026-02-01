@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { createBlogPost, updateBlogPost } from './actions';
+import imageCompression from 'browser-image-compression';
 import 'react-quill-new/dist/quill.snow.css';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), {
@@ -70,7 +71,7 @@ export default function BlogFormClient({ initialData, isEdit = false }: { initia
 
     return (
         <form onSubmit={handleSubmit} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '32px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <label style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--color-primary)' }}>Post Title</label>
                     <input
@@ -83,6 +84,7 @@ export default function BlogFormClient({ initialData, isEdit = false }: { initia
                         style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', fontSize: '1rem' }}
                     />
                 </div>
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <label style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--color-primary)' }}>Category</label>
                     <input
@@ -94,9 +96,7 @@ export default function BlogFormClient({ initialData, isEdit = false }: { initia
                         style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', fontSize: '1rem' }}
                     />
                 </div>
-            </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <label style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--color-primary)' }}>Author</label>
                     <input
@@ -108,16 +108,91 @@ export default function BlogFormClient({ initialData, isEdit = false }: { initia
                         style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', fontSize: '1rem' }}
                     />
                 </div>
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--color-primary)' }}>Cover Image URL</label>
-                    <input
-                        type="text"
-                        name="cover_image"
-                        value={formData.cover_image}
-                        onChange={handleChange}
-                        placeholder="https://example.com/image.jpg"
-                        style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', fontSize: '1rem' }}
+                    <label style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--color-primary)' }}>Cover Image</label>
+                    <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                        {formData.cover_image && (
+                            <div style={{ width: '80px', height: '60px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0', flexShrink: 0 }}>
+                                <img src={formData.cover_image} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            </div>
+                        )}
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                    try {
+                                        const options = {
+                                            maxSizeMB: 1,
+                                            maxWidthOrHeight: 1200,
+                                            useWebWorker: true,
+                                        };
+                                        const compressedFile = await imageCompression(file, options);
+
+                                        const reader = new FileReader();
+                                        reader.readAsDataURL(compressedFile);
+                                        reader.onloadend = () => {
+                                            setFormData(prev => ({ ...prev, cover_image: reader.result as string }));
+                                        };
+                                    } catch (error) {
+                                        console.error("Image compression error:", error);
+                                        alert("Failed to compress image");
+                                    }
+                                }
+                            }}
+                            style={{ flexGrow: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', fontSize: '1rem' }}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--color-primary)' }}>Short Excerpt (for preview cards)</label>
+                <textarea
+                    name="excerpt"
+                    value={formData.excerpt}
+                    onChange={handleChange}
+                    rows={3}
+                    placeholder="Brief summary of the post..."
+                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', fontSize: '1rem', fontFamily: 'inherit', resize: 'vertical' }}
+                />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--color-primary)' }}>Content</label>
+                <div style={{ height: 'auto', minHeight: '400px' }} className="quill-wrapper">
+                    <ReactQuill
+                        theme="snow"
+                        value={formData.content}
+                        onChange={handleContentChange}
+                        modules={modules}
+                        style={{ height: '350px', marginBottom: '50px' }}
                     />
+                </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--color-border)', paddingTop: '24px', marginTop: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Status:</label>
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                            <input type="radio" name="status" value="published" checked={formData.status === 'published'} onChange={handleChange as any} /> Published
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                            <input type="radio" name="status" value="draft" checked={formData.status === 'draft'} onChange={handleChange as any} /> Draft
+                        </label>
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '16px' }}>
+                    <button type="button" onClick={() => router.back()} style={{ background: 'none', border: '1px solid var(--color-border)', padding: '12px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>
+                        Cancel
+                    </button>
+                    <button type="submit" disabled={loading} className="btn-corporate" style={{ padding: '12px 32px' }}>
+                        {loading ? 'Saving...' : isEdit ? 'Update Post' : 'Publish Post'}
+                    </button>
                 </div>
             </div>
 

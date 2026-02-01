@@ -91,12 +91,6 @@ export default async function BlogPage() {
                     )}
                 </div>
             </div>
-            <style jsx global>{`
-                .blog-card:hover {
-                    transform: translateY(-8px);
-                    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-                }
-            `}</style>
         </main>
     );
 }
