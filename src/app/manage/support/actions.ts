@@ -10,11 +10,13 @@ const generateSlug = (title: string) => {
         .replace(/\s+/g, '-') + '-' + Math.random().toString(36).substring(2, 7);
 };
 
-export async function getSupportArticles() {
+export async function getSupportArticles(status?: string) {
     if (!(prisma as any).supportArticle) {
         throw new Error("SupportArticle model not found in Prisma client. Please restart your developer server (npm run dev) to refresh the schema.");
     }
+    const where = status ? { status } : {};
     return await (prisma as any).supportArticle.findMany({
+        where,
         orderBy: { created_at: 'desc' }
     });
 }
@@ -28,10 +30,20 @@ export async function getSupportArticle(id: number) {
     });
 }
 
+export async function getSupportArticleBySlug(slug: string) {
+    if (!(prisma as any).supportArticle) {
+        throw new Error("SupportArticle model not found in Prisma client.");
+    }
+    return await (prisma as any).supportArticle.findUnique({
+        where: { slug }
+    });
+}
+
 export async function createSupportArticle(data: {
     title: string;
     category: string;
     content: string;
+    emoji?: string;
     status?: string;
 }) {
     if (!(prisma as any).supportArticle) {
@@ -43,6 +55,7 @@ export async function createSupportArticle(data: {
             slug: generateSlug(data.title),
             category: data.category,
             content: data.content,
+            emoji: data.emoji || '📄',
             status: data.status || 'published'
         }
     });
@@ -54,6 +67,7 @@ export async function updateSupportArticle(id: number, data: {
     title: string;
     category: string;
     content: string;
+    emoji?: string;
     status: string;
 }) {
     if (!(prisma as any).supportArticle) {
@@ -65,6 +79,7 @@ export async function updateSupportArticle(id: number, data: {
             title: data.title,
             category: data.category,
             content: data.content,
+            emoji: data.emoji,
             status: data.status
         }
     });

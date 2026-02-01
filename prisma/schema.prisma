@@ -431,6 +431,7 @@ model SupportArticle {
   slug        String   @unique
   category    String   // General, Technical, Billing, etc.
   content     String   // Markdown or HTML
+  emoji       String?
   status      String   @default("published") // published, draft
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
