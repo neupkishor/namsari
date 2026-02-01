@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { SiteHeader } from '@/components/SiteHeader';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import SidebarContent from './SidebarContent';
 
 export default async function ManageLayout({ children }: { children: React.ReactNode }) {
     const session = await getSession();
@@ -17,23 +18,7 @@ export default async function ManageLayout({ children }: { children: React.React
                 <div className="main-layout-wrapper">
                     {/* Sidebar */}
                     <aside className="sidebar">
-                        <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <Link href="/manage" className="sidebar-link active">Manage</Link>
-                            <Link href="/manage/properties" className="sidebar-link">Properties</Link>
-                            <Link href="/manage/requirements" className="sidebar-link">Requirements</Link>
-                            <Link href="/manage/featured" className="sidebar-link">Featured</Link>
-                            <Link href="/manage/users" className="sidebar-link">User Management</Link>
-                            <Link href="/manage/agencies" className="sidebar-link">Agencies</Link>
-                            <Link href="/manage/newsletter" className="sidebar-link">Newsletter</Link>
-                            <Link href="/manage/collections" className="sidebar-link">Collections</Link>
-                            <a href="#" className="sidebar-link">Financials</a>
-                            <div style={{ margin: '20px 24px 8px', fontSize: '0.75rem', fontWeight: '700', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                                Settings
-                            </div>
-                            <Link href="/manage/settings" className="sidebar-link">Settings</Link>
-                            <a href="#" className="sidebar-link">API Configuration</a>
-                            <a href="#" className="sidebar-link">System Logs</a>
-                        </nav>
+                        <SidebarContent />
 
                         <div style={{ marginTop: 'auto', padding: '24px' }}>
                             <div className="card" style={{ padding: '16px', background: 'var(--color-primary)', color: 'white', fontSize: '0.85rem' }}>

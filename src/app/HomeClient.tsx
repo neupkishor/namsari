@@ -209,6 +209,7 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
     { label: 'Commercial Buildings', icon: '🏢', href: '/find/commercial-buildings' },
     { label: 'Favourites', icon: '❤️', href: '/profile/favourites' },
     { label: 'Market Trends', icon: '📈', href: '/market' },
+    ...(user ? [{ label: 'Manage About', icon: '🛠️', href: '/manage/about' }] : []),
   ];
 
   const secondaryItems = [

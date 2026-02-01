@@ -3,21 +3,40 @@ import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 
 export default async function HomePage() {
-    const [session, settings] = await Promise.all([
-        getSession(),
-        (prisma as any).systemSettings.findFirst() ||
-        (prisma as any).systemSettings.create({
-            data: {
-                id: 1,
-                view_mode: 'classic',
-                show_like_button: true,
-                show_share_button: true,
-                show_comment_button: true,
-                show_contact_agent: true,
-                show_make_offer: true
-            }
-        })
-    ]);
+    const session = await getSession();
+
+    // Safety check for systemSettings to prevent crash during schema migrations
+    let settings = null;
+    if ((prisma as any).systemSettings) {
+        try {
+            settings = await (prisma as any).systemSettings.findFirst() ||
+                await (prisma as any).systemSettings.create({
+                    data: {
+                        id: 1,
+                        view_mode: 'classic',
+                        show_like_button: true,
+                        show_share_button: true,
+                        show_comment_button: true,
+                        show_contact_agent: true,
+                        show_make_offer: true
+                    }
+                });
+        } catch (e) {
+            console.error("Failed to fetch settings:", e);
+        }
+    }
+
+    // Default settings if DB fetch falls through
+    if (!settings) {
+        settings = {
+            view_mode: 'classic',
+            show_like_button: true,
+            show_share_button: true,
+            show_comment_button: true,
+            show_contact_agent: true,
+            show_make_offer: true
+        };
+    }
 
     let user = null;
 

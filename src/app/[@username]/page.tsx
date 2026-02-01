@@ -19,10 +19,25 @@ export default async function ProfilePage({ params }: PageProps) {
     const username = resolvedParams['@username'];
 
     // Fetch data and settings
-    const [session, settings] = await Promise.all([
-        getSession(),
-        (prisma as any).systemSettings.findFirst()
-    ]);
+    const session = await getSession();
+
+    let settings = null;
+    if ((prisma as any).systemSettings) {
+        try {
+            settings = await (prisma as any).systemSettings.findFirst();
+        } catch (e) {
+            console.error("Profile settings fetch failed:", e);
+        }
+    }
+
+    if (!settings) {
+        settings = {
+            view_mode: 'classic',
+            show_like_button: true,
+            show_share_button: true,
+            show_comment_button: true
+        };
+    }
     const currentUserId = session ? parseInt(session.id) : null;
     const currentUser = currentUserId ? await prisma.user.findUnique({ where: { id: currentUserId } }) : null;
 

@@ -303,6 +303,18 @@ model SystemSettings {
   updated_at              DateTime @updatedAt
 }
 
+model AboutContent {
+  id              Int      @id @default(1)
+  title           String   @default("About Namsari")
+  description     String?  
+  mission         String?
+  vision          String?
+  standard        String?  
+  group_info      String?  
+  content         String?  
+  updated_at      DateTime @updatedAt
+}
+
 model Collection {
   id          Int        @id @default(autoincrement())
   name        String
@@ -380,4 +392,35 @@ model SearchTerm {
   term          String   @unique
   count         Int      @default(1)
   last_searched DateTime @updatedAt
+}
+
+model JobListing {
+  id                Int              @id @default(autoincrement())
+  title             String
+  slug              String           @unique
+  department        String
+  location          String
+  type              String           // Full-time, Part-time, Contract, etc.
+  description       String           
+  requirements      String?
+  salary_range      String?
+  application_steps String?          @default("[]") // JSON string of steps and questions
+  status            String           @default("open") // open, closed, draft
+  created_at        DateTime         @default(now())
+  updated_at        DateTime         @updatedAt
+  applications      JobApplication[]
+}
+
+model JobApplication {
+  id              Int           @id @default(autoincrement())
+  jobId           Int
+  job             JobListing    @relation(fields: [jobId], references: [id])
+  full_name       String
+  email           String
+  phone           String
+  resume_url      String?       
+  cover_letter    String?
+  answers         String?       @default("[]") // JSON string of moreinformation
+  status          String        @default("pending") // pending, reviewed, rejected, hired
+  created_at      DateTime      @default(now())
 }

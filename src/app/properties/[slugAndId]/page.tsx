@@ -20,26 +20,41 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     if (isNaN(id)) return notFound();
 
     // Fetch property and settings
-    const [property, settings] = await Promise.all([
-        prisma.property.findUnique({
-            where: { id },
-            include: {
-                listedBy: true,
-                pricing: true,
-                location: true,
-                images: true,
-                types: true,
-                features: true,
-                amenities: true,
-                comments: {
-                    include: { user: true },
-                    orderBy: { created_at: 'desc' }
-                },
-                property_likes: true
-            }
-        }),
-        (prisma as any).systemSettings.findFirst()
-    ]);
+    const property = await prisma.property.findUnique({
+        where: { id },
+        include: {
+            listedBy: true,
+            pricing: true,
+            location: true,
+            images: true,
+            types: true,
+            features: true,
+            amenities: true,
+            comments: {
+                include: { user: true },
+                orderBy: { created_at: 'desc' }
+            },
+            property_likes: true
+        }
+    });
+
+    let settings = null;
+    if ((prisma as any).systemSettings) {
+        try {
+            settings = await (prisma as any).systemSettings.findFirst();
+        } catch (e) {
+            console.error("Property detail settings fetch failed:", e);
+        }
+    }
+
+    if (!settings) {
+        settings = {
+            view_mode: 'classic',
+            show_like_button: true,
+            show_share_button: true,
+            show_comment_button: true
+        };
+    }
 
     if (!property) return notFound();
 
