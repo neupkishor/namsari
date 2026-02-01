@@ -11,18 +11,16 @@ export default async function SellPage() {
     }
 
     const userId = Number(session.id);
+    const user = await prisma.user.findUnique({ where: { id: userId } });
 
     // Fetch all users for owner/authorized person selection
-    // In a real app, you might limit this to users relevant to the agent or verified owners
     const users = await prisma.user.findMany({
-        include: { kyc: true } as any,
         orderBy: { name: 'asc' }
     });
 
-    const currentUser = users.find(u => u.id === userId);
-
     return (
         <SellClient
+            currentUser={user}
             users={(users as any[]).map(u => ({
                 id: u.id,
                 name: u.name,

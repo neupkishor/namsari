@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Input } from '@/components/ui';
+import { SiteHeader } from '@/components/SiteHeader';
 
 // Dynamically import map to avoid SSR issues
 const MapComponent = dynamic(() => import('./MapComponent'), {
@@ -71,14 +72,13 @@ export default function ExploreClient({ initialUser }: { initialUser: any }) {
 
     return (
         <main style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: 'white' }}>
-            {/* Search Header */}
-            <header className="full-width-header" style={{ flexShrink: 0, background: 'white', borderBottom: '1px solid #ddd', zIndex: 100 }}>
-                <div className="layout-container header-content" style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                    <Link href="/" style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--color-primary)', textDecoration: 'none' }}>
-                        Namsari<span style={{ color: 'var(--color-gold)' }}>.</span>
-                    </Link>
+            {/* Site Header */}
+            <SiteHeader user={initialUser} />
 
-                    <div style={{ flex: 1, maxWidth: '600px', paddingTop: '16px' }}>
+            {/* Search Bar Sub-header */}
+            <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '12px 0' }}>
+                <div className="layout-container" style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                    <div style={{ flex: 1, maxWidth: '600px' }}>
                         <Input
                             type="text"
                             placeholder="Search properties, locations..."
@@ -86,13 +86,11 @@ export default function ExploreClient({ initialUser }: { initialUser: any }) {
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
-
-                    <nav style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                        <Link href="/" style={{ color: 'var(--color-text-muted)', fontWeight: '600', textDecoration: 'none' }}>Home</Link>
-                        <Link href="/sell" style={{ background: 'var(--color-primary)', color: 'white', padding: '8px 18px', borderRadius: '20px', textDecoration: 'none', fontWeight: '600', fontSize: '0.9rem' }}>List Property</Link>
-                    </nav>
+                    <div style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: '500' }}>
+                        {filteredProperties.length} properties found
+                    </div>
                 </div>
-            </header>
+            </div>
 
             {/* Main Explore Content */}
             <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -156,7 +154,7 @@ export default function ExploreClient({ initialUser }: { initialUser: any }) {
                         center={mapCenter}
                         userLocation={userLocation}
                         selectedId={selectedId}
-                        onMarkerClick={(id) => setSelectedId(id)}
+                        onMarkerClick={(id: number) => setSelectedId(id)}
                     />
                 </div>
 

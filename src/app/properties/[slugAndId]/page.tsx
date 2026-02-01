@@ -1,13 +1,16 @@
-import React from 'react';
 import Link from 'next/link';
-import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import { getSession } from '@/lib/auth';
 import PropertyMap from './PropertyMap';
+import { SiteHeader } from '@/components/SiteHeader';
+import prisma from '@/lib/prisma';
+import { getSession } from '@/lib/auth';
 
 export default async function PropertyDetailPage({ params }: { params: Promise<{ slugAndId: string }> }) {
     const resolvedParams = await params;
     const { slugAndId } = resolvedParams;
+
+    const session = await getSession();
+    const currentUser = session ? await prisma.user.findUnique({ where: { id: Number(session.id) } }) : null;
 
     // Extract ID from slug-id format
     const parts = slugAndId.split('-');
@@ -45,13 +48,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         data: { views: { increment: 1 } }
     });
 
-    const session = await getSession();
+    const isLiked = session && property.property_likes.some(l => l.user_id === Number(session.id));
     const images = property.images.map(img => img.url);
     const locationStr = property.location
         ? `${property.location.area}, ${property.location.district}`
         : 'Unspecified';
     const priceValue = property.pricing?.price || 0;
-    const isLiked = session && property.property_likes.some(l => l.user_id === Number(session.id));
 
     const specs = property.features
         ? `${property.features.bedrooms || 0}BHK • ${property.features.bathrooms || 0} Bath • ${property.features.builtUpArea || 0} ${property.features.builtUpAreaUnit || ''}`
@@ -63,19 +65,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
     return (
         <main style={{ backgroundColor: '#f8fafc', minHeight: '100vh', paddingBottom: '100px' }}>
-            <header className="full-width-header" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
-                <div className="layout-container header-content">
-                    <Link href="/" style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary)', textDecoration: 'none' }}>
-                        Namsari<span style={{ color: 'var(--color-gold)' }}>.</span>
-                    </Link>
-                    <nav style={{ display: 'flex', gap: '32px', fontWeight: '500', fontSize: '0.9rem', alignItems: 'center' }}>
-                        <Link href="/">Browse</Link>
-                        <Link href="/sell" style={{ background: 'var(--color-primary)', color: 'white', padding: '8px 16px', borderRadius: '4px', textDecoration: 'none' }}>
-                            Sell Property
-                        </Link>
-                    </nav>
-                </div>
-            </header>
+            <SiteHeader user={currentUser} />
 
             <div className="layout-container" style={{ paddingTop: '40px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '40px' }}>

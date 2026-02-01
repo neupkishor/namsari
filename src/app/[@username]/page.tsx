@@ -1,10 +1,10 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import HomeClient from '../HomeClient';
 import { Property, User } from '@prisma/client';
 import { getSession } from '@/lib/auth';
 import ProfileImageUpload from './ProfileImageUpload';
+import { SiteHeader } from '@/components/SiteHeader';
 
 interface PageProps {
     params: Promise<{
@@ -15,6 +15,14 @@ interface PageProps {
 export default async function ProfilePage({ params }: PageProps) {
     const resolvedParams = await params;
     const username = resolvedParams['@username'];
+
+    // Fetch data and settings
+    const [session, settings] = await Promise.all([
+        getSession(),
+        (prisma as any).systemSettings.findFirst()
+    ]);
+    const currentUserId = session ? parseInt(session.id) : null;
+    const currentUser = currentUserId ? await prisma.user.findUnique({ where: { id: currentUserId } }) : null;
 
     // Decode the username (it comes as %40username from the URL /@username)
     let decoded = decodeURIComponent(username);
@@ -42,11 +50,6 @@ export default async function ProfilePage({ params }: PageProps) {
         );
     }
 
-    // Fetch data and settings
-    const [session, settings] = await Promise.all([
-        getSession(),
-        (prisma as any).systemSettings.findFirst()
-    ]);
     const isOwner = session?.id === user.id.toString();
 
     // Fetch user's properties with relations
@@ -101,17 +104,7 @@ export default async function ProfilePage({ params }: PageProps) {
 
     return (
         <main style={{ backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
-            <header className="full-width-header" style={{ background: '#ffffff', marginBottom: '0', borderBottom: '1px solid #e2e8f0' }}>
-                <div className="layout-container header-content">
-                    <Link href="/" style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--color-primary)', textDecoration: 'none' }}>
-                        Namsari<span style={{ color: 'var(--color-gold)' }}>.</span>
-                    </Link>
-                    <nav style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                        <Link href="/" style={{ color: 'var(--color-text-muted)', fontWeight: '600', textDecoration: 'none' }}>Home</Link>
-                        <Link href="/explore" style={{ color: 'var(--color-text-muted)', fontWeight: '600', textDecoration: 'none' }}>Map</Link>
-                    </nav>
-                </div>
-            </header>
+            <SiteHeader user={currentUser} />
 
             {/* Profile Cover & Header */}
             <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0' }}>

@@ -8,16 +8,9 @@ import { BasicInformation } from './components/BasicInformation';
 import { LocationInformation } from './components/LocationInformation';
 import { PropertyInformation } from './components/PropertyInformation';
 
-interface SellClientProps {
-    users: Array<{
-        id: number;
-        name: string;
-        phone: string;
-    }>;
-    currentUserId: number;
-}
+import { SiteHeader } from '@/components/SiteHeader';
 
-export default function SellClient({ users, currentUserId }: { users: any[], currentUserId: number }) {
+export default function SellClient({ users, currentUserId, currentUser }: { users: any[], currentUserId: number, currentUser?: any }) {
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [selectedPurposes, setSelectedPurposes] = useState<string[]>([]);
     const [selectedNatures, setSelectedNatures] = useState<string[]>([]);
@@ -284,19 +277,7 @@ export default function SellClient({ users, currentUserId }: { users: any[], cur
 
     return (
         <main style={{ backgroundColor: '#f8fafc', minHeight: '100vh', paddingBottom: '100px' }}>
-            <header className="full-width-header" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
-                <div className="layout-container header-content">
-                    <Link href="/" style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary)', textDecoration: 'none' }}>
-                        Namsari<span style={{ color: 'var(--color-gold)' }}>.</span>
-                    </Link>
-                    <nav style={{ display: 'flex', gap: '32px', fontWeight: '500', fontSize: '0.9rem', alignItems: 'center' }}>
-                        <Link href="/">Browse</Link>
-                        <Link href="/manage" style={{ background: 'var(--color-primary)', color: 'white', padding: '8px 16px', borderRadius: '4px', textDecoration: 'none' }}>
-                            Management
-                        </Link>
-                    </nav>
-                </div>
-            </header>
+            <SiteHeader user={currentUser} />
 
             <div className="layout-container" style={{ maxWidth: '900px', paddingTop: '60px' }}>
                 <div style={{ marginBottom: '40px' }}>

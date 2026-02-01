@@ -1,24 +1,16 @@
-import React from 'react';
 import Link from 'next/link';
+import { SiteHeader } from '@/components/SiteHeader';
+import { getSession } from '@/lib/auth';
+import prisma from '@/lib/prisma';
 
-export default function ManageLayout({ children }: { children: React.ReactNode }) {
+export default async function ManageLayout({ children }: { children: React.ReactNode }) {
+    const session = await getSession();
+    const currentUser = session ? await prisma.user.findUnique({ where: { id: Number(session.id) } }) : null;
+
     return (
         <div className="manage-root" style={{ backgroundColor: 'var(--color-bg)', minHeight: '100vh' }}>
             {/* Full-width Header */}
-            <header className="full-width-header">
-                <div className="layout-container header-content">
-                    <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-                        <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--color-primary)', letterSpacing: '-0.02em' }}>
-                            Namsari<span style={{ color: 'var(--color-gold)', marginLeft: '1px' }}>.</span>
-                            <span style={{ color: 'var(--color-text-muted)', fontWeight: '400', fontSize: '0.9rem', marginLeft: '8px', borderLeft: '1px solid var(--color-border)', paddingLeft: '8px' }}>Management</span>
-                        </span>
-                    </Link>
-
-                    <nav style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#f1f5f9', border: '1px solid var(--color-border)' }} />
-                    </nav>
-                </div>
-            </header>
+            <SiteHeader user={currentUser} />
 
             {/* Main Content Area inside the Centered Container */}
             <div className="layout-container">

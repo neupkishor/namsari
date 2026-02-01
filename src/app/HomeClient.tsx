@@ -12,6 +12,7 @@ import { PopularLocations } from '@/components/PopularLocations';
 import { PostPropertyBanner } from '@/components/PostPropertyBanner';
 import { FeaturedAgenciesClassic, FeaturedAgenciesFeed } from '@/components/FeaturedAgencies';
 import { FeaturedCollectionsSection, FeaturedCollectionsFeedItem } from '@/components/FeaturedCollections';
+import { SiteHeader } from '@/components/SiteHeader';
 
 export default function Home({ user, settings, featuredCollections }: { user: any, settings: any, featuredCollections?: any[] }) {
   const router = useRouter();
@@ -77,54 +78,7 @@ export default function Home({ user, settings, featuredCollections }: { user: an
         }
       `}} />
 
-      <header className="full-width-header" style={{ background: '#ffffff' }}>
-        <div className="layout-container header-content">
-          <Link href="/" style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary)', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-            Namsari<span style={{ color: 'var(--color-gold)', marginLeft: '1px' }}>.</span>
-          </Link>
-          <nav style={{ display: 'flex', gap: '8px', fontWeight: '500', fontSize: '0.9rem', alignItems: 'center' }}>
-            <Link
-              href="/explore"
-              className="header-link"
-              style={{ padding: '8px 16px', borderRadius: '8px', color: 'var(--color-text-muted)', textDecoration: 'none', transition: 'all 0.2s' }}
-            >
-              Explore
-            </Link>
-            <Link
-              href="/sell"
-              className="header-link"
-              style={{ padding: '8px 16px', borderRadius: '8px', color: 'var(--color-primary)', fontWeight: '700', textDecoration: 'none', transition: 'all 0.2s' }}
-            >
-              Sell
-            </Link>
-
-            {!user ? (
-              <>
-                <Link
-                  href="/login"
-                  className="header-link"
-                  style={{ padding: '8px 16px', borderRadius: '8px', color: 'var(--color-primary)', fontWeight: '600', textDecoration: 'none', transition: 'all 0.2s' }}
-                >
-                  Sign In
-                </Link>
-                <Link href="/register" style={{ background: 'var(--color-primary)', color: 'white', padding: '8px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' }}>
-                  Register
-                </Link>
-              </>
-            ) : (
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Link
-                  href="/manage"
-                  className="header-link"
-                  style={{ padding: '8px 16px', borderRadius: '8px', color: 'var(--color-primary)', fontWeight: '700', textDecoration: 'none', transition: 'all 0.2s' }}
-                >
-                  {user.name}
-                </Link>
-              </div>
-            )}
-          </nav>
-        </div>
-      </header>
+      <SiteHeader user={user} />
 
       {isLoading ? (
         viewType === 'classic' ? <ClassicSkeleton /> : <FeedSkeleton />
