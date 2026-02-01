@@ -80,11 +80,9 @@ export default function NotFound() {
                                     boxShadow: '0 10px 15px -3px rgba(15, 23, 42, 0.1)'
                                 }}
                                 onMouseOver={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-2px)';
                                     e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(15, 23, 42, 0.1)';
                                 }}
                                 onMouseOut={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(0)';
                                     e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(15, 23, 42, 0.1)';
                                 }}
                             >

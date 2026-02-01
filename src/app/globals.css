@@ -149,13 +149,13 @@ h3 {
   border-radius: var(--radius-card);
   padding: 24px;
   box-shadow: var(--shadow-sm);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: none !important;
 }
 
 .card:hover {
-  transform: translateY(-4px);
   box-shadow: var(--shadow-md);
-  border-color: rgba(15, 23, 42, 0.1);
+  transform: none !important;
 }
 
 .btn-corporate {
@@ -166,11 +166,11 @@ h3 {
   border: none;
   font-weight: 500;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: filter 0.2s;
 }
 
 .btn-corporate:hover {
-  opacity: 0.9;
+  filter: brightness(1.2);
 }
 
 /* Responsive */

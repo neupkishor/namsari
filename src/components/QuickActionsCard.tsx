@@ -105,13 +105,9 @@ const ActionTile: React.FC<ActionTileProps> = ({ title, description, icon, href,
         }}
             onMouseOver={(e) => {
                 e.currentTarget.style.borderColor = color === 'var(--color-primary)' ? 'var(--color-gold)' : color;
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
             }}
             onMouseOut={(e) => {
                 e.currentTarget.style.borderColor = 'var(--color-border)';
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
             }}
         >
             <div style={{

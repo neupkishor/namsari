@@ -33,16 +33,7 @@ export const PopularCategories = () => {
                             textAlign: 'center',
                             boxShadow: cat.active ? '0 10px 25px -5px rgba(37, 99, 235, 0.1), 0 8px 10px -6px rgba(37, 99, 235, 0.1)' : 'var(--shadow-sm)',
                             border: cat.active ? '2px solid #3b82f6' : '1px solid var(--color-border)',
-                            transition: 'transform 0.2s, box-shadow 0.2s',
                             cursor: 'pointer',
-                        }}
-                        onMouseOver={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-4px)';
-                            e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                        }}
-                        onMouseOut={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = cat.active ? '0 10px 25px -5px rgba(37, 99, 235, 0.1), 0 8px 10px -6px rgba(37, 99, 235, 0.1)' : 'var(--shadow-sm)';
                         }}
                     >
                         <div style={{
@@ -161,10 +152,7 @@ export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) =>
                                     border: '1px solid var(--color-border)',
                                     background: 'white',
                                     height: '100%',
-                                    transition: 'transform 0.2s',
                                 }}
-                                onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
-                                onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                             >
                                 <div style={{ position: 'relative', height: '220px' }}>
                                     <img

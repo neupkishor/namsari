@@ -22,7 +22,7 @@ export function FeaturedCollectionsSection({ collections }: { collections: any[]
                             href={`/collection/${col.slug}`}
                             style={{ textDecoration: 'none', color: 'inherit' }}
                         >
-                            <div className="card" style={{ padding: '0', overflow: 'hidden', height: '100%', border: '1px solid #e2e8f0', transition: 'transform 0.2s', background: 'white' }}>
+                            <div className="card" style={{ padding: '0', overflow: 'hidden', height: '100%', border: '1px solid #e2e8f0', background: 'white' }}>
                                 <div style={{ height: '160px', background: '#f8fafc', position: 'relative' }}>
                                     {col.properties[0]?.property?.images[0]?.url ? (
                                         <img

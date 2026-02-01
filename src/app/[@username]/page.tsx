@@ -5,6 +5,8 @@ import { Property, User } from '@prisma/client';
 import { getSession } from '@/lib/auth';
 import ProfileImageUpload from './ProfileImageUpload';
 import { SiteHeader } from '@/components/SiteHeader';
+import { PropertyCard } from '@/components/PropertyCard';
+
 
 interface PageProps {
     params: Promise<{
@@ -218,82 +220,11 @@ export default async function ProfilePage({ params }: PageProps) {
                             <p style={{ color: 'var(--color-text-muted)', maxWidth: '300px', margin: '0 auto' }}>This user hasn't posted any properties for sale or rent yet.</p>
                         </div>
                     ) : (
-                        enrichedProperties.map((p: any) => (
-                            <div key={p.id} className="card" style={{ padding: '0', borderRadius: '16px', overflow: 'hidden', background: 'white', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                                <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', overflow: 'hidden' }}>
-                                            {typeof p.author_avatar === 'string' && p.author_avatar.startsWith('http') ? (
-                                                <img src={p.author_avatar} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.author_name} />
-                                            ) : (
-                                                p.author_avatar
-                                            )}
-                                        </div>
-                                        <div>
-                                            <div style={{ fontWeight: '700', fontSize: '1rem', color: '#1e293b' }}>{p.author_name}</div>
-                                            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{p.location} • {p.timestamp || 'Just now'}</div>
-                                        </div>
-                                    </div>
-                                    <button style={{ background: 'transparent', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#94a3b8' }}>•••</button>
-                                </div>
-
-                                <div style={{ padding: '0 20px 16px' }}>
-                                    <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-                                        <span style={{ padding: '4px 10px', background: '#f1f5f9', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '700', color: '#475569' }}>{p.main_category}</span>
-                                        {p.isFeatured && <span style={{ padding: '4px 10px', background: '#fef3c7', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '700', color: '#d97706' }}>FEATURED</span>}
-                                    </div>
-                                    <h4 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '6px', color: '#1e293b' }}>{p.title}</h4>
-                                    <p style={{ fontSize: '0.95rem', color: '#475569', lineHeight: '1.5', margin: '0' }}>{p.specs}</p>
-                                </div>
-
-                                <div style={{ height: '480px', background: '#f8fafc', position: 'relative', overflow: 'hidden' }}>
-                                    {p.images && p.images.length > 0 ? (
-                                        <img src={p.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                    ) : (
-                                        <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>No Image Available</div>
-                                    )}
-                                    <div style={{ position: 'absolute', top: '20px', right: '20px', background: 'var(--color-gold)', color: 'var(--color-primary)', padding: '8px 16px', borderRadius: '8px', fontWeight: '800', fontSize: '1.1rem', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
-                                        {p.price}
-                                    </div>
-                                </div>
-
-                                <div style={{ padding: '16px 20px' }}>
-                                    <div style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        borderTop: '1px solid #f1f5f9',
-                                        paddingTop: '12px'
-                                    }}>
-                                        {/* Set 1: Social */}
-                                        {(settings?.show_like_button !== false || settings?.show_comment_button !== false) && (
-                                            <div style={{ display: 'flex', gap: '4px' }}>
-                                                {settings?.show_like_button !== false && (
-                                                    <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px 10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', color: '#1e293b', fontWeight: '600', transition: 'all 0.2s', borderRadius: '8px', fontSize: '0.825rem' }}>
-                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                                                        Like {p.likes_count > 0 && p.likes_count}
-                                                    </button>
-                                                )}
-                                                {settings?.show_comment_button !== false && (
-                                                    <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px 10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', color: '#1e293b', fontWeight: '600', transition: 'all 0.2s', borderRadius: '8px', fontSize: '0.825rem' }}>
-                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                                                        Comment
-                                                    </button>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {/* Set 2: View Details */}
-                                        <div style={{ display: 'flex' }}>
-                                            <Link href={`/properties/${p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px 10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', color: 'var(--color-primary)', fontWeight: '700', textDecoration: 'none', transition: 'all 0.2s', borderRadius: '8px', fontSize: '0.825rem' }}>
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                                                View Details
-                                            </Link>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '32px' }}>
+                            {enrichedProperties.map((p: any) => (
+                                <PropertyCard key={p.id} property={p} />
+                            ))}
+                        </div>
                     )}
                 </div>
             </div>

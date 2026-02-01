@@ -13,6 +13,7 @@ import { PostPropertyBanner } from '@/components/PostPropertyBanner';
 import { FeaturedAgenciesClassic, FeaturedAgenciesFeed } from '@/components/FeaturedAgencies';
 import { FeaturedCollectionsSection, FeaturedCollectionsFeedItem } from '@/components/FeaturedCollections';
 import { SiteHeader } from '@/components/SiteHeader';
+import { PropertyCard } from '@/components/PropertyCard';
 
 export default function Home({ user, settings, featuredCollections, trendingSearches }: { user: any, settings: any, featuredCollections?: any[], trendingSearches?: string[] }) {
   const router = useRouter();
@@ -192,27 +193,9 @@ function ClassicView({ properties, featuredCollections, trendingSearches, user }
       <div className="layout-container" style={{ paddingBottom: '100px', marginTop: 'var(--card-gap)' }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#10172A', marginBottom: '24px' }}>Latest Listings</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '32px' }}>
-          {properties.map(p => {
-            const slug = p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-            const pUrl = `/properties/${slug}-${p.id}`;
-            return (
-              <div key={p.id} className="card" style={{ padding: '0', overflow: 'hidden' }}>
-                <Link href={pUrl} style={{ display: 'block' }}>
-                  <img src={p.images?.[0] || 'https://via.placeholder.com/400x240'} style={{ width: '100%', height: '240px', objectFit: 'cover', cursor: 'pointer' }} />
-                </Link>
-                <div style={{ padding: '24px' }}>
-                  <Link href={pUrl} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <h3 style={{ marginBottom: '8px', cursor: 'pointer' }}>{p.title}</h3>
-                  </Link>
-                  <p style={{ color: 'var(--color-gold)', fontWeight: '700', fontSize: '1.25rem', marginBottom: '8px' }}>{p.price}</p>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>{p.location}</p>
-                  <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--color-border)', fontSize: '0.85rem' }}>
-                    {p.specs}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {properties.map(p => (
+            <PropertyCard key={p.id} property={p} />
+          ))}
         </div>
       </div>
     </>
@@ -464,6 +447,47 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
 
   const images = property.images || [];
 
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [startX, setStartX] = React.useState(0);
+  const [startY, setStartY] = React.useState(0);
+  const [startScrollLeft, setStartScrollLeft] = React.useState(0);
+
+  const startDrag = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    const pageX = 'touches' in e ? e.touches[0].pageX : (e as React.MouseEvent).pageX;
+    const pageY = 'touches' in e ? e.touches[0].pageY : (e as React.MouseEvent).pageY;
+    setStartX(pageX);
+    setStartY(pageY);
+    setStartScrollLeft(scrollRef.current.scrollLeft);
+  };
+
+  const onDrag = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+
+    const pageX = 'touches' in e ? e.touches[0].pageX : (e as React.MouseEvent).pageX;
+    const pageY = 'touches' in e ? e.touches[0].pageY : (e as React.MouseEvent).pageY;
+
+    // For touch, check if scrolling vertically
+    if ('touches' in e) {
+      const dx = Math.abs(pageX - startX);
+      const dy = Math.abs(pageY - startY);
+      // If moving more vertically than horizontally, let native scroll happen
+      if (dy > dx) return;
+
+      // If horizontal, prevent default to stop page scroll (scrolling images instead)
+      // Note: React synthetic events might not support direct preventDefault in all cases depending on passive listeners, 
+      // but updating scrollLeft will handle the visual shift.
+    }
+
+    const walk = (pageX - startX) * 1.5;
+    scrollRef.current.scrollLeft = startScrollLeft - walk;
+  };
+
+  const stopDrag = () => {
+    setIsDragging(false);
+  };
+
   return (
     <div ref={containerRef} className="card" style={{ padding: '0', overflow: 'hidden' }}>
       {/* Post Header */}
@@ -524,20 +548,34 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
         <div
           ref={scrollRef}
           onScroll={handleScroll}
+          onMouseDown={startDrag}
+          onMouseMove={onDrag}
+          onMouseUp={stopDrag}
+          onMouseLeave={stopDrag}
+          onTouchStart={startDrag}
+          onTouchMove={onDrag}
+          onTouchEnd={stopDrag}
           style={{
             display: 'flex',
-            overflowX: 'auto',
+            overflow: 'hidden', // Disable native scroll on both axes
             scrollSnapType: 'x mandatory',
             msOverflowStyle: 'none',
-            scrollbarWidth: 'none'
+            scrollbarWidth: 'none',
+            cursor: isDragging ? 'grabbing' : 'grab'
           }}>
           <style dangerouslySetInnerHTML={{ __html: `div::-webkit-scrollbar { display: none; }` }} />
 
           {images.map((imgUrl: string, imgIndex: number) => (
-            <div key={imgIndex} style={{ minWidth: '100%', scrollSnapAlign: 'start', height: '400px', background: '#f8fafc' }}>
-              <Link href={propertyUrl} style={{ display: 'block', width: '100%', height: '100%' }}>
-                <img src={imgUrl} style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'pointer' }} />
-              </Link>
+            <div key={imgIndex} style={{ minWidth: '100%', scrollSnapAlign: 'start', height: '400px', background: '#f8fafc', userSelect: 'none' }}>
+              {/* Wrapped img with div to prevent default drag behavior of img */}
+              <div
+                style={{ width: '100%', height: '100%' }}
+                onDragStart={(e) => e.preventDefault()} // Prevent native image drag
+              >
+                <Link href={propertyUrl} style={{ display: 'block', width: '100%', height: '100%', pointerEvents: isDragging ? 'none' : 'auto' }}>
+                  <img src={imgUrl} style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: isDragging ? 'grabbing' : 'pointer' }} />
+                </Link>
+              </div>
             </div>
           ))}
         </div>

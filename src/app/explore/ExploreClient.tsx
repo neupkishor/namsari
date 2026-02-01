@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Input } from '@/components/ui';
 import { SiteHeader } from '@/components/SiteHeader';
+import { PropertyCard } from '@/components/PropertyCard';
 
 // Dynamically import map to avoid SSR issues
 const MapComponent = dynamic(() => import('./MapComponent'), {
@@ -198,24 +199,8 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
                                         <div key={i} className="card skeleton-card" style={{ height: '380px' }}></div>
                                     ))
                                 ) : filteredProperties.map((p) => (
-                                    <div
-                                        key={p.id}
-                                        className="card"
-                                        style={{ padding: '0', overflow: 'hidden', cursor: 'pointer' }}
-                                        onClick={() => handleCardClick(p)}
-                                    >
-                                        <div style={{ height: '200px', background: '#f1f5f9' }}>
-                                            <img src={p.images?.[0] || 'https://via.placeholder.com/400x200'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                        </div>
-                                        <div style={{ padding: '20px' }}>
-                                            <div style={{ color: 'var(--color-gold)', fontWeight: '700', fontSize: '1.25rem', marginBottom: '8px' }}>{p.price}</div>
-                                            <h3 style={{ fontSize: '1.1rem', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</h3>
-                                            <p style={{ color: '#64748b', fontSize: '0.85rem' }}>{p.location}</p>
-                                            <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #f1f5f9', fontSize: '0.8rem', color: '#94a3b8', display: 'flex', justifyContent: 'space-between' }}>
-                                                <span>{p.property_types?.[0] || 'Property'}</span>
-                                                <span style={{ color: 'var(--color-primary)', fontWeight: '700' }}>View on Map →</span>
-                                            </div>
-                                        </div>
+                                    <div key={p.id} onClick={() => handleCardClick(p)}>
+                                        <PropertyCard property={p} />
                                     </div>
                                 ))}
                             </div>

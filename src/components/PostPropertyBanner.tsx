@@ -42,16 +42,14 @@ export const PostPropertyBanner = () => {
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '10px',
-                            transition: 'all 0.2s',
-                            boxShadow: '0 4px 6px -1px rgba(14, 165, 233, 0.2)'
+                            // Removed shadow/transform hover
+                            transition: 'filter 0.2s',
                         }}
                             onMouseOver={(e) => {
-                                e.currentTarget.style.transform = 'translateY(-2px)';
-                                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(14, 165, 233, 0.3)';
+                                e.currentTarget.style.filter = 'brightness(1.1)';
                             }}
                             onMouseOut={(e) => {
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(14, 165, 233, 0.2)';
+                                e.currentTarget.style.filter = 'brightness(1)';
                             }}
                         >
                             <span style={{
