@@ -3,10 +3,14 @@ import prisma from '@/lib/prisma';
 import { notFound, redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import Link from 'next/link';
+import { ClassicCollectionView } from './views/ClassicCollectionView';
+import { SocialCollectionView } from './views/SocialCollectionView';
 
-export default async function CollectionPublicPage(props: { params: Promise<{ slug: string }> }) {
+export default async function CollectionPublicPage(props: { params: Promise<{ slug: string }>, searchParams: Promise<{ view?: string }> }) {
     const params = await props.params;
     const { slug } = params;
+    const searchParams = await props.searchParams;
+    const viewMode = searchParams.view || 'classic'; // 'classic' or 'social'
 
     const session = await getSession();
     const currentUserId = session ? parseInt(session.id) : null;
@@ -27,7 +31,7 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
                         include: {
                             location: true,
                             pricing: true,
-                            images: { take: 1, orderBy: { id: 'asc' } },
+                            images: { take: 5, orderBy: { id: 'asc' } }, // Take more images for social view
                             types: true
                         }
                     }
@@ -45,15 +49,6 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
             return notFound(); // Or redirect to login if not logged in
         }
     }
-
-    // Helper to format currency
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('en-NP', {
-            style: 'currency',
-            currency: 'NPR',
-            maximumFractionDigits: 0
-        }).format(price).replace('NPR', 'NRs.');
-    };
 
     return (
         <div style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: '80px' }}>
@@ -82,7 +77,7 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
                             {collection.description || `A collection of ${collection.properties.length} hand-picked properties.`}
                         </p>
 
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '32px' }}>
                             <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#e2e8f0', overflow: 'hidden' }}>
                                 {collection.user.profile_picture ? (
                                     <img src={collection.user.profile_picture} alt={collection.user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -97,75 +92,54 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
                                 <div style={{ fontWeight: '600', color: '#1e293b' }}>{collection.user.name}</div>
                             </div>
                         </div>
+
+                        {/* View Toggles */}
+                        <div style={{ display: 'flex', justifyContent: 'center', width: 'fit-content', margin: '0 auto', background: '#f1f5f9', padding: '4px', borderRadius: '8px', gap: '4px' }}>
+                            <Link
+                                href={`/collection/${collection.slug}?view=classic`}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '6px',
+                                    padding: '8px 16px',
+                                    borderRadius: '6px',
+                                    textDecoration: 'none',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600',
+                                    background: viewMode === 'classic' ? 'white' : 'transparent',
+                                    color: viewMode === 'classic' ? '#3b82f6' : '#64748b',
+                                    boxShadow: viewMode === 'classic' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                <span>⊞</span> Classic
+                            </Link>
+                            <Link
+                                href={`/collection/${collection.slug}?view=social`}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '6px',
+                                    padding: '8px 16px',
+                                    borderRadius: '6px',
+                                    textDecoration: 'none',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600',
+                                    background: viewMode === 'social' ? 'white' : 'transparent',
+                                    color: viewMode === 'social' ? '#3b82f6' : '#64748b',
+                                    boxShadow: viewMode === 'social' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                <span>☰</span> Feed
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </header>
 
             {/* Content Section */}
             <div className="layout-container" style={{ marginTop: '40px' }}>
-                {collection.properties.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '80px 0', color: '#94a3b8' }}>
-                        <div style={{ fontSize: '4rem', marginBottom: '16px', opacity: 0.5 }}>📭</div>
-                        <p style={{ fontSize: '1.2rem', fontWeight: '600' }}>No properties in this collection yet.</p>
-                    </div>
+                {viewMode === 'social' ? (
+                    <SocialCollectionView properties={collection.properties} user={collection.user} />
                 ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '32px' }}>
-                        {collection.properties.map(({ property }) => (
-                            <Link
-                                key={property.id}
-                                href={`/property/${property.slug || property.id}`}
-                                style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
-                            >
-                                <div className="card" style={{
-                                    padding: '0',
-                                    overflow: 'hidden',
-                                    height: '100%',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    transition: 'transform 0.2s, box-shadow 0.2s',
-                                    border: '1px solid #e2e8f0'
-                                }}>
-                                    <div style={{ height: '220px', background: '#f1f5f9', position: 'relative' }}>
-                                        {property.images[0] ? (
-                                            <img src={property.images[0].url} alt={property.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                        ) : (
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#cbd5e1' }}>No Image</div>
-                                        )}
-                                        <div style={{
-                                            position: 'absolute',
-                                            top: '12px',
-                                            left: '12px',
-                                            background: 'rgba(0,0,0,0.6)',
-                                            color: 'white',
-                                            padding: '4px 10px',
-                                            borderRadius: '6px',
-                                            fontSize: '0.8rem',
-                                            fontWeight: '600',
-                                            backdropFilter: 'blur(4px)'
-                                        }}>
-                                            {property.types && property.types.length > 0 ? property.types[0].name : 'Property'}
-                                        </div>
-                                    </div>
-
-                                    <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                                        <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b', marginBottom: '8px', lineHeight: '1.4' }}>
-                                            {property.title}
-                                        </h3>
-                                        <div style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '16px' }}>
-                                            {property.location ? `${property.location.area}, ${property.location.district}` : 'Location Unspecified'}
-                                        </div>
-
-                                        <div style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <div style={{ color: 'var(--color-primary)', fontWeight: '700', fontSize: '1.1rem' }}>
-                                                {property.pricing ? formatPrice(property.pricing.price) : 'N/A'}
-                                            </div>
-                                            <span style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '600' }}>View Details →</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
+                    <ClassicCollectionView properties={collection.properties} />
                 )}
             </div>
         </div>

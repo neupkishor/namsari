@@ -11,8 +11,9 @@ import { PopularCategories, FeaturedProjects } from '@/components/HomeSections';
 import { PopularLocations } from '@/components/PopularLocations';
 import { PostPropertyBanner } from '@/components/PostPropertyBanner';
 import { FeaturedAgenciesClassic, FeaturedAgenciesFeed } from '@/components/FeaturedAgencies';
+import { FeaturedCollectionsSection, FeaturedCollectionsFeedItem } from '@/components/FeaturedCollections';
 
-export default function Home({ user, settings }: { user: any, settings: any }) {
+export default function Home({ user, settings, featuredCollections }: { user: any, settings: any, featuredCollections?: any[] }) {
   const router = useRouter();
   const viewType = settings?.view_mode || 'classic';
   const [isLoading, setIsLoading] = useState(true);
@@ -128,7 +129,7 @@ export default function Home({ user, settings }: { user: any, settings: any }) {
       {isLoading ? (
         viewType === 'classic' ? <ClassicSkeleton /> : <FeedSkeleton />
       ) : (
-        viewType === 'classic' ? <ClassicView properties={properties} /> : <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} />
+        viewType === 'classic' ? <ClassicView properties={properties} featuredCollections={featuredCollections} /> : <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} />
       )}
     </main>
   );
@@ -196,7 +197,7 @@ function FeedSkeleton() {
   );
 }
 
-function ClassicView({ properties }: { properties: any[] }) {
+function ClassicView({ properties, featuredCollections }: { properties: any[], featuredCollections?: any[] }) {
   if (!properties || properties.length === 0) {
     return (
       <div className="layout-container" style={{ padding: '100px 0', textAlign: 'center' }}>
@@ -217,6 +218,7 @@ function ClassicView({ properties }: { properties: any[] }) {
 
       <div className="layout-container">
         <PopularCategories />
+        {featuredCollections && featuredCollections.length > 0 && <FeaturedCollectionsSection collections={featuredCollections} />}
         <FeaturedProjects properties={properties} />
         <PopularLocations />
         <PostPropertyBanner />
@@ -253,7 +255,7 @@ function ClassicView({ properties }: { properties: any[] }) {
   );
 }
 
-function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchingMore, hasMore }: { properties: any[], user: any, settings: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean }) {
+function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchingMore, hasMore, featuredCollections }: { properties: any[], user: any, settings: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean, featuredCollections?: any[] }) {
   const sidebarItems = [
     { label: 'Profile', icon: '👤', href: user ? `/@${user.username}` : '/login' },
     { label: 'Houses', icon: '🏠', href: '/find/houses' },
@@ -372,6 +374,10 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
                 onVisible={isTrigger ? onLoadMore : undefined}
               />
               {index === 0 && <FeaturedAgenciesFeed />}
+              {/* Insert Collections Feed Item occasionally, e.g. after index 2 */}
+              {index === 2 && featuredCollections && featuredCollections.length > 0 && (
+                <FeaturedCollectionsFeedItem collections={featuredCollections} />
+              )}
             </div>
           );
         })}

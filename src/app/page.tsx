@@ -30,5 +30,22 @@ export default async function HomePage() {
             console.error("Failed to fetch user", e);
         }
     }
-    return <HomeClient user={user} settings={settings} />;
+
+    const featuredCollections = await prisma.collection.findMany({
+        where: { is_public: true },
+        take: 6,
+        orderBy: { updated_at: 'desc' },
+        include: {
+            properties: {
+                take: 1,
+                include: {
+                    property: {
+                        select: { images: { take: 1, select: { url: true } } }
+                    }
+                }
+            }
+        }
+    });
+
+    return <HomeClient user={user} settings={settings} featuredCollections={featuredCollections} />;
 }
