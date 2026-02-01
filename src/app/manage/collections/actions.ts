@@ -9,6 +9,7 @@ export async function createCollection(formData: FormData) {
     const isPublic = formData.get('is_public') === 'on';
     const userId = parseInt(formData.get('user_id') as string);
     const type = (formData.get('type') as string) || 'user_generated';
+    const viewMode = (formData.get('view_mode') as string) || 'classic';
     const moreInfo = formData.get('moreInfo') as string;
 
     if (!name || isNaN(userId)) {
@@ -22,6 +23,7 @@ export async function createCollection(formData: FormData) {
             is_public: isPublic,
             user_id: userId,
             type,
+            view_mode: viewMode,
             moreInfo: type === 'system_generated' ? moreInfo : null
         }
     });

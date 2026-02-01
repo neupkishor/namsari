@@ -308,6 +308,7 @@ model Collection {
   moreInfo    String?    // JSON string for conditions: { type, nature, purpose, priceMin, priceMax, unit, etc. }
   
   is_public   Boolean    @default(true)
+  view_mode   String     @default("classic") // classic, social
   created_at  DateTime   @default(now())
   updated_at  DateTime   @updatedAt
 

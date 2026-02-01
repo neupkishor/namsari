@@ -16,6 +16,7 @@ export function CollectionsClient({ initialCollections, userId }: { initialColle
         maxPrice: '',
         priceUnit: 'total'
     });
+    const [viewModeChoice, setViewModeChoice] = useState('classic');
     const router = useRouter();
 
     return (
@@ -175,6 +176,56 @@ export function CollectionsClient({ initialCollections, userId }: { initialColle
                                     </div>
                                 </div>
                             )}
+
+                            <div style={{ marginBottom: '24px' }}>
+                                <label style={{ display: 'block', marginBottom: '12px', fontWeight: '600', color: '#1e293b' }}>Display View</label>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                    <label style={{
+                                        cursor: 'pointer',
+                                        border: '1px solid',
+                                        borderColor: viewModeChoice === 'classic' ? '#3b82f6' : '#e2e8f0',
+                                        borderRadius: '8px',
+                                        padding: '12px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '4px',
+                                        background: viewModeChoice === 'classic' ? '#eff6ff' : 'white',
+                                        transition: 'all 0.2s'
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <input
+                                                type="radio" name="view_mode" value="classic"
+                                                checked={viewModeChoice === 'classic'}
+                                                onChange={() => setViewModeChoice('classic')}
+                                            />
+                                            <span style={{ fontWeight: '600', color: '#1e293b' }}>Classic View</span>
+                                        </div>
+                                        <span style={{ fontSize: '0.75rem', color: '#64748b', marginLeft: '24px' }}>Traditional grid layout</span>
+                                    </label>
+                                    <label style={{
+                                        cursor: 'pointer',
+                                        border: '1px solid',
+                                        borderColor: viewModeChoice === 'social' ? '#3b82f6' : '#e2e8f0',
+                                        borderRadius: '8px',
+                                        padding: '12px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '4px',
+                                        background: viewModeChoice === 'social' ? '#eff6ff' : 'white',
+                                        transition: 'all 0.2s'
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <input
+                                                type="radio" name="view_mode" value="social"
+                                                checked={viewModeChoice === 'social'}
+                                                onChange={() => setViewModeChoice('social')}
+                                            />
+                                            <span style={{ fontWeight: '600', color: '#1e293b' }}>Social Feed</span>
+                                        </div>
+                                        <span style={{ fontSize: '0.75rem', color: '#64748b', marginLeft: '24px' }}>Immersive scroll experience</span>
+                                    </label>
+                                </div>
+                            </div>
 
                             <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <input type="checkbox" name="is_public" id="is_public" defaultChecked />

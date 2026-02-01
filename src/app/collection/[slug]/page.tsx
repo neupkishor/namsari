@@ -5,15 +5,15 @@ import { getSession } from '@/lib/auth';
 import Link from 'next/link';
 import { ClassicCollectionView } from './views/ClassicCollectionView';
 import { SocialCollectionView } from './views/SocialCollectionView';
+import { SiteHeader } from '@/components/SiteHeader';
 
 export default async function CollectionPublicPage(props: { params: Promise<{ slug: string }>, searchParams: Promise<{ view?: string }> }) {
     const params = await props.params;
     const { slug } = params;
-    const searchParams = await props.searchParams;
-    const viewMode = searchParams.view || 'classic'; // 'classic' or 'social'
 
     const session = await getSession();
     const currentUserId = session ? parseInt(session.id) : null;
+    const currentUser = currentUserId ? await prisma.user.findUnique({ where: { id: currentUserId } }) : null;
 
     const collection = await prisma.collection.findFirst({
         where: { slug: slug },
@@ -32,7 +32,8 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
                             location: true,
                             pricing: true,
                             images: { take: 5, orderBy: { id: 'asc' } }, // Take more images for social view
-                            types: true
+                            types: true,
+                            features: true
                         }
                     }
                 },
@@ -52,6 +53,7 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
 
     return (
         <div style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: '80px' }}>
+            <SiteHeader user={currentUser} />
             {/* Header Section */}
             <header style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '60px 0' }}>
                 <div className="layout-container">
@@ -93,50 +95,14 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
                             </div>
                         </div>
 
-                        {/* View Toggles */}
-                        <div style={{ display: 'flex', justifyContent: 'center', width: 'fit-content', margin: '0 auto', background: '#f1f5f9', padding: '4px', borderRadius: '8px', gap: '4px' }}>
-                            <Link
-                                href={`/collection/${collection.slug}?view=classic`}
-                                style={{
-                                    display: 'flex', alignItems: 'center', gap: '6px',
-                                    padding: '8px 16px',
-                                    borderRadius: '6px',
-                                    textDecoration: 'none',
-                                    fontSize: '0.9rem',
-                                    fontWeight: '600',
-                                    background: viewMode === 'classic' ? 'white' : 'transparent',
-                                    color: viewMode === 'classic' ? '#3b82f6' : '#64748b',
-                                    boxShadow: viewMode === 'classic' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                <span>⊞</span> Classic
-                            </Link>
-                            <Link
-                                href={`/collection/${collection.slug}?view=social`}
-                                style={{
-                                    display: 'flex', alignItems: 'center', gap: '6px',
-                                    padding: '8px 16px',
-                                    borderRadius: '6px',
-                                    textDecoration: 'none',
-                                    fontSize: '0.9rem',
-                                    fontWeight: '600',
-                                    background: viewMode === 'social' ? 'white' : 'transparent',
-                                    color: viewMode === 'social' ? '#3b82f6' : '#64748b',
-                                    boxShadow: viewMode === 'social' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                <span>☰</span> Feed
-                            </Link>
-                        </div>
+                        {/* View Toggles Removed as per requirement */}
                     </div>
                 </div>
             </header>
 
             {/* Content Section */}
-            <div className="layout-container" style={{ marginTop: '40px' }}>
-                {viewMode === 'social' ? (
+            <div className="layout-container" style={{ marginTop: '0px' }}>
+                {(collection as any).view_mode === 'social' ? (
                     <SocialCollectionView properties={collection.properties} user={collection.user} />
                 ) : (
                     <ClassicCollectionView properties={collection.properties} />
