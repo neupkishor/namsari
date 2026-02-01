@@ -100,12 +100,10 @@ const featuredProjects = [
 ];
 
 export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) => {
-    const displayProjects = properties.length > 0 ? properties.filter(p => p.isFeatured) : [];
+    // In many parts of the app, we already have a list of properties that might include featured ones
+    const displayProjects = properties.filter(p => p.isFeatured);
 
-    // If no real featured projects, show fallback or just the ones we have
-    const finalProjects = displayProjects.length > 0 ? displayProjects : [];
-
-    if (finalProjects.length === 0) {
+    if (displayProjects.length === 0) {
         return (
             <section>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
@@ -137,9 +135,19 @@ export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) =>
                 gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
                 gap: '24px'
             }}>
-                {finalProjects.map((p) => {
+                {displayProjects.map((p) => {
                     const slug = p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
                     const propertyUrl = `/properties/${slug}-${p.id}`;
+
+                    // Handle price formatting if not already string (from API)
+                    const displayPrice = typeof p.price === 'string' ? p.price :
+                        p.pricing ? new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(p.pricing.price).replace('NPR', 'NRs.') :
+                            'Price on Request';
+
+                    // Handle location formatting
+                    const displayLocation = typeof p.location === 'string' ? p.location :
+                        p.location ? `${p.location.area}, ${p.location.district}` :
+                            'Location Unspecified';
 
                     return (
                         <Link key={p.id} href={propertyUrl} style={{ textDecoration: 'none' }}>
@@ -156,7 +164,7 @@ export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) =>
                             >
                                 <div style={{ position: 'relative', height: '220px' }}>
                                     <img
-                                        src={p.images?.[0] || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'}
+                                        src={(p.images && p.images[0]) || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'}
                                         alt={p.title}
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />
@@ -172,34 +180,35 @@ export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) =>
                                         fontWeight: '700',
                                         border: '1px solid #bae6fd'
                                     }}>
-                                        {p.price}
+                                        {displayPrice}
                                     </div>
                                 </div>
 
                                 <div style={{ padding: '20px' }}>
                                     <p style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: '700', textTransform: 'uppercase', marginBottom: '4px' }}>
-                                        {p.main_category}
+                                        {p.property_types?.[0] || 'Property'}
                                     </p>
-                                    <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b', marginBottom: '8px' }}>
+                                    <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b', marginBottom: '8px', lineHeight: '1.3' }}>
                                         {p.title}
                                     </h3>
                                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '4px', marginBottom: '16px' }}>
                                         <span style={{ fontSize: '0.9rem' }}>📍</span>
-                                        <span style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: '1.4' }}>{p.location}</span>
+                                        <span style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: '1.4' }}>{displayLocation}</span>
                                     </div>
 
                                     <div style={{
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         gap: '6px',
-                                        background: '#f1f5f9',
+                                        background: '#f8fafc',
                                         padding: '4px 12px',
                                         borderRadius: 'calc(var(--radius-inner) - 2px)',
                                         fontSize: '0.85rem',
                                         color: '#475569',
-                                        fontWeight: '600'
+                                        fontWeight: '600',
+                                        border: '1px solid #e2e8f0'
                                     }}>
-                                        {p.commercial_sub_category || 'Premium Listing'}
+                                        {p.property_types?.[0] || 'Premium Listing'}
                                     </div>
                                 </div>
                             </div>

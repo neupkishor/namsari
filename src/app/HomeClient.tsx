@@ -15,7 +15,7 @@ import { FeaturedCollectionsSection, FeaturedCollectionsFeedItem } from '@/compo
 import { SiteHeader } from '@/components/SiteHeader';
 import { PropertyCard } from '@/components/PropertyCard';
 
-export default function Home({ user, settings, featuredCollections, trendingSearches }: { user: any, settings: any, featuredCollections?: any[], trendingSearches?: string[] }) {
+export default function Home({ user, settings, featuredCollections, trendingSearches, featuredProperties = [] }: { user: any, settings: any, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[] }) {
   const router = useRouter();
   const viewType = settings?.view_mode || 'classic';
   const [isLoading, setIsLoading] = useState(true);
@@ -39,7 +39,7 @@ export default function Home({ user, settings, featuredCollections, trendingSear
     if (!reset && (!hasMore || isFetchingMore)) return;
 
     if (reset) {
-      setIsLoading(true);
+      if (properties.length === 0) setIsLoading(true);
       setPage(0);
       setHasMore(true);
     } else {
@@ -89,7 +89,7 @@ export default function Home({ user, settings, featuredCollections, trendingSear
       {isLoading ? (
         viewType === 'classic' ? <ClassicSkeleton /> : <FeedSkeleton />
       ) : (
-        viewType === 'classic' ? <ClassicView properties={properties} featuredCollections={featuredCollections} trendingSearches={trendingSearches} user={user} /> : <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} trendingSearches={trendingSearches} />
+        viewType === 'classic' ? <ClassicView properties={properties} featuredCollections={featuredCollections} trendingSearches={trendingSearches} user={user} featuredProperties={featuredProperties} /> : <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} trendingSearches={trendingSearches} />
       )}
     </main>
   );
@@ -160,7 +160,7 @@ function FeedSkeleton() {
 }
 
 
-function ClassicView({ properties, featuredCollections, trendingSearches, user }: { properties: any[], featuredCollections?: any[], trendingSearches?: string[], user?: any }) {
+function ClassicView({ properties, featuredCollections, trendingSearches, user, featuredProperties = [] }: { properties: any[], featuredCollections?: any[], trendingSearches?: string[], user?: any, featuredProperties?: any[] }) {
   if (!properties || properties.length === 0) {
     return (
       <div className="layout-container" style={{ padding: '100px 0', textAlign: 'center' }}>
@@ -184,7 +184,7 @@ function ClassicView({ properties, featuredCollections, trendingSearches, user }
       <div className="layout-container" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--card-gap)' }}>
         <PopularCategories />
         {featuredCollections && featuredCollections.length > 0 && <FeaturedCollectionsSection collections={featuredCollections} />}
-        <FeaturedProjects properties={properties} />
+        <FeaturedProjects properties={featuredProperties} />
         <PostPropertyBanner />
         <TrendingSearches searches={trendingSearches || []} />
         <FeaturedAgenciesClassic />
@@ -212,9 +212,12 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
   ];
 
   const secondaryItems = [
-    { label: 'Settings', icon: '⚙️', href: '/manage/settings' },
-    { label: 'Help Center', icon: '❓', href: '/support' },
+    { label: 'About Us', icon: 'ℹ️', href: '/about' },
+    { label: 'Careers', icon: '💼', href: '/careers' },
+    { label: 'Terms', icon: '📝', href: '/terms' },
     { label: 'Privacy', icon: '🛡️', href: '/terms/privacy' },
+    { label: 'Help Center', icon: '❓', href: '/support' },
+    { label: 'Settings', icon: '⚙️', href: '/manage/settings' },
   ];
 
   if (!properties || properties.length === 0) {
@@ -374,11 +377,17 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
   const [showComments, setShowComments] = React.useState(false);
   const [commentDraft, setCommentDraft] = React.useState('');
   const [isLiking, setIsLiking] = React.useState(false);
+  const [localLikeState, setLocalLikeState] = React.useState<{ isLiked: boolean, count: number } | null>(null);
 
   // Derived social states
-  const isLiked = user && property.property_likes?.some((l: any) => l.user_id === user.id);
-  const likeCount = property.property_likes?.length || 0;
+  const isLiked = localLikeState ? localLikeState.isLiked : (user && property.property_likes?.some((l: any) => l.user_id === user.id));
+  const likeCount = localLikeState ? localLikeState.count : (property.property_likes?.length || 0);
   const comments = property.comments || [];
+
+  // Reset local state when property prop changes (after onRefresh)
+  useEffect(() => {
+    setLocalLikeState(null);
+  }, [property.property_likes]);
 
   const slug = property.slug || property.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   const propertyUrl = `/properties/${slug}-${property.id}`;
@@ -410,11 +419,19 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
       window.location.href = '/login';
       return;
     }
+
+    // Optimistic Update
+    const nextIsLiked = !isLiked;
+    const nextCount = nextIsLiked ? likeCount + 1 : Math.max(0, likeCount - 1);
+    setLocalLikeState({ isLiked: nextIsLiked, count: nextCount });
+
     setIsLiking(true);
     try {
       await toggleLike(property.id);
-      onRefresh();
+      onRefresh(); // Sync with server
     } catch (err) {
+      // Rollback on error
+      setLocalLikeState(null);
       console.error(err);
     } finally {
       setIsLiking(false);

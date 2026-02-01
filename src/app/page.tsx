@@ -31,7 +31,7 @@ export default async function HomePage() {
         }
     }
 
-    const [featuredCollections, trendingSearches] = await Promise.all([
+    const [featuredCollections, trendingSearches, featuredProperties] = await Promise.all([
         prisma.collection.findMany({
             where: { is_public: true },
             take: 6,
@@ -47,8 +47,27 @@ export default async function HomePage() {
                 }
             }
         }),
-        import('./actions/search').then(mod => mod.getTrendingSearches())
+        import('./actions/search').then(mod => mod.getTrendingSearches()),
+        prisma.property.findMany({
+            where: { isFeatured: true },
+            take: 4,
+            include: {
+                listedBy: true,
+                location: true,
+                pricing: true,
+                images: true,
+                types: true,
+                features: true
+            },
+            orderBy: { created_on: 'desc' }
+        })
     ]);
 
-    return <HomeClient user={user} settings={settings} featuredCollections={featuredCollections} trendingSearches={trendingSearches} />;
+    return <HomeClient
+        user={user}
+        settings={settings}
+        featuredCollections={featuredCollections}
+        trendingSearches={trendingSearches}
+        featuredProperties={featuredProperties}
+    />;
 }
