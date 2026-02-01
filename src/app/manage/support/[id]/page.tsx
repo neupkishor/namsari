@@ -19,11 +19,8 @@ export default async function EditSupportPage({ params }: { params: Promise<{ id
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
             <header>
-                <Link href="/manage/support" style={{ color: 'var(--color-gold)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
-                    ← Back to Knowledge Base
-                </Link>
-                <h1 className="section-title" style={{ fontSize: '2rem', marginBottom: '8px' }}>Edit Article</h1>
-                <p style={{ color: 'var(--color-text-muted)' }}>Update help article content and metadata.</p>
+                <h1 className="section-title" style={{ fontSize: '2rem', marginBottom: '8px' }}>Edit Support Article</h1>
+                <p style={{ color: 'var(--color-text-muted)' }}>Update support article content and metadata.</p>
             </header>
 
             <SupportFormClient initialData={article} isEdit={true} />

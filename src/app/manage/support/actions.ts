@@ -11,12 +11,18 @@ const generateSlug = (title: string) => {
 };
 
 export async function getSupportArticles() {
+    if (!(prisma as any).supportArticle) {
+        throw new Error("SupportArticle model not found in Prisma client. Please restart your developer server (npm run dev) to refresh the schema.");
+    }
     return await (prisma as any).supportArticle.findMany({
         orderBy: { created_at: 'desc' }
     });
 }
 
 export async function getSupportArticle(id: number) {
+    if (!(prisma as any).supportArticle) {
+        throw new Error("SupportArticle model not found in Prisma client.");
+    }
     return await (prisma as any).supportArticle.findUnique({
         where: { id }
     });
@@ -28,6 +34,9 @@ export async function createSupportArticle(data: {
     content: string;
     status?: string;
 }) {
+    if (!(prisma as any).supportArticle) {
+        throw new Error("SupportArticle model not found in Prisma client.");
+    }
     const article = await (prisma as any).supportArticle.create({
         data: {
             title: data.title,
@@ -47,6 +56,9 @@ export async function updateSupportArticle(id: number, data: {
     content: string;
     status: string;
 }) {
+    if (!(prisma as any).supportArticle) {
+        throw new Error("SupportArticle model not found in Prisma client.");
+    }
     const article = await (prisma as any).supportArticle.update({
         where: { id },
         data: {
@@ -62,6 +74,9 @@ export async function updateSupportArticle(id: number, data: {
 }
 
 export async function deleteSupportArticle(id: number) {
+    if (!(prisma as any).supportArticle) {
+        throw new Error("SupportArticle model not found in Prisma client.");
+    }
     await (prisma as any).supportArticle.delete({
         where: { id }
     });

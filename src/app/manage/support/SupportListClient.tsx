@@ -24,7 +24,7 @@ export default function SupportListClient({ initialArticles }: { initialArticles
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                     <tr style={{ borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface)' }}>
-                        <th style={{ padding: '16px 24px', fontSize: '0.85rem', fontWeight: '700', color: 'var(--color-text-muted)' }}>ARTICLE TITLE</th>
+                        <th style={{ padding: '16px 24px', fontSize: '0.85rem', fontWeight: '700', color: 'var(--color-text-muted)' }}>SUPPORT ARTICLE TITLE</th>
                         <th style={{ padding: '16px 24px', fontSize: '0.85rem', fontWeight: '700', color: 'var(--color-text-muted)' }}>CATEGORY</th>
                         <th style={{ padding: '16px 24px', fontSize: '0.85rem', fontWeight: '700', color: 'var(--color-text-muted)' }}>STATUS</th>
                         <th style={{ padding: '16px 24px', fontSize: '0.85rem', fontWeight: '700', color: 'var(--color-text-muted)' }}>UPDATED</th>

@@ -19,7 +19,7 @@ export default async function SupportManagementPage() {
                     <p style={{ color: 'var(--color-text-muted)' }}>Manage help articles and documentation for users.</p>
                 </div>
                 <Link href="/manage/support/create" className="btn-corporate" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span>+</span> Create New Article
+                    <span>+</span> Create Support Article
                 </Link>
             </header>
 
