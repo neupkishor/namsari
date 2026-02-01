@@ -436,3 +436,17 @@ model SupportArticle {
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 }
+
+model BlogPost {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  content     String   // HTML content
+  excerpt     String?
+  cover_image String?
+  category    String?
+  author      String?  // Simple text field for the author's name
+  status      String   @default("draft") // draft, published
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}

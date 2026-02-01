@@ -57,6 +57,12 @@ export default function SidebarContent() {
             >
                 Support
             </Link>
+            <Link
+                href="/manage/blog"
+                className={`sidebar-link ${isActive('/manage/blog') ? 'active' : ''}`}
+            >
+                Blog
+            </Link>
 
             <div style={{ margin: '20px 24px 8px', fontSize: '0.75rem', fontWeight: '700', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Settings
