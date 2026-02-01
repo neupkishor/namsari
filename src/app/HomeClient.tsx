@@ -10,6 +10,7 @@ import { CreatePostCard } from '@/components/CreatePostCard';
 import { PopularCategories, FeaturedProjects } from '@/components/HomeSections';
 import { PopularLocations } from '@/components/PopularLocations';
 import { PostPropertyBanner } from '@/components/PostPropertyBanner';
+import { FeaturedAgenciesClassic, FeaturedAgenciesFeed } from '@/components/FeaturedAgencies';
 
 export default function Home({ user, settings }: { user: any, settings: any }) {
   const router = useRouter();
@@ -219,6 +220,7 @@ function ClassicView({ properties }: { properties: any[] }) {
         <FeaturedProjects properties={properties} />
         <PopularLocations />
         <PostPropertyBanner />
+        <FeaturedAgenciesClassic />
       </div>
 
       <div className="layout-container" style={{ paddingBottom: '100px' }}>
@@ -369,6 +371,7 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
                 onRefresh={onRefresh}
                 onVisible={isTrigger ? onLoadMore : undefined}
               />
+              {index === 0 && <FeaturedAgenciesFeed />}
             </div>
           );
         })}
