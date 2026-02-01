@@ -424,3 +424,14 @@ model JobApplication {
   status             String        @default("pending") // pending, reviewed, rejected, hired
   created_at         DateTime      @default(now())
 }
+
+model SupportArticle {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  category    String   // General, Technical, Billing, etc.
+  content     String   // Markdown or HTML
+  status      String   @default("published") // published, draft
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
