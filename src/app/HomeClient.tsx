@@ -5,12 +5,20 @@ import Link from 'next/link';
 import { logoutAction } from './actions/auth';
 import { toggleLike, addComment } from './actions/social';
 import { Input } from '@/components/ui';
+import { useRouter } from 'next/navigation';
 import { CreatePostCard } from '@/components/CreatePostCard';
 import { PopularCategories, FeaturedProjects } from '@/components/HomeSections';
 
 export default function Home({ user, settings }: { user: any, settings: any }) {
-  const viewType = settings?.view_mode || 'card';
+  const router = useRouter();
+  const viewType = settings?.view_mode || 'classic';
   const [isLoading, setIsLoading] = useState(true);
+
+  // Force refresh when coming back or when settings update is suspected
+  useEffect(() => {
+    router.refresh();
+  }, [settings?.view_mode]);
+
   const [properties, setProperties] = useState<any[]>([]);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -56,7 +64,7 @@ export default function Home({ user, settings }: { user: any, settings: any }) {
   }, []);
 
   return (
-    <main style={{ backgroundColor: viewType === 'feed' ? '#f0f2f5' : '#ffffff', minHeight: '100vh' }}>
+    <main style={{ backgroundColor: viewType === 'social' ? '#f0f2f5' : '#ffffff', minHeight: '100vh' }}>
       {/* Shared Responsive Logic for Feed Sidebar */}
       <style dangerouslySetInnerHTML={{
         __html: `
@@ -115,9 +123,9 @@ export default function Home({ user, settings }: { user: any, settings: any }) {
       </header>
 
       {isLoading ? (
-        viewType === 'card' ? <ClassicSkeleton /> : <FeedSkeleton />
+        viewType === 'classic' ? <ClassicSkeleton /> : <FeedSkeleton />
       ) : (
-        viewType === 'card' ? <ClassicView properties={properties} /> : <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} />
+        viewType === 'classic' ? <ClassicView properties={properties} /> : <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} />
       )}
     </main>
   );
