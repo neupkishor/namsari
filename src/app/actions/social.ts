@@ -26,20 +26,12 @@ export async function toggleLike(propertyId: number) {
             await prisma.like.delete({
                 where: { id: existingLike.id }
             });
-            await prisma.property.update({
-                where: { id: propertyId },
-                data: { likes: { decrement: 1 } }
-            });
         } else {
             await prisma.like.create({
                 data: {
                     property_id: propertyId,
                     user_id: userId
                 }
-            });
-            await prisma.property.update({
-                where: { id: propertyId },
-                data: { likes: { increment: 1 } }
             });
         }
 

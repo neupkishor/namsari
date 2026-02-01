@@ -21,7 +21,7 @@ export default function ExploreClient({ initialUser }: { initialUser: any }) {
 
     const fetchProperties = async () => {
         try {
-            const res = await fetch('/api/properties');
+            const res = await fetch('/api/properties?take=50');
             const data = await res.json();
             setProperties(data);
         } catch (err) {
@@ -49,11 +49,17 @@ export default function ExploreClient({ initialUser }: { initialUser: any }) {
     }, []);
 
     const filteredProperties = properties.filter(p => {
-        const lat = Number(p.latitude);
-        const lng = Number(p.longitude);
-        return lat && lng && !isNaN(lat) && !isNaN(lng) &&
-            (p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                p.location.toLowerCase().includes(searchQuery.toLowerCase()));
+        const query = searchQuery.toLowerCase();
+        return (p.title?.toLowerCase().includes(query) ||
+            p.location?.toLowerCase().includes(query) ||
+            p.price?.toString().toLowerCase().includes(query));
+    });
+
+    const mapProperties = filteredProperties.filter(p => {
+        const lat = p.latitude;
+        const lng = p.longitude;
+        return lat !== null && lat !== undefined && lat !== '' &&
+            lng !== null && lng !== undefined && lng !== '';
     });
 
     const handleCardClick = (p: any) => {
@@ -129,7 +135,7 @@ export default function ExploreClient({ initialUser }: { initialUser: any }) {
                                         <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: '600' }}>{p.title}</div>
                                         <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>{p.location}</div>
                                         <div style={{ fontSize: '0.7rem', color: 'var(--color-gold)', textTransform: 'uppercase', fontWeight: '800', marginTop: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                                            <span>{p.main_category}</span>
+                                            <span>{p.property_types?.[0] || 'Property'}</span>
                                             <Link href={`/properties/${p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`} style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}>View Details</Link>
                                         </div>
                                     </div>
@@ -146,7 +152,7 @@ export default function ExploreClient({ initialUser }: { initialUser: any }) {
                 {/* Large Map View */}
                 <div style={{ flex: 1, background: '#f8fafc', position: 'relative' }}>
                     <MapComponent
-                        properties={filteredProperties}
+                        properties={mapProperties}
                         center={mapCenter}
                         userLocation={userLocation}
                         selectedId={selectedId}

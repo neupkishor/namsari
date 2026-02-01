@@ -65,13 +65,15 @@ export async function GET(request: Request) {
                 ...p,
                 price: formattedPrice,
                 location: locationStr,
+                latitude: p.location?.latitude,
+                longitude: p.location?.longitude,
                 images: p.images.map(img => img.url),
                 property_types: p.types.map(t => t.name),
                 specs: specs,
                 // Enrich with author details
                 author_username: authorUser ? authorUser.username : null,
                 author_name: authorUser ? authorUser.name : 'Unknown',
-                author_avatar: authorUser ? (authorUser.profile_picture || (authorUser.name || 'U')[0]) : 'U',
+                author_avatar: (authorUser as any)?.profile_picture || ((authorUser as any)?.name || 'U')[0],
                 timestamp
             };
         });
