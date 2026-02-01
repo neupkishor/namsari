@@ -40,6 +40,12 @@ export default function SidebarContent() {
                 Root
             </div>
             <Link
+                href="/manage/banks"
+                className={`sidebar-link ${isActive('/manage/banks') ? 'active' : ''}`}
+            >
+                Banks
+            </Link>
+            <Link
                 href="/manage/about"
                 className={`sidebar-link ${isActive('/manage/about') ? 'active' : ''}`}
             >

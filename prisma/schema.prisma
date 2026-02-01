@@ -450,3 +450,26 @@ model BlogPost {
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 }
+
+model Bank {
+  id          Int        @id @default(autoincrement())
+  slug        String     @unique @default(cuid())
+  name        String
+  icon        String?
+  description String?
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+
+  rates       BankRate[]
+}
+
+model BankRate {
+  id            Int       @id @default(autoincrement())
+  bank_id       Int
+  bank          Bank      @relation(fields: [bank_id], references: [id], onDelete: Cascade)
+  interest_from DateTime
+  interest      Float
+  interest_to   DateTime?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+}

@@ -158,6 +158,72 @@ h3 {
   transform: none !important;
 }
 
+/* Form Styles */
+.form-control {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-inner);
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--color-text-main);
+  background: #ffffff;
+  transition: all 0.2s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
+}
+
+/* Button Variants */
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-light);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  filter: brightness(1.1);
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--color-primary);
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-secondary:hover {
+  background: var(--color-surface);
+  border-color: var(--color-accent);
+}
+
 .btn-corporate {
   background: var(--color-primary);
   color: white;
@@ -233,6 +299,7 @@ h3 {
   background-color: #f0f2f5;
   color: var(--color-primary) !important;
 }
+
 /* Career Page Enhancements */
 .job-card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
@@ -250,30 +317,70 @@ h3 {
   color: var(--color-primary) !important;
 }
 
-.prose h1, .prose h2, .prose h3 {
+.prose h1,
+.prose h2,
+.prose h3 {
   color: var(--color-primary);
   font-weight: 800;
   margin-top: 2rem;
   margin-bottom: 1rem;
 }
-.prose h2 { fontSize: 1.8rem; }
-.prose h3 { fontSize: 1.4rem; }
-.prose p { margin-bottom: 1.5rem; }
-.prose ul, .prose ol { margin-bottom: 1.5rem; padding-left: 1.5rem; }
-.prose li { margin-bottom: 0.5rem; }
-.prose a { color: var(--color-primary); text-decoration: underline; }
-.prose img { max-width: 100%; border-radius: 12px; margin: 2rem 0; }
-.prose code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
-.prose blockquote { border-left: 4px solid var(--color-gold); padding-left: 1rem; font-style: italic; color: #475569; }
+
+.prose h2 {
+  fontSize: 1.8rem;
+}
+
+.prose h3 {
+  fontSize: 1.4rem;
+}
+
+.prose p {
+  margin-bottom: 1.5rem;
+}
+
+.prose ul,
+.prose ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.prose li {
+  margin-bottom: 0.5rem;
+}
+
+.prose a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.prose img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin: 2rem 0;
+}
+
+.prose code {
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.prose blockquote {
+  border-left: 4px solid var(--color-gold);
+  padding-left: 1rem;
+  font-style: italic;
+  color: #475569;
+}
 
 /* Support Card Hover Effect */
 .support-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
 }
 
 /* Blog Card Hover Effect */
 .blog-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
 }
