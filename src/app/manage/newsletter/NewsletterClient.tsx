@@ -1,38 +1,20 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
-import { FormCard } from '@/components/form';
+import { PaginationControl } from '@/components/ui';
 
 interface Subscriber {
     id: number;
     email: string;
     isActive: boolean;
     createdAt: string;
+    updatedAt: string;
 }
 
-export default function NewsletterClient() {
-    const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
-    const [loading, setLoading] = useState(true);
+interface NewsletterClientProps {
+    subscribers: Subscriber[];
+    totalPages: number;
+    totalCount: number;
+}
 
-    useEffect(() => {
-        const fetchSubscribers = async () => {
-            try {
-                const res = await fetch('/api/newsletter');
-                const data = await res.json();
-                setSubscribers(Array.isArray(data) ? data : []);
-            } catch (error) {
-                console.error('Failed to fetch subscribers', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchSubscribers();
-    }, []);
-
-    if (loading) {
-        return <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>Loading subscribers...</div>;
-    }
+export default function NewsletterClient({ subscribers, totalPages, totalCount }: NewsletterClientProps) {
 
     return (
         <div style={{ paddingBottom: '60px' }}>
@@ -41,46 +23,47 @@ export default function NewsletterClient() {
                 <p style={{ color: '#64748b' }}>Manage your email subscription list.</p>
             </header>
 
-            <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                    <thead style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                        <tr>
-                            <th style={{ padding: '16px 24px', fontWeight: '600', color: '#475569', fontSize: '0.85rem', textTransform: 'uppercase' }}>Email Address</th>
-                            <th style={{ padding: '16px 24px', fontWeight: '600', color: '#475569', fontSize: '0.85rem', textTransform: 'uppercase' }}>Status</th>
-                            <th style={{ padding: '16px 24px', fontWeight: '600', color: '#475569', fontSize: '0.85rem', textTransform: 'uppercase' }}>Subscribed On</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {subscribers.length === 0 ? (
-                            <tr>
-                                <td colSpan={3} style={{ padding: '48px', textAlign: 'center', color: '#64748b' }}>No subscribers yet.</td>
-                            </tr>
-                        ) : (
-                            subscribers.map((sub) => (
-                                <tr key={sub.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                    <td style={{ padding: '16px 24px', color: '#0f172a', fontWeight: '500' }}>{sub.email}</td>
-                                    <td style={{ padding: '16px 24px' }}>
-                                        <span style={{
-                                            background: sub.isActive ? '#dcfce7' : '#fee2e2',
-                                            color: sub.isActive ? '#166534' : '#991b1b',
-                                            padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700'
-                                        }}>
-                                            {sub.isActive ? 'Active' : 'Unsubscribed'}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '16px 24px', color: '#64748b', fontSize: '0.9rem' }}>
-                                        {new Date(sub.createdAt).toLocaleDateString()}
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                {subscribers.length === 0 ? (
+                    <div style={{ gridColumn: '1 / -1', padding: '60px', textAlign: 'center', color: 'var(--color-text-muted)', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                        No subscribers yet.
+                    </div>
+                ) : (
+                    subscribers.map((sub) => (
+                        <div key={sub.id} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <div style={{ fontSize: '1rem', fontWeight: '700', color: '#1e293b' }}>
+                                    {sub.email}
+                                </div>
+                                <span style={{
+                                    background: sub.isActive ? '#dcfce7' : '#fee2e2',
+                                    color: sub.isActive ? '#166534' : '#991b1b',
+                                    padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700'
+                                }}>
+                                    {sub.isActive ? 'Active' : 'Unsubscribed'}
+                                </span>
+                            </div>
+
+                            <div style={{ fontSize: '0.85rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span>📅 Subscribed: {new Date(sub.createdAt).toLocaleDateString()}</span>
+                            </div>
+
+                            <div style={{ marginTop: 'auto', borderTop: '1px solid #f1f5f9', paddingTop: '16px', textAlign: 'right' }}>
+                                {/* Potential Actions here */}
+                                <button style={{ fontSize: '0.85rem', color: '#ef4444', background: 'none', border: 'none', fontWeight: '600', cursor: 'pointer' }}>
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
 
-            <div style={{ marginTop: '24px', textAlign: 'right', color: '#64748b', fontSize: '0.9rem' }}>
-                Total Subscribers: <strong>{subscribers.length}</strong>
+            <div style={{ marginTop: '24px', textAlign: 'right', color: '#64748b', fontSize: '0.9rem', marginBottom: '16px' }}>
+                Total Subscribers: <strong>{totalCount}</strong>
             </div>
+
+            <PaginationControl totalPages={totalPages} />
         </div>
     );
 }

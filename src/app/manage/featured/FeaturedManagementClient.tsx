@@ -4,7 +4,9 @@ import React, { useState } from 'react';
 import { toggleFeatured } from './actions';
 import { useRouter } from 'next/navigation';
 
-export default function FeaturedManagementClient({ properties }: { properties: any[] }) {
+import { PaginationControl } from '@/components/ui';
+
+export default function FeaturedManagementClient({ properties, totalPages }: { properties: any[], totalPages: number }) {
     const router = useRouter();
     const [loadingId, setLoadingId] = useState<number | null>(null);
 
@@ -28,63 +30,69 @@ export default function FeaturedManagementClient({ properties }: { properties: a
                 <p style={{ color: 'var(--color-text-muted)' }}>Select properties to highlight on the homepage "Featured Projects" section.</p>
             </header>
 
-            <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                    <thead style={{ background: '#f8fafc', borderBottom: '1px solid var(--color-border)' }}>
-                        <tr>
-                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Property</th>
-                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Status</th>
-                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {properties.map((p) => (
-                            <tr key={p.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                                <td style={{ padding: '16px 24px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <div style={{ width: '48px', height: '48px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
-                                            {p.images && p.images[0] && <img src={p.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
-                                        </div>
-                                        <div>
-                                            <div style={{ fontWeight: '600', color: '#1e293b' }}>{p.title}</div>
-                                            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{p.location}</div>
-                                        </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                {properties.length === 0 ? (
+                    <div style={{ gridColumn: '1 / -1', padding: '60px', textAlign: 'center', color: 'var(--color-text-muted)', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                        No properties found.
+                    </div>
+                ) : (
+                    properties.map((p) => (
+                        <div key={p.id} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                            <div style={{ height: '180px', background: '#f1f5f9', position: 'relative' }}>
+                                {p.images && p.images[0] ? (
+                                    <img src={p.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.title} />
+                                ) : (
+                                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>🏠</div>
+                                )}
+                                {p.isFeatured && (
+                                    <div style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(5, 150, 105, 0.9)', color: 'white', padding: '4px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '700' }}>
+                                        ★ FEATURED
                                     </div>
-                                </td>
-                                <td style={{ padding: '16px 24px' }}>
-                                    {p.isFeatured ? (
-                                        <span style={{ background: '#ecfdf5', color: '#059669', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '700' }}>
-                                            Featured
-                                        </span>
-                                    ) : (
-                                        <span style={{ background: '#f1f5f9', color: '#64748b', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '700' }}>
-                                            Standard
-                                        </span>
-                                    )}
-                                </td>
-                                <td style={{ padding: '16px 24px' }}>
-                                    <button
-                                        onClick={() => handleToggle(p.id)}
-                                        disabled={loadingId === p.id}
-                                        style={{
-                                            padding: '8px 16px',
-                                            borderRadius: '6px',
-                                            border: 'none',
-                                            background: p.isFeatured ? '#fee2e2' : 'var(--color-primary)',
-                                            color: p.isFeatured ? '#ef4444' : 'white',
-                                            fontWeight: '600',
-                                            cursor: 'pointer',
-                                            opacity: loadingId === p.id ? 0.5 : 1
-                                        }}
-                                    >
-                                        {loadingId === p.id ? 'Updating...' : p.isFeatured ? 'Remove Featured' : 'Mark as Featured'}
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                                )}
+                            </div>
+
+                            <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <div>
+                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b', marginBottom: '4px', lineHeight: '1.4' }}>{p.title}</h3>
+                                    <p style={{ fontSize: '0.9rem', color: '#64748b' }}>📍 {p.location}</p>
+                                </div>
+                                <div style={{ fontSize: '0.9rem', color: '#64748b', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span>#{p.id}</span>
+                                    <span style={{ fontWeight: '500', color: p.isFeatured ? '#059669' : '#64748b' }}>
+                                        {p.isFeatured ? 'Active on Home' : 'Standard Listing'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div style={{ padding: '12px 20px', borderTop: '1px solid #f1f5f9', background: '#f8fafc' }}>
+                                <button
+                                    onClick={() => handleToggle(p.id)}
+                                    disabled={loadingId === p.id}
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px',
+                                        borderRadius: '8px',
+                                        background: p.isFeatured ? 'white' : 'var(--color-primary)',
+                                        color: p.isFeatured ? '#ef4444' : 'white',
+                                        border: p.isFeatured ? '1px solid #fecaca' : 'none',
+                                        fontWeight: '700',
+                                        cursor: 'pointer',
+                                        opacity: loadingId === p.id ? 0.7 : 1,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '8px'
+                                    }}
+                                >
+                                    {loadingId === p.id ? 'Updating...' : p.isFeatured ? 'Remove Featured' : 'Mark as Featured'}
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
+
+            <PaginationControl totalPages={totalPages} />
         </div>
     );
 }

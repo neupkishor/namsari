@@ -1,21 +1,34 @@
 import React from 'react';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
+import { PaginationControl } from '@/components/ui';
 
-export default async function ManageUsersPage() {
-    // Fetch all users
-    const users = await prisma.user.findMany({
-        orderBy: { name: 'asc' }
-    });
+export default async function ManageUsersPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+    const { page: pageParam } = await searchParams;
+    const page = Number(pageParam) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    const [users, totalCount] = await Promise.all([
+        prisma.user.findMany({
+            orderBy: { name: 'asc' },
+            skip,
+            take: limit
+        }),
+        prisma.user.count()
+    ]);
+
+    const totalPages = Math.ceil(totalCount / limit);
 
     return (
-        <div>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
             <header style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                 <div>
                     <h1 className="section-title" style={{ fontSize: '2rem', marginBottom: '8px' }}>User Management</h1>
-                    <p style={{ color: 'var(--color-text-muted)' }}>Directory of all registered agents, agencies, and owners.</p>
+                    <p style={{ color: 'var(--color-text-muted)' }}>Directory of all registered connected users.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
+                    {/* Export/Invite buttons can remain or be simplified as needed, keeping them for now */}
                     <button style={{ background: 'white', border: '1px solid #cbd5e1', padding: '10px 16px', borderRadius: '6px', fontWeight: '600', color: '#475569', cursor: 'pointer' }}>
                         Export CSV
                     </button>
@@ -25,78 +38,42 @@ export default async function ManageUsersPage() {
                 </div>
             </header>
 
-            <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
-                    <thead style={{ background: '#f8fafc', borderBottom: '1px solid var(--color-border)' }}>
-                        <tr>
-                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>User Identity</th>
-                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Contact Info</th>
-                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Account Type</th>
-                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
-                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {users.length === 0 ? (
-                            <tr>
-                                <td colSpan={5} style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
-                                    No users found in the registry.
-                                </td>
-                            </tr>
-                        ) : (
-                            users.map((u: any) => (
-                                <tr key={u.id} style={{ borderBottom: '1px solid var(--color-border)', transition: 'background 0.2s' }}>
-                                    <td style={{ padding: '16px 24px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', overflow: 'hidden' }}>
-                                                {u.profile_picture ? (
-                                                    <img src={u.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={u.name} />
-                                                ) : (
-                                                    (u.name || 'U')[0]
-                                                )}
-                                            </div>
-                                            <div>
-                                                <div style={{ fontWeight: '600', color: '#1e293b' }}>{u.name}</div>
-                                                <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>@{u.username}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '16px 24px' }}>
-                                        <div style={{ color: '#475569' }}>{u.contact_number || 'N/A'}</div>
-                                    </td>
-                                    <td style={{ padding: '16px 24px' }}>
-                                        <span style={{
-                                            background: u.account_type === 'agency' ? '#fef3c7' : '#ecfdf5',
-                                            color: u.account_type === 'agency' ? '#d97706' : '#059669',
-                                            padding: '4px 10px',
-                                            borderRadius: '12px',
-                                            fontSize: '0.8rem',
-                                            fontWeight: '600',
-                                            textTransform: 'capitalize'
-                                        }}>
-                                            {u.account_type || 'User'}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '16px 24px' }}>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem' }}>
-                                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981' }}></div>
-                                            Active
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '16px 24px' }}>
-                                        <Link href={`/@${u.username}`} style={{ color: 'var(--color-primary)', fontSize: '0.9rem', fontWeight: '500', marginRight: '16px', textDecoration: 'none' }}>
-                                            Profile
-                                        </Link>
-                                        <button style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '0.9rem', fontWeight: '500', cursor: 'pointer' }}>
-                                            Edit
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {users.length === 0 ? (
+                    <div style={{ padding: '60px', textAlign: 'center', color: 'var(--color-text-muted)', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                        No users found in the registry.
+                    </div>
+                ) : (
+                    users.map((u: any) => (
+                        <Link
+                            key={u.id}
+                            href={`/manage/users/${u.username}`}
+                            style={{ textDecoration: 'none', color: 'inherit' }}
+                        >
+                            <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', alignItems: 'center', gap: '20px', transition: 'all 0.2s', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--color-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.5rem', overflow: 'hidden', flexShrink: 0 }}>
+                                    {u.profile_picture ? (
+                                        <img src={u.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={u.name} />
+                                    ) : (
+                                        (u.name || 'U')[0].toUpperCase()
+                                    )}
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '1.1rem', marginBottom: '4px' }}>{u.name}</div>
+                                    <div style={{ fontSize: '0.95rem', color: '#64748b' }}>@{u.username}</div>
+                                </div>
+                                <div>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M9 18l6-6-6-6" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </Link>
+                    ))
+                )}
             </div>
+
+            <PaginationControl totalPages={totalPages} />
         </div>
     );
 }

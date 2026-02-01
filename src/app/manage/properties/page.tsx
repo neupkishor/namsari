@@ -1,19 +1,31 @@
 import React from 'react';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
+import { PaginationControl } from '@/components/ui';
 
-export default async function ManagePropertiesPage() {
-    // Fetch properties and join with relations for full details
-    const properties = await prisma.property.findMany({
-        include: {
-            listedBy: true,
-            pricing: true,
-            location: true,
-            images: true,
-            types: true
-        },
-        orderBy: { created_on: 'desc' }
-    });
+export default async function ManagePropertiesPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+    const { page: pageParam } = await searchParams;
+    const page = Number(pageParam) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    const [properties, totalCount] = await Promise.all([
+        prisma.property.findMany({
+            include: {
+                listedBy: true,
+                pricing: true,
+                location: true,
+                images: true,
+                types: true
+            },
+            orderBy: { created_on: 'desc' },
+            skip,
+            take: limit
+        }),
+        prisma.property.count()
+    ]);
+
+    const totalPages = Math.ceil(totalCount / limit);
 
     const enrichedProperties = properties.map((p) => {
         const priceValue = p.pricing?.price || 0;
@@ -39,7 +51,6 @@ export default async function ManagePropertiesPage() {
             author_username: p.listedBy?.username || '',
             author_avatar: p.listedBy?.profile_picture || (p.listedBy?.name || 'U')[0],
             main_category: mainCategory,
-            // Images overwrites the relation with a simple array of URLs for the UI
             images: p.images.map(img => img.url),
         };
     });
@@ -56,84 +67,67 @@ export default async function ManagePropertiesPage() {
                 </Link>
             </header>
 
-            <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
-                    <thead style={{ background: '#f8fafc', borderBottom: '1px solid var(--color-border)' }}>
-                        <tr>
-                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Asset Details</th>
-                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Price & Location</th>
-                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Listed By</th>
-                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Category</th>
-                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Listed On</th>
-                            <th style={{ padding: '16px 24px', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {enrichedProperties.length === 0 ? (
-                            <tr>
-                                <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
-                                    No properties found in the registry.
-                                </td>
-                            </tr>
-                        ) : (
-                            enrichedProperties.map((p: any) => (
-                                <tr key={p.id} style={{ borderBottom: '1px solid var(--color-border)', transition: 'background 0.2s' }}>
-                                    <td style={{ padding: '16px 24px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                            <div style={{ width: '60px', height: '40px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
-                                                {p.images && p.images[0] ? (
-                                                    <img src={p.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                                ) : (
-                                                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>🏠</div>
-                                                )}
-                                            </div>
-                                            <div>
-                                                <div style={{ fontWeight: '600', color: '#1e293b' }}>{p.title}</div>
-                                                <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>ID: #{p.id}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '16px 24px' }}>
-                                        <div style={{ fontWeight: '600', color: 'var(--color-primary)' }}>{p.price}</div>
-                                        <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{p.location}</div>
-                                    </td>
-                                    <td style={{ padding: '16px 24px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--color-gold)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', overflow: 'hidden' }}>
-                                                {typeof p.author_avatar === 'string' && p.author_avatar.startsWith('http') ? (
-                                                    <img src={p.author_avatar} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.author_name} />
-                                                ) : (
-                                                    p.author_avatar
-                                                )}
-                                            </div>
-                                            <span style={{ fontSize: '0.9rem' }}>{p.author_name}</span>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '16px 24px' }}>
-                                        <span style={{ background: '#f1f5f9', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: '500', color: '#475569' }}>
-                                            {p.main_category}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '16px 24px', fontSize: '0.9rem', color: '#475569' }}>
-                                        {p.created_on ? new Date(p.created_on).toLocaleDateString() : 'N/A'}
-                                    </td>
-                                    <td style={{ padding: '16px 24px' }}>
-                                        <Link href={`/@${p.author_username}`} style={{ color: 'var(--color-primary)', fontSize: '0.9rem', fontWeight: '500', marginRight: '16px', textDecoration: 'none' }}>
-                                            View
-                                        </Link>
-                                        <Link href={`/manage/properties/${p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`} style={{ color: 'var(--color-gold)', fontSize: '0.9rem', fontWeight: '700', marginRight: '16px', textDecoration: 'none' }}>
-                                            Manage
-                                        </Link>
-                                        <button style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.9rem', fontWeight: '500', cursor: 'pointer' }}>
-                                            Remove
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                {enrichedProperties.length === 0 ? (
+                    <div style={{ gridColumn: '1 / -1', padding: '60px', textAlign: 'center', color: 'var(--color-text-muted)', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                        No properties found in the registry.
+                    </div>
+                ) : (
+                    enrichedProperties.map((p) => (
+                        <div key={p.id} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', transition: 'all 0.2s', display: 'flex', flexDirection: 'column' }}>
+                            <div style={{ height: '200px', width: '100%', background: '#f1f5f9', position: 'relative' }}>
+                                {p.images && p.images[0] ? (
+                                    <img src={p.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.title} />
+                                ) : (
+                                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', color: '#cbd5e1' }}>🏠</div>
+                                )}
+                                <div style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(255,255,255,0.9)', padding: '4px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '700', color: '#0f172a' }}>
+                                    {p.main_category}
+                                </div>
+                                <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(0,0,0,0.7)', color: 'white', padding: '4px 10px', borderRadius: '8px', fontSize: '0.9rem', fontWeight: '700' }}>
+                                    {p.price}
+                                </div>
+                            </div>
+
+                            <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <div>
+                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#0f172a', marginBottom: '4px', lineHeight: '1.4' }}>{p.title}</h3>
+                                    <p style={{ fontSize: '0.9rem', color: '#64748b' }}>📍 {p.location}</p>
+                                </div>
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
+                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--color-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', overflow: 'hidden' }}>
+                                        {typeof p.author_avatar === 'string' && p.author_avatar.startsWith('http') ? (
+                                            <img src={p.author_avatar} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.author_name} />
+                                        ) : (
+                                            p.author_avatar
+                                        )}
+                                    </div>
+                                    <div style={{ fontSize: '0.85rem', color: '#475569', fontWeight: '500' }}>
+                                        {p.author_name}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style={{ background: '#f8fafc', padding: '12px 20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                                    Listed {new Date(p.created_on).toLocaleDateString()}
+                                </div>
+                                <div style={{ display: 'flex', gap: '12px' }}>
+                                    <Link href={`/properties/${p.slug || p.id}`} style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: '600', textDecoration: 'none' }}>
+                                        View
+                                    </Link>
+                                    <Link href={`/manage/properties/${p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`} style={{ color: 'var(--color-primary)', fontSize: '0.85rem', fontWeight: '600', textDecoration: 'none' }}>
+                                        Manage
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
+
+            <PaginationControl totalPages={totalPages} />
         </div>
     );
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { FormGrid, FormLabel, FormCard } from '@/components/form';
+import { FormGrid, FormCard } from '@/components/form';
+import { PaginationControl } from '@/components/ui';
 
 interface Requirement {
     id: number;
@@ -24,35 +24,10 @@ interface Requirement {
         name: string;
         username: string;
     };
+    updated_at: string;
 }
 
-export default function RequirementsListClient() {
-    const [requirements, setRequirements] = useState<Requirement[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchRequirements = async () => {
-            try {
-                const res = await fetch('/api/requirements');
-                const data = await res.json();
-                setRequirements(Array.isArray(data) ? data : []);
-            } catch (error) {
-                console.error('Error fetching requirements:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchRequirements();
-    }, []);
-
-    if (loading) {
-        return (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '100px 0' }}>
-                <div style={{ fontSize: '1.2rem', color: '#64748b' }}>Loading requirements...</div>
-            </div>
-        );
-    }
+export default function RequirementsListClient({ requirements, totalPages }: { requirements: Requirement[], totalPages: number }) {
 
     return (
         <div style={{ paddingBottom: '60px' }}>
@@ -141,6 +116,8 @@ export default function RequirementsListClient() {
                     ))
                 )}
             </div>
+
+            <PaginationControl totalPages={totalPages} />
         </div>
     );
 }
