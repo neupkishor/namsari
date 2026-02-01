@@ -210,7 +210,11 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
     { label: 'Favourites', icon: '❤️', href: '/profile/favourites' },
     { label: 'Market Trends', icon: '📈', href: '/market' },
     { label: 'Blogs/Guide', icon: '📰', href: '/blog' },
-    ...(user ? [{ label: 'Manage About', icon: '🛠️', href: '/manage/about' }] : []),
+    { label: 'Utilities', icon: '🛠️', href: '/utility' },
+    { label: 'Unit Converter', icon: '🔄', href: '/utility/unit-converter' },
+    { label: 'Date Converter', icon: '📅', href: '/utility/date-converter' },
+    { label: 'EMI Calculator', icon: '💰', href: '/utility/emi-calculator' },
+    ...(user ? [{ label: 'Manage About', icon: '📝', href: '/manage/about' }] : []),
   ];
 
   const secondaryItems = [
