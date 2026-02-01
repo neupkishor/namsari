@@ -7,8 +7,10 @@ export default async function CollectionsPage() {
     const session = await getSession();
     if (!session) redirect('/login');
 
+    const userId = parseInt(session.id); // Convert to number for DB and Client
+
     const rawCollections = await prisma.collection.findMany({
-        where: { user_id: session.id },
+        where: { user_id: userId },
         include: {
             properties: {
                 include: {
@@ -38,5 +40,5 @@ export default async function CollectionsPage() {
         }))
     }));
 
-    return <CollectionsClient initialCollections={collections} userId={session.id} />;
+    return <CollectionsClient initialCollections={collections} userId={userId} />;
 }

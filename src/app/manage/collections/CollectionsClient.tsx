@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { createCollection, deleteCollection } from './actions';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export function CollectionsClient({ initialCollections, userId }: { initialCollections: any[], userId: number }) {
     const [isCreating, setIsCreating] = useState(false);
@@ -225,12 +226,12 @@ export function CollectionsClient({ initialCollections, userId }: { initialColle
                             </div>
 
                             <div style={{ padding: '16px 24px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <button
-                                    onClick={() => alert("View Collection functionality coming soon!")}
-                                    style={{ color: '#3b82f6', background: 'none', border: 'none', fontWeight: '600', cursor: 'pointer' }}
+                                <Link
+                                    href={`/manage/collections/${col.slug}`}
+                                    style={{ color: '#3b82f6', background: 'none', border: 'none', fontWeight: '600', cursor: 'pointer', textDecoration: 'none' }}
                                 >
                                     View Items
-                                </button>
+                                </Link>
                                 <button
                                     onClick={async () => {
                                         if (confirm('Are you sure you want to delete this collection?')) {
