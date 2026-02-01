@@ -8,6 +8,7 @@ import { Input } from '@/components/ui';
 import { useRouter } from 'next/navigation';
 import { CreatePostCard } from '@/components/CreatePostCard';
 import { PopularCategories, FeaturedProjects } from '@/components/HomeSections';
+import { PopularLocations } from '@/components/PopularLocations';
 
 export default function Home({ user, settings }: { user: any, settings: any }) {
   const router = useRouter();
@@ -215,6 +216,7 @@ function ClassicView({ properties }: { properties: any[] }) {
       <div className="layout-container">
         <PopularCategories />
         <FeaturedProjects properties={properties} />
+        <PopularLocations />
       </div>
 
       <div className="layout-container" style={{ paddingBottom: '100px' }}>
@@ -351,6 +353,9 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
       {/* Main Social Feed */}
       <div style={{ flex: 1, maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: '24px', margin: '0 auto' }}>
         <CreatePostCard user={user} />
+
+        <PopularLocations />
+
         {properties.map((p, index) => {
           const isTrigger = index === properties.length - 5;
           return (
