@@ -79,34 +79,7 @@ export function Footer() {
                         <p style={{ color: '#94a3b8', fontSize: '0.95rem', marginBottom: '24px', lineHeight: '1.6' }}>
                             Join 5,000+ investors receiving monthly market insights.
                         </p>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                            <input
-                                type="email"
-                                placeholder="Email address"
-                                style={{
-                                    flex: 1,
-                                    background: '#1e293b',
-                                    border: '1px solid #334155',
-                                    padding: '12px 16px',
-                                    borderRadius: '8px',
-                                    color: 'white',
-                                    fontSize: '0.9rem',
-                                    outline: 'none'
-                                }}
-                            />
-                            <button style={{
-                                background: '#b8960c',
-                                color: 'white',
-                                border: 'none',
-                                padding: '12px 20px',
-                                borderRadius: '8px',
-                                fontWeight: '700',
-                                fontSize: '0.85rem',
-                                cursor: 'pointer'
-                            }}>
-                                SUBSCRIBE
-                            </button>
-                        </div>
+                        <SubscribeForm />
                     </div>
                 </div>
 
@@ -163,6 +136,74 @@ function SocialIcon({ icon }: { icon: string }) {
             border: '1px solid #334155'
         }}>
             {icon.toUpperCase()}
+        </div>
+    );
+}
+
+function SubscribeForm() {
+    const [email, setEmail] = React.useState('');
+    const [status, setStatus] = React.useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+    const handleSubscribe = async () => {
+        if (!email) return;
+        setStatus('loading');
+        try {
+            const res = await fetch('/api/newsletter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            if (res.ok) {
+                setStatus('success');
+                setEmail('');
+            } else {
+                setStatus('error');
+            }
+        } catch (e) {
+            setStatus('error');
+        }
+    };
+
+    return (
+        <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                    type="email"
+                    placeholder="Email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={status === 'loading' || status === 'success'}
+                    style={{
+                        flex: 1,
+                        background: '#1e293b',
+                        border: '1px solid #334155',
+                        padding: '12px 16px',
+                        borderRadius: '8px',
+                        color: 'white',
+                        fontSize: '0.9rem',
+                        outline: 'none'
+                    }}
+                />
+                <button
+                    onClick={handleSubscribe}
+                    disabled={status === 'loading' || status === 'success'}
+                    style={{
+                        background: status === 'success' ? '#166534' : '#b8960c',
+                        color: 'white',
+                        border: 'none',
+                        padding: '12px 20px',
+                        borderRadius: '8px',
+                        fontWeight: '700',
+                        fontSize: '0.85rem',
+                        cursor: status === 'success' ? 'default' : 'pointer',
+                        opacity: status === 'loading' ? 0.7 : 1
+                    }}
+                >
+                    {status === 'loading' ? '...' : status === 'success' ? '✓' : 'SUBSCRIBE'}
+                </button>
+            </div>
+            {status === 'success' && <div style={{ color: '#4ade80', fontSize: '0.85rem' }}>Successfully subscribed!</div>}
+            {status === 'error' && <div style={{ color: '#f87171', fontSize: '0.85rem' }}>Failed to subscribe. Try again.</div>}
         </div>
     );
 }

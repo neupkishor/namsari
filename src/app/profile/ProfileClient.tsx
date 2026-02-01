@@ -85,7 +85,7 @@ export default function ProfileClient({ user, currentUser }: ProfileClientProps)
                         </div>
 
                         <div style={{ paddingBottom: '16px', display: 'flex', gap: '12px' }}>
-                            <Link href="/settings" style={{ padding: '10px 20px', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', color: '#0f172a', fontWeight: '600', textDecoration: 'none', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }}>
+                            <Link href="/profile/edit" style={{ padding: '10px 20px', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', color: '#0f172a', fontWeight: '600', textDecoration: 'none', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }}>
                                 Edit Profile
                             </Link>
                             <Link href="/manage" style={{ padding: '10px 20px', borderRadius: '10px', background: 'var(--color-primary)', color: 'white', fontWeight: '600', textDecoration: 'none', boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)', display: 'flex', alignItems: 'center' }}>
