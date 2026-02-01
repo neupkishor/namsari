@@ -49,20 +49,20 @@ export default async function ManageLayout({ children }: { children: React.React
                     {/* Main Body */}
                     <main className="main-body">
                         {children}
+
+                        {/* Footer moved inside main scrolling area */}
+                        <footer style={{ borderTop: '1px solid var(--color-border)', padding: '24px 0', marginTop: 'auto' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>
+                                <span>&copy; 2026 Namsari / Neup Group Standard Layout</span>
+                                <div style={{ display: 'flex', gap: '20px' }}>
+                                    <a href="#">Privacy</a>
+                                    <a href="#">Terms</a>
+                                </div>
+                            </div>
+                        </footer>
                     </main>
                 </div>
             </div>
-
-            {/* Footer also following the container rules */}
-            <footer style={{ borderTop: '1px solid var(--color-border)', padding: '24px 0', marginTop: 'auto' }}>
-                <div className="layout-container" style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>
-                    <span>&copy; 2026 Namsari / Neup Group Standard Layout</span>
-                    <div style={{ display: 'flex', gap: '20px' }}>
-                        <a href="#">Privacy</a>
-                        <a href="#">Terms</a>
-                    </div>
-                </div>
-            </footer>
         </div>
     );
 }

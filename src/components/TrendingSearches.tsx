@@ -1,21 +1,10 @@
-'use client';
-
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 
-const TABS = ['House', 'Land', 'Apartment', 'Office Space', 'Flats', 'Shop Space'];
-
-const LOCATIONS: Record<string, string[]> = {
-    'House': ['Tikathali', 'Imadol', 'Shital Height', 'Budhanilkantha', 'Lubhu', 'Chunikhel', 'Bhaisepati', 'Sanagaun', 'Ochu Height', 'Balkot', 'Megha City', 'Bhangal', 'Grande Hospital', 'Gothatar', 'Makalbari'],
-    'Land': ['Bhaisepati', 'Imadol', 'Budhanilkantha', 'Tikathali', 'Pepsicola', 'Dhapasi', 'Tokha', 'Godawari', 'Thecho', 'Chapagaun', 'Bhaisepati', 'Sitapaila'],
-    'Apartment': ['Bhaisepati', 'Lazimpat', 'Baluwatar', 'Panipokhari', 'Jhamsikhel', 'Hattiban', 'Dhapakhel', 'Bakhundole'],
-    'Office Space': ['New Baneshwor', 'Putalisadak', 'Thapathali', 'Lazimpat', 'Naxal', 'Kamaladi', 'Tripureshwor'],
-    'Flats': ['Koteshwor', 'Baneshwor', 'Lalitpur', 'Bhaktapur', 'Patan', 'Jorpati'],
-    'Shop Space': ['New Road', 'Asan', 'Durbar Marg', 'Thamel', 'Lazimpat', 'Jhamsikhel']
-};
-
-export function TrendingSearches() {
-    const [activeTab, setActiveTab] = useState('House');
+export function TrendingSearches({ searches }: { searches: string[] }) {
+    if (!searches || searches.length === 0) {
+        return null;
+    }
 
     return (
         <section
@@ -47,54 +36,24 @@ export function TrendingSearches() {
                         Trending Searches
                     </h2>
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', fontWeight: '400' }}>
-                        The most frequent market queries for {activeTab.toLowerCase()} seekers.
+                        Most frequent market queries.
                     </p>
-                </div>
-
-                {/* Tactical Tab Selectors */}
-                <div style={{
-                    display: 'flex',
-                    background: '#f8fafc',
-                    padding: '4px',
-                    borderRadius: 'var(--radius-card)',
-                    border: '1px solid var(--color-border)'
-                }}>
-                    {TABS.map(tab => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            style={{
-                                padding: '8px 16px',
-                                background: activeTab === tab ? 'white' : 'transparent',
-                                border: 'none',
-                                color: activeTab === tab ? 'var(--color-primary)' : '#64748b',
-                                fontWeight: activeTab === tab ? '700' : '500',
-                                fontSize: '0.85rem',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                                borderRadius: 'var(--radius-inner)',
-                                boxShadow: activeTab === tab ? '0 4px 6px -1px rgba(0,0,0,0.05)' : 'none'
-                            }}
-                        >
-                            {tab}
-                        </button>
-                    ))}
                 </div>
             </div>
 
             {/* Separator */}
             <div style={{ height: '1px', background: 'var(--color-border)', marginBottom: '28px' }} />
 
-            {/* Location Grid */}
+            {/* Tags Grid */}
             <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-                gap: '12px 24px'
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '12px'
             }}>
-                {LOCATIONS[activeTab]?.map((loc, i) => (
+                {searches.map((term, i) => (
                     <Link
                         key={i}
-                        href={`/explore?q=${activeTab} in ${loc}`}
+                        href={`/explore?q=${encodeURIComponent(term)}`}
                         style={{
                             color: '#475569',
                             textDecoration: 'none',
@@ -106,26 +65,11 @@ export function TrendingSearches() {
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px',
-                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                             fontWeight: '500'
-                        }}
-                        onMouseOver={(e) => {
-                            e.currentTarget.style.color = 'var(--color-gold)';
-                            e.currentTarget.style.borderColor = 'var(--color-gold)';
-                            e.currentTarget.style.background = 'white';
-                            e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                            e.currentTarget.style.transform = 'translateY(-4px)';
-                        }}
-                        onMouseOut={(e) => {
-                            e.currentTarget.style.color = '#475569';
-                            e.currentTarget.style.borderColor = 'var(--color-border)';
-                            e.currentTarget.style.background = '#fcfcfc';
-                            e.currentTarget.style.boxShadow = 'none';
-                            e.currentTarget.style.transform = 'translateY(0)';
                         }}
                     >
                         <span style={{ color: 'var(--color-gold)', fontSize: '1.2rem', opacity: 0.7 }}>•</span>
-                        {loc}
+                        {term}
                     </Link>
                 ))}
             </div>

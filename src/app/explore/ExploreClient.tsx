@@ -112,6 +112,11 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
                             placeholder="Find estates, commercial assets, or luxury rentals..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    import('../actions/search').then(mod => mod.recordSearch(searchQuery));
+                                }
+                            }}
                             style={{
                                 width: '100%',
                                 padding: '12px 16px 12px 48px',

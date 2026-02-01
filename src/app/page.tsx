@@ -31,21 +31,24 @@ export default async function HomePage() {
         }
     }
 
-    const featuredCollections = await prisma.collection.findMany({
-        where: { is_public: true },
-        take: 6,
-        orderBy: { updated_at: 'desc' },
-        include: {
-            properties: {
-                take: 1,
-                include: {
-                    property: {
-                        select: { images: { take: 1, select: { url: true } } }
+    const [featuredCollections, trendingSearches] = await Promise.all([
+        prisma.collection.findMany({
+            where: { is_public: true },
+            take: 6,
+            orderBy: { updated_at: 'desc' },
+            include: {
+                properties: {
+                    take: 1,
+                    include: {
+                        property: {
+                            select: { images: { take: 1, select: { url: true } } }
+                        }
                     }
                 }
             }
-        }
-    });
+        }),
+        import('./actions/search').then(mod => mod.getTrendingSearches())
+    ]);
 
-    return <HomeClient user={user} settings={settings} featuredCollections={featuredCollections} />;
+    return <HomeClient user={user} settings={settings} featuredCollections={featuredCollections} trendingSearches={trendingSearches} />;
 }

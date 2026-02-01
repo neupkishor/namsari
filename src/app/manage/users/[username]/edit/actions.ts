@@ -22,10 +22,10 @@ export async function updateUser(username: string, formData: FormData) {
     if (profile_picture) updateData.profile_picture = profile_picture;
     if (cover_image) updateData.cover_image = cover_image;
 
-    // Very basic password handling - in production use hashing!
-    // Since I cannot setup full AuthZ/AuthN stack here, I'm just storing it if provided.
     if (password && password.trim() !== '') {
-        updateData.password = password;
+        const bcrypt = await import('bcryptjs');
+        const hashedPassword = await bcrypt.hash(password, 10);
+        updateData.password = hashedPassword;
     }
 
     try {

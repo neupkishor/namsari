@@ -21,7 +21,8 @@ model User {
   bio            String?
   profile_picture String?
   cover_image    String?
-  status         String   @default("active")
+  status         String   @default("active") // active, warned, suspended, banned
+  moreInfo       String?  // JSON: { suspensionCount, suspendedUntil, warnings: [] }
   created_on     DateTime @default(now())
   updated_at     DateTime @updatedAt
 
@@ -372,4 +373,11 @@ model Subscriber {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model SearchTerm {
+  id            Int      @id @default(autoincrement())
+  term          String   @unique
+  count         Int      @default(1)
+  last_searched DateTime @updatedAt
 }

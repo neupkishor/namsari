@@ -1,237 +1,209 @@
-
 import { PrismaClient } from '@prisma/client'
-import { faker } from '@faker-js/faker'
 
 const prisma = new PrismaClient()
 
-// Common Data
-const TYPES = ['House', 'Land', 'Apartment', 'Office Space', 'Shop Space']
-const PURPOSES = ['Sale', 'Rent']
-const NATURES = ['Residential', 'Commercial', 'Agricultural']
-
-const NEPAL_CITIES = ['Kathmandu', 'Lalitpur', 'Bhaktapur', 'Pokhara', 'Chitwan', 'Biratnagar', 'Dharan', 'Butwal']
-const NEPAL_DISTRICTS = ['Kathmandu', 'Lalitpur', 'Bhaktapur', 'Kaski', 'Chitwan/Narayani', 'Morang', 'Sunsari', 'Rupandehi']
-
-function getRandomItem<T>(arr: T[]): T {
-    return arr[Math.floor(Math.random() * arr.length)]
-}
-
 async function main() {
-    console.log('🌱 Starting seed...')
+    // Dynamically import bcryptjs to avoid issues with standard require in some TS setups if not configured
+    // But since this is a seed script run by tsx, standard import works if we were using modules.
+    const bcrypt = await import('bcryptjs');
+    const password = "password123";
+    const hashedPassword = await bcrypt.default.hash(password, 10);
 
-    // 1. Upsert Reference Data
-    console.log('Creating Reference Data...')
-    const dbTypes = await Promise.all(TYPES.map(name =>
-        prisma.propertyType.upsert({ where: { name }, update: {}, create: { name } })
-    ))
-    const dbPurposes = await Promise.all(PURPOSES.map(name =>
-        prisma.propertyPurpose.upsert({ where: { name }, update: {}, create: { name } })
-    ))
-    const dbNatures = await Promise.all(NATURES.map(name =>
-        prisma.propertyNature.upsert({ where: { name }, update: {}, create: { name } })
-    ))
+    // Create Admin User
+    const admin = await prisma.user.upsert({
+        where: { username: 'neupkishor' },
+        update: {
+            password: hashedPassword,
+            status: 'active',
+            account_type: 'admin',
+            profile_picture: 'https://cdn.neupgroup.com/namsari/f_697f571bf16e60.87332081.jpg',
+        },
+        create: {
+            username: 'neupkishor',
+            name: 'Kishor Neupane',
+            email: 'neupkishor@neupgroup.com',
+            password: hashedPassword,
+            status: 'active',
+            account_type: 'admin',
+            bio: 'System Administrator',
+            contact_number: '9840710507',
+            profile_picture: 'https://cdn.neupgroup.com/namsari/f_697f571bf16e60.87332081.jpg',
+        },
+    });
 
-    // 2. Create Users (200)
-    console.log('Creating 200 Users...')
-    const users = []
-    for (let i = 0; i < 200; i++) {
-        const firstName = faker.person.firstName()
-        const lastName = faker.person.lastName()
-        const username = faker.internet.username({ firstName, lastName }) + Math.floor(Math.random() * 1000)
+    console.log("Admin seeded:", admin.username);
 
-        // Check if distinct (simple retry logic or just append index to ensure uniqueness)
-        // Using upsert would be safer but createMany is faster if no collisions. 
-        // We'll iterate and create individually to capture IDs easily or just fetch all later.
+    // Create Fake Users (Agents & Owners)
+    const usersData = [
+        { username: 'rajesh_hamal', name: 'Rajesh Hamal', type: 'agent', bio: 'Top rated agent in Kathmandu.', image: 'https://cdn.neupgroup.com/namsari/f_697f5804881e32.02949645.jpg' },
+        { username: 'anmol_kc', name: 'Anmol K.C.', type: 'agent', bio: 'Premium real estate solutions.', image: 'https://cdn.neupgroup.com/namsari/f_697f5853c286a4.56140346.jpg' },
+        { username: 'sanjaynepal', name: 'Sanjay Nepal', type: 'agent', bio: 'Direct owner of luxury apartments.', image: 'https://cdn.neupgroup.com/namsari/f_697f587a575fb5.38497944.jpeg' },
+        { username: 'pokhara_realty', name: 'Pokhara Realty', type: 'agency', bio: 'Best deals in Pokhara.', image: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+        { username: 'chitwan_land', name: 'Hari Bansha', type: 'agent', bio: 'Land specialist in Chitwan.', image: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' }
+    ];
 
-        const user = await prisma.user.create({
-            data: {
-                name: `${firstName} ${lastName}`,
-                username: username,
-                // No email field in User model
-                // User model in schema provided earlier: username, name, contact_number, account_type, bio, profile_picture. 
-                // KYC has email. User itself doesn't seem to have email in the provided ViewFile of line 1-334 (User model lines 13-34).
-                // It has username @unique.
-                contact_number: faker.phone.number(),
-                account_type: Math.random() > 0.8 ? 'agency' : 'individual',
-                bio: faker.person.bio(),
-                profile_picture: faker.image.avatar(),
+    const users = [];
+    for (const u of usersData) {
+        const user = await prisma.user.upsert({
+            where: { username: u.username },
+            update: {
+                password: hashedPassword,
+                profile_picture: u.image
+            },
+            create: {
+                username: u.username,
+                name: u.name,
+                email: `${u.username}@example.com`,
+                password: hashedPassword,
+                account_type: u.type,
+                bio: u.bio,
+                contact_number: '9840000000',
+                status: 'active',
+                profile_picture: u.image
             }
-        }).catch(e => {
-            // Ignore unique constraint violations if unlucky
-            console.warn(`Skipped user creation due to error: ${e.message.split('\n')[0]}`)
-            return null;
-        })
-
-        if (user) users.push(user)
+        });
+        users.push(user);
     }
+    console.log(`Seeded ${users.length} fake users.`);
 
-    // Refetch all users to be safe or just use the array
-    const allUserIds = users.map(u => u.id)
+    // Create Requirements
+    await prisma.requirement.createMany({
+        data: [
+            { userId: users[0].id, mode: 'simple', content: 'Looking for 4BHK House in Bhaisepati, budget 5Cr.' },
+            { userId: users[2].id, mode: 'detailed', propertyTypes: 'Land', district: 'Kathmandu', maxPrice: 50000000, remarks: 'Urgent requirement for commercial land.' }
+        ]
+    });
 
-    if (allUserIds.length === 0) {
-        console.error("No users created. Aborting.")
-        return;
-    }
+    // Create Collections
+    // Create Collections (Upsert to avoid duplicates)
+    const collection = await prisma.collection.upsert({
+        where: { slug: 'luxury-villas-kathmandu' },
+        update: {},
+        create: {
+            name: 'Luxury Villas',
+            slug: 'luxury-villas-kathmandu',
+            type: 'system_generated',
+            is_public: true,
+            user: { connect: { id: admin.id } }
+        }
+    });
 
-    // 3. Create Properties (200)
-    console.log('Creating 200 Properties...')
-    const propertyIds = []
+    // Create Properties
+    const propertyTypes = ['House', 'Land', 'Apartment', 'Commercial'];
+    const locations = ['Bhaisepati', 'Budhanilkantha', 'Baneshwor', 'Jhamsikhel', 'Lazimpat', 'Pokhara Lakeside', 'Chitwan Sauraha'];
 
-    for (let i = 0; i < 200; i++) {
-        const ownerId = getRandomItem(allUserIds)
-        const type = getRandomItem(dbTypes)
-        const purpose = getRandomItem(dbPurposes)
-        const nature = getRandomItem(dbNatures)
+    // Helper to get random item
+    const rnd = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)];
 
-        // Helpers
-        const isLand = type.name === 'Land'
-        const isRent = purpose.name === 'Rent'
-        const city = getRandomItem(NEPAL_CITIES)
-        const district = NEPAL_DISTRICTS[NEPAL_CITIES.indexOf(city)]
+    // Property Titles Template
+    const titles = [
+        'Beautiful House for Sale', 'Commercial Land on Main Road', 'Luxury Apartment Ready to Move',
+        'Traditional Bungalow with Garden', 'Office Space in Prime Location', 'Agricultural Land for Sale',
+        'Modern Villa with Pool', 'Cheap Land for Investment'
+    ];
 
-        const price = isRent
-            ? parseFloat(faker.commerce.price({ min: 10000, max: 200000 }))
-            : parseFloat(faker.commerce.price({ min: 5000000, max: 100000000 }))
+    for (let i = 0; i < 20; i++) {
+        const owner = users[i % users.length];
+        const location = rnd(locations);
+        const typeStr = rnd(propertyTypes);
+        const title = `${typeStr} in ${location} - ${titles[i % titles.length]}`; // Use deterministic title index
+        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
-        const property = await prisma.property.create({
+        // Check if property exists to avoid duplicates
+        const existingProperty = await prisma.property.findFirst({
+            where: { slug: slug }
+        });
+
+        if (existingProperty) continue;
+
+        const price = 5000000 + Math.floor(Math.random() * 95000000); // 50L to 10Cr
+
+        const prop = await prisma.property.create({
             data: {
-                title: `${type.name} for ${purpose.name} in ${city}`,
-                slug: faker.helpers.slugify(`${type.name} for ${purpose.name} in ${city} ${faker.string.alphanumeric(5)}`).toLowerCase(),
+                title: title,
+                slug: slug,
+                listedById: owner.id,
+                ownerId: owner.id,
+                status: 'approved',
+                // priceInWords removed from root Property model
+                isFeatured: i % 5 === 0, // Every 5th property is featured
 
-                // Ownership
-                listedBy: { connect: { id: ownerId } },
-                owner: { connect: { id: ownerId } },
+                // Relations (Simplified creation logic, ideally create types first but Prisma allows connect/create logic or we just skip strict checks if types valid)
+                // For valid seeding we need to connect to existing Type/Purpose/Nature to avoid duplicates or creating new ones strictly. 
+                // Let's assume we create just the property fields for now or do simple writes.
 
-                // Relations
-                types: { connect: { id: type.id } },
-                purposes: { connect: { id: purpose.id } },
-                natures: { connect: { id: nature.id } },
+                // Using nested writes for required relations to keep it simple if they don't exist
+                types: {
+                    connectOrCreate: { where: { name: typeStr.toLowerCase() }, create: { name: typeStr.toLowerCase() } }
+                },
+                purposes: {
+                    connectOrCreate: { where: { name: i % 2 === 0 ? 'sale' : 'rent' }, create: { name: i % 2 === 0 ? 'sale' : 'rent' } }
+                },
+                natures: {
+                    connectOrCreate: { where: { name: 'residential' }, create: { name: 'residential' } }
+                },
 
-                // Meta
-                status: 'approved', // make them visible
-                isFeatured: Math.random() > 0.9,
-                views: faker.number.int({ min: 0, max: 5000 }),
-
-                // Pricing
+                location: {
+                    create: {
+                        district: 'Kathmandu',
+                        cityVillage: 'Kathmandu',
+                        area: location,
+                    }
+                },
                 pricing: {
                     create: {
                         price: price,
-                        priceInWords: "Amount in words placeholder",
-                        pricingType: isLand ? 'perUnit' : 'flat',
-                        unit: isLand ? 'Aana' : undefined,
+                        pricingType: 'flat',
                         negotiable: true,
-                        rentPrice: isRent ? price : null
                     }
                 },
-
-                // Location
-                location: {
-                    create: {
-                        cityVillage: city,
-                        district: district,
-                        area: faker.location.street(),
-                        latitude: faker.location.latitude({ min: 26, max: 30 }), // Roughly Nepal lat/long
-                        longitude: faker.location.longitude({ min: 80, max: 88 })
-                    }
-                },
-
-                // Features (randomized)
                 features: {
                     create: {
-                        bedrooms: isLand ? null : faker.number.int({ min: 1, max: 8 }),
-                        bathrooms: isLand ? null : faker.number.int({ min: 1, max: 6 }),
-                        builtUpArea: faker.number.float({ min: 500, max: 5000 }),
-                        builtUpAreaUnit: 'sqft',
-                        parkingAvailable: Math.random() > 0.5,
-                        electricity: true,
-                        waterSupply: true
+                        bedrooms: Math.floor(Math.random() * 5) + 1,
+                        bathrooms: Math.floor(Math.random() * 4) + 1,
+                        floorNumber: Math.floor(Math.random() * 3) + 1,
+                        furnishing: i % 2 === 0 ? 'Full-furnished' : 'Semi-furnished'
                     }
                 },
-
-                // Random Images (Unsplash placeholders)
                 images: {
                     create: [
-                        {
-                            url: `https://images.unsplash.com/photo-${faker.number.int({ min: 1000000000, max: 9999999999 })}?auto=format&fit=crop&w=800&q=80`, // Fake but valid format URL
-                            // Better to use actual property keywords for unsplash source if possible, but faker image url is easier
-                            // Let's use hardcoded nice property images from unsplash to avoid broken links
-                            // Actually, let's use a small set of reliable images to ensure they load
-                            filename: 'seed-image-1',
-                            imageOf: 'Exterior'
-                        }
+                        { url: 'https://images.unsplash.com/photo-1600596542815-60c37c65b567?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', imageOf: 'exterior', filename: `ext-${slug}` },
+                        { url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', imageOf: 'livingroom', filename: `liv-${slug}` }
                     ]
                 }
             }
-        })
+        });
 
-        // Add realistic images
-        // We update with real looking urls
-        const imageUrls = [
-            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9',
-            'https://images.unsplash.com/photo-1600585154340-be6161a56a0c',
-            'https://images.unsplash.com/photo-1512917774080-9991f1c4c750',
-            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c',
-            'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3'
-        ];
-        const randomImg = getRandomItem(imageUrls) + '?auto=format&fit=crop&w=800&q=80';
+        // Add some to collection
+        if (i < 5) {
+            // Upsert collection item
+            const existingItem = await prisma.collectionProperty.findFirst({
+                where: {
+                    collection_id: collection.id,
+                    property_id: prop.id
+                }
+            });
 
-        await prisma.propertyImage.updateMany({
-            where: { propertyId: property.id },
-            data: { url: randomImg }
-        })
-
-        propertyIds.push(property.id)
-    }
-
-    // 4. Create Collections (50)
-    console.log('Creating 50 Collections...')
-    for (let i = 0; i < 50; i++) {
-        const ownerId = getRandomItem(allUserIds)
-        const isSystem = Math.random() > 0.7
-
-        // If system, add rules
-        const moreInfo = isSystem ? JSON.stringify({
-            minPrice: 1000000,
-            maxPrice: 50000000,
-            category: 'House',
-            priceUnit: 'total'
-        }) : null
-
-        const collection = await prisma.collection.create({
-            data: {
-                name: isSystem ? `Smart: ${faker.word.adjective()} Homes` : `${faker.person.firstName()}'s Favorites`,
-                description: faker.lorem.sentence(),
-                is_public: true,
-                type: isSystem ? 'system_generated' : 'user_generated',
-                moreInfo: moreInfo,
-                user: { connect: { id: ownerId } }
-            }
-        })
-
-        // If manual (user_generated), add some properties
-        if (!isSystem) {
-            const numProps = faker.number.int({ min: 1, max: 10 })
-            const shuffledProps = propertyIds.sort(() => 0.5 - Math.random()).slice(0, numProps)
-
-            for (const pid of shuffledProps) {
+            if (!existingItem) {
                 await prisma.collectionProperty.create({
                     data: {
                         collection_id: collection.id,
-                        property_id: pid
+                        property_id: prop.id
                     }
-                })
+                });
             }
         }
     }
 
-    console.log('✅ Seeding completed.')
+    console.log("Seeded properties.");
 }
 
 main()
-    .catch((e) => {
-        console.error(e)
-        process.exit(1)
-    })
-    .finally(async () => {
+    .then(async () => {
         await prisma.$disconnect()
+    })
+    .catch(async (e) => {
+        console.error(e)
+        await prisma.$disconnect()
+        process.exit(1)
     })

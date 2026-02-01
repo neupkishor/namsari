@@ -138,16 +138,16 @@ export default function EditUserClient({ user }: EditUserClientProps) {
                     </div>
 
                     <div>
-                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b', fontSize: '0.9rem' }}>Account Status</label>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--color-text-primary, #1e293b)', fontSize: '0.9rem' }}>Account Status</label>
                         <input type="hidden" name="status" value={status} />
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                            {['active', 'suspended', 'banned'].map((s) => (
+                        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                            {['active', 'warned', 'suspended', 'banned'].map((s) => (
                                 <button
                                     key={s}
                                     type="button"
                                     onClick={() => setStatus(s)}
                                     style={{
-                                        flex: 1,
+                                        flex: '1 0 200px', // Allow wrapping
                                         padding: '12px',
                                         borderRadius: '8px',
                                         border: status === s ? '2px solid var(--color-primary)' : '1px solid #cbd5e1',

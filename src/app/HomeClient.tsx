@@ -14,7 +14,7 @@ import { FeaturedAgenciesClassic, FeaturedAgenciesFeed } from '@/components/Feat
 import { FeaturedCollectionsSection, FeaturedCollectionsFeedItem } from '@/components/FeaturedCollections';
 import { SiteHeader } from '@/components/SiteHeader';
 
-export default function Home({ user, settings, featuredCollections }: { user: any, settings: any, featuredCollections?: any[] }) {
+export default function Home({ user, settings, featuredCollections, trendingSearches }: { user: any, settings: any, featuredCollections?: any[], trendingSearches?: string[] }) {
   const router = useRouter();
   const viewType = settings?.view_mode || 'classic';
   const [isLoading, setIsLoading] = useState(true);
@@ -88,11 +88,13 @@ export default function Home({ user, settings, featuredCollections }: { user: an
       {isLoading ? (
         viewType === 'classic' ? <ClassicSkeleton /> : <FeedSkeleton />
       ) : (
-        viewType === 'classic' ? <ClassicView properties={properties} featuredCollections={featuredCollections} user={user} /> : <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} />
+        viewType === 'classic' ? <ClassicView properties={properties} featuredCollections={featuredCollections} trendingSearches={trendingSearches} user={user} /> : <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} trendingSearches={trendingSearches} />
       )}
     </main>
   );
 }
+
+// ... skeletons ...
 
 function ClassicSkeleton() {
   return (
@@ -156,7 +158,8 @@ function FeedSkeleton() {
   );
 }
 
-function ClassicView({ properties, featuredCollections, user }: { properties: any[], featuredCollections?: any[], user?: any }) {
+
+function ClassicView({ properties, featuredCollections, trendingSearches, user }: { properties: any[], featuredCollections?: any[], trendingSearches?: string[], user?: any }) {
   if (!properties || properties.length === 0) {
     return (
       <div className="layout-container" style={{ padding: '100px 0', textAlign: 'center' }}>
@@ -182,7 +185,7 @@ function ClassicView({ properties, featuredCollections, user }: { properties: an
         {featuredCollections && featuredCollections.length > 0 && <FeaturedCollectionsSection collections={featuredCollections} />}
         <FeaturedProjects properties={properties} />
         <PostPropertyBanner />
-        <TrendingSearches />
+        <TrendingSearches searches={trendingSearches || []} />
         <FeaturedAgenciesClassic />
       </div>
 
@@ -216,12 +219,12 @@ function ClassicView({ properties, featuredCollections, user }: { properties: an
   );
 }
 
-function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchingMore, hasMore, featuredCollections }: { properties: any[], user: any, settings: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean, featuredCollections?: any[] }) {
+function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchingMore, hasMore, featuredCollections, trendingSearches }: { properties: any[], user: any, settings: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean, featuredCollections?: any[], trendingSearches?: string[] }) {
   const sidebarItems = [
     { label: 'Profile', icon: '👤', href: user ? `/@${user.username}` : '/login' },
     { label: 'Houses', icon: '🏠', href: '/find/houses' },
     { label: 'Commercial Buildings', icon: '🏢', href: '/find/commercial-buildings' },
-    { label: 'Saved Estates', icon: '🔖', href: '/profile/saved' },
+    { label: 'Favourites', icon: '❤️', href: '/profile/favourites' },
     { label: 'Market Trends', icon: '📈', href: '/market' },
   ];
 
@@ -342,8 +345,9 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
             items.push(<FeaturedCollectionsFeedItem key="featured-collections" collections={featuredCollections} />);
           }
 
+
           if (index === 3) {
-            items.push(<TrendingSearches key="trending-searches" />);
+            items.push(<TrendingSearches key="trending-searches" searches={trendingSearches || []} />);
           }
 
           return items;
@@ -465,9 +469,17 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
       {/* Post Header */}
       <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
         <Link href={`/@${property.author_username || property.author}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
-            {(property.author_name || property.author || 'A')[0]}
-          </div>
+          {property.author_avatar && property.author_avatar.length > 2 ? (
+            <img
+              src={property.author_avatar}
+              alt={property.author_name}
+              style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #e2e8f0' }}
+            />
+          ) : (
+            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
+              {(property.author_name || property.author || 'A')[0]}
+            </div>
+          )}
         </Link>
         <div style={{ flex: 1 }}>
           <Link href={`/@${property.author_username || property.author}`} style={{ textDecoration: 'none', color: 'inherit' }}>
