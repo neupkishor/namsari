@@ -40,7 +40,7 @@ const agencies = [
 // --- Classic View Component ---
 export const FeaturedAgenciesClassic = () => {
     return (
-        <section style={{ marginBottom: '80px' }}>
+        <section>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#1e293b' }}>
                     Featured Agencies
@@ -62,7 +62,7 @@ export const FeaturedAgenciesClassic = () => {
                         style={{
                             padding: '32px 24px',
                             textAlign: 'center',
-                            borderRadius: '16px',
+                            borderRadius: 'var(--radius-card)',
                             border: '1px solid #f1f5f9',
                             background: 'white',
                             transition: 'all 0.2s',
@@ -97,7 +97,7 @@ export const FeaturedAgenciesClassic = () => {
                         <div style={{
                             background: '#f8fafc',
                             padding: '8px 16px',
-                            borderRadius: '8px',
+                            borderRadius: 'var(--radius-inner)',
                             display: 'inline-block',
                             fontSize: '0.85rem',
                             color: '#475569',
@@ -118,10 +118,9 @@ export const FeaturedAgenciesFeed = () => {
         <div style={{
             background: 'white',
             padding: '20px',
-            borderRadius: '12px',
+            borderRadius: 'var(--radius-card)',
             boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-            border: '1px solid #e2e8f0',
-            marginBottom: '24px'
+            border: '1px solid #e2e8f0'
         }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#1e293b' }}>Recommended Agencies</h3>
@@ -144,7 +143,7 @@ export const FeaturedAgenciesFeed = () => {
                         style={{
                             minWidth: '140px',
                             border: '1px solid #f1f5f9',
-                            borderRadius: '8px',
+                            borderRadius: 'var(--radius-inner)',
                             padding: '16px 12px',
                             textAlign: 'center',
                             flexShrink: 0,
@@ -186,7 +185,7 @@ export const FeaturedAgenciesFeed = () => {
                             background: '#eff6ff',
                             color: '#3b82f6',
                             border: 'none',
-                            borderRadius: '6px',
+                            borderRadius: 'calc(var(--radius-inner) - 2px)',
                             padding: '6px 12px',
                             fontSize: '0.8rem',
                             fontWeight: '600',

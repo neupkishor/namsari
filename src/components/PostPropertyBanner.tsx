@@ -3,10 +3,10 @@ import Link from 'next/link';
 
 export const PostPropertyBanner = () => {
     return (
-        <section style={{ marginBottom: '60px' }}>
+        <section>
             <div style={{
                 background: '#f0f9ff',
-                borderRadius: '16px',
+                borderRadius: 'var(--radius-card)',
                 padding: '40px 60px',
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -35,7 +35,7 @@ export const PostPropertyBanner = () => {
                             color: 'white',
                             border: 'none',
                             padding: '14px 32px',
-                            borderRadius: '8px',
+                            borderRadius: 'var(--radius-inner)',
                             fontWeight: '700',
                             fontSize: '1rem',
                             cursor: 'pointer',

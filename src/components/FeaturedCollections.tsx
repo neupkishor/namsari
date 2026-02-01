@@ -4,7 +4,7 @@ export function FeaturedCollectionsSection({ collections }: { collections: any[]
     if (!collections || collections.length === 0) return null;
 
     return (
-        <section style={{ padding: '40px 0', borderBottom: '1px solid #f1f5f9' }}>
+        <section>
             <div className="layout-container">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1e293b' }}>
@@ -35,7 +35,10 @@ export function FeaturedCollectionsSection({ collections }: { collections: any[]
                                             📁
                                         </div>
                                     )}
-                                    <div style={{ position: 'absolute', bottom: '8px', right: '8px', background: 'rgba(0,0,0,0.7)', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600' }}>
+                                    <div style={{
+                                        position: 'absolute', bottom: '8px', right: '8px', background: 'rgba(0,0,0,0.7)', color: 'white', padding: '2px 8px', borderRadius: 'var(--radius-inner)'
+                                        , fontSize: '0.75rem', fontWeight: '600'
+                                    }}>
                                         {/* Ideally we count properties or passed specific counts, for now assuming at least 1 if image exists */}
                                         Collection
                                     </div>
@@ -60,7 +63,7 @@ export function FeaturedCollectionsFeedItem({ collections }: { collections: any[
 
     // Show a horizontal scroll list for feed
     return (
-        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
+        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: 'var(--radius-card)', padding: '16px' }}>
             <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '16px', color: '#1e293b' }}>Recommended Collections</h3>
             <div style={{
                 display: 'flex',
@@ -77,7 +80,7 @@ export function FeaturedCollectionsFeedItem({ collections }: { collections: any[
                         href={`/collection/${col.slug}`}
                         style={{ textDecoration: 'none', color: 'inherit', flexShrink: 0, width: '240px' }}
                     >
-                        <div style={{ borderRadius: '8px', border: '1px solid #f1f5f9', overflow: 'hidden' }}>
+                        <div style={{ borderRadius: 'var(--radius-inner)', border: '1px solid #f1f5f9', overflow: 'hidden' }}>
                             <div style={{ height: '140px', background: '#f8fafc' }}>
                                 {col.properties[0]?.property?.images[0]?.url ? (
                                     <img

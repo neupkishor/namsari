@@ -6,9 +6,9 @@ import { logoutAction } from './actions/auth';
 import { toggleLike, addComment } from './actions/social';
 import { Input } from '@/components/ui';
 import { useRouter } from 'next/navigation';
-import { CreatePostCard } from '@/components/CreatePostCard';
+import { QuickActionsCard } from '@/components/QuickActionsCard';
 import { PopularCategories, FeaturedProjects } from '@/components/HomeSections';
-import { PopularLocations } from '@/components/PopularLocations';
+import { TrendingSearches } from '@/components/TrendingSearches';
 import { PostPropertyBanner } from '@/components/PostPropertyBanner';
 import { FeaturedAgenciesClassic, FeaturedAgenciesFeed } from '@/components/FeaturedAgencies';
 import { FeaturedCollectionsSection, FeaturedCollectionsFeedItem } from '@/components/FeaturedCollections';
@@ -83,7 +83,7 @@ export default function Home({ user, settings, featuredCollections }: { user: an
       {isLoading ? (
         viewType === 'classic' ? <ClassicSkeleton /> : <FeedSkeleton />
       ) : (
-        viewType === 'classic' ? <ClassicView properties={properties} featuredCollections={featuredCollections} /> : <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} />
+        viewType === 'classic' ? <ClassicView properties={properties} featuredCollections={featuredCollections} user={user} /> : <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} />
       )}
     </main>
   );
@@ -129,7 +129,7 @@ function FeedSkeleton() {
       </aside>
 
       {/* Feed Content Skeleton */}
-      <div style={{ flex: 1, maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: '24px', margin: '0 auto' }}>
+      <div style={{ flex: 1, maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: 'var(--card-gap)', margin: '0 auto' }}>
         {[1, 2].map(i => (
           <div key={i} className="card" style={{ padding: '0', height: '600px', borderRadius: '8px' }}>
             <div style={{ padding: '12px 16px', display: 'flex', gap: '12px' }}>
@@ -151,7 +151,7 @@ function FeedSkeleton() {
   );
 }
 
-function ClassicView({ properties, featuredCollections }: { properties: any[], featuredCollections?: any[] }) {
+function ClassicView({ properties, featuredCollections, user }: { properties: any[], featuredCollections?: any[], user?: any }) {
   if (!properties || properties.length === 0) {
     return (
       <div className="layout-container" style={{ padding: '100px 0', textAlign: 'center' }}>
@@ -165,21 +165,23 @@ function ClassicView({ properties, featuredCollections }: { properties: any[], f
     <>
       <section style={{ padding: '80px 0', background: 'white', textAlign: 'center' }}>
         <div className="layout-container">
-          <h1 style={{ fontSize: '3.5rem', marginBottom: '20px' }}>Institutional Real Estate.</h1>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '1.25rem' }}>The premier marketplace for premium residential and commercial assets.</p>
+          <h1 style={{ fontSize: '3.5rem', marginBottom: '20px', fontWeight: '700' }}>Institutional Real Estate.</h1>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: '1.25rem', marginBottom: '48px' }}>The premier marketplace for premium residential and commercial assets.</p>
+
+          <QuickActionsCard user={user} />
         </div>
       </section>
 
-      <div className="layout-container">
+      <div className="layout-container" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--card-gap)' }}>
         <PopularCategories />
         {featuredCollections && featuredCollections.length > 0 && <FeaturedCollectionsSection collections={featuredCollections} />}
         <FeaturedProjects properties={properties} />
-        <PopularLocations />
         <PostPropertyBanner />
+        <TrendingSearches />
         <FeaturedAgenciesClassic />
       </div>
 
-      <div className="layout-container" style={{ paddingBottom: '100px' }}>
+      <div className="layout-container" style={{ paddingBottom: '100px', marginTop: 'var(--card-gap)' }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#10172A', marginBottom: '24px' }}>Latest Listings</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '32px' }}>
           {properties.map(p => {
@@ -311,29 +313,35 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
       </aside>
 
       {/* Main Social Feed */}
-      <div style={{ flex: 1, maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: '24px', margin: '0 auto' }}>
-        <CreatePostCard user={user} />
+      <div style={{ flex: 1, maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: 'var(--card-gap)', margin: '0 auto' }}>
+        <QuickActionsCard user={user} />
 
-        <PopularLocations />
-
-        {properties.map((p, index) => {
+        {properties.flatMap((p, index) => {
           const isTrigger = index === properties.length - 5;
-          return (
-            <div key={p.id}>
-              <PropertyPost
-                property={p}
-                user={user}
-                settings={settings}
-                onRefresh={onRefresh}
-                onVisible={isTrigger ? onLoadMore : undefined}
-              />
-              {index === 0 && <FeaturedAgenciesFeed />}
-              {/* Insert Collections Feed Item occasionally, e.g. after index 2 */}
-              {index === 2 && featuredCollections && featuredCollections.length > 0 && (
-                <FeaturedCollectionsFeedItem collections={featuredCollections} />
-              )}
-            </div>
-          );
+          const items = [
+            <PropertyPost
+              key={p.id}
+              property={p}
+              user={user}
+              settings={settings}
+              onRefresh={onRefresh}
+              onVisible={isTrigger ? onLoadMore : undefined}
+            />
+          ];
+
+          if (index === 0) {
+            items.push(<FeaturedAgenciesFeed key="featured-agencies" />);
+          }
+
+          if (index === 2 && featuredCollections && featuredCollections.length > 0) {
+            items.push(<FeaturedCollectionsFeedItem key="featured-collections" collections={featuredCollections} />);
+          }
+
+          if (index === 3) {
+            items.push(<TrendingSearches key="trending-searches" />);
+          }
+
+          return items;
         })}
 
         {isFetchingMore && (
@@ -448,7 +456,7 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
   const images = property.images || [];
 
   return (
-    <div ref={containerRef} className="card" style={{ padding: '0', borderRadius: '8px', border: '1px solid #ddd', overflow: 'hidden', background: 'white' }}>
+    <div ref={containerRef} className="card" style={{ padding: '0', overflow: 'hidden' }}>
       {/* Post Header */}
       <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
         <Link href={`/@${property.author_username || property.author}`} style={{ textDecoration: 'none', color: 'inherit' }}>

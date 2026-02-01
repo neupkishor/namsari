@@ -14,7 +14,7 @@ const categories = [
 
 export const PopularCategories = () => {
     return (
-        <section style={{ marginBottom: '60px' }}>
+        <section>
             <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b', marginBottom: '24px' }}>
                 Popular Categories
             </h2>
@@ -29,7 +29,7 @@ export const PopularCategories = () => {
                         style={{
                             background: 'white',
                             padding: '32px 20px',
-                            borderRadius: '16px',
+                            borderRadius: 'var(--radius-card)',
                             textAlign: 'center',
                             boxShadow: cat.active ? '0 10px 25px -5px rgba(37, 99, 235, 0.1), 0 8px 10px -6px rgba(37, 99, 235, 0.1)' : 'var(--shadow-sm)',
                             border: cat.active ? '2px solid #3b82f6' : '1px solid var(--color-border)',
@@ -116,7 +116,7 @@ export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) =>
 
     if (finalProjects.length === 0) {
         return (
-            <section style={{ marginBottom: '60px' }}>
+            <section>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
                         Featured Projects
@@ -131,7 +131,7 @@ export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) =>
     }
 
     return (
-        <section style={{ marginBottom: '60px' }}>
+        <section>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
                     Featured Projects
@@ -157,7 +157,7 @@ export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) =>
                                 style={{
                                     padding: '0',
                                     overflow: 'hidden',
-                                    borderRadius: '12px',
+                                    borderRadius: 'var(--radius-card)',
                                     border: '1px solid var(--color-border)',
                                     background: 'white',
                                     height: '100%',
@@ -179,7 +179,7 @@ export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) =>
                                         background: '#e0f2fe',
                                         color: '#0369a1',
                                         padding: '6px 12px',
-                                        borderRadius: '20px',
+                                        borderRadius: 'var(--radius-inner)',
                                         fontSize: '0.8rem',
                                         fontWeight: '700',
                                         border: '1px solid #bae6fd'
@@ -206,7 +206,7 @@ export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) =>
                                         gap: '6px',
                                         background: '#f1f5f9',
                                         padding: '4px 12px',
-                                        borderRadius: '6px',
+                                        borderRadius: 'calc(var(--radius-inner) - 2px)',
                                         fontSize: '0.85rem',
                                         color: '#475569',
                                         fontWeight: '600'
