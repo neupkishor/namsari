@@ -30,6 +30,7 @@ model User {
   
   comments       Comment[]
   user_likes     Like[]
+  collections    Collection[]
 }
 
 model KYC {
@@ -106,6 +107,7 @@ model Property {
   comments               Comment[]
   property_likes         Like[]
   featured_history       FeaturedInformation[]
+  collections            CollectionProperty[]
 }
 
 model PropertyType {
@@ -293,6 +295,39 @@ model SystemSettings {
   show_contact_agent      Boolean  @default(true)
   show_make_offer         Boolean  @default(true)
   updated_at              DateTime @updatedAt
+}
+
+model Collection {
+  id          Int        @id @default(autoincrement())
+  name        String
+  slug        String     @unique @default(cuid())
+  description String?
+  type        String     @default("user_generated") // user_generated, system_generated
+  
+  // For system generated collections, we store filter conditions here as JSON
+  moreInfo    String?    // JSON string for conditions: { type, nature, purpose, priceMin, priceMax, unit, etc. }
+  
+  is_public   Boolean    @default(true)
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+
+  user_id     Int
+  user        User       @relation(fields: [user_id], references: [id])
+
+  properties  CollectionProperty[]
+}
+
+model CollectionProperty {
+  id            Int        @id @default(autoincrement())
+  collection_id Int
+  collection    Collection @relation(fields: [collection_id], references: [id], onDelete: Cascade)
+  
+  property_id   Int
+  property      Property   @relation(fields: [property_id], references: [id], onDelete: Cascade)
+
+  added_at      DateTime   @default(now())
+
+  @@unique([collection_id, property_id])
 }
 
 
