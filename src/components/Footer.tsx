@@ -26,11 +26,6 @@ export function Footer() {
     const isManagePage = pathname?.startsWith('/manage');
     const isExplorePage = pathname === '/explore';
 
-    // We also need to hide it on the homepage if it's in "Social Feed" mode.
-    // However, the Footer is usually rendered at the bottom of the scroll.
-    // On the Feed, scrolling is often infinite, so footer might never be seen or might conflict.
-    // But since view_mode is at the app level, we might need to pass a prop or hide it specifically.
-
     if (isManagePage || isExplorePage || isForceHidden) return null;
 
     return (
@@ -60,7 +55,8 @@ export function Footer() {
                             <FooterLink href="/explore">Browse Properties</FooterLink>
                             <FooterLink href="/agencies">Partner Agencies</FooterLink>
                             <FooterLink href="/pricing">Listing Plans</FooterLink>
-                            <FooterLink href="/post">Post Property</FooterLink>
+                            <FooterLink href="/sell">Post Property</FooterLink>
+                            <FooterLink href="/requirements">Post Requirements</FooterLink>
                             <FooterLink href="/membership">Platinum Club</FooterLink>
                         </div>
                     </div>

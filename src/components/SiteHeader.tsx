@@ -33,6 +33,16 @@ export function SiteHeader({ user, fullWidth }: { user?: any, fullWidth?: boolea
                         Explore
                     </Link>
                     <Link
+                        href="/requirements"
+                        className={`header-link ${pathname === '/requirements' ? 'active' : ''}`}
+                        style={{
+                            padding: '8px 16px', borderRadius: 'var(--radius-inner)'
+                            , color: 'var(--color-primary)', fontWeight: '600', textDecoration: 'none', transition: 'all 0.2s'
+                        }}
+                    >
+                        Post Requirements
+                    </Link>
+                    <Link
                         href="/sell"
                         className={`header-link ${pathname === '/sell' ? 'active' : ''}`}
                         style={{

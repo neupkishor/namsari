@@ -15,6 +15,7 @@
     "@types/nprogress": "^0.2.3",
     "browser-image-compression": "^2.0.2",
     "leaflet": "^1.9.4",
+    "leaflet-geosearch": "^4.2.2",
     "next": "16.1.6",
     "next-nprogress-bar": "^2.4.7",
     "nprogress": "^0.2.0",
