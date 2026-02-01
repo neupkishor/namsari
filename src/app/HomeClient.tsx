@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { CreatePostCard } from '@/components/CreatePostCard';
 import { PopularCategories, FeaturedProjects } from '@/components/HomeSections';
 import { PopularLocations } from '@/components/PopularLocations';
+import { PostPropertyBanner } from '@/components/PostPropertyBanner';
 
 export default function Home({ user, settings }: { user: any, settings: any }) {
   const router = useRouter();
@@ -217,6 +218,7 @@ function ClassicView({ properties }: { properties: any[] }) {
         <PopularCategories />
         <FeaturedProjects properties={properties} />
         <PopularLocations />
+        <PostPropertyBanner />
       </div>
 
       <div className="layout-container" style={{ paddingBottom: '100px' }}>
