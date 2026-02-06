@@ -15,7 +15,7 @@ const categories = [
 export const PopularCategories = () => {
     return (
         <section>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b', marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '24px' }}>
                 Popular Categories
             </h2>
             <div style={{
@@ -107,7 +107,7 @@ export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) =>
         return (
             <section>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary-light)' }}>
                         Featured Projects
                     </h2>
                 </div>
@@ -122,7 +122,7 @@ export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) =>
     return (
         <section>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary-light)' }}>
                     Featured Projects
                 </h2>
                 <div style={{ color: '#3b82f6', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -188,7 +188,7 @@ export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) =>
                                     <p style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: '700', textTransform: 'uppercase', marginBottom: '4px' }}>
                                         {p.property_types?.[0] || 'Property'}
                                     </p>
-                                    <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b', marginBottom: '8px', lineHeight: '1.3' }}>
+                                    <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '8px', lineHeight: '1.3' }}>
                                         {p.title}
                                     </h3>
                                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '4px', marginBottom: '16px' }}>

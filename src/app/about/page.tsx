@@ -54,14 +54,14 @@ export default async function AboutPage() {
                         </p>
 
                         <section>
-                            <h2 style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '16px', color: '#1e293b' }}>Our Mission</h2>
+                            <h2 style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '16px', color: 'var(--color-primary-light)' }}>Our Mission</h2>
                             <p style={{ fontSize: '1.1rem', lineHeight: '1.7', color: '#64748b' }}>
                                 {displayData.mission}
                             </p>
                         </section>
 
                         <section>
-                            <h2 style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '16px', color: '#1e293b' }}>The Institutional Standard</h2>
+                            <h2 style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '16px', color: 'var(--color-primary-light)' }}>The Institutional Standard</h2>
                             <p style={{ fontSize: '1.1rem', lineHeight: '1.7', color: '#64748b' }}>
                                 {displayData.standard}
                             </p>
@@ -83,7 +83,7 @@ export default async function AboutPage() {
                     font-size: 2rem;
                     font-weight: 700;
                     margin: 48px 0 20px;
-                    color: #0f172a;
+                    color: var(--color-primary);
                 }
                 .about-article p {
                     margin-bottom: 24px;
@@ -96,7 +96,7 @@ export default async function AboutPage() {
                     margin-bottom: 8px;
                 }
                 .about-article strong {
-                    color: #0f172a;
+                    color: var(--color-primary);
                 }
             `}} />
         </main>

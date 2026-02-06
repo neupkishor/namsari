@@ -43,7 +43,7 @@ export const FeaturedAgenciesClassic = () => {
     return (
         <section>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-                <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#1e293b' }}>
+                <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--color-primary)' }}>
                     Featured Agencies
                 </h2>
                 <Link href="/agencies" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>

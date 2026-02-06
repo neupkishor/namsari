@@ -80,7 +80,7 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
                         </div>
                         <div>
                             <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>{stat.label}</div>
-                            <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1e293b' }}>{stat.value}</div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--color-primary-light)' }}>{stat.value}</div>
                         </div>
                     </div>
                 ))}

@@ -81,7 +81,7 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
                                 ) : (
                                     <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', color: '#cbd5e1' }}>🏠</div>
                                 )}
-                                <div style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(255,255,255,0.9)', padding: '4px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '700', color: '#0f172a' }}>
+                                <div style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(255,255,255,0.9)', padding: '4px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '700', color: 'var(--color-primary)' }}>
                                     {p.main_category}
                                 </div>
                                 <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(0,0,0,0.7)', color: 'white', padding: '4px 10px', borderRadius: '8px', fontSize: '0.9rem', fontWeight: '700' }}>
@@ -91,7 +91,7 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
 
                             <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 <div>
-                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#0f172a', marginBottom: '4px', lineHeight: '1.4' }}>{p.title}</h3>
+                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-primary)', marginBottom: '4px', lineHeight: '1.4' }}>{p.title}</h3>
                                     <p style={{ fontSize: '0.9rem', color: '#64748b' }}>📍 {p.location}</p>
                                 </div>
 

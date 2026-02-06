@@ -93,7 +93,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 <div className="layout-container">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
                         <div>
-                            <h1 style={{ fontSize: '2.5rem', fontWeight: '700', color: '#10172A', marginBottom: '8px', letterSpacing: '-0.02em' }}>{property.title}</h1>
+                            <h1 style={{ fontSize: '2.5rem', fontWeight: '700', color: 'var(--color-primary)', marginBottom: '8px', letterSpacing: '-0.02em' }}>{property.title}</h1>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', color: '#64748b', fontSize: '0.95rem' }}>
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>📍 {locationStr}</span>
                                 <span style={{ padding: '4px 12px', background: '#f1f5f9', borderRadius: '4px', fontWeight: '600', fontSize: '0.8rem' }}>#{property.propertyId || property.id}</span>
@@ -198,7 +198,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                                                         {displayIcon}
                                                     </div>
                                                     <div>
-                                                        <div style={{ fontWeight: '700', fontSize: '0.95rem', color: '#1e293b' }}>{displayName}</div>
+                                                        <div style={{ fontWeight: '700', fontSize: '0.95rem', color: 'var(--color-primary-light)' }}>{displayName}</div>
                                                         <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{amenity.distance || 'Walking distance'}</div>
                                                     </div>
                                                 </div>
@@ -250,7 +250,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                                     ✉️ Message Us
                                 </button>
                             </div>
-                            <button style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #0f172a', color: '#0f172a', background: 'white', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer', marginBottom: '12px' }}>
+                            <button style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--color-primary)', color: 'var(--color-primary)', background: 'white', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer', marginBottom: '12px' }}>
                                 Book Site Visit
                             </button>
                             <button style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #b8960c', color: '#b8960c', background: 'white', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer' }}>
@@ -328,7 +328,7 @@ function OverviewItem({ icon, label, value }: { icon: string, label: string, val
             <div style={{ fontSize: '1.5rem', width: '40px', height: '40px', background: 'white', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>{icon}</div>
             <div>
                 <div style={{ fontSize: '0.7rem', fontWeight: '600', color: '#94a3b8', letterSpacing: '0.02em', marginBottom: '2px' }}>{label}</div>
-                <div style={{ fontWeight: '700', color: '#10172A', fontSize: '0.95rem' }}>{value}</div>
+                <div style={{ fontWeight: '700', color: 'var(--color-primary)', fontSize: '0.95rem' }}>{value}</div>
             </div>
         </div>
     );

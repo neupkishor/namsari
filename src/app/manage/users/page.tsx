@@ -59,7 +59,7 @@ export default async function ManageUsersPage({ searchParams }: { searchParams: 
                                     )}
                                 </div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '1.1rem', marginBottom: '4px' }}>{u.name}</div>
+                                    <div style={{ fontWeight: '700', color: 'var(--color-primary)', fontSize: '1.1rem', marginBottom: '4px' }}>{u.name}</div>
                                     <div style={{ fontSize: '0.95rem', color: '#64748b' }}>@{u.username}</div>
                                 </div>
                                 <div>

@@ -63,7 +63,7 @@ export default async function CollectionManagePage(props: { params: Promise<{ sl
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                     <div>
-                        <h1 style={{ fontSize: '2rem', fontWeight: '800', color: '#1e293b', marginBottom: '8px' }}>
+                        <h1 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--color-primary-light)', marginBottom: '8px' }}>
                             {collection.name}
                         </h1>
                         {collection.description && (
@@ -145,7 +145,7 @@ export default async function CollectionManagePage(props: { params: Promise<{ sl
                                                 )}
                                             </div>
                                             <div>
-                                                <Link href={`/property/${property.slug || property.id}`} style={{ fontWeight: '600', color: '#1e293b', textDecoration: 'none', display: 'block', fontSize: '1rem' }}>
+                                                <Link href={`/property/${property.slug || property.id}`} style={{ fontWeight: '600', color: 'var(--color-primary-light)', textDecoration: 'none', display: 'block', fontSize: '1rem' }}>
                                                     {property.title}
                                                 </Link>
                                                 <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '4px' }}>
@@ -155,7 +155,7 @@ export default async function CollectionManagePage(props: { params: Promise<{ sl
                                         </div>
                                     </td>
                                     <td style={{ padding: '16px 24px' }}>
-                                        <div style={{ fontWeight: '700', color: '#1e293b' }}>
+                                        <div style={{ fontWeight: '700', color: 'var(--color-primary-light)' }}>
                                             {property.pricing ? formatPrice(property.pricing.price) : 'Price on Request'}
                                         </div>
                                         <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '4px' }}>

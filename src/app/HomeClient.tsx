@@ -191,7 +191,7 @@ function ClassicView({ properties, featuredCollections, trendingSearches, user, 
       </div>
 
       <div className="layout-container" style={{ paddingBottom: '100px', marginTop: 'var(--card-gap)' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#10172A', marginBottom: '24px' }}>Latest Listings</h2>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary)', marginBottom: '24px' }}>Latest Listings</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '32px' }}>
           {properties.map(p => (
             <PropertyCard key={p.id} property={p} />
@@ -727,7 +727,7 @@ function ActionButton({ icon, label, count, active = false, onClick }: { icon: R
       padding: '8px 10px',
       borderRadius: '8px',
       cursor: 'pointer',
-      color: active ? '#ef4444' : '#1e293b',
+      color: active ? '#ef4444' : 'var(--color-primary-light)',
       fontSize: '0.825rem',
       fontWeight: '600',
       transition: 'all 0.2s',

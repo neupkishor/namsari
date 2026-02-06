@@ -55,7 +55,7 @@ export const BasicInformation: React.FC<BasicInformationProps> = ({
 
     return (
         <div id="section-1" style={{ padding: '0 0 60px 0', marginBottom: '60px' }}>
-            <h2 style={{ fontSize: '2.4rem', fontWeight: '900', color: '#1e293b', marginBottom: '48px', borderBottom: '4px solid var(--color-primary)', paddingBottom: '20px', width: '100%' }}>
+            <h2 style={{ fontSize: '2.4rem', fontWeight: '900', color: 'var(--color-primary-light)', marginBottom: '48px', borderBottom: '4px solid var(--color-primary)', paddingBottom: '20px', width: '100%' }}>
                 1. Basic Information
             </h2>
 

@@ -32,7 +32,7 @@ export default function RequirementsListClient({ requirements, totalPages }: { r
     return (
         <div style={{ paddingBottom: '60px' }}>
             <header style={{ marginBottom: '32px' }}>
-                <h1 style={{ fontSize: '2rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>User Requirements</h1>
+                <h1 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--color-primary)', marginBottom: '8px' }}>User Requirements</h1>
                 <p style={{ color: '#64748b' }}>Manage and view property demands submitted by users across the platform.</p>
             </header>
 
@@ -54,7 +54,7 @@ export default function RequirementsListClient({ requirements, totalPages }: { r
                                             Posted on {new Date(req.created_at).toLocaleDateString()}
                                         </span>
                                     </div>
-                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b' }}>
+                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-primary-light)' }}>
                                         {req.user ? req.user.name : 'Unsigned User'}
                                         {req.user && <span style={{ fontWeight: '400', color: '#94a3b8', fontSize: '0.9rem', marginLeft: '8px' }}>@{req.user.username}</span>}
                                     </h3>
@@ -73,15 +73,15 @@ export default function RequirementsListClient({ requirements, totalPages }: { r
                                     <FormGrid cols={4} gap="16px">
                                         <div>
                                             <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>Type</div>
-                                            <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#1e293b' }}>{req.propertyTypes || 'Any'}</div>
+                                            <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-primary-light)' }}>{req.propertyTypes || 'Any'}</div>
                                         </div>
                                         <div>
                                             <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>Purpose</div>
-                                            <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#1e293b' }}>{req.purposes || 'Any'}</div>
+                                            <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-primary-light)' }}>{req.purposes || 'Any'}</div>
                                         </div>
                                         <div>
                                             <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>Nature</div>
-                                            <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#1e293b' }}>{req.natures || 'Any'}</div>
+                                            <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-primary-light)' }}>{req.natures || 'Any'}</div>
                                         </div>
                                         <div>
                                             <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>Budget</div>
@@ -94,13 +94,13 @@ export default function RequirementsListClient({ requirements, totalPages }: { r
                                     <FormGrid cols={2} gap="16px">
                                         <div>
                                             <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>Location</div>
-                                            <div style={{ fontSize: '0.9rem', color: '#1e293b' }}>
+                                            <div style={{ fontSize: '0.9rem', color: 'var(--color-primary-light)' }}>
                                                 {req.area ? `${req.area}, ` : ''}{req.cityVillage ? `${req.cityVillage}, ` : ''}{req.district || 'Anywhere'}
                                             </div>
                                         </div>
                                         <div>
                                             <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>Facing</div>
-                                            <div style={{ fontSize: '0.9rem', color: '#1e293b' }}>{req.facings || 'Any'}</div>
+                                            <div style={{ fontSize: '0.9rem', color: 'var(--color-primary-light)' }}>{req.facings || 'Any'}</div>
                                         </div>
                                     </FormGrid>
 

@@ -79,7 +79,7 @@ export const NearbyLocationCard: React.FC<NearbyLocationCardProps> = ({
                     justifyContent: 'space-between',
                     gap: '8px'
                 }}>
-                    <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#1e293b' }}>
+                    <div style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--color-primary-light)' }}>
                         {formatDistance(distance)}
                     </div>
                     <div style={{ display: 'flex', gap: '4px' }}>

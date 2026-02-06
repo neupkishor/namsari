@@ -135,7 +135,7 @@ export default function RequirementsClient({ currentUser }: { currentUser: any }
 
             <div className="layout-container" style={{ maxWidth: '800px', paddingTop: '60px' }}>
                 <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-                    <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#0f172a', marginBottom: '16px', letterSpacing: '-0.02em' }}>Post Your Requirements</h1>
+                    <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--color-primary)', marginBottom: '16px', letterSpacing: '-0.02em' }}>Post Your Requirements</h1>
                     <p style={{ fontSize: '1.1rem', color: '#64748b', maxWidth: '600px', margin: '0 auto' }}>
                         Can't find what you're looking for? Tell us your needs and let our network of premium agents find the perfect match for you.
                     </p>
@@ -149,7 +149,7 @@ export default function RequirementsClient({ currentUser }: { currentUser: any }
                             style={{
                                 flex: 1, padding: '12px', borderRadius: '10px', border: 'none',
                                 background: mode === 'simple' ? 'white' : 'transparent',
-                                color: mode === 'simple' ? '#0f172a' : '#64748b',
+                                color: mode === 'simple' ? 'var(--color-primary)' : '#64748b',
                                 fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer',
                                 boxShadow: mode === 'simple' ? '0 4px 6px -1px rgba(0,0,0,0.05)' : 'none',
                                 transition: 'all 0.2s'
@@ -162,7 +162,7 @@ export default function RequirementsClient({ currentUser }: { currentUser: any }
                             style={{
                                 flex: 1, padding: '12px', borderRadius: '10px', border: 'none',
                                 background: mode === 'detailed' ? 'white' : 'transparent',
-                                color: mode === 'detailed' ? '#0f172a' : '#64748b',
+                                color: mode === 'detailed' ? 'var(--color-primary)' : '#64748b',
                                 fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer',
                                 boxShadow: mode === 'detailed' ? '0 4px 6px -1px rgba(0,0,0,0.05)' : 'none',
                                 transition: 'all 0.2s'
@@ -316,7 +316,7 @@ export default function RequirementsClient({ currentUser }: { currentUser: any }
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                         <div style={{ fontSize: '1.25rem' }}>📍</div>
                                         <div>
-                                            <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '0.95rem' }}>Map Selection Area</div>
+                                            <div style={{ fontWeight: '700', color: 'var(--color-primary)', fontSize: '0.95rem' }}>Map Selection Area</div>
                                             <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Search locations or click map point.</div>
                                         </div>
                                     </div>
@@ -326,7 +326,7 @@ export default function RequirementsClient({ currentUser }: { currentUser: any }
                                         style={{
                                             padding: '8px 16px', borderRadius: '8px', border: '1px solid #e2e8f0',
                                             background: 'white', fontWeight: '700', fontSize: '0.8rem', cursor: 'pointer',
-                                            color: showMap ? '#ef4444' : '#0f172a'
+                                            color: showMap ? '#ef4444' : 'var(--color-primary)'
                                         }}
                                     >
                                         {showMap ? 'Close Map' : 'Open Map Selector'}

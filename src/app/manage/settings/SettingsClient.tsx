@@ -108,7 +108,7 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
                     position: 'fixed',
                     bottom: '40px',
                     right: '40px',
-                    background: '#1e293b',
+                    background: 'var(--color-primary-light)',
                     color: 'white',
                     padding: '12px 24px',
                     borderRadius: '50px',
@@ -138,7 +138,7 @@ function SettingToggle({ label, description, value, onToggle }: { label: string,
     return (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-                <div style={{ fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>{label}</div>
+                <div style={{ fontWeight: '700', color: 'var(--color-primary-light)', fontSize: '0.95rem' }}>{label}</div>
                 <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{description}</div>
             </div>
             <button

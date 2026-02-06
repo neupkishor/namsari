@@ -19,7 +19,7 @@ export default function NewsletterClient({ subscribers, totalPages, totalCount }
     return (
         <div style={{ paddingBottom: '60px' }}>
             <header style={{ marginBottom: '32px' }}>
-                <h1 style={{ fontSize: '2rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>Newsletter Subscribers</h1>
+                <h1 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--color-primary)', marginBottom: '8px' }}>Newsletter Subscribers</h1>
                 <p style={{ color: '#64748b' }}>Manage your email subscription list.</p>
             </header>
 
@@ -32,7 +32,7 @@ export default function NewsletterClient({ subscribers, totalPages, totalCount }
                     subscribers.map((sub) => (
                         <div key={sub.id} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <div style={{ fontSize: '1rem', fontWeight: '700', color: '#1e293b' }}>
+                                <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--color-primary-light)' }}>
                                     {sub.email}
                                 </div>
                                 <span style={{

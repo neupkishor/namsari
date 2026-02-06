@@ -53,7 +53,7 @@ export default function FeaturedManagementClient({ properties, totalPages }: { p
 
                             <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 <div>
-                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b', marginBottom: '4px', lineHeight: '1.4' }}>{p.title}</h3>
+                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '4px', lineHeight: '1.4' }}>{p.title}</h3>
                                     <p style={{ fontSize: '0.9rem', color: '#64748b' }}>📍 {p.location}</p>
                                 </div>
                                 <div style={{ fontSize: '0.9rem', color: '#64748b', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

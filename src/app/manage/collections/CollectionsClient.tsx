@@ -38,7 +38,7 @@ export function CollectionsClient({ initialCollections, userId, totalPages }: { 
 
                                 <div style={{ padding: '24px', flex: 1 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
-                                        <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b' }}>{col.name}</h3>
+                                        <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--color-primary-light)' }}>{col.name}</h3>
                                         <span style={{ fontSize: '0.75rem', background: col.is_public ? '#dcfce7' : '#f1f5f9', color: col.is_public ? '#166534' : '#64748b', padding: '2px 8px', borderRadius: '12px', fontWeight: '600' }}>
                                             {col.is_public ? 'Public' : 'Private'}
                                         </span>

@@ -45,6 +45,6 @@ export const FormCard = ({ children, padding = '24px', background = 'white', bor
 /**
  * SectionTitle - Styled heading for form sections
  */
-export const SectionTitle = ({ children, color = '#1e293b' }: { children: React.ReactNode; color?: string }) => (
+export const SectionTitle = ({ children, color = 'var(--color-primary-light)' }: { children: React.ReactNode; color?: string }) => (
     <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '16px', color }}>{children}</h3>
 );

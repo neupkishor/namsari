@@ -122,7 +122,7 @@ export default function MapComponent({
                                         style={{ width: '100%', borderRadius: '8px', marginBottom: '12px', height: '100px', objectFit: 'cover' }}
                                     />
                                     <div style={{ fontWeight: '800', fontSize: '1.1rem', color: 'var(--color-primary)', marginBottom: '4px' }}>{p.price}</div>
-                                    <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#1e293b', marginBottom: '4px', lineHeight: '1.2' }}>{p.title}</div>
+                                    <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-primary-light)', marginBottom: '4px', lineHeight: '1.2' }}>{p.title}</div>
                                     <div style={{ fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                         <span>📍</span> {p.location}
                                     </div>

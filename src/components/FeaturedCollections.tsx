@@ -7,7 +7,7 @@ export function FeaturedCollectionsSection({ collections }: { collections: any[]
         <section>
             <div className="layout-container">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1e293b' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--color-primary-light)' }}>
                         Curated Collections
                     </h2>
                     <Link href="/manage/collections" style={{ color: 'var(--color-primary)', fontWeight: '600', textDecoration: 'none' }}>
@@ -64,7 +64,7 @@ export function FeaturedCollectionsFeedItem({ collections }: { collections: any[
     // Show a horizontal scroll list for feed
     return (
         <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: 'var(--radius-card)', padding: '16px' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '16px', color: '#1e293b' }}>Recommended Collections</h3>
+            <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '16px', color: 'var(--color-primary-light)' }}>Recommended Collections</h3>
             <div style={{
                 display: 'flex',
                 gap: '16px',

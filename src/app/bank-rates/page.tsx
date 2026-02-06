@@ -25,7 +25,7 @@ export default async function BankRatesPage() {
     return (
         <div className="layout-container" style={{ padding: '60px 0', minHeight: '80vh' }}>
             <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-                <h1 style={{ fontSize: '3rem', fontWeight: '800', marginBottom: '16px', color: '#0f172a' }}>Current Bank Interest Rates</h1>
+                <h1 style={{ fontSize: '3rem', fontWeight: '800', marginBottom: '16px', color: 'var(--color-primary)' }}>Current Bank Interest Rates</h1>
                 <p style={{ fontSize: '1.25rem', color: '#64748b', maxWidth: '600px', margin: '0 auto' }}>
                     Compare the latest fixed deposit and savings interest rates across major banks in Nepal.
                 </p>

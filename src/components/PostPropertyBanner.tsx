@@ -20,7 +20,7 @@ export const PostPropertyBanner = () => {
                     <h2 style={{
                         fontSize: '2rem',
                         fontWeight: '800',
-                        color: '#1e293b',
+                        color: 'var(--color-primary-light)',
                         marginBottom: '12px',
                         lineHeight: 1.2
                     }}>

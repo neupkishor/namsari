@@ -117,7 +117,7 @@ export default function AgencyManagementClient({ agencies, totalPages }: AgencyM
                             <textarea name="bio" rows={3} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', resize: 'vertical' }} placeholder="Tell us about the agency..."></textarea>
                         </div>
 
-                        <h4 style={{ marginBottom: '16px', fontSize: '0.9rem', fontWeight: '700', color: '#1e293b' }}>Social Media Links</h4>
+                        <h4 style={{ marginBottom: '16px', fontSize: '0.9rem', fontWeight: '700', color: 'var(--color-primary-light)' }}>Social Media Links</h4>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '32px' }}>
                             <input name="facebook" placeholder="Facebook URL" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.85rem' }} />
                             <input name="instagram" placeholder="Instagram URL" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.85rem' }} />
@@ -159,7 +159,7 @@ export default function AgencyManagementClient({ agencies, totalPages }: AgencyM
                                     )}
                                 </div>
                                 <div>
-                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>{agency.name}</h3>
+                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '4px' }}>{agency.name}</h3>
                                     <p style={{ fontSize: '0.85rem', color: '#64748b' }}>@{agency.username}</p>
                                 </div>
                             </div>

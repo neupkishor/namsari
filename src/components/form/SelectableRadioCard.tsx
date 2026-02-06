@@ -58,7 +58,7 @@ export const SelectableRadioCard: React.FC<SelectableRadioCardProps> = ({
                 disabled={disabled}
                 style={{ display: 'none' }}
             />
-            <span style={{ fontSize: '0.85rem', fontWeight: '600', color: selected ? '#1e293b' : '#64748b' }}>
+            <span style={{ fontSize: '0.85rem', fontWeight: '600', color: selected ? 'var(--color-primary-light)' : '#64748b' }}>
                 {label}
             </span>
         </div>

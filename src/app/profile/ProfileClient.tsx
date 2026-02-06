@@ -46,7 +46,7 @@ export default function ProfileClient({ user, currentUser }: ProfileClientProps)
                 {icon}
             </div>
             <div>
-                <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0f172a', lineHeight: '1' }}>{value}</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary)', lineHeight: '1' }}>{value}</div>
                 <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '4px', fontWeight: '500' }}>{label}</div>
             </div>
         </div>
@@ -75,7 +75,7 @@ export default function ProfileClient({ user, currentUser }: ProfileClientProps)
                                 )}
                             </div>
                             <div style={{ paddingBottom: '12px' }}>
-                                <h1 style={{ fontSize: '2rem', fontWeight: '800', color: '#0f172a', marginBottom: '4px' }}>{user.name}</h1>
+                                <h1 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--color-primary)', marginBottom: '4px' }}>{user.name}</h1>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '1rem' }}>
                                     <span>@{user.username}</span>
                                     <span>•</span>
@@ -85,7 +85,7 @@ export default function ProfileClient({ user, currentUser }: ProfileClientProps)
                         </div>
 
                         <div style={{ paddingBottom: '16px', display: 'flex', gap: '12px' }}>
-                            <Link href="/profile/edit" style={{ padding: '10px 20px', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', color: '#0f172a', fontWeight: '600', textDecoration: 'none', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }}>
+                            <Link href="/profile/edit" style={{ padding: '10px 20px', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', color: 'var(--color-primary)', fontWeight: '600', textDecoration: 'none', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }}>
                                 Edit Profile
                             </Link>
                             <Link href="/manage" style={{ padding: '10px 20px', borderRadius: '10px', background: 'var(--color-primary)', color: 'white', fontWeight: '600', textDecoration: 'none', boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)', display: 'flex', alignItems: 'center' }}>

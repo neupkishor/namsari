@@ -33,7 +33,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
                         <Link href="/" style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--color-primary)', textDecoration: 'none' }}>
                             Namsari<span style={{ color: 'var(--color-gold)' }}>.</span>
                         </Link>
-                        <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1e293b', marginTop: '24px' }}>Welcome Back</h1>
+                        <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--color-primary-light)', marginTop: '24px' }}>Welcome Back</h1>
                         <p style={{ color: '#64748b', marginTop: '8px' }}>Log in to manage your real estate assets.</p>
                     </div>
 

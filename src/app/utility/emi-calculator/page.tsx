@@ -147,7 +147,7 @@ export default function EMICalculatorPage() {
                             </div>
                             <div style={{ textAlign: 'right' }}>
                                 <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Total Payment</div>
-                                <div style={{ fontWeight: '700', color: '#1e293b' }}>{formatCurrency(totalPayment)}</div>
+                                <div style={{ fontWeight: '700', color: 'var(--color-primary-light)' }}>{formatCurrency(totalPayment)}</div>
                             </div>
                         </div>
                     </div>

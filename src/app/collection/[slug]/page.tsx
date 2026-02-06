@@ -72,7 +72,7 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
                         }}>
                             Curated Collection
                         </div>
-                        <h1 style={{ fontSize: '3rem', fontWeight: '800', color: '#1e293b', marginBottom: '16px', lineHeight: '1.2' }}>
+                        <h1 style={{ fontSize: '3rem', fontWeight: '800', color: 'var(--color-primary-light)', marginBottom: '16px', lineHeight: '1.2' }}>
                             {collection.name}
                         </h1>
                         <p style={{ fontSize: '1.1rem', color: '#64748b', lineHeight: '1.6', marginBottom: '32px' }}>
@@ -91,7 +91,7 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
                             </div>
                             <div style={{ textAlign: 'left' }}>
                                 <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase' }}>Curated By</div>
-                                <div style={{ fontWeight: '600', color: '#1e293b' }}>{collection.user.name}</div>
+                                <div style={{ fontWeight: '600', color: 'var(--color-primary-light)' }}>{collection.user.name}</div>
                             </div>
                         </div>
 

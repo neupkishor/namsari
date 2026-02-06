@@ -49,7 +49,7 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
                     </div>
 
                     <div>
-                        <h1 style={{ fontSize: '2rem', fontWeight: '800', color: '#0f172a', marginBottom: '4px' }}>{user.name}</h1>
+                        <h1 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--color-primary)', marginBottom: '4px' }}>{user.name}</h1>
                         <p style={{ color: '#64748b', fontSize: '1.1rem', marginBottom: '24px' }}>@{user.username}</p>
 
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', padding: '24px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
@@ -75,7 +75,7 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
             </div>
 
             <div style={{ marginTop: '40px' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0f172a', marginBottom: '20px' }}>Recent Properties</h2>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary)', marginBottom: '20px' }}>Recent Properties</h2>
                 {user.listedProperties.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         {user.listedProperties.map((property) => (
@@ -84,7 +84,7 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
                                     {/* Placeholder for property image, assuming property model has images relation but simplified here since we didn't fetch deep images for list */}
                                 </div>
                                 <div>
-                                    <div style={{ fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>{property.title}</div>
+                                    <div style={{ fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '4px' }}>{property.title}</div>
                                     <div style={{ fontSize: '0.9rem', color: '#64748b' }}>Status: {property.status}</div>
                                     <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '4px' }}>Posted on {new Date(property.created_on).toLocaleDateString()}</div>
                                 </div>

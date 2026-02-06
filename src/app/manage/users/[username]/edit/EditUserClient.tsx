@@ -123,22 +123,22 @@ export default function EditUserClient({ user }: EditUserClientProps) {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                     <div style={{ gridColumn: '1 / -1' }}>
-                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b', fontSize: '0.9rem' }}>Account Name</label>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--color-primary-light)', fontSize: '0.9rem' }}>Account Name</label>
                         <input name="name" defaultValue={user.name} required style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
                     </div>
 
                     <div>
-                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b', fontSize: '0.9rem' }}>Email Address</label>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--color-primary-light)', fontSize: '0.9rem' }}>Email Address</label>
                         <input name="email" type="email" defaultValue={user.email || ''} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }} placeholder="No email set" />
                     </div>
 
                     <div>
-                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b', fontSize: '0.9rem' }}>Phone Number</label>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--color-primary-light)', fontSize: '0.9rem' }}>Phone Number</label>
                         <input name="contact_number" defaultValue={user.contact_number || ''} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }} placeholder="No phone set" />
                     </div>
 
                     <div>
-                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--color-text-primary, #1e293b)', fontSize: '0.9rem' }}>Account Status</label>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--color-text-primary, var(--color-primary-light))', fontSize: '0.9rem' }}>Account Status</label>
                         <input type="hidden" name="status" value={status} />
                         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                             {['active', 'warned', 'suspended', 'banned'].map((s) => (
@@ -173,7 +173,7 @@ export default function EditUserClient({ user }: EditUserClientProps) {
                     </div>
 
                     <div>
-                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#1e293b', fontSize: '0.9rem' }}>New Password</label>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--color-primary-light)', fontSize: '0.9rem' }}>New Password</label>
                         <input name="password" type="password" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }} placeholder="Leave blank to keep current" />
                     </div>
                 </div>

@@ -281,7 +281,7 @@ export default function SellClient({ users, currentUserId, currentUser }: { user
 
             <div className="layout-container" style={{ maxWidth: '900px', paddingTop: '60px' }}>
                 <div style={{ marginBottom: '40px' }}>
-                    <h1 style={{ fontSize: '2.5rem', fontWeight: '700', color: '#1e293b', marginBottom: '12px' }}>List New Property</h1>
+                    <h1 style={{ fontSize: '2.5rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '12px' }}>List New Property</h1>
                     <p style={{ fontSize: '1rem', color: '#64748b' }}>Fill out the form below to list your property. Complete each section to unlock the next.</p>
                 </div>
 

@@ -49,7 +49,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                             {post.author ? post.author[0] : 'N'}
                         </div>
                         <div style={{ textAlign: 'left' }}>
-                            <div style={{ fontSize: '1rem', fontWeight: '700', color: '#1e293b' }}>
+                            <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--color-primary-light)' }}>
                                 {post.author || 'Namasari Team'}
                             </div>
                         </div>

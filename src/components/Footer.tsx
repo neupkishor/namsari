@@ -29,7 +29,7 @@ export function Footer() {
     if (isManagePage || isExplorePage || isForceHidden) return null;
 
     return (
-        <footer style={{ background: '#0f172a', color: '#cbd5e1', padding: '100px 0 40px', marginTop: 'auto' }}>
+        <footer style={{ background: 'var(--color-primary)', color: '#cbd5e1', padding: '100px 0 40px', marginTop: 'auto' }}>
             <div className="layout-container">
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '64px', marginBottom: '80px' }}>
                     {/* Brand Column */}
@@ -83,7 +83,7 @@ export function Footer() {
                     </div>
                 </div>
 
-                <div style={{ borderTop: '1px solid #1e293b', paddingTop: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+                <div style={{ borderTop: '1px solid var(--color-primary-light)', paddingTop: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
                     <div style={{ color: '#64748b', fontSize: '0.9rem' }}>
                         &copy; {new Date().getFullYear()} Namsari. All rights reserved. Nepal's No. 1 Property Portal.
                     </div>
@@ -124,7 +124,7 @@ function SocialIcon({ icon }: { icon: string }) {
             width: '44px',
             height: '44px',
             borderRadius: '10px',
-            background: '#1e293b',
+            background: 'var(--color-primary-light)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -175,7 +175,7 @@ function SubscribeForm() {
                     disabled={status === 'loading' || status === 'success'}
                     style={{
                         flex: 1,
-                        background: '#1e293b',
+                        background: 'var(--color-primary-light)',
                         border: '1px solid #334155',
                         padding: '12px 16px',
                         borderRadius: '8px',

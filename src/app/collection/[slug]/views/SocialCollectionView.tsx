@@ -67,7 +67,7 @@ function CollectionFeedItem({ property, collectionUser }: { property: any, colle
                     )}
                 </div>
                 <div>
-                    <div style={{ fontWeight: '700', fontSize: '0.95rem', color: '#1e293b' }}>{collectionUser.name}</div>
+                    <div style={{ fontWeight: '700', fontSize: '0.95rem', color: 'var(--color-primary-light)' }}>{collectionUser.name}</div>
                     <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '500' }}>
                         Curated Recommendation
                     </div>
@@ -114,7 +114,7 @@ function CollectionFeedItem({ property, collectionUser }: { property: any, colle
                     </div>
                 </div>
 
-                <Link href={propertyUrl} style={{ textDecoration: 'none', color: '#1e293b' }}>
+                <Link href={propertyUrl} style={{ textDecoration: 'none', color: 'var(--color-primary-light)' }}>
                     <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '4px', lineHeight: '1.4' }}>{property.title}</h3>
                 </Link>
                 <p style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -123,7 +123,7 @@ function CollectionFeedItem({ property, collectionUser }: { property: any, colle
                 {specs && <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: '600' }}>{specs}</div>}
 
                 <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-                    <Link href={propertyUrl} style={{ flex: 1, textAlign: 'center', padding: '12px', background: '#f8fafc', color: '#1e293b', textDecoration: 'none', borderRadius: '10px', fontWeight: '700', fontSize: '0.9rem', border: '1px solid #e2e8f0', transition: 'all 0.2s' }}>
+                    <Link href={propertyUrl} style={{ flex: 1, textAlign: 'center', padding: '12px', background: '#f8fafc', color: 'var(--color-primary-light)', textDecoration: 'none', borderRadius: '10px', fontWeight: '700', fontSize: '0.9rem', border: '1px solid #e2e8f0', transition: 'all 0.2s' }}>
                         Details
                     </Link>
                     <button style={{ flex: 1.5, padding: '12px', background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)' }}>

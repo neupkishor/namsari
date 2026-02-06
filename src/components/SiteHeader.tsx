@@ -21,37 +21,49 @@ export function SiteHeader({ user, fullWidth }: { user?: any, fullWidth?: boolea
                 <Link href="/" style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary)', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
                     Namsari<span style={{ color: 'var(--color-gold)', marginLeft: '1px' }}>.</span>
                 </Link>
+                
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'center', maxWidth: '600px', margin: '0 24px' }}>
+                    <div style={{ position: 'relative', width: '100%', maxWidth: '480px' }}>
+                        <input
+                            type="text"
+                            placeholder="Search for properties, locations..."
+                            style={{
+                                width: '100%',
+                                padding: '10px 16px 10px 44px',
+                                borderRadius: '24px',
+                                border: '1px solid #e2e8f0',
+                                background: '#f8fafc',
+                                fontSize: '0.95rem',
+                                outline: 'none',
+                                transition: 'all 0.2s',
+                                color: 'var(--color-text-main)',
+                                fontFamily: 'inherit'
+                            }}
+                        />
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            style={{
+                                position: 'absolute',
+                                left: '14px',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                color: '#94a3b8'
+                            }}
+                        >
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                </div>
+
                 <nav style={{ display: 'flex', gap: '8px', fontWeight: '500', fontSize: '0.9rem', alignItems: 'center' }}>
-                    <Link
-                        href="/explore"
-                        className={`header-link ${pathname === '/explore' ? 'active' : ''}`}
-                        style={{
-                            padding: '8px 16px', borderRadius: 'var(--radius-inner)'
-                            , color: 'var(--color-text-muted)', textDecoration: 'none', transition: 'all 0.2s'
-                        }}
-                    >
-                        Explore
-                    </Link>
-                    <Link
-                        href="/requirements"
-                        className={`header-link ${pathname === '/requirements' ? 'active' : ''}`}
-                        style={{
-                            padding: '8px 16px', borderRadius: 'var(--radius-inner)'
-                            , color: 'var(--color-primary)', fontWeight: '600', textDecoration: 'none', transition: 'all 0.2s'
-                        }}
-                    >
-                        Post Requirements
-                    </Link>
-                    <Link
-                        href="/sell"
-                        className={`header-link ${pathname === '/sell' ? 'active' : ''}`}
-                        style={{
-                            padding: '8px 16px', borderRadius: 'var(--radius-inner)'
-                            , color: 'var(--color-primary)', fontWeight: '700', textDecoration: 'none', transition: 'all 0.2s'
-                        }}
-                    >
-                        Sell
-                    </Link>
 
                     {!user ? (
                         <>

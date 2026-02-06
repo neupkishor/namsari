@@ -4,9 +4,9 @@
   --color-surface: #f8fafc;
   --color-surface-hover: #f1f5f9;
 
-  --color-primary: #0f172a;
-  /* Deep Navy */
-  --color-primary-light: #1e293b;
+  --color-primary: #820000;
+  /* Deep Red */
+  --color-primary-light: #b30000;
   --color-accent: #94a3b8;
   /* Slate */
   --color-gold: #b8960c;
@@ -42,7 +42,7 @@ html,
 body {
   background-color: var(--color-bg);
   color: var(--color-text-main);
-  font-family: var(--font-outfit), 'Inter', sans-serif;
+  font-family: var(--font-outfit), sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -285,14 +285,14 @@ h3 {
 
 /* NProgress Custom Styling */
 #nprogress .bar {
-  background: #2563eb !important;
-  /* Vibrant Blue */
+  background: var(--color-primary) !important;
+  /* Deep Red */
   height: 4px !important;
   z-index: 9999 !important;
 }
 
 #nprogress .peg {
-  box-shadow: 0 0 10px #2563eb, 0 0 5px #2563eb !important;
+  box-shadow: 0 0 10px var(--color-primary), 0 0 5px var(--color-primary) !important;
 }
 
 .header-link:hover {

@@ -57,7 +57,7 @@ export default function ProfileEditClient({ user }: { user: UserProfile }) {
 
             <div className="layout-container" style={{ paddingTop: '60px', maxWidth: '600px' }}>
                 <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #e2e8f0', padding: '40px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
-                    <h1 style={{ fontSize: '1.8rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>Edit Profile</h1>
+                    <h1 style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--color-primary)', marginBottom: '8px' }}>Edit Profile</h1>
                     <p style={{ color: '#64748b', marginBottom: '32px' }}>Update your personal information.</p>
 
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

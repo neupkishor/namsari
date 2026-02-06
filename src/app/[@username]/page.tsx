@@ -126,7 +126,7 @@ export default async function ProfilePage({ params }: PageProps) {
             {/* Profile Cover & Header */}
             <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0' }}>
                 <div className="layout-container">
-                    <div style={{ height: '240px', background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderRadius: '0 0 16px 16px', position: 'relative' }}>
+                    <div style={{ height: '240px', background: 'linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%)', borderRadius: '0 0 16px 16px', position: 'relative' }}>
                         <div style={{ position: 'absolute', bottom: '20px', right: '20px' }}>
                             <button style={{ background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>
                                 Edit Cover
@@ -142,7 +142,7 @@ export default async function ProfilePage({ params }: PageProps) {
                                 isOwner={isOwner}
                             />
                             <div style={{ paddingBottom: '16px' }}>
-                                <h1 style={{ fontSize: '2.25rem', fontWeight: '800', marginBottom: '4px', color: '#1e293b' }}>{user.name}</h1>
+                                <h1 style={{ fontSize: '2.25rem', fontWeight: '800', marginBottom: '4px', color: 'var(--color-primary-light)' }}>{user.name}</h1>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     <span style={{ fontSize: '1rem', color: '#64748b', fontWeight: '500' }}>@{user.username}</span>
                                     <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#cbd5e1' }}></span>
@@ -165,7 +165,7 @@ export default async function ProfilePage({ params }: PageProps) {
                             <button style={{ padding: '12px 24px', background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 14px 0 rgba(15, 23, 42, 0.39)' }}>
                                 Follow
                             </button>
-                            <button style={{ padding: '12px 24px', background: '#f1f5f9', color: '#1e293b', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer' }}>
+                            <button style={{ padding: '12px 24px', background: '#f1f5f9', color: 'var(--color-primary-light)', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer' }}>
                                 Message
                             </button>
                         </div>
@@ -186,7 +186,7 @@ export default async function ProfilePage({ params }: PageProps) {
                 {/* Sidebar */}
                 <aside style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     <div className="card" style={{ padding: '24px' }}>
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '20px', color: '#1e293b' }}>Introduction</h3>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '20px', color: 'var(--color-primary-light)' }}>Introduction</h3>
                         <p style={{ color: '#475569', lineHeight: '1.6', marginBottom: '20px' }}>
                             {user.bio || `Professional ${user.account_type || 'real estate enthusiast'} dedicated to providing the best property services in the region.`}
                         </p>
@@ -194,15 +194,15 @@ export default async function ProfilePage({ params }: PageProps) {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{ fontSize: '1.2rem' }}>📧</div>
-                                <div style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: '500' }}>{user.username}@namsari.com</div>
+                                <div style={{ fontSize: '0.95rem', color: 'var(--color-primary-light)', fontWeight: '500' }}>{user.username}@namsari.com</div>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{ fontSize: '1.2rem' }}>📱</div>
-                                <div style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: '500' }}>{user.contact_number || '+977-XXXXXXXXXX'}</div>
+                                <div style={{ fontSize: '0.95rem', color: 'var(--color-primary-light)', fontWeight: '500' }}>{user.contact_number || '+977-XXXXXXXXXX'}</div>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{ fontSize: '1.2rem' }}>📍</div>
-                                <div style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: '500' }}>Kathmandu, Nepal</div>
+                                <div style={{ fontSize: '0.95rem', color: 'var(--color-primary-light)', fontWeight: '500' }}>Kathmandu, Nepal</div>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{ fontSize: '1.2rem' }}>🔗</div>
@@ -212,7 +212,7 @@ export default async function ProfilePage({ params }: PageProps) {
                     </div>
 
                     <div className="card" style={{ padding: '24px' }}>
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '20px', color: '#1e293b' }}>Performance</h3>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '20px', color: 'var(--color-primary-light)' }}>Performance</h3>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                             <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', textAlign: 'center' }}>
                                 <div style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--color-primary)' }}>{enrichedProperties.length}</div>
