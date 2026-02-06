@@ -134,7 +134,7 @@ export default function EMICalculatorPage() {
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
-                                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                                    <Tooltip formatter={(value: number | undefined) => formatCurrency(value ?? 0)} />
                                     <Legend verticalAlign="bottom" height={36} />
                                 </PieChart>
                             </ResponsiveContainer>

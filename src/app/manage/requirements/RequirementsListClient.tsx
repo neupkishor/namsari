@@ -6,24 +6,24 @@ import { PaginationControl } from '@/components/ui';
 interface Requirement {
     id: number;
     mode: string;
-    content?: string;
-    propertyTypes?: string;
-    purposes?: string;
-    natures?: string;
-    facings?: string;
-    district?: string;
-    cityVillage?: string;
-    area?: string;
-    roadAccess?: string;
-    minPrice?: number;
-    maxPrice?: number;
-    pricingUnit?: string;
-    remarks?: string;
+    content: string | null;
+    propertyTypes: string | null;
+    purposes: string | null;
+    natures: string | null;
+    facings: string | null;
+    district: string | null;
+    cityVillage: string | null;
+    area: string | null;
+    roadAccess: string | null;
+    minPrice: number | null;
+    maxPrice: number | null;
+    pricingUnit: string | null;
+    remarks: string | null;
     created_at: string;
-    user?: {
+    user: {
         name: string;
         username: string;
-    };
+    } | null;
     updated_at: string;
 }
 
