@@ -312,6 +312,7 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
   const [commentDraft, setCommentDraft] = React.useState('');
   const [isLiking, setIsLiking] = React.useState(false);
   const [localLikeState, setLocalLikeState] = React.useState<{ isLiked: boolean, count: number } | null>(null);
+  const [showCopiedToast, setShowCopiedToast] = React.useState(false);
 
   // Derived social states
   const isLiked = localLikeState ? localLikeState.isLiked : (user && property.property_likes?.some((l: any) => l.user_id === user.id));
@@ -372,11 +373,56 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
     }
   };
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const shareUrl = `${window.location.origin}${propertyUrl}`;
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      alert("Property link copied to clipboard!");
-    });
+
+    // 1. Try Native Share
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: property.title,
+          text: `Check out this property: ${property.title}`,
+          url: shareUrl,
+        });
+      } catch (err) {
+        // User cancelled or share failed. We stop here to avoid "Document not focused" error.
+        console.log('Share dismissed or failed', err);
+      }
+      return;
+    }
+
+    // 2. Fallback: Clipboard + Toast
+    const copyToClipboardFallback = () => {
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = shareUrl;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        textArea.style.top = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        setShowCopiedToast(true);
+        setTimeout(() => setShowCopiedToast(false), 3000);
+      } catch (fallbackErr) {
+        console.error('Fallback copy failed:', fallbackErr);
+      }
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setShowCopiedToast(true);
+        setTimeout(() => setShowCopiedToast(false), 3000);
+      } catch (err) {
+        console.error('Failed to copy keys:', err);
+        copyToClipboardFallback();
+      }
+    } else {
+      copyToClipboardFallback();
+    }
   };
 
   const handleAddComment = async (e: React.FormEvent) => {
@@ -802,6 +848,43 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
           </div>
         )}
       </div>
+
+      {showCopiedToast && (
+        <>
+          <style dangerouslySetInnerHTML={{
+            __html: `
+            @keyframes toastSlideUp {
+              0% { opacity: 0; transform: translate(-50%, 20px); }
+              100% { opacity: 1; transform: translate(-50%, 0); }
+            }
+          `}} />
+          <div style={{
+            position: 'fixed',
+            bottom: '32px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: 'rgba(15, 23, 42, 0.95)',
+            backdropFilter: 'blur(12px)',
+            color: 'white',
+            padding: '14px 24px',
+            borderRadius: '16px',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            boxShadow: '0 20px 40px -5px rgba(0, 0, 0, 0.3)',
+            fontWeight: '500',
+            fontSize: '0.95rem',
+            animation: 'toastSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+            minWidth: '300px',
+            justifyContent: 'center',
+            border: '1px solid rgba(255,255,255,0.1)'
+          }}>
+            <span style={{ fontSize: '1.2rem' }}>✨</span>
+            <span>Link copied to clipboard</span>
+          </div>
+        </>
+      )}
     </div>
   );
 }
