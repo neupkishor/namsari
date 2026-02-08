@@ -123,6 +123,86 @@ export default async function ProfilePage({ params }: PageProps) {
         <main style={{ backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
             <SiteHeader user={currentUser} />
 
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                .profile-header-container {
+                    padding: 0 24px;
+                    margin-top: -80px;
+                    display: flex;
+                    align-items: flex-end;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: 24px;
+                    position: relative;
+                    z-index: 10;
+                }
+                .profile-info-section {
+                    display: flex;
+                    align-items: flex-end;
+                    gap: 24px;
+                }
+                .profile-actions {
+                    padding-bottom: 16px;
+                    display: flex;
+                    gap: 12px;
+                }
+                .profile-nav {
+                    display: flex;
+                    gap: 32px;
+                    padding: 24px 24px 0;
+                    overflow-x: auto;
+                }
+                .profile-main-grid {
+                    margin-top: 24px;
+                    display: grid;
+                    grid-template-columns: minmax(0, 360px) minmax(0,1fr);
+                    gap: 24px;
+                    padding-bottom: 80px;
+                }
+                .profile-property-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                    gap: 32px;
+                }
+                
+                @media (max-width: 768px) {
+                    .profile-header-container {
+                        flex-direction: column;
+                        align-items: center;
+                        text-align: center;
+                        margin-top: -60px;
+                    }
+                    .profile-info-section {
+                        flex-direction: column;
+                        align-items: center;
+                        width: 100%;
+                    }
+                    .profile-info-details {
+                       display: flex;
+                       flex-direction: column;
+                       align-items: center;
+                    }
+                    .profile-actions {
+                        width: 100%;
+                        justify-content: center;
+                    }
+                    .profile-nav {
+                        justify-content: space-between;
+                        gap: 16px;
+                    }
+                    .profile-main-grid {
+                        grid-template-columns: 1fr;
+                    }
+                    .profile-property-grid {
+                        grid-template-columns: 1fr;
+                    }
+                    /* Ensure profile image is centered */
+                    .profile-image-wrapper {
+                        margin: 0 auto;
+                    }
+                }
+            `}} />
+
             {/* Profile Cover & Header */}
             <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0' }}>
                 <div className="layout-container">
@@ -133,17 +213,20 @@ export default async function ProfilePage({ params }: PageProps) {
                             </button>
                         </div>
                     </div>
-                    <div style={{ padding: '0 24px', marginTop: '-80px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '24px', position: 'relative', zIndex: 10 }}>
-                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '24px' }}>
-                            <ProfileImageUpload
-                                userId={user.id}
-                                currentImage={(user as any).profile_picture}
-                                userName={user.name}
-                                isOwner={isOwner}
-                            />
-                            <div style={{ paddingBottom: '16px' }}>
+
+                    <div className="profile-header-container">
+                        <div className="profile-info-section">
+                            <div className="profile-image-wrapper">
+                                <ProfileImageUpload
+                                    userId={user.id}
+                                    currentImage={(user as any).profile_picture}
+                                    userName={user.name}
+                                    isOwner={isOwner}
+                                />
+                            </div>
+                            <div className="profile-info-details" style={{ paddingBottom: '16px' }}>
                                 <h1 style={{ fontSize: '2.25rem', fontWeight: '800', marginBottom: '4px', color: 'var(--color-primary-light)' }}>{user.name}</h1>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
                                     <span style={{ fontSize: '1rem', color: '#64748b', fontWeight: '500' }}>@{user.username}</span>
                                     <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#cbd5e1' }}></span>
                                     <span style={{
@@ -161,7 +244,7 @@ export default async function ProfilePage({ params }: PageProps) {
                                 </div>
                             </div>
                         </div>
-                        <div style={{ paddingBottom: '16px', display: 'flex', gap: '12px' }}>
+                        <div className="profile-actions">
                             <button style={{ padding: '12px 24px', background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 14px 0 rgba(15, 23, 42, 0.39)' }}>
                                 Follow
                             </button>
@@ -172,16 +255,16 @@ export default async function ProfilePage({ params }: PageProps) {
                     </div>
 
                     {/* Inline Nav */}
-                    <div style={{ display: 'flex', gap: '32px', padding: '24px 24px 0' }}>
-                        <div style={{ paddingBottom: '16px', borderBottom: '3px solid var(--color-primary)', color: 'var(--color-primary)', fontWeight: '700', cursor: 'pointer' }}>Posts</div>
-                        <div style={{ paddingBottom: '16px', color: '#64748b', fontWeight: '600', cursor: 'pointer' }}>About</div>
-                        <div style={{ paddingBottom: '16px', color: '#64748b', fontWeight: '600', cursor: 'pointer' }}>Reviews</div>
-                        <div style={{ paddingBottom: '16px', color: '#64748b', fontWeight: '600', cursor: 'pointer' }}>Saved</div>
+                    <div className="profile-nav">
+                        <div style={{ paddingBottom: '16px', borderBottom: '3px solid var(--color-primary)', color: 'var(--color-primary)', fontWeight: '700', cursor: 'pointer', whiteSpace: 'nowrap' }}>Posts</div>
+                        <div style={{ paddingBottom: '16px', color: '#64748b', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>About</div>
+                        <div style={{ paddingBottom: '16px', color: '#64748b', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>Reviews</div>
+                        <div style={{ paddingBottom: '16px', color: '#64748b', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>Saved</div>
                     </div>
                 </div>
             </div>
 
-            <div className="layout-container" style={{ marginTop: '24px', display: 'grid', gridTemplateColumns: 'minmax(0, 360px) minmax(0,1fr)', gap: '24px', paddingBottom: '80px' }}>
+            <div className="layout-container profile-main-grid">
 
                 {/* Sidebar */}
                 <aside style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -194,7 +277,7 @@ export default async function ProfilePage({ params }: PageProps) {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{ fontSize: '1.2rem' }}>📧</div>
-                                <div style={{ fontSize: '0.95rem', color: 'var(--color-primary-light)', fontWeight: '500' }}>{user.username}@namsari.com</div>
+                                <div style={{ fontSize: '0.95rem', color: 'var(--color-primary-light)', fontWeight: '500', wordBreak: 'break-all' }}>{user.username}@namsari.com</div>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{ fontSize: '1.2rem' }}>📱</div>
@@ -206,7 +289,7 @@ export default async function ProfilePage({ params }: PageProps) {
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <div style={{ fontSize: '1.2rem' }}>🔗</div>
-                                <div style={{ fontSize: '0.95rem', color: 'var(--color-primary)', fontWeight: '600' }}>namsari.com/@{user.username}</div>
+                                <div style={{ fontSize: '0.95rem', color: 'var(--color-primary)', fontWeight: '600', wordBreak: 'break-all' }}>namsari.com/@{user.username}</div>
                             </div>
                         </div>
                     </div>
@@ -235,7 +318,7 @@ export default async function ProfilePage({ params }: PageProps) {
                             <p style={{ color: 'var(--color-text-muted)', maxWidth: '300px', margin: '0 auto' }}>This user hasn't posted any properties for sale or rent yet.</p>
                         </div>
                     ) : (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '32px' }}>
+                        <div className="profile-property-grid">
                             {enrichedProperties.map((p: any) => (
                                 <PropertyCard key={p.id} property={p} />
                             ))}
