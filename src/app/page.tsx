@@ -50,7 +50,7 @@ export default async function HomePage() {
         }
     }
 
-    const [featuredCollections, trendingSearches, featuredProperties] = await Promise.all([
+    const [featuredCollections, trendingSearches, featuredProperties, featuredAgencies] = await Promise.all([
         prisma.collection.findMany({
             where: { is_public: true },
             take: 6,
@@ -79,6 +79,16 @@ export default async function HomePage() {
                 features: true
             },
             orderBy: { created_on: 'desc' }
+        }),
+        prisma.user.findMany({
+            where: { account_type: 'agency' },
+            take: 10,
+            orderBy: { created_on: 'desc' },
+            include: {
+                _count: {
+                    select: { listedProperties: true }
+                }
+            }
         })
     ]);
 
@@ -88,5 +98,6 @@ export default async function HomePage() {
         featuredCollections={featuredCollections}
         trendingSearches={trendingSearches}
         featuredProperties={featuredProperties}
+        featuredAgencies={featuredAgencies}
     />;
 }

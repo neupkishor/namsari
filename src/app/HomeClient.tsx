@@ -12,7 +12,7 @@ import { FeaturedAgenciesFeed } from '@/components/FeaturedAgencies';
 import { FeaturedCollectionsFeedItem } from '@/components/FeaturedCollections';
 import { SiteHeader } from '@/components/SiteHeader';
 
-export default function Home({ user, settings, featuredCollections, trendingSearches, featuredProperties = [] }: { user: any, settings: any, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[] }) {
+export default function Home({ user, settings, featuredCollections, trendingSearches, featuredProperties = [], featuredAgencies = [] }: { user: any, settings: any, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[] }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -81,7 +81,7 @@ export default function Home({ user, settings, featuredCollections, trendingSear
       {isLoading ? (
         <FeedSkeleton />
       ) : (
-        <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} trendingSearches={trendingSearches} />
+        <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} trendingSearches={trendingSearches} featuredAgencies={featuredAgencies} />
       )}
     </main>
   );
@@ -126,7 +126,7 @@ function FeedSkeleton() {
   );
 }
 
-function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchingMore, hasMore, featuredCollections, trendingSearches }: { properties: any[], user: any, settings: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean, featuredCollections?: any[], trendingSearches?: string[] }) {
+function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchingMore, hasMore, featuredCollections, trendingSearches, featuredAgencies }: { properties: any[], user: any, settings: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean, featuredCollections?: any[], trendingSearches?: string[], featuredAgencies?: any[] }) {
   const sidebarItems = [
     { label: 'Profile', icon: '👤', href: user ? `/@${user.username}` : '/login' },
     { label: 'Houses', icon: '🏠', href: '/find/houses' },
@@ -259,7 +259,7 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
           ];
 
           if (index === 0) {
-            items.push(<FeaturedAgenciesFeed key="featured-agencies" />);
+            items.push(<FeaturedAgenciesFeed key="featured-agencies" agencies={featuredAgencies} />);
           }
 
           if (index === 2 && featuredCollections && featuredCollections.length > 0) {

@@ -28,19 +28,32 @@ export default function ProfileSidebar({ user, listingsCount }: { user: User, li
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <div style={{ fontSize: '1.2rem' }}>📧</div>
-                            <div style={{ fontSize: '0.95rem', color: 'var(--color-primary-light)', fontWeight: '500', wordBreak: 'break-all' }}>{user.username}@namsari.com</div>
+                            <a href={`mailto:${user.email || `${user.username}@namsari.com`}`} style={{ fontSize: '0.95rem', color: 'var(--color-primary-light)', fontWeight: '500', wordBreak: 'break-all', textDecoration: 'none', cursor: 'pointer' }}>
+                                {user.email || `${user.username}@namsari.com`}
+                            </a>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <div style={{ fontSize: '1.2rem' }}>📱</div>
-                            <div style={{ fontSize: '0.95rem', color: 'var(--color-primary-light)', fontWeight: '500' }}>{user.contact_number || '+977-XXXXXXXXXX'}</div>
+                            <a href={`tel:${user.contact_number || ''}`} style={{ fontSize: '0.95rem', color: 'var(--color-primary-light)', fontWeight: '500', textDecoration: 'none', cursor: 'pointer' }}>
+                                {user.contact_number || '+977-XXXXXXXXXX'}
+                            </a>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <div style={{ fontSize: '1.2rem' }}>📍</div>
                             <div style={{ fontSize: '0.95rem', color: 'var(--color-primary-light)', fontWeight: '500' }}>Kathmandu, Nepal</div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div
+                            style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+                            onClick={() => {
+                                navigator.clipboard.writeText(`https://namsari.com/@${user.username}`);
+                                alert('Profile link copied to clipboard!');
+                            }}
+                            title="Click to copy link"
+                        >
                             <div style={{ fontSize: '1.2rem' }}>🔗</div>
-                            <div style={{ fontSize: '0.95rem', color: 'var(--color-primary)', fontWeight: '600', wordBreak: 'break-all' }}>namsari.com/@{user.username}</div>
+                            <div style={{ fontSize: '0.95rem', color: 'var(--color-primary)', fontWeight: '600', wordBreak: 'break-all' }}>
+                                namsari.com/@{user.username}
+                            </div>
                         </div>
                     </div>
                 </div>

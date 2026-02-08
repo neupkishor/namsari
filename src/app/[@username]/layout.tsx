@@ -166,16 +166,7 @@ export default async function ProfileLayout({ children, params }: LayoutProps) {
                             </div>
                         </div>
                         <div className="profile-actions">
-                            {!isOwner && (
-                                <>
-                                    <button style={{ padding: '12px 24px', background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 14px 0 rgba(15, 23, 42, 0.39)' }}>
-                                        Follow
-                                    </button>
-                                    <button style={{ padding: '12px 24px', background: '#f1f5f9', color: 'var(--color-primary-light)', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer' }}>
-                                        Message
-                                    </button>
-                                </>
-                            )}
+
                             {isOwner && (
                                 <Link href={`/@${user.username}/edit`}>
                                     <button style={{ padding: '12px 24px', background: '#f1f5f9', color: 'var(--color-primary-light)', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer' }}>

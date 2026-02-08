@@ -65,10 +65,29 @@ export const FeaturedAgenciesClassic = () => {
 };
 
 // --- Social Feed View Component ---
-export const FeaturedAgenciesFeed = () => {
+export const FeaturedAgenciesFeed = ({ agencies: propAgencies }: { agencies?: any[] }) => {
     const scrollRef = React.useRef<HTMLDivElement>(null);
     const [isHovered, setIsHovered] = React.useState(false);
     const [isVisible, setIsVisible] = React.useState(true);
+
+    const displayAgencies = React.useMemo(() => {
+        let list = propAgencies && propAgencies.length > 0
+            ? propAgencies.map(a => ({
+                id: a.id,
+                name: a.name,
+                username: a.username,
+                logo: a.profile_picture || '',
+                properties: a._count?.listedProperties || 0,
+                verified: true
+            }))
+            : agencies;
+
+        // Shuffle list for random display
+        if (list) {
+            list = [...list].sort(() => Math.random() - 0.5);
+        }
+        return list;
+    }, [propAgencies]);
 
     React.useEffect(() => {
         // Handle page visibility
@@ -136,8 +155,8 @@ export const FeaturedAgenciesFeed = () => {
                 }}>
                 <style dangerouslySetInnerHTML={{ __html: `div::-webkit-scrollbar { display: none; }` }} />
 
-                {agencies.map((agency) => (
-                    <AgencyCard key={agency.id} agency={agency} variant="feed" />
+                {displayAgencies.map((agency) => (
+                    <AgencyCard key={agency.id} agency={agency as any} variant="feed" />
                 ))}
             </div>
         </div>
