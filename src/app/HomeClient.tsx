@@ -474,6 +474,8 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
   const [startX, setStartX] = React.useState(0);
   const [startY, setStartY] = React.useState(0);
   const [startScrollLeft, setStartScrollLeft] = React.useState(0);
+  const scrollTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const isAnimatingRef = React.useRef(false);
 
   // Double-tap to like
   const [lastTap, setLastTap] = React.useState(0);
@@ -500,8 +502,62 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
     setLastTap(now);
   };
 
+  // Custom smooth snap function with 400ms animation
+  const smoothSnapToNearest = () => {
+    if (!scrollRef.current || isAnimatingRef.current) return;
+
+    const container = scrollRef.current;
+    const width = container.offsetWidth;
+    const scrollLeft = container.scrollLeft;
+
+    // Calculate which image we should snap to
+    const targetIndex = Math.round(scrollLeft / width);
+    const targetScrollLeft = targetIndex * width;
+
+    // If already at target, no need to animate
+    if (Math.abs(scrollLeft - targetScrollLeft) < 1) return;
+
+    // Smooth animation to target position over 400ms
+    isAnimatingRef.current = true;
+    const startScrollLeft = scrollLeft;
+    const distance = targetScrollLeft - startScrollLeft;
+    const duration = 400; // 400ms for smooth snap
+    const startTime = performance.now();
+
+    const animateScroll = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Ease-out cubic for smooth deceleration (like Instagram)
+      const easeProgress = 1 - Math.pow(1 - progress, 3);
+
+      const newScrollLeft = startScrollLeft + (distance * easeProgress);
+      container.scrollLeft = newScrollLeft;
+
+      if (progress < 1) {
+        requestAnimationFrame(animateScroll);
+      } else {
+        isAnimatingRef.current = false;
+        // Update active index after animation completes
+        if (targetIndex !== activeIndex) {
+          setActiveIndex(targetIndex);
+        }
+      }
+    };
+
+    requestAnimationFrame(animateScroll);
+  };
+
   const startDrag = (e: React.MouseEvent | React.TouchEvent) => {
     if (!scrollRef.current) return;
+
+    // Cancel any ongoing snap animation
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+      scrollTimeoutRef.current = null;
+    }
+    isAnimatingRef.current = false;
+
     setIsDragging(true);
     const pageX = 'touches' in e ? e.touches[0].pageX : (e as React.MouseEvent).pageX;
     const pageY = 'touches' in e ? e.touches[0].pageY : (e as React.MouseEvent).pageY;
@@ -511,7 +567,7 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
   };
 
   const onDrag = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDragging || !scrollRef.current) return;
+    if (!isDragging || !scrollRef.current || isAnimatingRef.current) return;
 
     const pageX = 'touches' in e ? e.touches[0].pageX : (e as React.MouseEvent).pageX;
     const pageY = 'touches' in e ? e.touches[0].pageY : (e as React.MouseEvent).pageY;
@@ -534,6 +590,11 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
 
   const stopDrag = () => {
     setIsDragging(false);
+
+    // Trigger smooth snap after drag ends
+    if (scrollRef.current) {
+      smoothSnapToNearest();
+    }
   };
 
   return (
@@ -645,7 +706,6 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
           style={{
             display: 'flex',
             overflow: 'hidden', // Disable native scroll on both axes
-            scrollSnapType: 'x mandatory',
             msOverflowStyle: 'none',
             scrollbarWidth: 'none',
             cursor: isDragging ? 'grabbing' : 'grab'
@@ -653,7 +713,7 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
           <style dangerouslySetInnerHTML={{ __html: `div::-webkit-scrollbar { display: none; }` }} />
 
           {images.map((imgUrl: string, imgIndex: number) => (
-            <div key={imgIndex} style={{ minWidth: '100%', scrollSnapAlign: 'start', height: '400px', background: '#f8fafc', userSelect: 'none' }}>
+            <div key={imgIndex} style={{ minWidth: '100%', height: '400px', background: '#f8fafc', userSelect: 'none' }}>
               {/* Wrapped img with div to prevent default drag behavior of img */}
               <div
                 style={{ width: '100%', height: '100%', position: 'relative' }}
