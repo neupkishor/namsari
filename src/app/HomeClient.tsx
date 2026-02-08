@@ -313,7 +313,7 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
       </aside>
 
       {/* Main Social Feed */}
-      <div style={{ flex: 1, maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: 'var(--card-gap)', margin: '0 auto' }}>
+      <div style={{ flex: 1, maxWidth: '100%', display: 'flex', flexDirection: 'column', gap: 'var(--card-gap)', margin: '0 auto' }}>
         <QuickActionsCard user={user} />
 
         {properties.flatMap((p, index) => {
@@ -475,6 +475,28 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
   const [startY, setStartY] = React.useState(0);
   const [startScrollLeft, setStartScrollLeft] = React.useState(0);
 
+  // Double-tap to like
+  const [lastTap, setLastTap] = React.useState(0);
+  const [showHeartAnimation, setShowHeartAnimation] = React.useState(false);
+
+  const handleDoubleTap = () => {
+    if (!isLiked) {
+      handleLike();
+      setShowHeartAnimation(true);
+      setTimeout(() => setShowHeartAnimation(false), 1000);
+    }
+  };
+
+  const handleImageTap = () => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300;
+
+    if (now - lastTap < DOUBLE_TAP_DELAY) {
+      handleDoubleTap();
+    }
+    setLastTap(now);
+  };
+
   const startDrag = (e: React.MouseEvent | React.TouchEvent) => {
     if (!scrollRef.current) return;
     setIsDragging(true);
@@ -545,6 +567,45 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
 
       {/* Post Media Carousel Container */}
       <div style={{ position: 'relative', background: '#000' }}>
+        {/* Heart Animation Overlay */}
+        {showHeartAnimation && (
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 100,
+            pointerEvents: 'none',
+            animation: 'heartPop 1s ease-out'
+          }}>
+            <svg width="100" height="100" viewBox="0 0 24 24" fill="#ef4444" stroke="#fff" strokeWidth="1">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </div>
+        )}
+
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes heartPop {
+              0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+              }
+              15% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+              }
+              30% {
+                transform: translate(-50%, -50%) scale(1);
+              }
+              100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0;
+              }
+            }
+          `
+        }} />
+
         {images.length > 1 && (
           <>
             {activeIndex > 0 && (
@@ -592,91 +653,126 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
             <div key={imgIndex} style={{ minWidth: '100%', scrollSnapAlign: 'start', height: '400px', background: '#f8fafc', userSelect: 'none' }}>
               {/* Wrapped img with div to prevent default drag behavior of img */}
               <div
-                style={{ width: '100%', height: '100%' }}
+                style={{ width: '100%', height: '100%', position: 'relative' }}
                 onDragStart={(e) => e.preventDefault()} // Prevent native image drag
+                onClick={handleImageTap}
               >
-                <Link href={propertyUrl} style={{ display: 'block', width: '100%', height: '100%', pointerEvents: isDragging ? 'none' : 'auto' }}>
-                  <img src={imgUrl} style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: isDragging ? 'grabbing' : 'pointer' }} />
-                </Link>
+                <img
+                  src={imgUrl}
+                  alt={property.title}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    cursor: isDragging ? 'grabbing' : 'pointer'
+                  }}
+                />
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Post Feed Actions */}
-      <div style={{ padding: '8px 16px' }}>
+      {/* Post Feed Actions - Instagram Style */}
+      <div style={{ padding: '0 16px 8px' }}>
+        {/* Action Buttons Row */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: (showComments || comments.length > 0) ? '1px solid #f1f5f9' : 'none',
+          paddingTop: '8px',
           paddingBottom: '8px'
         }}>
-          {(() => {
-            const result: any[] = [];
+          {/* Left side: Social actions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {settings?.show_like_button !== false && (
+              <button onClick={handleLike} style={{
+                background: 'transparent',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill={isLiked ? "#ef4444" : "none"} stroke={isLiked ? "#ef4444" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </button>
+            )}
+            {settings?.show_comment_button !== false && (
+              <button onClick={() => setShowComments(!showComments)} style={{
+                background: 'transparent',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                </svg>
+              </button>
+            )}
+            {settings?.show_share_button !== false && (
+              <button onClick={handleShare} style={{
+                background: 'transparent',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                  <polyline points="16 6 12 2 8 6"></polyline>
+                  <line x1="12" y1="2" x2="12" y2="15"></line>
+                </svg>
+              </button>
+            )}
+          </div>
 
-            // Set 1: Social
-            if (settings?.show_like_button !== false || settings?.show_comment_button !== false) {
-              result.push(
-                <div key="set1" style={{ display: 'flex', gap: '4px' }}>
-                  {settings?.show_like_button !== false && (
-                    <ActionButton
-                      icon={<svg width="18" height="18" viewBox="0 0 24 24" fill={isLiked ? "#ef4444" : "none"} stroke={isLiked ? "#ef4444" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>}
-                      label="Like"
-                      count={likeCount}
-                      active={isLiked}
-                      onClick={handleLike}
-                    />
-                  )}
-                  {settings?.show_comment_button !== false && (
-                    <ActionButton
-                      icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>}
-                      label="Comment"
-                      count={comments.length}
-                      onClick={() => setShowComments(!showComments)}
-                    />
-                  )}
-                </div>
-              );
-            }
-
-            // Set 2: Real Estate Actions
-            if (settings?.show_contact_agent !== false || settings?.show_make_offer !== false) {
-              result.push(
-                <div key="set2" style={{ display: 'flex', gap: '4px' }}>
-                  {settings?.show_contact_agent !== false && (
-                    <ActionButton
-                      icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.81 12.81 0 0 0 .62 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.62A2 2 0 0 1 22 16.92z"></path></svg>}
-                      label="Contact"
-                    />
-                  )}
-                  {settings?.show_make_offer !== false && (
-                    <ActionButton
-                      icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"></path><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"></path><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path></svg>}
-                      label="Offer"
-                    />
-                  )}
-                </div>
-              );
-            }
-
-            // Set 3: Share
-            if (settings?.show_share_button !== false) {
-              result.push(
-                <div key="set3" style={{ display: 'flex', gap: '4px' }}>
-                  <ActionButton
-                    icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>}
-                    label="Share"
-                    onClick={handleShare}
-                  />
-                </div>
-              );
-            }
-
-            return result;
-          })()}
+          {/* Right side: Real estate actions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {settings?.show_contact_agent !== false && (
+              <button style={{
+                background: 'transparent',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.81 12.81 0 0 0 .62 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.62A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+              </button>
+            )}
+            {settings?.show_make_offer !== false && (
+              <button style={{
+                background: 'transparent',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
+                  <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"></path>
+                  <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"></path>
+                  <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path>
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Like count text */}
+        {settings?.show_like_button !== false && likeCount > 0 && (
+          <div style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-primary)', marginBottom: '8px' }}>
+            {likeCount} {likeCount === 1 ? 'like' : 'likes'}
+          </div>
+        )}
 
         {/* Comment Section */}
         {(showComments || comments.length > 0) && (
@@ -731,7 +827,9 @@ function ActionButton({ icon, label, count, active = false, onClick }: { icon: R
       fontSize: '0.825rem',
       fontWeight: '600',
       transition: 'all 0.2s',
-      whiteSpace: 'nowrap'
+      whiteSpace: 'nowrap',
+      flexShrink: 0,
+      minWidth: 'fit-content'
     }} onMouseOver={(e) => {
       e.currentTarget.style.background = '#f8fafc';
       e.currentTarget.style.borderColor = '#cbd5e1';

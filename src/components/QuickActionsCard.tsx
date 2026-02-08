@@ -47,32 +47,69 @@ export const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ user }) => {
                     </p>
                 </div>
 
-                {/* Quick Action Tiles */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
-                    <ActionTile
-                        title="Post Property"
-                        description="List Premium Asset"
-                        icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>}
-                        href="/sell"
-                        color="var(--color-gold)"
-                        bgColor="rgba(212, 175, 55, 0.08)"
-                    />
-                    <ActionTile
-                        title="Find Property"
-                        description="Explore Registry"
-                        icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>}
-                        href="/explore"
-                        color="var(--color-primary)"
-                        bgColor="rgba(15, 23, 42, 0.05)"
-                    />
-                    <ActionTile
-                        title="Post Requirement"
-                        description="Request Acquisition"
-                        icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>}
-                        href="/manage/collections"
-                        color="#10b981"
-                        bgColor="rgba(16, 185, 129, 0.08)"
-                    />
+                {/* Quick Action Tiles - Responsive */}
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                        .quick-actions-container {
+                            display: grid;
+                            grid-template-columns: repeat(3, 1fr);
+                            gap: 24px;
+                        }
+                        
+                        @media (max-width: 768px) {
+                            .quick-actions-container {
+                                display: flex;
+                                overflow-x: auto;
+                                gap: 16px;
+                                scroll-snap-type: x mandatory;
+                                -webkit-overflow-scrolling: touch;
+                                scrollbar-width: none;
+                                -ms-overflow-style: none;
+                                padding-bottom: 8px;
+                            }
+                            
+                            .quick-actions-container::-webkit-scrollbar {
+                                display: none;
+                            }
+                            
+                            .action-tile-wrapper {
+                                flex: 0 0 280px;
+                                scroll-snap-align: start;
+                            }
+                        }
+                    `
+                }} />
+                <div className="quick-actions-container">
+                    <div className="action-tile-wrapper">
+                        <ActionTile
+                            title="Post Property"
+                            description="List Premium Asset"
+                            icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>}
+                            href="/sell"
+                            color="var(--color-gold)"
+                            bgColor="rgba(212, 175, 55, 0.08)"
+                        />
+                    </div>
+                    <div className="action-tile-wrapper">
+                        <ActionTile
+                            title="Find Property"
+                            description="Explore Registry"
+                            icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>}
+                            href="/explore"
+                            color="var(--color-primary)"
+                            bgColor="rgba(15, 23, 42, 0.05)"
+                        />
+                    </div>
+                    <div className="action-tile-wrapper">
+                        <ActionTile
+                            title="Post Requirement"
+                            description="Request Acquisition"
+                            icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>}
+                            href="/manage/collections"
+                            color="#10b981"
+                            bgColor="rgba(16, 185, 129, 0.08)"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
@@ -89,7 +126,7 @@ interface ActionTileProps {
 }
 
 const ActionTile: React.FC<ActionTileProps> = ({ title, description, icon, href, color, bgColor }) => (
-    <Link href={href} style={{ textDecoration: 'none' }}>
+    <Link href={href} style={{ textDecoration: 'none', height: '100%', display: 'block' }}>
         <div style={{
             display: 'flex',
             flexDirection: 'column',
@@ -101,7 +138,9 @@ const ActionTile: React.FC<ActionTileProps> = ({ title, description, icon, href,
             border: '1px solid var(--color-border)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             cursor: 'pointer',
-            textAlign: 'center'
+            textAlign: 'center',
+            height: '100%',
+            minHeight: '160px'
         }}
             onMouseOver={(e) => {
                 e.currentTarget.style.borderColor = color === 'var(--color-primary)' ? 'var(--color-gold)' : color;

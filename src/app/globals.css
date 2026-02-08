@@ -45,6 +45,8 @@ body {
   font-family: var(--font-outfit), sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* Neup Group Standard Layout System */
@@ -250,10 +252,23 @@ h3 {
 @media (max-width: 768px) {
   .layout-container {
     padding: 0 16px;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   .main-body {
     padding: 24px 16px;
+  }
+
+  /* Prevent horizontal overflow on mobile */
+  main {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  .card {
+    max-width: 100%;
+    overflow-x: hidden;
   }
 }
 
@@ -327,11 +342,11 @@ h3 {
 }
 
 .prose h2 {
-  fontSize: 1.8rem;
+  font-size: 1.8rem;
 }
 
 .prose h3 {
-  fontSize: 1.4rem;
+  font-size: 1.4rem;
 }
 
 .prose p {
