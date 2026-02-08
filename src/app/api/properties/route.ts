@@ -95,6 +95,7 @@ export async function GET(request: Request) {
                 author_username: authorUser ? authorUser.username : null,
                 author_name: authorUser ? authorUser.name : 'Unknown',
                 author_avatar: (authorUser as any)?.profile_picture || ((authorUser as any)?.name || 'U')[0],
+                author_phone: (authorUser as any)?.contact_number || null,
                 timestamp
             };
         });
