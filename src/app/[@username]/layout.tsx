@@ -5,6 +5,7 @@ import ProfileImageUpload from './ProfileImageUpload';
 import { SiteHeader } from '@/components/SiteHeader';
 import ProfileTabs from './ProfileTabs';
 import ProfileSidebar from './ProfileSidebar';
+import Link from 'next/link';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -176,9 +177,11 @@ export default async function ProfileLayout({ children, params }: LayoutProps) {
                                 </>
                             )}
                             {isOwner && (
-                                <button style={{ padding: '12px 24px', background: '#f1f5f9', color: 'var(--color-primary-light)', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer' }}>
-                                    Edit Profile
-                                </button>
+                                <Link href={`/@${user.username}/edit`}>
+                                    <button style={{ padding: '12px 24px', background: '#f1f5f9', color: 'var(--color-primary-light)', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer' }}>
+                                        Edit Profile
+                                    </button>
+                                </Link>
                             )}
                         </div>
                     </div>

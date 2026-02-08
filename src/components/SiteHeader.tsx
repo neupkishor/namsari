@@ -87,7 +87,7 @@ export function SiteHeader({ user, fullWidth }: { user?: any, fullWidth?: boolea
                         </>
                     ) : (
                         <Link
-                            href="/profile"
+                            href={`/@${user.username}`}
                             className="header-link"
                             style={{
                                 padding: '8px 16px', borderRadius: 'var(--radius-inner)'
@@ -123,7 +123,7 @@ export function SiteHeader({ user, fullWidth }: { user?: any, fullWidth?: boolea
                         </svg>
                     </Link>
                     <Link
-                        href="/profile"
+                        href={`/@${user?.username}`}
                         style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
                     >
                         {user?.profile_picture ? (
