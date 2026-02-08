@@ -22,7 +22,8 @@ export function SiteHeader({ user, fullWidth }: { user?: any, fullWidth?: boolea
                     Namsari<span style={{ color: 'var(--color-gold)', marginLeft: '1px' }}>.</span>
                 </Link>
 
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'center', maxWidth: '600px', margin: '0 24px' }}>
+                {/* Desktop Search Bar */}
+                <div className="desktop-search" style={{ flex: 1, display: 'flex', justifyContent: 'center', maxWidth: '600px', margin: '0 24px' }}>
                     <div style={{ position: 'relative', width: '100%', maxWidth: '480px' }}>
                         <input
                             type="text"
@@ -63,8 +64,8 @@ export function SiteHeader({ user, fullWidth }: { user?: any, fullWidth?: boolea
                     </div>
                 </div>
 
-                <nav style={{ display: 'flex', gap: '8px', fontWeight: '500', fontSize: '0.9rem', alignItems: 'center' }}>
-
+                {/* Desktop Navigation */}
+                <nav className="desktop-nav" style={{ display: 'flex', gap: '8px', fontWeight: '500', fontSize: '0.9rem', alignItems: 'center' }}>
                     {!user ? (
                         <>
                             <Link
@@ -102,7 +103,53 @@ export function SiteHeader({ user, fullWidth }: { user?: any, fullWidth?: boolea
                         </Link>
                     )}
                 </nav>
+
+                {/* Mobile Navigation */}
+                <nav className="mobile-nav" style={{ display: 'none', gap: '16px', alignItems: 'center' }}>
+                    <Link href="/explore" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+                        <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            style={{ color: 'var(--color-primary)' }}
+                        >
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </Link>
+                    <Link
+                        href="/profile"
+                        style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                    >
+                        {user?.profile_picture ? (
+                            <img src={user.profile_picture} alt={user.name} style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }} />
+                        ) : (
+                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.85rem', fontWeight: '600' }}>
+                                {user?.name?.[0] || 'U'}
+                            </div>
+                        )}
+                    </Link>
+                </nav>
             </div>
+
+            <style jsx>{`
+                @media (max-width: 768px) {
+                    .desktop-search {
+                        display: none !important;
+                    }
+                    .desktop-nav {
+                        display: none !important;
+                    }
+                    .mobile-nav {
+                        display: flex !important;
+                    }
+                }
+            `}</style>
         </header>
     );
 }
