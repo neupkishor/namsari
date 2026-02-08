@@ -183,7 +183,7 @@ export default async function ProfileLayout({ children, params }: LayoutProps) {
                         </div>
                     </div>
 
-                    <ProfileTabs username={user.username} isOwner={isOwner} />
+                    <ProfileTabs username={user.username} isOwner={isOwner} accountType={user.account_type} />
                 </div>
             </div>
 

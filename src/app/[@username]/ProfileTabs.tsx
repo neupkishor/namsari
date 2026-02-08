@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export default function ProfileTabs({ username, isOwner }: { username: string, isOwner: boolean }) {
+export default function ProfileTabs({ username, isOwner, accountType }: { username: string, isOwner: boolean, accountType: string | null }) {
     const pathname = usePathname();
     const baseUrl = `/@${username}`;
 
@@ -19,6 +19,10 @@ export default function ProfileTabs({ username, isOwner }: { username: string, i
         { label: 'About', href: `${baseUrl}/about` },
         { label: 'Reviews', href: `${baseUrl}/reviews` },
     ];
+
+    if (accountType === 'agency') {
+        tabs.push({ label: 'Agents', href: `${baseUrl}/agents` });
+    }
 
     if (isOwner) {
         tabs.push({ label: 'Saved', href: `${baseUrl}/saved` });
