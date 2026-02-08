@@ -8,7 +8,7 @@ export function SiteHeader({ user, fullWidth }: { user?: any, fullWidth?: boolea
     const pathname = usePathname();
 
     return (
-        <header className="full-width-header" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
+        <header className="full-width-header" style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', background: '#ffffff', borderBottom: '1px solid #e2e8f0', zIndex: 1000 }}>
             <div className={fullWidth ? "" : "layout-container"} style={{
                 height: 'var(--header-height)',
                 display: 'flex',
@@ -21,7 +21,7 @@ export function SiteHeader({ user, fullWidth }: { user?: any, fullWidth?: boolea
                 <Link href="/" style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary)', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
                     Namsari<span style={{ color: 'var(--color-gold)', marginLeft: '1px' }}>.</span>
                 </Link>
-                
+
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'center', maxWidth: '600px', margin: '0 24px' }}>
                     <div style={{ position: 'relative', width: '100%', maxWidth: '480px' }}>
                         <input

@@ -75,7 +75,7 @@ export default function Home({ user, settings, featuredCollections, trendingSear
   }, []);
 
   return (
-    <main style={{ backgroundColor: viewType === 'social' ? '#f0f2f5' : '#ffffff', minHeight: '100vh' }}>
+    <main style={{ backgroundColor: viewType === 'social' ? '#f0f2f5' : '#ffffff', minHeight: '100vh', paddingTop: 'var(--header-height)' }}>
       {/* Shared Responsive Logic for Feed Sidebar */}
       <style dangerouslySetInnerHTML={{
         __html: `
