@@ -13,6 +13,14 @@ const DefaultIcon = L.icon({
     iconAnchor: [12, 41],
 });
 
+// Red marker for hovered/selected properties
+const RedIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+});
+
 const UserLocationIcon = L.divIcon({
     html: `<div style="background-color: #3b82f6; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.3);"></div>`,
     className: '',
@@ -40,6 +48,7 @@ interface MapProps {
     onMarkerClick?: (id: number) => void;
     selectedId?: number | null;
     disablePopups?: boolean;
+    onBoundsChange?: (bounds: { north: number; south: number; east: number; west: number }) => void;
 }
 
 // Helper to auto-center map when properties change and invalidate size to fix rendering bugs
@@ -57,6 +66,42 @@ function MapResizer({ center, zoom }: { center: [number, number]; zoom: number }
     return null;
 }
 
+// Track map bounds changes for area-based filtering
+function BoundsTracker({ onBoundsChange }: { onBoundsChange?: (bounds: { north: number; south: number; east: number; west: number }) => void }) {
+    const map = useMap();
+
+    useEffect(() => {
+        if (!map || !onBoundsChange) return;
+
+        let timeoutId: NodeJS.Timeout;
+
+        const handleMoveEnd = () => {
+            // Debounce to avoid too many API calls
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                const bounds = map.getBounds();
+                onBoundsChange({
+                    north: bounds.getNorth(),
+                    south: bounds.getSouth(),
+                    east: bounds.getEast(),
+                    west: bounds.getWest()
+                });
+            }, 1000); // Wait 1 second after user stops moving
+        };
+
+        map.on('moveend', handleMoveEnd);
+        map.on('zoomend', handleMoveEnd);
+
+        return () => {
+            clearTimeout(timeoutId);
+            map.off('moveend', handleMoveEnd);
+            map.off('zoomend', handleMoveEnd);
+        };
+    }, [map, onBoundsChange]);
+
+    return null;
+}
+
 export default function MapComponent({
     properties,
     center = [27.7172, 85.324],
@@ -64,7 +109,8 @@ export default function MapComponent({
     zoom = 13,
     onMarkerClick,
     selectedId,
-    disablePopups = false
+    disablePopups = false,
+    onBoundsChange
 }: MapProps) {
     return (
         <MapContainer
@@ -79,6 +125,7 @@ export default function MapComponent({
             />
 
             <MapResizer center={center} zoom={zoom} />
+            <BoundsTracker onBoundsChange={onBoundsChange} />
 
             {/* User Current Location Circle */}
             {userLocation && (
@@ -110,6 +157,7 @@ export default function MapComponent({
                     <Marker
                         key={p.id}
                         position={[lat, lng]}
+                        icon={isSelected ? RedIcon : DefaultIcon}
                         eventHandlers={{
                             click: () => onMarkerClick?.(p.id)
                         }}

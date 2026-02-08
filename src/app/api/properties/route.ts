@@ -8,8 +8,29 @@ export async function GET(request: Request) {
     const skip = parseInt(searchParams.get('skip') || '0');
     const take = parseInt(searchParams.get('take') || '10');
 
+    const north = searchParams.get('north');
+    const south = searchParams.get('south');
+    const east = searchParams.get('east');
+    const west = searchParams.get('west');
+
+    const where: any = {};
+
+    if (north && south && east && west) {
+        where.location = {
+            latitude: {
+                gte: parseFloat(south),
+                lte: parseFloat(north)
+            },
+            longitude: {
+                gte: parseFloat(west),
+                lte: parseFloat(east)
+            }
+        };
+    }
+
     try {
         const dbProperties = await prisma.property.findMany({
+            where,
             include: {
                 listedBy: true,
                 location: true,

@@ -7,28 +7,20 @@ import { toggleLike, addComment } from './actions/social';
 import { Input } from '@/components/ui';
 import { useRouter } from 'next/navigation';
 import { QuickActionsCard } from '@/components/QuickActionsCard';
-import { PopularCategories, FeaturedProjects } from '@/components/HomeSections';
 import { TrendingSearches } from '@/components/TrendingSearches';
-import { PostPropertyBanner } from '@/components/PostPropertyBanner';
-import { FeaturedAgenciesClassic, FeaturedAgenciesFeed } from '@/components/FeaturedAgencies';
-import { FeaturedCollectionsSection, FeaturedCollectionsFeedItem } from '@/components/FeaturedCollections';
+import { FeaturedAgenciesFeed } from '@/components/FeaturedAgencies';
+import { FeaturedCollectionsFeedItem } from '@/components/FeaturedCollections';
 import { SiteHeader } from '@/components/SiteHeader';
-import { PropertyCard } from '@/components/PropertyCard';
 
 export default function Home({ user, settings, featuredCollections, trendingSearches, featuredProperties = [] }: { user: any, settings: any, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[] }) {
   const router = useRouter();
-  const viewType = settings?.view_mode || 'classic';
   const [isLoading, setIsLoading] = useState(true);
 
-  // Toggle footer visibility based on view type
+  // Social view style: footer hidden
   useEffect(() => {
-    if (viewType === 'social') {
-      document.body.classList.add('footer-hidden');
-    } else {
-      document.body.classList.remove('footer-hidden');
-    }
+    document.body.classList.add('footer-hidden');
     return () => document.body.classList.remove('footer-hidden');
-  }, [viewType]);
+  }, []);
 
   const [properties, setProperties] = useState<any[]>([]);
   const [page, setPage] = useState(0);
@@ -75,7 +67,7 @@ export default function Home({ user, settings, featuredCollections, trendingSear
   }, []);
 
   return (
-    <main style={{ backgroundColor: viewType === 'social' ? '#f0f2f5' : '#ffffff', minHeight: '100vh', paddingTop: 'var(--header-height)' }}>
+    <main style={{ backgroundColor: '#f0f2f5', minHeight: '100vh', paddingTop: 'var(--header-height)' }}>
       {/* Shared Responsive Logic for Feed Sidebar */}
       <style dangerouslySetInnerHTML={{
         __html: `
@@ -87,36 +79,11 @@ export default function Home({ user, settings, featuredCollections, trendingSear
       <SiteHeader user={user} />
 
       {isLoading ? (
-        viewType === 'classic' ? <ClassicSkeleton /> : <FeedSkeleton />
+        <FeedSkeleton />
       ) : (
-        viewType === 'classic' ? <ClassicView properties={properties} featuredCollections={featuredCollections} trendingSearches={trendingSearches} user={user} featuredProperties={featuredProperties} /> : <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} trendingSearches={trendingSearches} />
+        <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} trendingSearches={trendingSearches} />
       )}
     </main>
-  );
-}
-
-// ... skeletons ...
-
-function ClassicSkeleton() {
-  return (
-    <div className="layout-container" style={{ paddingTop: '80px' }}>
-      <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-        <div className="skeleton" style={{ height: '4rem', width: '60%', margin: '0 auto 20px' }}></div>
-        <div className="skeleton" style={{ height: '1.5rem', width: '40%', margin: '0 auto' }}></div>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '32px' }}>
-        {[1, 2, 3].map(i => (
-          <div key={i} className="card skeleton-card" style={{ padding: '0', height: '400px' }}>
-            <div className="skeleton" style={{ height: '240px', width: '100%' }}></div>
-            <div style={{ padding: '24px' }}>
-              <div className="skeleton" style={{ height: '1.5rem', width: '70%', marginBottom: '12px' }}></div>
-              <div className="skeleton" style={{ height: '1.25rem', width: '40%', marginBottom: '12px' }}></div>
-              <div className="skeleton" style={{ height: '1rem', width: '90%' }}></div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -159,49 +126,6 @@ function FeedSkeleton() {
   );
 }
 
-
-function ClassicView({ properties, featuredCollections, trendingSearches, user, featuredProperties = [] }: { properties: any[], featuredCollections?: any[], trendingSearches?: string[], user?: any, featuredProperties?: any[] }) {
-  if (!properties || properties.length === 0) {
-    return (
-      <div className="layout-container" style={{ padding: '100px 0', textAlign: 'center' }}>
-        <h3>No listings found.</h3>
-        <Link href="/sell" style={{ color: 'var(--color-primary)' }}>Create the first one!</Link>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <section style={{ padding: '80px 0', background: 'white', textAlign: 'center' }}>
-        <div className="layout-container">
-          <h1 style={{ fontSize: '3.5rem', marginBottom: '20px', fontWeight: '700' }}>Institutional Real Estate.</h1>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '1.25rem', marginBottom: '48px' }}>The premier marketplace for premium residential and commercial assets.</p>
-
-          <QuickActionsCard user={user} />
-        </div>
-      </section>
-
-      <div className="layout-container" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--card-gap)' }}>
-        <PopularCategories />
-        {featuredCollections && featuredCollections.length > 0 && <FeaturedCollectionsSection collections={featuredCollections} />}
-        <FeaturedProjects properties={featuredProperties} />
-        <PostPropertyBanner />
-        <TrendingSearches searches={trendingSearches || []} />
-        <FeaturedAgenciesClassic />
-      </div>
-
-      <div className="layout-container" style={{ paddingBottom: '100px', marginTop: 'var(--card-gap)' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary)', marginBottom: '24px' }}>Latest Listings</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '32px' }}>
-          {properties.map(p => (
-            <PropertyCard key={p.id} property={p} />
-          ))}
-        </div>
-      </div>
-    </>
-  );
-}
-
 function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchingMore, hasMore, featuredCollections, trendingSearches }: { properties: any[], user: any, settings: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean, featuredCollections?: any[], trendingSearches?: string[] }) {
   const sidebarItems = [
     { label: 'Profile', icon: '👤', href: user ? `/@${user.username}` : '/login' },
@@ -225,6 +149,8 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
     { label: 'Help Center', icon: '❓', href: '/support' },
     { label: 'Settings', icon: '⚙️', href: '/manage/settings' },
   ];
+
+  const [activeCommentPostId, setActiveCommentPostId] = React.useState<number | null>(null);
 
   if (!properties || properties.length === 0) {
     return (
@@ -326,6 +252,8 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
               settings={settings}
               onRefresh={onRefresh}
               onVisible={isTrigger ? onLoadMore : undefined}
+              isCommentsOpen={activeCommentPostId === p.id}
+              onToggleComments={() => setActiveCommentPostId(activeCommentPostId === p.id ? null : p.id)}
             />
           ];
 
@@ -361,7 +289,7 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
   );
 }
 
-function PropertyPost({ property, user, settings, onRefresh, onVisible }: { property: any, user: any, settings: any, onRefresh: () => void, onVisible?: () => void }) {
+function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommentsOpen, onToggleComments }: { property: any, user: any, settings: any, onRefresh: () => void, onVisible?: () => void, isCommentsOpen?: boolean, onToggleComments?: () => void }) {
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -380,7 +308,7 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
 
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = React.useState(0);
-  const [showComments, setShowComments] = React.useState(false);
+  // const [showComments, setShowComments] = React.useState(false); // Removed local state
   const [commentDraft, setCommentDraft] = React.useState('');
   const [isLiking, setIsLiking] = React.useState(false);
   const [localLikeState, setLocalLikeState] = React.useState<{ isLiked: boolean, count: number } | null>(null);
@@ -767,7 +695,7 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
               </button>
             )}
             {settings?.show_comment_button !== false && (
-              <button onClick={() => setShowComments(!showComments)} style={{
+              <button onClick={() => onToggleComments && onToggleComments()} style={{
                 background: 'transparent',
                 border: 'none',
                 padding: 0,
@@ -842,7 +770,7 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible }: { prop
         )}
 
         {/* Comment Section */}
-        {(showComments || comments.length > 0) && (
+        {isCommentsOpen && (
           <div style={{ marginTop: '12px' }}>
             {comments.map((c: any) => (
               <div key={c.id} style={{ display: 'flex', gap: '8px', marginBottom: '12px', fontSize: '0.85rem' }}>

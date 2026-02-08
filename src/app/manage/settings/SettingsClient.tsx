@@ -29,42 +29,7 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
                 <p style={{ color: 'var(--color-text-muted)' }}>Configure platform-wide behavior and appearance. Changes affect all users.</p>
             </div>
 
-            <div className="card" style={{ padding: '32px' }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '24px' }}>Interface View Mode</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                    <div
-                        onClick={() => handleToggle('view_mode', 'classic')}
-                        style={{
-                            padding: '24px',
-                            borderRadius: '16px',
-                            border: settings.view_mode === 'classic' ? '2px solid var(--color-primary)' : '1px solid #e2e8f0',
-                            background: settings.view_mode === 'classic' ? '#f0f7ff' : 'white',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        <div style={{ fontSize: '2rem', marginBottom: '12px' }}>📊</div>
-                        <div style={{ fontWeight: '700', marginBottom: '4px' }}>Classic View</div>
-                        <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Standard real estate portal layout with grids and lists.</div>
-                    </div>
-
-                    <div
-                        onClick={() => handleToggle('view_mode', 'social')}
-                        style={{
-                            padding: '24px',
-                            borderRadius: '16px',
-                            border: settings.view_mode === 'social' ? '2px solid var(--color-primary)' : '1px solid #e2e8f0',
-                            background: settings.view_mode === 'social' ? '#f0f7ff' : 'white',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        <div style={{ fontSize: '2rem', marginBottom: '12px' }}>📱</div>
-                        <div style={{ fontWeight: '700', marginBottom: '4px' }}>Social Media View</div>
-                        <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Modern feed-style layout optimized for engagement and media.</div>
-                    </div>
-                </div>
-            </div>
+            {/* Interface View Mode removed */}
 
             <div className="card" style={{ padding: '32px' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '24px' }}>Social Feed Settings</h3>
