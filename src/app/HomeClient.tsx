@@ -131,7 +131,7 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
     { label: 'Profile', icon: '👤', href: user ? `/@${user.username}` : '/login' },
     { label: 'Houses', icon: '🏠', href: '/find/houses' },
     { label: 'Commercial Buildings', icon: '🏢', href: '/find/commercial-buildings' },
-    { label: 'Favourites', icon: '❤️', href: '/profile/favourites' },
+    { label: 'Favourites', icon: '❤️', href: user ? `/@${user.username}/saved` : '/login' },
     { label: 'Market Trends', icon: '📈', href: '/market' },
     { label: 'Blogs/Guide', icon: '📰', href: '/blog' },
     { label: 'Utilities', icon: '🛠️', href: '/utility' },
