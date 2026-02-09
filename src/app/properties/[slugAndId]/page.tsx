@@ -4,6 +4,7 @@ import PropertyMap from './PropertyMap';
 import { SiteHeader } from '@/components/SiteHeader';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
+import { PropertyCard } from '@/components/PropertyCard';
 
 export default async function PropertyDetailPage({ params }: { params: Promise<{ slugAndId: string }> }) {
     const resolvedParams = await params;
@@ -38,30 +39,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         }
     });
 
-    let settings = null;
-    if ((prisma as any).systemSettings) {
-        try {
-            settings = await (prisma as any).systemSettings.findFirst();
-        } catch (e) {
-            console.error("Property detail settings fetch failed:", e);
-        }
-    }
-
-    if (!settings) {
-        settings = {
-            view_mode: 'classic',
-            show_like_button: true,
-            show_share_button: true,
-            show_comment_button: true
-        };
-    }
-
     if (!property) return notFound();
-
-    // Fetch agent's total listing count
-    const agentListingCount = await prisma.property.count({
-        where: { listedById: property.listedById }
-    });
 
     // Increment view count asynchronously
     await (prisma as any).property.update({
@@ -75,283 +53,412 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         ? `${property.location.area}, ${property.location.district}`
         : 'Unspecified';
     const priceValue = property.pricing?.price || 0;
+    const formattedPrice = new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(priceValue).replace('NPR', 'Rs.');
 
-    const specs = property.features
-        ? `${property.features.bedrooms || 0}BHK • ${property.features.bathrooms || 0} Bath • ${property.features.builtUpArea || 0} ${property.features.builtUpAreaUnit || ''}`
-        : 'Details unspecified';
-
-    const mainCategory = property.types && property.types.length > 0
-        ? property.types[0].name.charAt(0).toUpperCase() + property.types[0].name.slice(1)
-        : 'Property';
+    // Fetch recommended properties
+    const recommendedProperties = await prisma.property.findMany({
+        where: {
+            id: { not: id },
+            types: { some: { id: { in: property.types.map(t => t.id) } } }
+        },
+        take: 3,
+        orderBy: { created_on: 'desc' },
+        include: {
+            images: true,
+            location: true,
+            pricing: true,
+            features: true
+        }
+    });
 
     return (
-        <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', paddingBottom: '100px' }}>
+        <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', paddingBottom: '100px', paddingTop: 'var(--header-height, 72px)' }}>
             <SiteHeader user={currentUser} />
 
-            {/* Property Header Section */}
-            <div style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', padding: '40px 0' }}>
-                <div className="layout-container">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
-                        <div>
-                            <h1 style={{ fontSize: '2.5rem', fontWeight: '700', color: 'var(--color-primary)', marginBottom: '8px', letterSpacing: '-0.02em' }}>{property.title}</h1>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', color: '#64748b', fontSize: '0.95rem' }}>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>📍 {locationStr}</span>
-                                <span style={{ padding: '4px 12px', background: '#f1f5f9', borderRadius: '4px', fontWeight: '600', fontSize: '0.8rem' }}>#{property.propertyId || property.id}</span>
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                .property-page-container {
+                    max-width: 1280px;
+                    margin: 0 auto;
+                    padding: 24px;
+                }
+                
+                /* Gallery Grid */
+                .gallery-grid {
+                    display: grid;
+                    grid-template-columns: 2fr 1fr;
+                    gap: 12px;
+                    height: 500px;
+                    border-radius: 16px;
+                    overflow: hidden;
+                    margin-bottom: 40px;
+                }
+                .gallery-main {
+                    height: 100%;
+                    position: relative;
+                }
+                .gallery-side {
+                    display: grid;
+                    grid-template-rows: 1fr 1fr;
+                    gap: 12px;
+                    height: 100%;
+                }
+                .gallery-item {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    cursor: pointer;
+                    transition: transform 0.3s ease;
+                }
+                .gallery-item:hover {
+                    transform: scale(1.02);
+                }
+                
+                /* Layout Split */
+                .content-split {
+                    display: grid;
+                    grid-template-columns: 2fr 1fr;
+                    gap: 64px;
+                    align-items: start;
+                }
+                
+                /* Typography */
+                .prop-title {
+                    font-size: 2.25rem;
+                    font-weight: 700;
+                    color: #1a1a1a;
+                    margin-bottom: 8px;
+                    line-height: 1.2;
+                }
+                .prop-location {
+                    font-size: 1.1rem;
+                    color: #4b5563;
+                    margin-bottom: 24px;
+                    font-weight: 500;
+                }
+                .section-title {
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    color: #1a1a1a;
+                    margin-bottom: 20px;
+                }
+                
+                /* Features Divider */
+                .feature-row {
+                    display: flex;
+                    gap: 24px;
+                    padding: 24px 0;
+                    border-top: 1px solid #e5e7eb;
+                    border-bottom: 1px solid #e5e7eb;
+                    margin: 32px 0;
+                }
+                .feature-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 1rem;
+                    color: #374151;
+                }
+
+                /* Agent Card */
+                .agent-card {
+                    position: sticky;
+                    top: 100px;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 16px;
+                    padding: 24px;
+                    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+                    background: white;
+                }
+                .price-display {
+                    font-size: 1.75rem;
+                    font-weight: 800;
+                    color: #1a1a1a;
+                    margin-bottom: 24px;
+                }
+                .action-btn {
+                    width: 100%;
+                    padding: 14px;
+                    border-radius: 8px;
+                    font-weight: 700;
+                    font-size: 1rem;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    text-align: center;
+                }
+                .btn-primary {
+                    background-color: var(--color-primary);
+                    color: white;
+                    border: none;
+                    margin-bottom: 12px;
+                }
+                .btn-primary:hover {
+                    background-color: var(--color-primary-light);
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(130, 0, 0, 0.2);
+                }
+                .btn-outline {
+                    background-color: white;
+                    color: #1a1a1a;
+                    border: 1px solid #d1d5db;
+                }
+                .btn-outline:hover {
+                    border-color: #1a1a1a;
+                    background-color: #f9fafb;
+                }
+
+                /* Amenities Grid */
+                .amenities-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                    gap: 16px;
+                    margin-bottom: 40px;
+                }
+
+                /* Responsive */
+                @media (max-width: 1024px) {
+                    .content-split {
+                        grid-template-columns: 1fr;
+                        gap: 40px;
+                    }
+                    .gallery-grid {
+                        height: 400px;
+                    }
+                    .agent-card {
+                        position: static;
+                        margin-top: 40px;
+                    }
+                }
+                @media (max-width: 640px) {
+                    .gallery-grid {
+                        display: flex;
+                        overflow-x: auto;
+                        height: 300px;
+                        scroll-snap-type: x mandatory;
+                        border-radius: 0;
+                        margin: -24px -24px 24px -24px;
+                        gap: 0;
+                    }
+                    .gallery-main, .gallery-side {
+                        min-width: 100%;
+                        scroll-snap-align: center;
+                    }
+                    .gallery-side {
+                        display: none;
+                    }
+                    .gallery-item {
+                        border-radius: 0;
+                    }
+                    .prop-title {
+                        font-size: 1.75rem;
+                    }
+                    .property-page-container {
+                        padding: 24px 16px;
+                    }
+                }
+            `}} />
+
+            <div className="property-page-container">
+                {/* Header Info (Mobile Only - usually good to have title first on mobile, but preserving consistent DOM) */}
+
+                {/* Image Gallery */}
+                {/* Image Gallery */}
+                <div className="gallery-grid" style={{
+                    gridTemplateColumns: images.length <= 1 ? '1fr' : images.length === 2 ? '1fr 1fr' : '2fr 1fr'
+                }}>
+                    <div className="gallery-main">
+                        {images.length > 0 ? (
+                            <Link href={`/properties/${slugAndId}/gallery`} style={{ display: 'block', height: '100%', width: '100%' }}>
+                                <img src={images[0]} className="gallery-item" alt="Main View" />
+                            </Link>
+                        ) : (
+                            <div style={{ width: '100%', height: '100%', background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>No Image</div>
+                        )}
+                    </div>
+
+                    {images.length > 1 && (
+                        <div className="gallery-side" style={{
+                            gridTemplateRows: images.length === 2 ? '1fr' : '1fr 1fr'
+                        }}>
+                            <div style={{ position: 'relative', overflow: 'hidden', height: '100%' }}>
+                                <Link href={`/properties/${slugAndId}/gallery`} style={{ display: 'block', height: '100%', width: '100%' }}>
+                                    <img src={images[1]} className="gallery-item" alt="View 2" />
+                                </Link>
+                            </div>
+                            {images.length > 2 && (
+                                <div style={{ position: 'relative', overflow: 'hidden', height: '100%' }}>
+                                    <Link href={`/properties/${slugAndId}/gallery`} style={{ display: 'block', height: '100%', width: '100%', position: 'relative' }}>
+                                        <img src={images[2]} className="gallery-item" alt="View 3" />
+                                        {images.length > 3 && (
+                                            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '700', fontSize: '1.25rem' }}>
+                                                +{images.length - 3} more
+                                            </div>
+                                        )}
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                <div className="content-split">
+                    {/* Main Details */}
+                    <div>
+                        <div style={{ marginBottom: '32px' }}>
+                            <h1 className="prop-title">{property.title}</h1>
+                            <div className="prop-location">📍 {locationStr}</div>
+
+                            <div className="feature-row">
+                                <div className="feature-item">
+                                    <span>🛏️</span>
+                                    <strong>{property.features?.bedrooms || '-'}</strong>
+                                    <span>Bedrooms</span>
+                                </div>
+                                <div className="feature-item">
+                                    <span>🚿</span>
+                                    <strong>{property.features?.bathrooms || '-'}</strong>
+                                    <span>Bathrooms</span>
+                                </div>
+                                <div className="feature-item">
+                                    <span>📐</span>
+                                    <strong>{property.features?.builtUpArea || '-'}</strong>
+                                    <span>{property.features?.builtUpAreaUnit || 'sqft'}</span>
+                                </div>
+                                <div className="feature-item">
+                                    <span>🏗️</span>
+                                    <strong>{new Date(property.created_on).getFullYear()}</strong>
+                                    <span>Year</span>
+                                </div>
                             </div>
                         </div>
-                        <div style={{ textAlign: 'right', fontSize: '0.85rem', color: '#94a3b8' }}>
-                            <div>Posted on: {new Date(property.created_on).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-                            <div>{property.views} views</div>
+
+                        <div style={{ marginBottom: '40px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+                                <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#f3f4f6', overflow: 'hidden' }}>
+                                    {property.listedBy?.profile_picture ? (
+                                        <img src={property.listedBy.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={property.listedBy.name} />
+                                    ) : (
+                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>👤</div>
+                                    )}
+                                </div>
+                                <div>
+                                    <div style={{ fontWeight: '700', fontSize: '1.1rem', color: '#1a1a1a' }}>Hosted by {property.listedBy?.name || 'Agent'}</div>
+                                    <div style={{ color: '#6b7280', fontSize: '0.9rem' }}>{property.listedBy?.account_type ? property.listedBy.account_type.charAt(0).toUpperCase() + property.listedBy.account_type.slice(1) : 'Host'} • Joined {new Date(property.listedBy?.created_on || Date.now()).getFullYear()}</div>
+                                </div>
+                            </div>
+                            <p style={{ lineHeight: '1.8', fontSize: '1.05rem', color: '#4b5563' }}>
+                                {property.remarks || 'This property offers a perfect blend of luxury and comfort, situated in a prime location with easy access to all essential amenities.'}
+                            </p>
+                        </div>
+
+                        <div style={{ margin: '40px 0', height: '1px', background: '#e5e7eb' }}></div>
+
+                        <div style={{ marginBottom: '40px' }}>
+                            <h2 className="section-title">What this place offers</h2>
+                            <div className="amenities-grid">
+                                {property.features?.parkingAvailable && (
+                                    <div style={{ display: 'flex', items: 'center', gap: '8px', color: '#374151' }}>🚗 Parking Available</div>
+                                )}
+                                {property.roadSize && (
+                                    <div style={{ display: 'flex', items: 'center', gap: '8px', color: '#374151' }}>🛣️ {property.roadSize} Road</div>
+                                )}
+                                <div style={{ display: 'flex', items: 'center', gap: '8px', color: '#374151' }}>🧭 {property.facingDirection || 'Any'} Facing</div>
+                                <div style={{ display: 'flex', items: 'center', gap: '8px', color: '#374151' }}>🏢 {property.features?.totalFloors} Floors</div>
+                                {/* Add more static or dynamic amenities */}
+                                <div style={{ display: 'flex', items: 'center', gap: '8px', color: '#374151' }}>💧 Water Supply</div>
+                                <div style={{ display: 'flex', items: 'center', gap: '8px', color: '#374151' }}>⚡ Electricity</div>
+                                <div style={{ display: 'flex', items: 'center', gap: '8px', color: '#374151' }}>🗑️ Drainage</div>
+                            </div>
+                        </div>
+
+                        <div style={{ marginBottom: '40px' }}>
+                            <h2 className="section-title">Where you'll be</h2>
+                            <div style={{ height: '400px', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
+                                <PropertyMap
+                                    property={{
+                                        id: property.id,
+                                        title: property.title,
+                                        price: priceValue,
+                                        latitude: property.location?.latitude || 27.7172,
+                                        longitude: property.location?.longitude || 85.3240,
+                                        location: locationStr
+                                    }}
+                                    images={images}
+                                />
+                            </div>
+                            <div style={{ marginTop: '16px', fontSize: '0.95rem', color: '#4b5563' }}>
+                                <strong>{property.location?.area}</strong>, {property.location?.district}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Sidebar */}
+                    <div>
+                        <div className="agent-card">
+                            <div className="price-display">
+                                {formattedPrice}
+                                <span style={{ fontSize: '1rem', color: '#6b7280', fontWeight: '500', marginLeft: '5px' }}>
+                                    {property.pricing?.isNegotiable ? '(Negotiable)' : ''}
+                                </span>
+                            </div>
+
+                            <div style={{ marginBottom: '24px', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
+                                <button style={{ width: '100%', padding: '12px', background: 'white', border: 'none', borderBottom: '1px solid #e5e7eb', textAlign: 'left', cursor: 'pointer' }}>
+                                    <div style={{ fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', color: '#374151' }}>Check-in</div>
+                                    <div style={{ fontSize: '0.9rem', color: '#9ca3af' }}>Select Date</div>
+                                </button>
+                                <button style={{ width: '100%', padding: '12px', background: 'white', border: 'none', textAlign: 'left', cursor: 'pointer' }}>
+                                    <div style={{ fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', color: '#374151' }}>Guests</div>
+                                    <div style={{ fontSize: '0.9rem', color: '#1a1a1a' }}>1 Guest</div>
+                                </button>
+                            </div>
+
+                            <button className="action-btn btn-primary">
+                                Request a Tour
+                            </button>
+                            <button className="action-btn btn-outline" style={{ marginBottom: '24px' }}>
+                                Contact Agent
+                            </button>
+
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '16px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', color: '#4b5563' }}>
+                                    <span style={{ fontSize: '1.2rem' }}>❤</span>
+                                    <span style={{ fontSize: '0.8rem', textDecoration: 'underline' }}>Save</span>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', color: '#4b5563' }}>
+                                    <span style={{ fontSize: '1.2rem' }}>📤</span>
+                                    <span style={{ fontSize: '0.8rem', textDecoration: 'underline' }}>Share</span>
+                                </div>
+                            </div>
+
+                            <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #f3f4f6', textAlign: 'center', fontSize: '0.9rem', color: '#6b7280' }}>
+                                Report this listing
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div className="layout-container" style={{ paddingTop: '32px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: '40px' }}>
-
-                    {/* Left Column */}
-                    <div>
-                        {/* Interactive Gallery */}
-                        <div style={{ display: 'flex', gap: '12px', height: '500px', marginBottom: '16px' }}>
-                            <div style={{ flex: 1, borderRadius: '12px', overflow: 'hidden', background: '#000' }}>
-                                {images.length > 0 ? (
-                                    <img src={images[0]} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt={property.title} />
-                                ) : (
-                                    <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>No Media Available</div>
-                                )}
-                            </div>
-                            {images.length > 1 && (
-                                <div style={{ width: '120px', display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', paddingRight: '4px' }}>
-                                    {images.slice(0, 5).map((img: string, idx: number) => (
-                                        <div key={idx} style={{
-                                            flexShrink: 0,
-                                            height: '85px',
-                                            borderRadius: '8px',
-                                            overflow: 'hidden',
-                                            cursor: 'pointer',
-                                            border: idx === 0 ? '2px solid #b8960c' : '1px solid #e2e8f0',
-                                            opacity: idx === 0 ? 1 : 0.7
-                                        }}>
-                                            <img src={img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Price Section below Image */}
-                        <div style={{ marginBottom: '40px' }}>
-                            <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#b8960c' }}>
-                                {new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(priceValue).replace('NPR', 'Rs.')}
-                            </div>
-                        </div>
-
-                        {/* Content Sections */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '60px' }}>
-                            <section id="overview">
-                                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '32px' }}>Overview</h2>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '20px' }}>
-                                    <OverviewItem icon="📐" label="LAND AREA" value={property.features?.builtUpArea + ' ' + (property.features?.builtUpAreaUnit || 'sqft')} />
-                                    <OverviewItem icon="🛣️" label="ROAD ACCESS" value={property.roadSize || 'Not set'} />
-                                    <OverviewItem icon="🧭" label="FACING" value={property.facingDirection || 'Not set'} />
-                                    <OverviewItem icon="🏢" label="FLOOR" value={property.features?.totalFloors || 'N/A'} />
-
-                                    <OverviewItem icon="🚗" label="PARKING" value={property.features?.parkingAvailable ? 'Available' : 'None'} />
-                                    <OverviewItem icon="🛏️" label="BEDROOM" value={property.features?.bedrooms || 'N/A'} />
-                                    <OverviewItem icon="🚿" label="BATHROOM" value={property.features?.bathrooms || 'N/A'} />
-                                    <OverviewItem icon="📅" label="BUILT YEAR" value="2080 BS" />
-
-                                    <OverviewItem icon="🛋️" label="FURNISH STATUS" value={property.features?.furnishing || 'Unfurnished'} />
-                                </div>
-                            </section>
-
-                            <section id="description">
-                                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '24px' }}>Description</h2>
-                                <p style={{ color: '#475569', lineHeight: '1.8', fontSize: '1.05rem', whiteSpace: 'pre-wrap' }}>
-                                    {property.remarks || 'No detailed description provided for this premium listing.'}
-                                </p>
-                            </section>
-
-                            {property.amenities && property.amenities.length > 0 && (
-                                <section id="amenities">
-                                    <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '24px' }}>Nearby Amenities</h2>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-                                        {property.amenities.map((amenity: any, idx: number) => {
-                                            const emojiRegex = /^(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/;
-                                            let displayIcon = getAmenityIcon(amenity.type);
-                                            let displayName = amenity.name || (amenity.type.charAt(0).toUpperCase() + amenity.type.slice(1));
-
-                                            // If name contains an emoji at the start, use it as the icon and strip it from the name
-                                            const match = displayName.match(emojiRegex);
-                                            if (match) {
-                                                displayIcon = match[0];
-                                                displayName = displayName.replace(displayIcon, '').trim();
-                                            } else if (displayIcon !== '🔴') {
-                                                // If no emoji in name but we have a standard icon, ensure it's not duplicated in name
-                                                displayName = displayName.replace(displayIcon, '').trim();
-                                            }
-
-                                            return (
-                                                <div key={idx} style={{ padding: '20px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                                    <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-                                                        {displayIcon}
-                                                    </div>
-                                                    <div>
-                                                        <div style={{ fontWeight: '700', fontSize: '0.95rem', color: 'var(--color-primary-light)' }}>{displayName}</div>
-                                                        <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{amenity.distance || 'Walking distance'}</div>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </section>
-                            )}
-
-                            <section id="maps">
-                                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '24px' }}>Location Map</h2>
-                                <div style={{ height: '450px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0', position: 'relative' }}>
-                                    <PropertyMap
-                                        property={{
-                                            id: property.id,
-                                            title: property.title,
-                                            price: priceValue,
-                                            latitude: property.location?.latitude || 27.7172,
-                                            longitude: property.location?.longitude || 85.3240,
-                                            location: locationStr
-                                        }}
-                                        images={images}
-                                    />
-                                </div>
-                            </section>
-                        </div>
+                {/* Recommended Properties */}
+                <div style={{ marginTop: '80px', borderTop: '1px solid #e5e7eb', paddingTop: '60px' }}>
+                    <h2 className="section-title" style={{ marginBottom: '32px', fontSize: '1.75rem' }}>Recommended Properties</h2>
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                        gap: '32px'
+                    }}>
+                        {recommendedProperties.map((p) => (
+                            <PropertyCard key={p.id} property={{
+                                id: p.id,
+                                title: p.title,
+                                price: new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(p.pricing?.price || 0).replace('NPR', 'Rs.'),
+                                location: p.location ? `${p.location.area}, ${p.location.district}` : 'Unspecified',
+                                specs: `${p.features?.bedrooms || 0} Beds • ${p.features?.bathrooms || 0} Baths`,
+                                images: p.images.map((img: any) => img.url)
+                            }} />
+                        ))}
                     </div>
-
-                    {/* Right Column (Sidebar) */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                        {/* Agency Box */}
-                        <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-                                <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#b8960c', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', overflow: 'hidden' }}>
-                                    {property.listedBy?.profile_picture ? (
-                                        <img src={property.listedBy.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                    ) : (property.listedBy?.name || 'A')[0]}
-                                </div>
-                                <div>
-                                    <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>{property.listedBy?.name || 'Unknown Agent'}</div>
-                                    <div style={{ color: '#b8960c', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer' }}>{agentListingCount} Properties</div>
-                                </div>
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
-                                <button style={{ padding: '10px', borderRadius: '8px', border: '1px solid #0066ff', color: '#0066ff', background: 'white', fontWeight: '600', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                                    📞 Call Agency
-                                </button>
-                                <button style={{ padding: '10px', borderRadius: '8px', border: '1px solid #0066ff', color: '#0066ff', background: 'white', fontWeight: '600', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                                    ✉️ Message Us
-                                </button>
-                            </div>
-                            <button style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--color-primary)', color: 'var(--color-primary)', background: 'white', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer', marginBottom: '12px' }}>
-                                Book Site Visit
-                            </button>
-                            <button style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #b8960c', color: '#b8960c', background: 'white', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer' }}>
-                                Place an Offer
-                            </button>
-                        </div>
-
-                        {/* Enquiry Form */}
-                        <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '20px' }}>Enquiry Form</h3>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                <FormField label="Email" placeholder="Example: email@email.com" />
-                                <FormField label="Name" placeholder="Full name" />
-                                <FormField label="Phone" placeholder="+977 XXXXXXXXXX" />
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b' }}>Message</label>
-                                    <textarea
-                                        style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0', minHeight: '80px', fontSize: '0.9rem', fontFamily: 'inherit' }}
-                                        defaultValue={`I am interested in this property. [#${property.propertyId || property.id}]`}
-                                    />
-                                </div>
-                                <div>
-                                    <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b', marginBottom: '8px' }}>I am</div>
-                                    <div style={{ display: 'flex', gap: '12px', fontSize: '0.85rem' }}>
-                                        <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
-                                            <input type="radio" name="who" defaultChecked /> Buyer/Tenant
-                                        </label>
-                                        <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
-                                            <input type="radio" name="who" /> Agent
-                                        </label>
-                                        <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
-                                            <input type="radio" name="who" /> Other
-                                        </label>
-                                    </div>
-                                </div>
-                                <button style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #0066ff', color: '#0066ff', background: 'white', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer', marginTop: '10px' }}>
-                                    LOGIN TO ENQUIRE
-                                </button>
-                            </div>
-                        </div>
-
-                        <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                            <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '16px' }}>Share with Friends</div>
-                            <button style={{ background: 'none', border: 'none', color: '#0066ff', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', width: '100%' }}>
-                                ⚠️ Report this Property
-                            </button>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </main>
     );
-}
-
-function TabItem({ label, active = false }: { label: string, active?: boolean }) {
-    return (
-        <div style={{
-            padding: '8px 24px',
-            fontSize: '0.85rem',
-            fontWeight: '700',
-            color: active ? '#b8960c' : '#64748b',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-            letterSpacing: '0.05em'
-        }}>
-            {label}
-        </div>
-    );
-}
-
-function OverviewItem({ icon, label, value }: { icon: string, label: string, value: any }) {
-    return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '20px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #f1f5f9' }}>
-            <div style={{ fontSize: '1.5rem', width: '40px', height: '40px', background: 'white', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>{icon}</div>
-            <div>
-                <div style={{ fontSize: '0.7rem', fontWeight: '600', color: '#94a3b8', letterSpacing: '0.02em', marginBottom: '2px' }}>{label}</div>
-                <div style={{ fontWeight: '700', color: 'var(--color-primary)', fontSize: '0.95rem' }}>{value}</div>
-            </div>
-        </div>
-    );
-}
-
-function FormField({ label, placeholder }: { label: string, placeholder: string }) {
-    return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#64748b' }}>{label}</label>
-            <input
-                type="text"
-                placeholder={placeholder}
-                style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.9rem' }}
-            />
-        </div>
-    );
-}
-
-function getAmenityIcon(type: string): string {
-    const icons: Record<string, string> = {
-        hospital: '🏥', gym: '🏋️', park: '🌳', school: '🏫', pharmacy: '💊',
-        restaurant: '🍴', hotel: '🏨', bank: '🏦', atm: '🏧', police: '👮',
-        transport: '🚌', mall: '🛍️'
-    };
-    return icons[type.toLowerCase()] || '🔴';
 }
