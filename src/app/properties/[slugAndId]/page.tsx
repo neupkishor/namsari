@@ -6,6 +6,28 @@ import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { PropertyCard } from '@/components/PropertyCard';
 
+function getAmenityIcon(type: string) {
+    const map: Record<string, string> = {
+        hospital: '🏥',
+        school: '🏫',
+        park: '🌳',
+        gym: '🏋️',
+        pharmacy: '💊',
+        restaurant: '🍽️',
+        hotel: '🏨',
+        atm: '🏧',
+        'police station': '🚓',
+        'public transport': '🚌',
+        'woda office': '🏢',
+        banquete: '🎉',
+        market: '🛒',
+        shopping: '🛍️',
+        bank: '🏦',
+        airport: '✈️'
+    };
+    return map[type.toLowerCase()] || '📍';
+}
+
 export default async function PropertyDetailPage({ params }: { params: Promise<{ slugAndId: string }> }) {
     const resolvedParams = await params;
     const { slugAndId } = resolvedParams;
@@ -148,8 +170,6 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     display: flex;
                     gap: 24px;
                     padding: 24px 0;
-                    border-top: 1px solid #e5e7eb;
-                    border-bottom: 1px solid #e5e7eb;
                     margin: 32px 0;
                 }
                 .feature-item {
@@ -351,25 +371,45 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                             </p>
                         </div>
 
-                        <div style={{ margin: '40px 0', height: '1px', background: '#e5e7eb' }}></div>
+
 
                         <div style={{ marginBottom: '40px' }}>
                             <h2 className="section-title">What this place offers</h2>
                             <div className="amenities-grid">
                                 {property.features?.parkingAvailable && (
-                                    <div style={{ display: 'flex', items: 'center', gap: '8px', color: '#374151' }}>🚗 Parking Available</div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#374151' }}>🚗 Parking Available</div>
                                 )}
                                 {property.roadSize && (
-                                    <div style={{ display: 'flex', items: 'center', gap: '8px', color: '#374151' }}>🛣️ {property.roadSize} Road</div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#374151' }}>🛣️ {property.roadSize} Road</div>
                                 )}
-                                <div style={{ display: 'flex', items: 'center', gap: '8px', color: '#374151' }}>🧭 {property.facingDirection || 'Any'} Facing</div>
-                                <div style={{ display: 'flex', items: 'center', gap: '8px', color: '#374151' }}>🏢 {property.features?.totalFloors} Floors</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#374151' }}>🧭 {property.facingDirection || 'Any'} Facing</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#374151' }}>🏢 {property.features?.totalFloors} Floors</div>
                                 {/* Add more static or dynamic amenities */}
-                                <div style={{ display: 'flex', items: 'center', gap: '8px', color: '#374151' }}>💧 Water Supply</div>
-                                <div style={{ display: 'flex', items: 'center', gap: '8px', color: '#374151' }}>⚡ Electricity</div>
-                                <div style={{ display: 'flex', items: 'center', gap: '8px', color: '#374151' }}>🗑️ Drainage</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#374151' }}>💧 Water Supply</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#374151' }}>⚡ Electricity</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#374151' }}>🗑️ Drainage</div>
                             </div>
                         </div>
+
+                        {property.amenities && property.amenities.length > 0 && (
+                            <div style={{ marginBottom: '40px' }}>
+                                <h2 className="section-title">Nearby Amenities</h2>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+                                    {property.amenities.map(amenity => (
+                                        <div key={amenity.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <span style={{ fontSize: '1.5rem' }}>{getAmenityIcon(amenity.type)}</span>
+                                                <div>
+                                                    <div style={{ fontWeight: '600', color: '#1a1a1a', textTransform: 'capitalize' }}>{amenity.type.replace(/_/g, ' ')}</div>
+                                                    {amenity.name && <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>{amenity.name}</div>}
+                                                </div>
+                                            </div>
+                                            <div style={{ fontWeight: '700', color: '#4b5563', fontSize: '0.9rem' }}>{amenity.distance || 'N/A'}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         <div style={{ marginBottom: '40px' }}>
                             <h2 className="section-title">Where you'll be</h2>
@@ -398,29 +438,56 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                             <div className="price-display">
                                 {formattedPrice}
                                 <span style={{ fontSize: '1rem', color: '#6b7280', fontWeight: '500', marginLeft: '5px' }}>
-                                    {property.pricing?.isNegotiable ? '(Negotiable)' : ''}
+                                    {property.pricing?.negotiable ? '(Negotiable)' : ''}
                                 </span>
                             </div>
 
-                            <div style={{ marginBottom: '24px', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
-                                <button style={{ width: '100%', padding: '12px', background: 'white', border: 'none', borderBottom: '1px solid #e5e7eb', textAlign: 'left', cursor: 'pointer' }}>
-                                    <div style={{ fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', color: '#374151' }}>Check-in</div>
-                                    <div style={{ fontSize: '0.9rem', color: '#9ca3af' }}>Select Date</div>
-                                </button>
-                                <button style={{ width: '100%', padding: '12px', background: 'white', border: 'none', textAlign: 'left', cursor: 'pointer' }}>
-                                    <div style={{ fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', color: '#374151' }}>Guests</div>
-                                    <div style={{ fontSize: '0.9rem', color: '#1a1a1a' }}>1 Guest</div>
-                                </button>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #f3f4f6' }}>
+                                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#f3f4f6', overflow: 'hidden', flexShrink: 0 }}>
+                                    {property.listedBy?.profile_picture ? (
+                                        <img src={property.listedBy.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={property.listedBy.name} />
+                                    ) : (
+                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>👤</div>
+                                    )}
+                                </div>
+                                <div>
+                                    <div style={{ fontWeight: '800', fontSize: '1.25rem', color: '#1a1a1a', lineHeight: '1.2' }}>{property.listedBy?.name || 'Agent'}</div>
+                                    <div style={{ color: '#6b7280', fontSize: '0.9rem', marginTop: '4px' }}>
+                                        {property.listedBy?.account_type ? property.listedBy.account_type.charAt(0).toUpperCase() + property.listedBy.account_type.slice(1) : 'Host'} • Joined {new Date(property.listedBy?.created_on || Date.now()).getFullYear()}
+                                    </div>
+                                </div>
                             </div>
 
-                            <button className="action-btn btn-primary">
-                                Request a Tour
-                            </button>
-                            <button className="action-btn btn-outline" style={{ marginBottom: '24px' }}>
-                                Contact Agent
-                            </button>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <button className="action-btn btn-outline" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <span>📅</span> Request a Tour
+                                </button>
 
-                            <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '16px' }}>
+                                <a href={`tel:${property.listedBy?.contact_number || ''}`} className="action-btn btn-primary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none' }}>
+                                    <span>📞</span> Contact {property.listedBy?.account_type === 'agency' ? 'Agency' : 'Agent'}
+                                </a>
+
+                                <a
+                                    href={`https://wa.me/${property.listedBy?.contact_number?.replace(/[^0-9]/g, '') || ''}?text=${encodeURIComponent(`I'm interested in the ${property.title} [#${property.id}], For the property, I'm willing to offer a price of ........`)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="action-btn"
+                                    style={{
+                                        backgroundColor: '#25D366',
+                                        color: 'white',
+                                        border: 'none',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '8px',
+                                        textDecoration: 'none'
+                                    }}
+                                >
+                                    <span>💬</span> Make an Offer
+                                </a>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '24px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', color: '#4b5563' }}>
                                     <span style={{ fontSize: '1.2rem' }}>❤</span>
                                     <span style={{ fontSize: '0.8rem', textDecoration: 'underline' }}>Save</span>
