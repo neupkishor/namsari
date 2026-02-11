@@ -473,3 +473,14 @@ model BankRate {
   created_at    DateTime  @default(now())
   updated_at    DateTime  @updatedAt
 }
+
+model Advertisement {
+  id            Int      @id @default(autoincrement())
+  image         String   // URL of the advertisement image
+  takes_to      String?  // Redirect URL
+  posted_by     String?  // Name of advertiser or user ID
+  shows_on_top  Boolean  @default(false) // If true, shows in top carousel. If false, shows in feed.
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+}

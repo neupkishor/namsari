@@ -1,6 +1,7 @@
 import HomeClient from './HomeClient';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { getActiveAdvertisements } from './manage/advertisements/actions';
 
 export default async function HomePage() {
     const session = await getSession();
@@ -50,7 +51,7 @@ export default async function HomePage() {
         }
     }
 
-    const [featuredCollections, trendingSearches, featuredProperties, featuredAgencies] = await Promise.all([
+    const [featuredCollections, trendingSearches, featuredProperties, featuredAgencies, advertisements] = await Promise.all([
         prisma.collection.findMany({
             where: { is_public: true },
             take: 6,
@@ -89,7 +90,8 @@ export default async function HomePage() {
                     select: { listedProperties: true }
                 }
             }
-        })
+        }),
+        getActiveAdvertisements()
     ]);
 
     return <HomeClient
@@ -99,5 +101,6 @@ export default async function HomePage() {
         trendingSearches={trendingSearches}
         featuredProperties={featuredProperties}
         featuredAgencies={featuredAgencies}
+        advertisements={advertisements}
     />;
 }

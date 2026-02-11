@@ -7,20 +7,29 @@ import { toggleLike, addComment } from './actions/social';
 import { Input } from '@/components/ui';
 import { useRouter } from 'next/navigation';
 import { QuickActionsCard } from '@/components/QuickActionsCard';
+import { PopularCategories, FeaturedProjects } from '@/components/HomeSections';
 import { TrendingSearches } from '@/components/TrendingSearches';
-import { FeaturedAgenciesFeed } from '@/components/FeaturedAgencies';
-import { FeaturedCollectionsFeedItem } from '@/components/FeaturedCollections';
+import { PostPropertyBanner } from '@/components/PostPropertyBanner';
+import { FeaturedAgenciesClassic, FeaturedAgenciesFeed } from '@/components/FeaturedAgencies';
+import { FeaturedCollectionsSection, FeaturedCollectionsFeedItem } from '@/components/FeaturedCollections';
 import { SiteHeader } from '@/components/SiteHeader';
+import { PropertyCard } from '@/components/PropertyCard';
+import { AdvertisementCard, AdvertisementCarousel } from '@/components/AdvertisementCard';
 
-export default function Home({ user, settings, featuredCollections, trendingSearches, featuredProperties = [], featuredAgencies = [] }: { user: any, settings: any, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[] }) {
+export default function Home({ user, settings, featuredCollections, trendingSearches, featuredProperties = [], featuredAgencies = [], advertisements = [] }: { user: any, settings: any, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[], advertisements?: any[] }) {
   const router = useRouter();
+  const viewType = settings?.view_mode || 'classic';
   const [isLoading, setIsLoading] = useState(true);
 
-  // Social view style: footer hidden
+  // Toggle footer visibility based on view type
   useEffect(() => {
-    document.body.classList.add('footer-hidden');
+    if (viewType === 'social') {
+      document.body.classList.add('footer-hidden');
+    } else {
+      document.body.classList.remove('footer-hidden');
+    }
     return () => document.body.classList.remove('footer-hidden');
-  }, []);
+  }, [viewType]);
 
   const [properties, setProperties] = useState<any[]>([]);
   const [page, setPage] = useState(0);
@@ -67,7 +76,7 @@ export default function Home({ user, settings, featuredCollections, trendingSear
   }, []);
 
   return (
-    <main style={{ backgroundColor: '#f0f2f5', minHeight: '100vh', paddingTop: 'var(--header-height)' }}>
+    <main style={{ backgroundColor: viewType === 'social' ? '#f0f2f5' : '#ffffff', minHeight: '100vh' }}>
       {/* Shared Responsive Logic for Feed Sidebar */}
       <style dangerouslySetInnerHTML={{
         __html: `
@@ -79,9 +88,9 @@ export default function Home({ user, settings, featuredCollections, trendingSear
       <SiteHeader user={user} />
 
       {isLoading ? (
-        <FeedSkeleton />
+        viewType === 'classic' ? <ClassicSkeleton /> : <FeedSkeleton />
       ) : (
-        <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} trendingSearches={trendingSearches} featuredAgencies={featuredAgencies} />
+        viewType === 'classic' ? <ClassicView properties={properties} featuredCollections={featuredCollections} trendingSearches={trendingSearches} user={user} featuredProperties={featuredProperties} /> : <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} trendingSearches={trendingSearches} featuredAgencies={featuredAgencies} advertisements={advertisements} />
       )}
     </main>
   );
@@ -126,7 +135,7 @@ function FeedSkeleton() {
   );
 }
 
-function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchingMore, hasMore, featuredCollections, trendingSearches, featuredAgencies }: { properties: any[], user: any, settings: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean, featuredCollections?: any[], trendingSearches?: string[], featuredAgencies?: any[] }) {
+function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchingMore, hasMore, featuredCollections, trendingSearches, featuredAgencies, advertisements = [] }: { properties: any[], user: any, settings: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean, featuredCollections?: any[], trendingSearches?: string[], featuredAgencies?: any[], advertisements?: any[] }) {
   const sidebarItems = [
     { label: 'Profile', icon: '👤', href: user ? `/@${user.username}` : '/login' },
     { label: 'Houses', icon: '🏠', href: '/find/houses' },
@@ -152,6 +161,9 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
   ];
 
   const [activeCommentPostId, setActiveCommentPostId] = React.useState<number | null>(null);
+
+  const carouselAds = advertisements?.filter(ad => ad.shows_on_top) || [];
+  const feedAds = advertisements?.filter(ad => !ad.shows_on_top) || [];
 
   if (!properties || properties.length === 0) {
     return (
@@ -240,8 +252,13 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
       </aside>
 
       {/* Main Social Feed */}
-      <div style={{ flex: 1, maxWidth: '100%', display: 'flex', flexDirection: 'column', gap: 'var(--card-gap)', margin: '0 auto' }}>
+      <div style={{ flex: 1, maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: 'var(--card-gap)', margin: '0 auto' }}>
         <QuickActionsCard user={user} />
+        
+        {/* Top Carousel Advertisement */}
+        {carouselAds.length > 0 && (
+           <AdvertisementCarousel ads={carouselAds} />
+        )}
 
         {properties.flatMap((p, index) => {
           const isTrigger = index === properties.length - 5;
@@ -257,6 +274,13 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
               onToggleComments={() => setActiveCommentPostId(activeCommentPostId === p.id ? null : p.id)}
             />
           ];
+
+          // Inject Single Advertisement every 5 posts (at index 4, 9, 14...)
+          if ((index + 1) % 5 === 0 && feedAds.length > 0) {
+            const adIndex = Math.floor((index + 1) / 5) - 1;
+            const adToShow = feedAds[adIndex % feedAds.length];
+            items.push(<AdvertisementCard key={`ad-${adToShow.id}-${index}`} ad={adToShow} />);
+          }
 
           if (index === 0) {
             items.push(<FeaturedAgenciesFeed key="featured-agencies" agencies={featuredAgencies} />);
@@ -307,8 +331,6 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
     return () => observer.disconnect();
   }, [onVisible]);
 
-  const scrollRef = React.useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = React.useState(0);
   // const [showComments, setShowComments] = React.useState(false); // Removed local state
   const [commentDraft, setCommentDraft] = React.useState('');
   const [isLiking, setIsLiking] = React.useState(false);
@@ -327,28 +349,6 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
 
   const slug = property.slug || property.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   const propertyUrl = `/properties/${slug}-${property.id}`;
-
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const target = e.currentTarget;
-    const scrollLeft = target.scrollLeft;
-    const width = target.offsetWidth;
-    if (width > 0) {
-      const newIndex = Math.round(scrollLeft / width);
-      if (newIndex !== activeIndex) {
-        setActiveIndex(newIndex);
-      }
-    }
-  };
-
-  const scrollTo = (index: number) => {
-    if (scrollRef.current) {
-      const width = scrollRef.current.offsetWidth;
-      scrollRef.current.scrollTo({
-        left: index * width,
-        behavior: 'smooth'
-      });
-    }
-  };
 
   const handleLike = async () => {
     if (!user) {
@@ -444,422 +444,168 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
   };
 
   const images = property.images || [];
-
-  const [isDragging, setIsDragging] = React.useState(false);
-  const [startX, setStartX] = React.useState(0);
-  const [startY, setStartY] = React.useState(0);
-  const [startScrollLeft, setStartScrollLeft] = React.useState(0);
-  const scrollTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-  const isAnimatingRef = React.useRef(false);
-
-  // Double-tap to like
-  const [lastTap, setLastTap] = React.useState(0);
-  const [showHeartAnimation, setShowHeartAnimation] = React.useState(false);
-
-  const handleDoubleTap = () => {
-    // Always show the heart animation on double-tap
-    setShowHeartAnimation(true);
-    setTimeout(() => setShowHeartAnimation(false), 1000);
-
-    // Only add like if not already liked (don't unlike on double-tap)
-    if (!isLiked) {
-      handleLike();
-    }
-  };
-
-  const handleImageTap = () => {
-    const now = Date.now();
-    const DOUBLE_TAP_DELAY = 300;
-
-    if (now - lastTap < DOUBLE_TAP_DELAY) {
-      handleDoubleTap();
-    }
-    setLastTap(now);
-  };
-
-  // Custom smooth snap function with 400ms animation
-  const smoothSnapToNearest = () => {
-    if (!scrollRef.current || isAnimatingRef.current) return;
-
-    const container = scrollRef.current;
-    const width = container.offsetWidth;
-    const scrollLeft = container.scrollLeft;
-
-    // Calculate which image we should snap to
-    const targetIndex = Math.round(scrollLeft / width);
-    const targetScrollLeft = targetIndex * width;
-
-    // If already at target, no need to animate
-    if (Math.abs(scrollLeft - targetScrollLeft) < 1) return;
-
-    // Smooth animation to target position over 400ms
-    isAnimatingRef.current = true;
-    const startScrollLeft = scrollLeft;
-    const distance = targetScrollLeft - startScrollLeft;
-    const duration = 400; // 400ms for smooth snap
-    const startTime = performance.now();
-
-    const animateScroll = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-
-      // Ease-out cubic for smooth deceleration (like Instagram)
-      const easeProgress = 1 - Math.pow(1 - progress, 3);
-
-      const newScrollLeft = startScrollLeft + (distance * easeProgress);
-      container.scrollLeft = newScrollLeft;
-
-      if (progress < 1) {
-        requestAnimationFrame(animateScroll);
-      } else {
-        isAnimatingRef.current = false;
-        // Update active index after animation completes
-        if (targetIndex !== activeIndex) {
-          setActiveIndex(targetIndex);
-        }
-      }
-    };
-
-    requestAnimationFrame(animateScroll);
-  };
-
-  const startDrag = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!scrollRef.current) return;
-
-    // Cancel any ongoing snap animation
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-      scrollTimeoutRef.current = null;
-    }
-    isAnimatingRef.current = false;
-
-    setIsDragging(true);
-    const pageX = 'touches' in e ? e.touches[0].pageX : (e as React.MouseEvent).pageX;
-    const pageY = 'touches' in e ? e.touches[0].pageY : (e as React.MouseEvent).pageY;
-    setStartX(pageX);
-    setStartY(pageY);
-    setStartScrollLeft(scrollRef.current.scrollLeft);
-  };
-
-  const onDrag = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDragging || !scrollRef.current || isAnimatingRef.current) return;
-
-    const pageX = 'touches' in e ? e.touches[0].pageX : (e as React.MouseEvent).pageX;
-    const pageY = 'touches' in e ? e.touches[0].pageY : (e as React.MouseEvent).pageY;
-
-    // For touch, check if scrolling vertically
-    if ('touches' in e) {
-      const dx = Math.abs(pageX - startX);
-      const dy = Math.abs(pageY - startY);
-      // If moving more vertically than horizontally, let native scroll happen
-      if (dy > dx) return;
-
-      // If horizontal, prevent default to stop page scroll (scrolling images instead)
-      // Note: React synthetic events might not support direct preventDefault in all cases depending on passive listeners, 
-      // but updating scrollLeft will handle the visual shift.
-    }
-
-    const walk = (pageX - startX) * 1.5;
-    scrollRef.current.scrollLeft = startScrollLeft - walk;
-  };
-
-  const stopDrag = () => {
-    setIsDragging(false);
-
-    // Trigger smooth snap after drag ends
-    if (scrollRef.current) {
-      smoothSnapToNearest();
-    }
-  };
+  const mainImage = images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80';
 
   return (
-    <div ref={containerRef} className="card" style={{ padding: '0', overflow: 'hidden' }}>
-      {/* Post Header */}
-      <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <Link href={`/@${property.author_username || property.author}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-          {property.author_avatar && property.author_avatar.length > 2 ? (
+    <div ref={containerRef} className="card" style={{ padding: '16px', overflow: 'hidden' }}>
+      <div className="property-card-wrapper">
+        {/* Left: Image Container */}
+        <div className="property-card-image">
+          <Link href={propertyUrl} style={{ display: 'block', width: '100%', height: '100%', borderRadius: '8px', overflow: 'hidden' }}>
             <img
-              src={property.author_avatar}
-              alt={property.author_name}
-              style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #e2e8f0' }}
+              src={mainImage}
+              alt={property.title}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
-          ) : (
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
-              {(property.author_name || property.author || 'A')[0]}
+          </Link>
+          {images.length > 1 && (
+            <div style={{
+              position: 'absolute',
+              bottom: '8px',
+              right: '8px',
+              background: 'rgba(0,0,0,0.6)',
+              color: 'white',
+              fontSize: '0.7rem',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              fontWeight: '600'
+            }}>
+              +{images.length - 1}
             </div>
           )}
-        </Link>
-        <div style={{ flex: 1 }}>
-          <Link href={`/@${property.author_username || property.author}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>{property.author_name || property.author}</div>
-          </Link>
-          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{property.location} • {property.timestamp}</div>
+        </div>
+
+        {/* Right: Content Container */}
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          {/* Top Section */}
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+              <Link href={propertyUrl} style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}>
+                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '700', color: 'var(--color-primary-light)', lineHeight: '1.3' }}>
+                  {property.title}
+                </h3>
+              </Link>
+              {/* Menu Icon Placeholder */}
+              <button style={{ background: 'none', border: 'none', padding: '0 0 0 8px', cursor: 'pointer', color: 'var(--color-text-muted)' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+              </button>
+            </div>
+
+            <div style={{ fontWeight: '700', fontSize: '1.1rem', color: 'var(--color-gold)', marginBottom: '4px' }}>
+              {property.price}
+            </div>
+
+            {property.specs && (
+              <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '4px', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                {property.specs}
+              </div>
+            )}
+
+            <div style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span>📍 {property.location}</span>
+              <span>•</span>
+              <span>{property.timestamp}</span>
+            </div>
+          </div>
+
+          {/* Bottom Section: Seller & Actions */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px' }}>
+            {/* Seller Info */}
+            <Link href={`/@${property.author_username || property.author}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {property.author_avatar ? (
+                  <img src={property.author_avatar} alt="" style={{ width: '20px', height: '20px', borderRadius: '50%', objectFit: 'cover' }} />
+                ) : (
+                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'var(--color-primary)', color: 'white', fontSize: '0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {(property.author_name || property.author || 'A')[0]}
+                  </div>
+                )}
+                <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>{property.author_name || property.author}</span>
+              </div>
+            </Link>
+
+            {/* Actions Row */}
+            <div className="property-card-actions">
+              {settings?.show_like_button !== false && (
+                <button onClick={handleLike} title="Like" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: isLiked ? '#ef4444' : 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill={isLiked ? "#ef4444" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
+                  {likeCount > 0 && <span style={{ fontWeight: '600' }}>{likeCount}</span>}
+                </button>
+              )}
+              
+              {settings?.show_comment_button !== false && (
+                <button onClick={() => onToggleComments && onToggleComments()} title="Comment" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-text-muted)' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                </button>
+              )}
+
+              {settings?.show_share_button !== false && (
+                <button onClick={handleShare} title="Share" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-text-muted)' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                </button>
+              )}
+
+              <div style={{ flex: 1 }}></div>
+
+              {settings?.show_contact_agent !== false && (
+                <button
+                  onClick={() => {
+                    const phone = property.author_phone || property.contact_phone;
+                    if (phone) {
+                      window.location.href = `tel:${phone}`;
+                    } else {
+                      alert("No contact number available for this agent.");
+                    }
+                  }}
+                  title="Call Agent"
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-primary)' }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.81 12.81 0 0 0 .62 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.62A2 2 0 0 1 22 16.92z"></path></svg>
+                </button>
+              )}
+
+              {settings?.show_make_offer !== false && (
+                <button title="Make Offer" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-primary)' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"></path><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"></path><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path></svg>
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div style={{ padding: '0 16px 12px', fontSize: '0.975rem', lineHeight: '1.4' }}>
-        <span style={{ fontWeight: '600', color: 'var(--color-gold)', marginRight: '6px' }}>{property.price}</span>
-        <Link href={propertyUrl} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <span style={{ cursor: 'pointer' }}>{property.title}. {property.specs}</span>
-        </Link>
-      </div>
-
-      {/* Post Media Carousel Container */}
-      <div style={{ position: 'relative', background: '#000' }}>
-        {/* Heart Animation Overlay */}
-        {showHeartAnimation && (
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 100,
-            pointerEvents: 'none',
-            animation: 'heartPop 1s ease-out'
-          }}>
-            <svg width="100" height="100" viewBox="0 0 24 24" fill="#ef4444" stroke="#fff" strokeWidth="0.5">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
-            </svg>
-          </div>
-        )}
-
-        <style dangerouslySetInnerHTML={{
-          __html: `
-            @keyframes heartPop {
-              0% {
-                transform: translate(-50%, -50%) scale(0);
-                opacity: 0;
-              }
-              15% {
-                transform: translate(-50%, -50%) scale(1.2);
-                opacity: 1;
-              }
-              30% {
-                transform: translate(-50%, -50%) scale(1);
-              }
-              100% {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 0;
-              }
-            }
-          `
-        }} />
-
-        {images.length > 1 && (
-          <>
-            {activeIndex > 0 && (
-              <button
-                onClick={() => scrollTo(activeIndex - 1)}
-                style={{
-                  position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)',
-                  background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%',
-                  width: '32px', height: '32px', cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', color: '#000'
-                }}>‹</button>
-            )}
-            {activeIndex < images.length - 1 && (
-              <button
-                onClick={() => scrollTo(activeIndex + 1)}
-                style={{
-                  position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
-                  background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%',
-                  width: '32px', height: '32px', cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', color: '#000'
-                }}>›</button>
-            )}
-          </>
-        )}
-
-        <div
-          ref={scrollRef}
-          onScroll={handleScroll}
-          onMouseDown={startDrag}
-          onMouseMove={onDrag}
-          onMouseUp={stopDrag}
-          onMouseLeave={stopDrag}
-          onTouchStart={startDrag}
-          onTouchMove={onDrag}
-          onTouchEnd={stopDrag}
-          style={{
-            display: 'flex',
-            overflow: 'hidden', // Disable native scroll on both axes
-            msOverflowStyle: 'none',
-            scrollbarWidth: 'none',
-            cursor: isDragging ? 'grabbing' : 'grab'
-          }}>
-          <style dangerouslySetInnerHTML={{ __html: `div::-webkit-scrollbar { display: none; }` }} />
-
-          {images.map((imgUrl: string, imgIndex: number) => (
-            <div key={imgIndex} style={{ minWidth: '100%', height: '400px', background: '#f8fafc', userSelect: 'none' }}>
-              {/* Wrapped img with div to prevent default drag behavior of img */}
-              <div
-                style={{ width: '100%', height: '100%', position: 'relative' }}
-                onDragStart={(e) => e.preventDefault()} // Prevent native image drag
-                onClick={handleImageTap}
-              >
-                <img
-                  src={imgUrl}
-                  alt={property.title}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    cursor: isDragging ? 'grabbing' : 'pointer',
-                    userSelect: 'none',
-                    WebkitUserSelect: 'none',
-                    WebkitTouchCallout: 'none',
-                    WebkitTapHighlightColor: 'transparent'
-                  }}
-                />
+      {/* Comment Section (Collapsible) */}
+      {isCommentsOpen && (
+        <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #f1f5f9' }}>
+          {comments.map((c: any) => (
+            <div key={c.id} style={{ display: 'flex', gap: '8px', marginBottom: '12px', fontSize: '0.85rem' }}>
+              <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '0.6rem', flexShrink: 0 }}>
+                {(c.user?.name || 'U')[0]}
+              </div>
+              <div>
+                <span style={{ fontWeight: '700', marginRight: '6px' }}>{c.user?.name || 'User'}</span>
+                <span>{c.content}</span>
               </div>
             </div>
           ))}
-        </div>
-      </div>
 
-      {/* Post Feed Actions - Instagram Style */}
-      <div style={{ padding: '0 16px 8px' }}>
-        {/* Action Buttons Row */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingTop: '8px',
-          paddingBottom: '8px'
-        }}>
-          {/* Left side: Social actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            {settings?.show_like_button !== false && (
-              <button onClick={handleLike} style={{
-                background: 'transparent',
-                border: 'none',
-                padding: 0,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center'
-              }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill={isLiked ? "#ef4444" : "none"} stroke={isLiked ? "#ef4444" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
-                </svg>
-              </button>
-            )}
-            {settings?.show_comment_button !== false && (
-              <button onClick={() => onToggleComments && onToggleComments()} style={{
-                background: 'transparent',
-                border: 'none',
-                padding: 0,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center'
-              }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-                </svg>
-              </button>
-            )}
-            {settings?.show_share_button !== false && (
-              <button onClick={handleShare} style={{
-                background: 'transparent',
-                border: 'none',
-                padding: 0,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center'
-              }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                  <polyline points="16 6 12 2 8 6"></polyline>
-                  <line x1="12" y1="2" x2="12" y2="15"></line>
-                </svg>
-              </button>
-            )}
-          </div>
-
-          {/* Right side: Real estate actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            {settings?.show_contact_agent !== false && (
-              <button
-                onClick={() => {
-                  const phone = property.author_phone || property.contact_phone;
-                  if (phone) {
-                    window.location.href = `tel:${phone}`;
-                  } else {
-                    alert("No contact number available for this agent.");
-                  }
-                }}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  padding: 0,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}
-                title="Call Agent"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.81 12.81 0 0 0 .62 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.62A2 2 0 0 1 22 16.92z"></path>
-                </svg>
-              </button>
-            )}
-            {settings?.show_make_offer !== false && (
-              <button style={{
-                background: 'transparent',
-                border: 'none',
-                padding: 0,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center'
-              }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
-                  <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"></path>
-                  <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"></path>
-                  <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path>
-                </svg>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Like count text */}
-        {settings?.show_like_button !== false && likeCount > 0 && (
-          <div style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--color-primary)', marginBottom: '8px' }}>
-            {likeCount} {likeCount === 1 ? 'like' : 'likes'}
-          </div>
-        )}
-
-        {/* Comment Section */}
-        {isCommentsOpen && (
-          <div style={{ marginTop: '12px' }}>
-            {comments.map((c: any) => (
-              <div key={c.id} style={{ display: 'flex', gap: '8px', marginBottom: '12px', fontSize: '0.85rem' }}>
-                <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '0.6rem', flexShrink: 0 }}>
-                  {(c.user?.name || 'U')[0]}
-                </div>
-                <div>
-                  <span style={{ fontWeight: '700', marginRight: '6px' }}>{c.user?.name || 'User'}</span>
-                  <span>{c.content}</span>
-                </div>
+          {user && (
+            <form onSubmit={handleAddComment} style={{ display: 'flex', gap: '8px', marginTop: '12px', alignItems: 'flex-start' }}>
+              <div style={{ flex: 1 }}>
+                <Input
+                  type="text"
+                  value={commentDraft}
+                  onChange={(e) => setCommentDraft(e.target.value)}
+                  placeholder="Write a comment..."
+                />
               </div>
-            ))}
-
-            {user && (
-              <form onSubmit={handleAddComment} style={{ display: 'flex', gap: '8px', marginTop: '12px', alignItems: 'flex-start' }}>
-                <div style={{ flex: 1 }}>
-                  <Input
-                    type="text"
-                    value={commentDraft}
-                    onChange={(e) => setCommentDraft(e.target.value)}
-                    placeholder="Write a comment..."
-                  />
-                </div>
-                <button type="submit" style={{ background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '12px', padding: '12px 20px', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer', marginTop: '1px' }}>
-                  Post
-                </button>
-              </form>
-            )}
-          </div>
-        )}
-      </div>
+              <button type="submit" style={{ background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '12px', padding: '12px 20px', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer', marginTop: '1px' }}>
+                Post
+              </button>
+            </form>
+          )}
+        </div>
+      )}
 
       {showCopiedToast && (
         <>
@@ -901,35 +647,68 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
   );
 }
 
-function ActionButton({ icon, label, count, active = false, onClick }: { icon: React.ReactNode, label: string, count?: number, active?: boolean, onClick?: () => void }) {
+
+function ClassicSkeleton() {
   return (
-    <button onClick={onClick} style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '6px',
-      background: 'white',
-      border: '1px solid #e2e8f0',
-      padding: '8px 10px',
-      borderRadius: '8px',
-      cursor: 'pointer',
-      color: active ? '#ef4444' : 'var(--color-primary-light)',
-      fontSize: '0.825rem',
-      fontWeight: '600',
-      transition: 'all 0.2s',
-      whiteSpace: 'nowrap',
-      flexShrink: 0,
-      minWidth: 'fit-content'
-    }} onMouseOver={(e) => {
-      e.currentTarget.style.background = '#f8fafc';
-      e.currentTarget.style.borderColor = '#cbd5e1';
-    }} onMouseOut={(e) => {
-      e.currentTarget.style.background = 'white';
-      e.currentTarget.style.borderColor = '#e2e8f0';
-    }}>
-      <span style={{ fontSize: '1.2rem', display: 'flex', alignItems: 'center' }}>{icon}</span>
-      <span>{label}{count !== undefined && count > 0 ? ` ${count}` : ''}</span>
-    </button>
+    <div className="layout-container" style={{ paddingTop: '80px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+        <div className="skeleton" style={{ height: '4rem', width: '60%', margin: '0 auto 20px' }}></div>
+        <div className="skeleton" style={{ height: '1.5rem', width: '40%', margin: '0 auto' }}></div>
+      </div>
+      <div className="listings-grid">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="card skeleton-card" style={{ padding: '0', height: '400px' }}>
+            <div className="skeleton" style={{ height: '240px', width: '100%' }}></div>
+            <div style={{ padding: '24px' }}>
+              <div className="skeleton" style={{ height: '1.5rem', width: '70%', marginBottom: '12px' }}></div>
+              <div className="skeleton" style={{ height: '1.25rem', width: '40%', marginBottom: '12px' }}></div>
+              <div className="skeleton" style={{ height: '1rem', width: '90%' }}></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
+function ClassicView({ properties, featuredCollections, trendingSearches, user, featuredProperties = [] }: { properties: any[], featuredCollections?: any[], trendingSearches?: string[], user?: any, featuredProperties?: any[] }) {
+  if (!properties || properties.length === 0) {
+    return (
+      <div className="layout-container" style={{ padding: '100px 0', textAlign: 'center' }}>
+        <h3>No listings found.</h3>
+        <Link href="/sell" style={{ color: 'var(--color-primary)' }}>Create the first one!</Link>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <section className="hero-section">
+        <div className="layout-container">
+          <h1 className="hero-title">Institutional Real Estate.</h1>
+          <p className="hero-subtitle">The premier marketplace for premium residential and commercial assets.</p>
+
+          <QuickActionsCard user={user} />
+        </div>
+      </section>
+
+      <div className="layout-container" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--card-gap)' }}>
+        <PopularCategories />
+        {featuredCollections && featuredCollections.length > 0 && <FeaturedCollectionsSection collections={featuredCollections} />}
+        <FeaturedProjects properties={featuredProperties} />
+        <PostPropertyBanner />
+        <TrendingSearches searches={trendingSearches || []} />
+        <FeaturedAgenciesClassic />
+      </div>
+
+      <div className="layout-container" style={{ paddingBottom: '100px', marginTop: 'var(--card-gap)' }}>
+        <h2 className="section-title">Latest Listings</h2>
+        <div className="listings-grid">
+          {properties.map(p => (
+            <PropertyCard key={p.id} property={p} />
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}

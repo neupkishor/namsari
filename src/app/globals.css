@@ -399,3 +399,41 @@ h3 {
   transform: translateY(-8px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
 }
+
+/* Horizontal Property Card */
+.property-card-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.property-card-image {
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.property-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
+}
+
+@media (max-width: 640px) {
+  .property-card-wrapper {
+    gap: 12px;
+  }
+  
+  .property-card-image {
+    width: 110px;
+    height: 110px;
+  }
+
+  .property-card-actions {
+    gap: 12px;
+  }
+}
