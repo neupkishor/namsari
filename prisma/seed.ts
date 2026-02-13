@@ -167,8 +167,9 @@ async function main() {
                 },
                 images: {
                     create: [
-                        { url: 'https://images.unsplash.com/photo-1600596542815-60c37c65b567?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', imageOf: 'exterior', filename: `ext-${slug}` },
-                        { url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', imageOf: 'livingroom', filename: `liv-${slug}` }
+                        { url: 'https://backend.lalpurjanepal.com.np/media/properties/WhatsApp_Image_2025-11-08_at_18.22.36_e8e1605e.jpg', imageOf: 'exterior', filename: `ext-${slug}` },
+                        { url: 'https://backend.lalpurjanepal.com.np/media/properties/WhatsApp_Image_2025-11-08_at_18.22.37_146a966d.jpg', imageOf: 'livingroom', filename: `liv-${slug}` },
+                        { url: 'https://backend.lalpurjanepal.com.np/media/properties/WhatsApp_Image_2025-11-08_at_18.22.39_3d2df0f9.jpg', imageOf: 'livingroom', filename: `liv-${slug}` }
                     ]
                 }
             }

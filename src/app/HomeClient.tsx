@@ -92,6 +92,9 @@ export default function Home({ user, settings, featuredCollections, trendingSear
       ) : (
         viewType === 'classic' ? <ClassicView properties={properties} featuredCollections={featuredCollections} trendingSearches={trendingSearches} user={user} featuredProperties={featuredProperties} /> : <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} trendingSearches={trendingSearches} featuredAgencies={featuredAgencies} advertisements={advertisements} />
       )}
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav user={user} />
     </main>
   );
 }
@@ -130,6 +133,58 @@ function FeedSkeleton() {
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function ClassicSkeleton() {
+  return (
+    <div className="layout-container" style={{ paddingTop: '80px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+        <div className="skeleton" style={{ height: '4rem', width: '60%', margin: '0 auto 20px' }}></div>
+        <div className="skeleton" style={{ height: '1.5rem', width: '40%', margin: '0 auto' }}></div>
+      </div>
+      <div className="listings-grid">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="card skeleton-card" style={{ padding: '0', height: '400px' }}>
+            <div className="skeleton" style={{ height: '240px', width: '100%' }}></div>
+            <div style={{ padding: '24px' }}>
+              <div className="skeleton" style={{ height: '1.5rem', width: '70%', marginBottom: '12px' }}></div>
+              <div className="skeleton" style={{ height: '1.25rem', width: '40%', marginBottom: '12px' }}></div>
+              <div className="skeleton" style={{ height: '1rem', width: '90%' }}></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+function GridListingCard({ properties, title, className }: { properties: any[], title: string, className?: string }) {
+  return (
+    <div className={`grid-listing-card ${className || ''}`}>
+      <div className="grid-listing-header">
+        <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '800', color: 'var(--color-primary)' }}>{title}</h4>
+        <Link href="/explore" style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--color-gold)', textDecoration: 'none' }}>Explore More</Link>
+      </div>
+
+      <div className="grid-container">
+        {properties.map(p => {
+          const slug = p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+          const propertyUrl = `/properties/${slug}-${p.id}`;
+          const mainImage = p.images?.[0] ? (typeof p.images[0] === 'string' ? p.images[0] : p.images[0].url) : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80';
+
+          return (
+            <Link key={p.id} href={propertyUrl} className="grid-card-item">
+              <img src={mainImage} alt="" />
+              <div className="grid-card-overlay">
+                <div>{p.price.split('.')[0]}</div>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
@@ -175,7 +230,7 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
   }
 
   return (
-    <div className="layout-container" style={{ display: 'flex', gap: '40px', paddingTop: '40px', paddingBottom: '100px' }}>
+    <div className="layout-container" style={{ display: 'flex', gap: '40px', paddingTop: '40px', paddingBottom: '120px' }}>
       {/* Social Media Style Sidebar */}
       <aside className="feed-sidebar-desktop" style={{ width: '240px', flexShrink: 0, position: 'sticky', top: '112px', height: 'fit-content', display: 'none' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -252,51 +307,102 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
       </aside>
 
       {/* Main Social Feed */}
-      <div style={{ flex: 1, maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: 'var(--card-gap)', margin: '0 auto' }}>
+      <div style={{ flex: 1, maxWidth: '680px', width: '100%', display: 'flex', flexDirection: 'column', gap: 'var(--card-gap)', margin: '0 auto' }}>
         <QuickActionsCard user={user} />
-        
+
         {/* Top Carousel Advertisement */}
         {carouselAds.length > 0 && (
-           <AdvertisementCarousel ads={carouselAds} />
+          <AdvertisementCarousel ads={carouselAds} />
         )}
 
-        {properties.flatMap((p, index) => {
-          const isTrigger = index === properties.length - 5;
-          const items = [
-            <PropertyPost
-              key={p.id}
-              property={p}
-              user={user}
-              settings={settings}
-              onRefresh={onRefresh}
-              onVisible={isTrigger ? onLoadMore : undefined}
-              isCommentsOpen={activeCommentPostId === p.id}
-              onToggleComments={() => setActiveCommentPostId(activeCommentPostId === p.id ? null : p.id)}
-            />
-          ];
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0px', marginTop: '16px' }}>
+          {(() => {
+            const feedItems: any[] = [];
+            let i = 0;
 
-          // Inject Single Advertisement every 5 posts (at index 4, 9, 14...)
-          if ((index + 1) % 5 === 0 && feedAds.length > 0) {
-            const adIndex = Math.floor((index + 1) / 5) - 1;
-            const adToShow = feedAds[adIndex % feedAds.length];
-            items.push(<AdvertisementCard key={`ad-${adToShow.id}-${index}`} ad={adToShow} />);
-          }
+            while (i < properties.length) {
+              const p = properties[i];
+              feedItems.push({ type: 'single', data: p });
 
-          if (index === 0) {
-            items.push(<FeaturedAgenciesFeed key="featured-agencies" agencies={featuredAgencies} />);
-          }
+              const index = feedItems.length - 1;
 
-          if (index === 2 && featuredCollections && featuredCollections.length > 0) {
-            items.push(<FeaturedCollectionsFeedItem key="featured-collections" collections={featuredCollections} />);
-          }
+              if (index === 2 && featuredCollections && featuredCollections.length > 0) feedItems.push({ type: 'featured_collections' });
+              if (index === 3) feedItems.push({ type: 'trending_searches' });
+              if (index === 5 && properties.length > 6) feedItems.push({ type: 'grid_random' });
 
+              // Ads every 5 items
+              if ((index + 1) % 5 === 0 && feedAds.length > 0) {
+                const adIndex = Math.floor((index + 1) / 5) - 1;
+                feedItems.push({ type: 'ad', data: feedAds[adIndex % feedAds.length] });
+              }
+              i++;
+            }
 
-          if (index === 3) {
-            items.push(<TrendingSearches key="trending-searches" searches={trendingSearches || []} />);
-          }
+            const getGroupType = (type: string) => {
+              if (type === 'single') return 'PROPERTY';
+              if (type === 'grid_random') return 'GRID';
+              if (type === 'ad') return 'AD';
+              if (['featured_agencies', 'featured_collections'].includes(type)) return 'FEATURED';
+              if (type === 'trending_searches') return 'TRENDING';
+              return type;
+            };
 
-          return items;
-        })}
+            return feedItems.map((item, idx) => {
+              const currentGroupType = getGroupType(item.type);
+              const prevItem = feedItems[idx - 1];
+              const nextItem = feedItems[idx + 1];
+              const prevGroupType = prevItem ? getGroupType(prevItem.type) : null;
+              const nextGroupType = nextItem ? getGroupType(nextItem.type) : null;
+
+              const isFirstInGroup = currentGroupType !== prevGroupType;
+              const isLastInGroup = currentGroupType !== nextGroupType;
+              const isMiddleInGroup = !isFirstInGroup && !isLastInGroup;
+
+              const groupClass = isFirstInGroup && isLastInGroup
+                ? ''
+                : isFirstInGroup
+                  ? 'group-top'
+                  : isLastInGroup
+                    ? 'group-bottom'
+                    : 'group-middle';
+
+              const marginTop = isFirstInGroup && idx > 0 ? (isFirstInGroup && isLastInGroup ? '16px' : '24px') : '0px';
+
+              let component = null;
+
+              if (item.type === 'single') {
+                const isTrigger = properties.indexOf(item.data) === properties.length - 5;
+                component = (
+                  <PropertyPost
+                    property={item.data}
+                    user={user}
+                    settings={settings}
+                    onRefresh={onRefresh}
+                    onVisible={isTrigger ? onLoadMore : undefined}
+                    isCommentsOpen={activeCommentPostId === item.data.id}
+                    onToggleComments={() => setActiveCommentPostId(activeCommentPostId === item.data.id ? null : item.data.id)}
+                    className={groupClass}
+                  />
+                );
+              } else if (item.type === 'ad') {
+                component = <AdvertisementCard ad={item.data} className={groupClass} />;
+              } else if (item.type === 'featured_collections') {
+                component = <FeaturedCollectionsFeedItem collections={featuredCollections || []} className={groupClass} />;
+              } else if (item.type === 'trending_searches') {
+                component = <TrendingSearches searches={trendingSearches || []} className={groupClass} />;
+              } else if (item.type === 'grid_random') {
+                const randomProps = [...properties].sort(() => 0.5 - Math.random()).slice(0, 4);
+                component = <GridListingCard properties={randomProps} title="Market Highlights" className={groupClass} />;
+              }
+
+              return (
+                <div key={`${item.type}-${idx}`} style={{ marginTop }}>
+                  {component}
+                </div>
+              );
+            });
+          })()}
+        </div>
 
         {isFetchingMore && (
           <div style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)', fontWeight: '600' }}>
@@ -314,8 +420,10 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
   );
 }
 
-function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommentsOpen, onToggleComments }: { property: any, user: any, settings: any, onRefresh: () => void, onVisible?: () => void, isCommentsOpen?: boolean, onToggleComments?: () => void }) {
+function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommentsOpen, onToggleComments, className }: { property: any, user: any, settings: any, onRefresh: () => void, onVisible?: () => void, isCommentsOpen?: boolean, onToggleComments?: () => void, className?: string }) {
   const containerRef = React.useRef<HTMLDivElement>(null);
+
+  // ... (rest of effects) ...
 
   useEffect(() => {
     if (!onVisible || !containerRef.current) return;
@@ -331,7 +439,6 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
     return () => observer.disconnect();
   }, [onVisible]);
 
-  // const [showComments, setShowComments] = React.useState(false); // Removed local state
   const [commentDraft, setCommentDraft] = React.useState('');
   const [isLiking, setIsLiking] = React.useState(false);
   const [localLikeState, setLocalLikeState] = React.useState<{ isLiked: boolean, count: number } | null>(null);
@@ -366,7 +473,6 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
       await toggleLike(property.id);
       onRefresh(); // Sync with server
     } catch (err) {
-      // Rollback on error
       setLocalLikeState(null);
       console.error(err);
     } finally {
@@ -377,7 +483,6 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
   const handleShare = async () => {
     const shareUrl = `${window.location.origin}${propertyUrl}`;
 
-    // 1. Try Native Share
     if (navigator.share) {
       try {
         await navigator.share({
@@ -386,13 +491,11 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
           url: shareUrl,
         });
       } catch (err) {
-        // User cancelled or share failed. We stop here to avoid "Document not focused" error.
         console.log('Share dismissed or failed', err);
       }
       return;
     }
 
-    // 2. Fallback: Clipboard + Toast
     const copyToClipboardFallback = () => {
       try {
         const textArea = document.createElement("textarea");
@@ -444,12 +547,13 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
   };
 
   const images = property.images || [];
-  const mainImage = images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80';
+  const mainImage = images.length > 0
+    ? (typeof images[0] === 'string' ? images[0] : images[0].url)
+    : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80';
 
   return (
-    <div ref={containerRef} className="card" style={{ padding: '16px', overflow: 'hidden' }}>
+    <div ref={containerRef} className={`card ${className || ''}`} style={{ padding: '16px', overflow: 'hidden' }}>
       <div className="property-card-wrapper">
-        {/* Left: Image Container */}
         <div className="property-card-image">
           <Link href={propertyUrl} style={{ display: 'block', width: '100%', height: '100%', borderRadius: '8px', overflow: 'hidden' }}>
             <img
@@ -475,9 +579,7 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
           )}
         </div>
 
-        {/* Right: Content Container */}
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          {/* Top Section */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
               <Link href={propertyUrl} style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}>
@@ -485,7 +587,6 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
                   {property.title}
                 </h3>
               </Link>
-              {/* Menu Icon Placeholder */}
               <button style={{ background: 'none', border: 'none', padding: '0 0 0 8px', cursor: 'pointer', color: 'var(--color-text-muted)' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
               </button>
@@ -508,9 +609,7 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
             </div>
           </div>
 
-          {/* Bottom Section: Seller & Actions */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px' }}>
-            {/* Seller Info */}
             <Link href={`/@${property.author_username || property.author}`} style={{ textDecoration: 'none', color: 'inherit' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {property.author_avatar ? (
@@ -524,57 +623,38 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
               </div>
             </Link>
 
-            {/* Actions Row */}
             <div className="property-card-actions">
-              {settings?.show_like_button !== false && (
-                <button onClick={handleLike} title="Like" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: isLiked ? '#ef4444' : 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem' }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill={isLiked ? "#ef4444" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
-                  {likeCount > 0 && <span style={{ fontWeight: '600' }}>{likeCount}</span>}
-                </button>
-              )}
-              
-              {settings?.show_comment_button !== false && (
-                <button onClick={() => onToggleComments && onToggleComments()} title="Comment" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-text-muted)' }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                </button>
-              )}
+              <button onClick={handleLike} title="Like" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: isLiked ? '#ef4444' : 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill={isLiked ? "#ef4444" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
+                {likeCount > 0 && <span style={{ fontWeight: '600' }}>{likeCount}</span>}
+              </button>
 
-              {settings?.show_share_button !== false && (
-                <button onClick={handleShare} title="Share" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-text-muted)' }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
-                </button>
-              )}
+              <button onClick={() => onToggleComments && onToggleComments()} title="Comment" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-text-muted)' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+              </button>
+
+              <button onClick={handleShare} title="Share" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-text-muted)' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+              </button>
 
               <div style={{ flex: 1 }}></div>
 
-              {settings?.show_contact_agent !== false && (
-                <button
-                  onClick={() => {
-                    const phone = property.author_phone || property.contact_phone;
-                    if (phone) {
-                      window.location.href = `tel:${phone}`;
-                    } else {
-                      alert("No contact number available for this agent.");
-                    }
-                  }}
-                  title="Call Agent"
-                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-primary)' }}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.81 12.81 0 0 0 .62 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.62A2 2 0 0 1 22 16.92z"></path></svg>
-                </button>
-              )}
-
-              {settings?.show_make_offer !== false && (
-                <button title="Make Offer" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-primary)' }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"></path><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"></path><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path></svg>
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  const phone = property.author_phone || property.contact_phone;
+                  if (phone) window.location.href = `tel:${phone}`;
+                  else alert("No contact number available.");
+                }}
+                title="Call Agent"
+                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-primary)' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.81 12.81 0 0 0 .62 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.62A2 2 0 0 1 22 16.92z"></path></svg>
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Comment Section (Collapsible) */}
       {isCommentsOpen && (
         <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #f1f5f9' }}>
           {comments.map((c: any) => (
@@ -608,65 +688,17 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
       )}
 
       {showCopiedToast && (
-        <>
-          <style dangerouslySetInnerHTML={{
-            __html: `
-            @keyframes toastSlideUp {
-              0% { opacity: 0; transform: translate(-50%, 20px); }
-              100% { opacity: 1; transform: translate(-50%, 0); }
-            }
-          `}} />
-          <div style={{
-            position: 'fixed',
-            bottom: '32px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: 'rgba(15, 23, 42, 0.95)',
-            backdropFilter: 'blur(12px)',
-            color: 'white',
-            padding: '14px 24px',
-            borderRadius: '16px',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            boxShadow: '0 20px 40px -5px rgba(0, 0, 0, 0.3)',
-            fontWeight: '500',
-            fontSize: '0.95rem',
-            animation: 'toastSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-            minWidth: '300px',
-            justifyContent: 'center',
-            border: '1px solid rgba(255,255,255,0.1)'
-          }}>
-            <span style={{ fontSize: '1.2rem' }}>✨</span>
-            <span>Link copied to clipboard</span>
-          </div>
-        </>
+        <div style={{
+          position: 'fixed', bottom: '32px', left: '50%', transform: 'translateX(-50%)',
+          background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(12px)',
+          color: 'white', padding: '14px 24px', borderRadius: '16px', zIndex: 9999,
+          display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 20px 40px -5px rgba(0, 0, 0, 0.3)',
+          fontWeight: '500', fontSize: '0.95rem', border: '1px solid rgba(255,255,255,0.1)'
+        }}>
+          <span>✨</span>
+          <span>Link copied to clipboard</span>
+        </div>
       )}
-    </div>
-  );
-}
-
-
-function ClassicSkeleton() {
-  return (
-    <div className="layout-container" style={{ paddingTop: '80px' }}>
-      <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-        <div className="skeleton" style={{ height: '4rem', width: '60%', margin: '0 auto 20px' }}></div>
-        <div className="skeleton" style={{ height: '1.5rem', width: '40%', margin: '0 auto' }}></div>
-      </div>
-      <div className="listings-grid">
-        {[1, 2, 3].map(i => (
-          <div key={i} className="card skeleton-card" style={{ padding: '0', height: '400px' }}>
-            <div className="skeleton" style={{ height: '240px', width: '100%' }}></div>
-            <div style={{ padding: '24px' }}>
-              <div className="skeleton" style={{ height: '1.5rem', width: '70%', marginBottom: '12px' }}></div>
-              <div className="skeleton" style={{ height: '1.25rem', width: '40%', marginBottom: '12px' }}></div>
-              <div className="skeleton" style={{ height: '1rem', width: '90%' }}></div>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
@@ -683,25 +715,25 @@ function ClassicView({ properties, featuredCollections, trendingSearches, user, 
 
   return (
     <>
-      <section className="hero-section">
+      <section className="hero-section" style={{ paddingTop: '100px', paddingBottom: '60px', background: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)' }}>
         <div className="layout-container">
-          <h1 className="hero-title">Institutional Real Estate.</h1>
-          <p className="hero-subtitle">The premier marketplace for premium residential and commercial assets.</p>
-
-          <QuickActionsCard user={user} />
+          <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+            <h1 className="hero-title" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', color: 'var(--color-primary)', marginBottom: '16px' }}>Institutional Real Estate.</h1>
+            <p className="hero-subtitle" style={{ fontSize: '1.2rem', color: 'var(--color-text-muted)', marginBottom: '40px' }}>The premier marketplace for premium residential and commercial assets.</p>
+            <QuickActionsCard user={user} />
+          </div>
         </div>
       </section>
 
-      <div className="layout-container" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--card-gap)' }}>
+      <div className="layout-container" style={{ display: 'flex', flexDirection: 'column', gap: '40px', marginTop: '40px' }}>
         <PopularCategories />
         {featuredCollections && featuredCollections.length > 0 && <FeaturedCollectionsSection collections={featuredCollections} />}
         <FeaturedProjects properties={featuredProperties} />
         <PostPropertyBanner />
         <TrendingSearches searches={trendingSearches || []} />
-        <FeaturedAgenciesClassic />
       </div>
 
-      <div className="layout-container" style={{ paddingBottom: '100px', marginTop: 'var(--card-gap)' }}>
+      <div className="layout-container" style={{ paddingBottom: '120px', marginTop: '60px' }}>
         <h2 className="section-title">Latest Listings</h2>
         <div className="listings-grid">
           {properties.map(p => (
@@ -710,5 +742,40 @@ function ClassicView({ properties, featuredCollections, trendingSearches, user, 
         </div>
       </div>
     </>
+  );
+}
+
+function MobileBottomNav({ user }: { user?: any }) {
+  const [pathname, setPathname] = useState('');
+
+  useEffect(() => {
+    setPathname(window.location.pathname);
+  }, []);
+
+  const items = [
+    { label: 'Home', icon: '🏠', href: '/' },
+    { label: 'Explore', icon: '🧭', href: '/explore' },
+    { label: 'Post', icon: '➕', href: '/sell' },
+    { label: 'Saved', icon: '❤️', href: user ? `/@${user.username}/saved` : '/login' },
+    { label: 'Menu', icon: '☰', href: '#menu' }
+  ];
+
+  return (
+    <div className="mobile-only" style={{
+      position: 'fixed', bottom: 0, left: 0, right: 0,
+      background: '#ffffff', borderTop: '1px solid #e2e8f0',
+      display: 'flex', justifyContent: 'space-around', padding: '10px 0 24px',
+      zIndex: 1000, boxShadow: '0 -4px 12px rgba(0,0,0,0.05)'
+    }}>
+      {items.map((item, idx) => (
+        <Link key={idx} href={item.href} style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
+          textDecoration: 'none', color: pathname === item.href ? 'var(--color-primary)' : 'var(--color-text-muted)', flex: 1
+        }}>
+          <span style={{ fontSize: '1.4rem' }}>{item.icon}</span>
+          <span style={{ fontSize: '0.65rem', fontWeight: '600' }}>{item.label}</span>
+        </Link>
+      ))}
+    </div>
   );
 }

@@ -1,14 +1,14 @@
 import React from 'react';
 import Link from 'next/link';
 
-export function TrendingSearches({ searches }: { searches: string[] }) {
+export function TrendingSearches({ searches, className }: { searches: string[], className?: string }) {
     if (!searches || searches.length === 0) {
         return null;
     }
 
     return (
         <section
-            className="card"
+            className={`card ${className || ''}`}
             style={{
                 width: '100%',
                 padding: '32px',

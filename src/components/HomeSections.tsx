@@ -164,7 +164,7 @@ export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) =>
                             >
                                 <div style={{ position: 'relative', height: '220px' }}>
                                     <img
-                                        src={(p.images && p.images[0]) || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'}
+                                        src={p.images?.[0] ? (typeof p.images[0] === 'string' ? p.images[0] : (p.images[0] as any).url) : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'}
                                         alt={p.title}
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />

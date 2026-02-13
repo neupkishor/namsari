@@ -10,25 +10,24 @@ interface Ad {
     posted_by?: string | null;
 }
 
-export const AdvertisementCard = ({ ad }: { ad: Ad }) => {
+export const AdvertisementCard = ({ ad, className }: { ad: Ad, className?: string }) => {
     const content = (
-        <div style={{ 
-            width: '100%', 
-            borderRadius: '12px', 
-            overflow: 'hidden', 
-            boxShadow: 'none',
-            position: 'relative'
+        <div className={`card ${className || ''}`} style={{
+            width: '100%',
+            overflow: 'hidden',
+            position: 'relative',
+            padding: 0
         }}>
-            <img 
-                src={ad.image} 
-                alt="Advertisement" 
-                style={{ 
-                    width: '100%', 
-                    height: 'auto', 
+            <img
+                src={ad.image}
+                alt="Advertisement"
+                style={{
+                    width: '100%',
+                    height: 'auto',
                     display: 'block',
                     maxHeight: '500px',
                     objectFit: 'cover'
-                }} 
+                }}
             />
             <div style={{
                 position: 'absolute',
@@ -84,16 +83,33 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
     if (ads.length === 0) return null;
 
     return (
-        <div style={{ 
-            width: '100%', 
-            borderRadius: '12px', 
-            overflow: 'hidden', 
-            boxShadow: 'none',
-            position: 'relative'
+        <div className="advertisement-carousel-container" style={{
+            width: '100%',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            position: 'relative',
+            background: '#f8fafc'
         }}>
-            <div style={{ position: 'relative', width: '100%', paddingTop: '35%' /* Aspect Ratio approx */ }}>
+            <style jsx>{`
+                .carousel-wrapper {
+                     position: relative;
+                     width: 100%;
+                     padding-top: 35%; /* Desktop Aspect Ratio */
+                }
+                @media (max-width: 768px) {
+                    .carousel-wrapper {
+                        padding-top: 50%; /* Tablet Aspect Ratio */
+                    }
+                }
+                @media (max-width: 480px) {
+                    .carousel-wrapper {
+                        padding-top: 66%; /* Mobile Aspect Ratio - taller for better visibility */
+                    }
+                }
+            `}</style>
+            <div className="carousel-wrapper">
                 {ads.map((ad, idx) => (
-                    <div 
+                    <div
                         key={ad.id}
                         style={{
                             position: 'absolute',
@@ -102,29 +118,31 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
                             width: '100%',
                             height: '100%',
                             opacity: idx === activeIndex ? 1 : 0,
-                            transition: 'opacity 0.5s ease-in-out',
+                            transition: 'opacity 0.6s ease-in-out',
                             zIndex: idx === activeIndex ? 1 : 0,
                             pointerEvents: idx === activeIndex ? 'auto' : 'none'
                         }}
                     >
-                         <Link href={ad.takes_to || '#'} target={ad.takes_to ? "_blank" : undefined} style={{ display: 'block', width: '100%', height: '100%', cursor: ad.takes_to ? 'pointer' : 'default' }}>
-                            <img 
-                                src={ad.image} 
-                                alt={`Ad by ${ad.posted_by}`} 
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        <Link href={ad.takes_to || '#'} target={ad.takes_to ? "_blank" : undefined} style={{ display: 'block', width: '100%', height: '100%', cursor: ad.takes_to ? 'pointer' : 'default' }}>
+                            <img
+                                src={ad.image}
+                                alt={`Ad by ${ad.posted_by}`}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             />
                         </Link>
-                         <div style={{
+                        <div style={{
                             position: 'absolute',
-                            top: '8px',
-                            right: '8px',
-                            background: 'rgba(0,0,0,0.6)',
+                            top: '12px',
+                            right: '12px',
+                            background: 'rgba(0,0,0,0.7)',
                             color: 'white',
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            fontSize: '0.75rem',
-                            fontWeight: '600',
-                            backdropFilter: 'blur(4px)'
+                            padding: '4px 10px',
+                            borderRadius: '6px',
+                            fontSize: '0.7rem',
+                            fontWeight: '700',
+                            backdropFilter: 'blur(8px)',
+                            letterSpacing: '0.02em',
+                            textTransform: 'uppercase'
                         }}>
                             Sponsored {ad.posted_by ? `by ${ad.posted_by}` : ''}
                         </div>
@@ -146,7 +164,7 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
                     {/* Dots */}
                     <div style={{ display: 'flex', gap: '6px', marginRight: '12px' }}>
                         {ads.map((_, idx) => (
-                            <div 
+                            <div
                                 key={idx}
                                 onClick={(e) => {
                                     e.preventDefault();
@@ -165,7 +183,7 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
                     </div>
 
                     {/* Arrows */}
-                    <button 
+                    <button
                         onClick={(e) => {
                             e.preventDefault();
                             handleManualNav(prevSlide);
@@ -186,7 +204,7 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
                     >
                         ←
                     </button>
-                    <button 
+                    <button
                         onClick={(e) => {
                             e.preventDefault();
                             handleManualNav(nextSlide);

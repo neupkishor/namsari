@@ -32,7 +32,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
         >
             <Link href={propertyUrl} style={{ display: 'block', position: 'relative', height: '240px', overflow: 'hidden' }}>
                 <img
-                    src={property.images?.[0] || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=400&q=80'}
+                    src={property.images?.[0] ? (typeof property.images[0] === 'string' ? property.images[0] : (property.images[0] as any).url) : 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=400&q=80'}
                     alt={property.title}
                     style={{
                         width: '100%',

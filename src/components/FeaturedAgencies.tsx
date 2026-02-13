@@ -65,7 +65,7 @@ export const FeaturedAgenciesClassic = () => {
 };
 
 // --- Social Feed View Component ---
-export const FeaturedAgenciesFeed = ({ agencies: propAgencies }: { agencies?: any[] }) => {
+export const FeaturedAgenciesFeed = ({ agencies: propAgencies, className }: { agencies?: any[], className?: string }) => {
     const scrollRef = React.useRef<HTMLDivElement>(null);
     const [isHovered, setIsHovered] = React.useState(false);
     const [isVisible, setIsVisible] = React.useState(true);
@@ -122,7 +122,7 @@ export const FeaturedAgenciesFeed = ({ agencies: propAgencies }: { agencies?: an
     }, [isHovered, isVisible]);
 
     return (
-        <div className="card" style={{
+        <div className={`card ${className || ''}`} style={{
             padding: '24px',
             background: 'white',
             width: '100%',

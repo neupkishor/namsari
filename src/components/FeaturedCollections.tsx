@@ -58,12 +58,12 @@ export function FeaturedCollectionsSection({ collections }: { collections: any[]
     );
 }
 
-export function FeaturedCollectionsFeedItem({ collections }: { collections: any[] }) {
+export function FeaturedCollectionsFeedItem({ collections, className }: { collections: any[], className?: string }) {
     if (!collections || collections.length === 0) return null;
 
     // Show a horizontal scroll list for feed
     return (
-        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: 'var(--radius-card)', padding: '16px' }}>
+        <div className={`card ${className || ''}`} style={{ background: 'white', padding: '16px' }}>
             <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '16px', color: 'var(--color-primary-light)' }}>Recommended Collections</h3>
             <div style={{
                 display: 'flex',

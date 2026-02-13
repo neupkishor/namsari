@@ -12,7 +12,6 @@ export const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ user }) => {
         <div
             className="card"
             style={{
-                padding: '32px',
                 position: 'relative',
                 overflow: 'hidden',
                 fontFamily: 'inherit',
@@ -48,38 +47,7 @@ export const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ user }) => {
                 </div>
 
                 {/* Quick Action Tiles - Responsive */}
-                <style dangerouslySetInnerHTML={{
-                    __html: `
-                        .quick-actions-container {
-                            display: grid;
-                            grid-template-columns: repeat(3, 1fr);
-                            gap: 24px;
-                        }
-                        
-                        @media (max-width: 768px) {
-                            .quick-actions-container {
-                                display: flex;
-                                overflow-x: auto;
-                                gap: 16px;
-                                scroll-snap-type: x mandatory;
-                                -webkit-overflow-scrolling: touch;
-                                scrollbar-width: none;
-                                -ms-overflow-style: none;
-                                padding-bottom: 8px;
-                            }
-                            
-                            .quick-actions-container::-webkit-scrollbar {
-                                display: none;
-                            }
-                            
-                            .action-tile-wrapper {
-                                flex: 0 0 280px;
-                                scroll-snap-align: start;
-                            }
-                        }
-                    `
-                }} />
-                <div className="quick-actions-container">
+                <div className="quick-actions-container" style={{ marginTop: '8px' }}>
                     <div className="action-tile-wrapper">
                         <ActionTile
                             title="Post Property"
