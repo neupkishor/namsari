@@ -1,7 +1,7 @@
 import HomeClient from './HomeClient';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { getActiveAdvertisements } from './manage/advertisements/actions';
+import { getActiveAdvertisements } from '../(manage)/manage/advertisements/actions';
 
 export default async function HomePage() {
     const session = await getSession();
@@ -67,7 +67,7 @@ export default async function HomePage() {
                 }
             }
         }),
-        import('./actions/search').then(mod => mod.getTrendingSearches()),
+        import('../actions/search').then(mod => mod.getTrendingSearches()),
         prisma.property.findMany({
             where: { isFeatured: true },
             take: 4,

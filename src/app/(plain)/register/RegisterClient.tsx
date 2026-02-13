@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { registerAction } from '../actions/auth';
+import { registerAction } from '../../actions/auth';
 import { Input } from '@/components/ui';
 import { useFormStatus } from 'react-dom';
 

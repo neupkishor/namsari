@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { logoutAction } from './actions/auth';
-import { toggleLike, addComment } from './actions/social';
+import { logoutAction } from '../actions/auth';
+import { toggleLike, addComment } from '../actions/social';
 import { Input } from '@/components/ui';
 import { useRouter } from 'next/navigation';
 import { QuickActionsCard } from '@/components/QuickActionsCard';
@@ -140,7 +140,7 @@ function FeedSkeleton() {
 
 function ClassicSkeleton() {
   return (
-    <div className="layout-container" style={{ paddingTop: '80px' }}>
+    <div className="layout-container" style={{ paddingTop: '40px' }}>
       <div style={{ textAlign: 'center', marginBottom: '60px' }}>
         <div className="skeleton" style={{ height: '4rem', width: '60%', margin: '0 auto 20px' }}></div>
         <div className="skeleton" style={{ height: '1.5rem', width: '40%', margin: '0 auto' }}></div>
@@ -715,7 +715,7 @@ function ClassicView({ properties, featuredCollections, trendingSearches, user, 
 
   return (
     <>
-      <section className="hero-section" style={{ paddingTop: '100px', paddingBottom: '60px', background: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)' }}>
+      <section className="hero-section" style={{ paddingTop: '40px', paddingBottom: '60px', background: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)' }}>
         <div className="layout-container">
           <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
             <h1 className="hero-title" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', color: 'var(--color-primary)', marginBottom: '16px' }}>Institutional Real Estate.</h1>
