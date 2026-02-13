@@ -16,7 +16,7 @@ export const AdvertisementCard = ({ ad }: { ad: Ad }) => {
             width: '100%', 
             borderRadius: '12px', 
             overflow: 'hidden', 
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            boxShadow: 'none',
             position: 'relative'
         }}>
             <img 
@@ -88,9 +88,8 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
             width: '100%', 
             borderRadius: '12px', 
             overflow: 'hidden', 
-            boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
-            position: 'relative',
-            marginBottom: '32px'
+            boxShadow: 'none',
+            position: 'relative'
         }}>
             <div style={{ position: 'relative', width: '100%', paddingTop: '35%' /* Aspect Ratio approx */ }}>
                 {ads.map((ad, idx) => (

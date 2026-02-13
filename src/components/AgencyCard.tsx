@@ -56,7 +56,7 @@ export const AgencyCard: React.FC<AgencyCardProps> = ({ agency, variant = 'class
                         overflow: 'hidden',
                         margin: '0 auto',
                         border: '2px solid #f1f5f9',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+                        boxShadow: 'none'
                     }}>
                         <img src={agency.logo} alt={agency.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>

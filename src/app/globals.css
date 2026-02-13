@@ -23,10 +23,10 @@
 
   /* Spacing & Shadows */
   --spacing-unit: 8px;
-  --card-gap: 32px;
-  --shadow-sm: 0 2px 15px -3px rgba(15, 23, 42, 0.07), 0 4px 6px -2px rgba(15, 23, 42, 0.05);
-  --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
-  --shadow-heavy: 0 20px 40px -5px rgba(15, 23, 42, 0.15);
+  --card-gap: 0px;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-heavy: none;
   --radius-card: 12px;
   --radius-inner: 8px;
 }
@@ -150,13 +150,13 @@ h3 {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
   padding: 24px;
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: none;
+  transition: none;
   transform: none !important;
 }
 
 .card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
   transform: none !important;
 }
 
@@ -317,13 +317,13 @@ h3 {
 
 /* Career Page Enhancements */
 .job-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .job-card:hover {
   border-color: var(--color-gold) !important;
-  box-shadow: var(--shadow-md) !important;
-  transform: translateY(-4px);
+  box-shadow: none !important;
+  transform: none;
   background: white !important;
 }
 
@@ -390,14 +390,14 @@ h3 {
 
 /* Support Card Hover Effect */
 .support-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  transform: none;
+  box-shadow: none;
 }
 
 /* Blog Card Hover Effect */
 .blog-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  transform: none;
+  box-shadow: none;
 }
 
 /* Horizontal Property Card */

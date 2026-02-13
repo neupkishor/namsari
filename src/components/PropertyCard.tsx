@@ -39,10 +39,10 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                         height: '100%',
                         objectFit: 'cover',
                         cursor: 'pointer',
-                        transition: 'transform 0.5s ease'
+                        transition: 'none'
                     }}
-                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                    onMouseOver={(e) => e.currentTarget.style.transform = 'none'}
+                    onMouseOut={(e) => e.currentTarget.style.transform = 'none'}
                 />
                 <div style={{
                     position: 'absolute',

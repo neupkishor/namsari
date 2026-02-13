@@ -31,7 +31,7 @@ export const PopularCategories = () => {
                             padding: '32px 20px',
                             borderRadius: 'var(--radius-card)',
                             textAlign: 'center',
-                            boxShadow: cat.active ? '0 10px 25px -5px rgba(37, 99, 235, 0.1), 0 8px 10px -6px rgba(37, 99, 235, 0.1)' : 'var(--shadow-sm)',
+                            boxShadow: 'none',
                             border: cat.active ? '2px solid #3b82f6' : '1px solid var(--color-border)',
                             cursor: 'pointer',
                         }}
