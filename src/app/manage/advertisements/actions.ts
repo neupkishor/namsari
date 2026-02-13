@@ -32,7 +32,7 @@ export async function getActiveAdvertisements() {
 export async function createAdvertisement(formData: FormData) {
     const session = await getSession();
     if (!session || session.account_type !== 'admin') {
-        if (!session) return { error: "Unauthorized" };
+        return { error: "Unauthorized" };
     }
 
     const image = formData.get('image') as string;
@@ -66,7 +66,9 @@ export async function createAdvertisement(formData: FormData) {
 
 export async function toggleAdvertisementStatus(id: number) {
     const session = await getSession();
-    if (!session) return { error: "Unauthorized" };
+    if (!session || session.account_type !== 'admin') {
+        return { error: "Unauthorized" };
+    }
 
     try {
         const ad = await prisma.advertisement.findUnique({ where: { id } });
@@ -88,7 +90,9 @@ export async function toggleAdvertisementStatus(id: number) {
 
 export async function deleteAdvertisement(id: number) {
     const session = await getSession();
-    if (!session) return { error: "Unauthorized" };
+    if (!session || session.account_type !== 'admin') {
+        return { error: "Unauthorized" };
+    }
 
     try {
         await prisma.advertisement.delete({

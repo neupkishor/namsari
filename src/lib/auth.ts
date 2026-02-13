@@ -1,11 +1,29 @@
 import { cookies } from 'next/headers';
+import { cache } from 'react';
+import prisma from '@/lib/prisma';
 
-export async function getSession() {
+export const getSession = cache(async () => {
     const cookieStore = await cookies();
     const userId = cookieStore.get('namsari_user_id')?.value;
     if (!userId) return null;
-    return { id: userId };
-}
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: parseInt(userId) },
+            select: { id: true, account_type: true }
+        });
+
+        if (!user) return null;
+
+        return {
+            id: userId,
+            account_type: user.account_type
+        };
+    } catch (error) {
+        console.error("Error in getSession:", error);
+        return null;
+    }
+});
 
 export async function setSession(userId: string) {
     const cookieStore = await cookies();
