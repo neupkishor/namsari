@@ -1,9 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
-import { SiteHeader } from '@/components/SiteHeader';
+import { HeaderContainer } from '@/components/HeaderNavigation';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { getJobListings } from '@/app/manage/careers/actions';
+import { getJobListings } from '@/actions/careers';
 
 export default async function CareersPage() {
     const session = await getSession();
@@ -25,7 +25,7 @@ export default async function CareersPage() {
 
     return (
         <main style={{ background: 'white', minHeight: '100vh' }}>
-            <SiteHeader user={user} />
+            <HeaderContainer user={user} />
             <div className="layout-container" style={{ paddingTop: '120px', paddingBottom: '100px', maxWidth: '900px' }}>
                 <div style={{ textAlign: 'center', marginBottom: '80px' }}>
                     <h1 style={{ fontSize: '3.5rem', fontWeight: '800', marginBottom: '20px', color: 'var(--color-primary)' }}>

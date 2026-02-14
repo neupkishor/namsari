@@ -1,7 +1,7 @@
-export { FormSection, FormGrid, FormLabel, FormCard, SectionTitle } from './FormLayout';
-export { SelectableCheckboxCard } from './SelectableCheckboxCard';
-export { GeoLocationInput } from './GeoLocationInput';
-export { QuickCategorySelect } from './QuickCategorySelect';
-export { NearbyLocationCard } from './NearbyLocationCard';
-export { PrivacyCheckboxCard } from './PrivacyCheckboxCard';
-export { SelectableRadioCard } from './SelectableRadioCard';
+export { FormSection, FormGrid, FormLabel, FormCard, SectionTitle } from '@/components/form/FormLayout';
+export { SelectableCheckboxCard } from '@/components/form/SelectableCheckboxCard';
+export { GeoLocationInput } from '@/components/form/GeoLocationInput';
+export { QuickCategorySelect } from '@/components/form/QuickCategorySelect';
+export { NearbyLocationCard } from '@/components/form/NearbyLocationCard';
+export { PrivacyCheckboxCard } from '@/components/form/PrivacyCheckboxCard';
+export { SelectableRadioCard } from '@/components/form/SelectableRadioCard';

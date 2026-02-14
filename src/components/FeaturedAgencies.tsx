@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { AgencyCard } from './AgencyCard';
+import { AgencyCard } from '@/components/AgencyCard';
 
 // Mock data for agencies
 const agencies = [

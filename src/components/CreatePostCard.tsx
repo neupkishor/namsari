@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import styles from './ui/form.module.css';
+import styles from '@/components/ui/form.module.css';
 
 interface CreatePostCardProps {
     user: any;

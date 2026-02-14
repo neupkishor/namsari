@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import imageCompression from 'browser-image-compression';
-import { createListing } from './actions/listing';
-import { BasicInformation } from './components/BasicInformation';
-import { LocationInformation } from './components/LocationInformation';
-import { PropertyInformation } from './components/PropertyInformation';
+import { createListing } from '@/app/sell/actions/listing';
+import { BasicInformation } from '@/app/sell/components/BasicInformation';
+import { LocationInformation } from '@/app/sell/components/LocationInformation';
+import { PropertyInformation } from '@/app/sell/components/PropertyInformation';
 
-import { SiteHeader } from '@/components/SiteHeader';
+import { HeaderNavigation } from '@/components/HeaderNavigation';
 
 export default function SellClient({ users, currentUserId, currentUser }: { users: any[], currentUserId: number, currentUser?: any }) {
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -277,7 +277,7 @@ export default function SellClient({ users, currentUserId, currentUser }: { user
 
     return (
         <main style={{ backgroundColor: '#f8fafc', minHeight: '100vh', paddingBottom: '100px' }}>
-            <SiteHeader user={currentUser} />
+            <HeaderNavigation user={currentUser} />
 
             <div className="layout-container" style={{ maxWidth: '900px', paddingTop: '60px' }}>
                 <div style={{ marginBottom: '40px' }}>

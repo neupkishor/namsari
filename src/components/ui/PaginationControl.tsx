@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { Pagination } from './Pagination';
+import { Pagination } from '@/components/ui/Pagination';
 
 export function PaginationControl({ totalPages }: { totalPages: number }) {
     const router = useRouter();

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { submitJobApplication } from '@/app/manage/careers/actions';
+import { submitJobApplication } from '@/actions/careers';
 
 export default function JobApplicationForm({ job, steps, currentStepIndex, session, slug }: any) {
     const router = useRouter();

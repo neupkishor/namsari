@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { SiteHeader } from '@/components/SiteHeader';
+import { HeaderNavigation } from '@/components/HeaderNavigation';
 import React, { useEffect, useState } from 'react';
 
 export default function NotFound() {
@@ -17,7 +17,7 @@ export default function NotFound() {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#ffffff' }}>
-            <SiteHeader user={user} />
+            <HeaderNavigation user={user} />
 
             <main style={{
                 flex: 1,

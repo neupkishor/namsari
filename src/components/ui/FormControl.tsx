@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './form.module.css';
+import styles from '@/components/ui/form.module.css';
 
 interface FormControlProps {
     label?: string;

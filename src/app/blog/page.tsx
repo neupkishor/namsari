@@ -1,9 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
-import { SiteHeader } from '@/components/SiteHeader';
+import { HeaderContainer } from '@/components/HeaderNavigation';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { getBlogPosts } from '@/app/manage/blog/actions';
+import { getBlogPosts } from '@/actions/blog';
 
 export default async function BlogPage() {
     const session = await getSession();
@@ -20,10 +20,9 @@ export default async function BlogPage() {
     }
 
     return (
-        <main style={{ minHeight: '100vh', background: 'white' }}>
-            <SiteHeader user={user} />
-
-            <div className="layout-container" style={{ paddingTop: '120px', paddingBottom: '100px', maxWidth: '1100px' }}>
+        <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', paddingBottom: '80px' }}>
+            <HeaderContainer user={user} />
+            <div className="layout-container" style={{ paddingTop: '60px' }}>
                 <div style={{ textAlign: 'center', marginBottom: '80px' }}>
                     <h1 style={{ fontSize: '3.5rem', fontWeight: '800', marginBottom: '20px', color: 'var(--color-primary)' }}>
                         Namsari Blog

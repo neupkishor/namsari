@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
-import { Input } from '@/components/ui';
-import { SiteHeader } from '@/components/SiteHeader';
+
+import { HeaderContainer } from '@/components/HeaderNavigation';
 import { PropertyCard } from '@/components/PropertyCard';
 
 // Dynamically import map to avoid SSR issues
@@ -137,7 +136,7 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
             background: 'white'
         }}>
             {/* Site Header */}
-            <SiteHeader user={initialUser} />
+            <HeaderContainer user={initialUser} />
 
             {/* Airbnb-style Search Bar */}
             <div className="explore-header" style={{
@@ -164,7 +163,7 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
-                                    import('../actions/search').then(mod => mod.recordSearch(searchQuery));
+                                    import('@/actions/search').then(mod => mod.recordSearch(searchQuery));
                                 }
                             }}
                             className="airbnb-search"

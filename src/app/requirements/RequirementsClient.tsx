@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { SiteHeader } from '@/components/SiteHeader';
+import { HeaderContainer } from '@/components/HeaderNavigation';
 import dynamic from 'next/dynamic';
 import { Input } from '@/components/ui';
 import {
@@ -131,7 +131,7 @@ export default function RequirementsClient({ currentUser }: { currentUser: any }
 
     return (
         <main style={{ backgroundColor: '#f8fafc', minHeight: '100vh', paddingBottom: '100px' }}>
-            <SiteHeader user={currentUser} />
+            <HeaderContainer user={currentUser} />
 
             <div className="layout-container" style={{ maxWidth: '800px', paddingTop: '60px' }}>
                 <div style={{ textAlign: 'center', marginBottom: '48px' }}>

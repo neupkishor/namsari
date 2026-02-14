@@ -1,9 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
-import { SiteHeader } from '@/components/SiteHeader';
+import { HeaderContainer } from '@/components/HeaderNavigation';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { getSupportArticles } from '@/app/manage/support/actions';
+import { getSupportArticles } from '@/actions/support';
 
 export default async function SupportPage() {
     const session = await getSession();
@@ -30,7 +30,7 @@ export default async function SupportPage() {
 
     return (
         <main style={{ minHeight: '100vh', background: '#f8fafc' }}>
-            <SiteHeader user={user} />
+            <HeaderContainer user={user} />
 
             <div className="layout-container" style={{ paddingTop: '120px', paddingBottom: '100px', maxWidth: '1000px' }}>
                 <div style={{ textAlign: 'center', marginBottom: '60px' }}>

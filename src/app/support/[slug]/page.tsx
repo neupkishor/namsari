@@ -1,10 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { SiteHeader } from '@/components/SiteHeader';
+import { HeaderContainer } from '@/components/HeaderNavigation';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { getSupportArticleBySlug } from '@/app/manage/support/actions';
+import { getSupportArticleBySlug } from '@/actions/support';
 
 export default async function SupportArticlePage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
@@ -28,7 +28,7 @@ export default async function SupportArticlePage({ params }: { params: Promise<{
 
     return (
         <main style={{ minHeight: '100vh', background: '#f8fafc' }}>
-            <SiteHeader user={user} />
+            <HeaderContainer user={user} />
 
             <div className="layout-container" style={{ paddingTop: '120px', paddingBottom: '100px', maxWidth: '800px' }}>
                 <Link href="/support" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--color-text-muted)', textDecoration: 'none', fontWeight: '600', marginBottom: '32px' }}>

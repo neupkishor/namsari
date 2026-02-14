@@ -47,7 +47,6 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   max-width: 100vw;
-  padding-top: var(--header-height);
 }
 
 /* Neup Group Standard Layout System */
@@ -96,6 +95,22 @@ body {
   height: calc(100vh - var(--header-height));
   overflow-y: auto;
   z-index: 10;
+}
+
+.main {
+  padding-top: var(--header-height);
+}
+
+.sidebar {
+    padding-top: var(--header-height);
+}
+
+.main--no-padding-top {
+  padding-top: 0;
+}
+
+.sidebar--no-padding-top {
+  padding-top: 0;
 }
 
 .main-body {

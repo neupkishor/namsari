@@ -1,5 +1,5 @@
 import React from 'react';
-import { SiteHeader } from '@/components/SiteHeader';
+import { HeaderContainer } from '@/components/HeaderNavigation';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 
@@ -30,9 +30,9 @@ export default async function AboutPage() {
     };
 
     return (
-        <main style={{ background: 'white', minHeight: '100vh' }}>
-            <SiteHeader user={user} />
-            <div className="layout-container" style={{ paddingTop: '120px', paddingBottom: '100px', maxWidth: '800px' }}>
+        <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', paddingBottom: '80px' }}>
+            <HeaderContainer user={user} />
+            <div className="layout-container" style={{ paddingTop: '60px' }}>
                 <h1 style={{ fontSize: '3.5rem', fontWeight: '800', marginBottom: '40px', color: 'var(--color-primary)', letterSpacing: '-0.03em' }}>
                     {displayData.title}
                 </h1>

@@ -1,6 +1,6 @@
 import React, { InputHTMLAttributes } from 'react';
-import styles from './form.module.css';
-import { FormControl } from './FormControl';
+import styles from '@/components/ui/form.module.css';
+import { FormControl } from '@/components/ui/FormControl';
 
 interface RadioOption {
     label: string;

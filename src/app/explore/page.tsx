@@ -1,5 +1,5 @@
 import React from 'react';
-import ExploreClient from './ExploreClient';
+import ExploreClient from '@/app/explore/ExploreClient';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 
