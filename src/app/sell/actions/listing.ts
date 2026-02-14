@@ -8,7 +8,7 @@ import { createPropertyListing } from '@/lib/services/property';
 export async function createListing(formData: FormData) {
     const session = await getSession();
     if (!session || !session.id) {
-        redirect('/login');
+        redirect('/auth/login');
     }
 
     const userId = Number(session.id);

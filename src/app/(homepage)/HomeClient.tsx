@@ -324,7 +324,7 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
 
   const handleLike = async () => {
     if (!user) {
-      window.location.href = '/login';
+      window.location.href = '/auth/login';
       return;
     }
 
@@ -397,7 +397,7 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      window.location.href = '/login';
+      window.location.href = '/auth/login';
       return;
     }
     if (!commentDraft.trim()) return;

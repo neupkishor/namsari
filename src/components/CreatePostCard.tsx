@@ -16,10 +16,10 @@ export const CreatePostCard: React.FC<CreatePostCardProps> = ({ user }) => {
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Join the premier real estate network to reach verified buyers.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                    <Link href="/register" style={{ background: 'var(--color-primary)', color: 'white', padding: '10px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: '700', fontSize: '0.9rem' }}>
+                    <Link href="/auth/register" style={{ background: 'var(--color-primary)', color: 'white', padding: '10px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: '700', fontSize: '0.9rem' }}>
                         Get Started
                     </Link>
-                    <Link href="/login" style={{ color: 'var(--color-primary)', padding: '10px 16px', fontWeight: '600', textDecoration: 'none', fontSize: '0.9rem' }}>
+                    <Link href="/auth/login" style={{ color: 'var(--color-primary)', padding: '10px 16px', fontWeight: '600', textDecoration: 'none', fontSize: '0.9rem' }}>
                         Log In
                     </Link>
                 </div>

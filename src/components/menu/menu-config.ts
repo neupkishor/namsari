@@ -24,11 +24,11 @@ export const sidebarMenuGroups = (user: any): MenuGroup[] => [
     {
         title: 'Platform',
         items: [
-            { label: 'Profile', icon: '👤', href: user ? `/@${user.username}` : '/login' },
+            { label: 'Profile', icon: '👤', href: user ? `/@${user.username}` : '/auth/login' },
             { label: 'Houses', icon: '🏠', href: '/find/houses' },
             { label: 'Commercial Buildings', icon: '🏢', href: '/find/commercial-buildings' },
             { label: 'Agencies', icon: '🧑‍💼', href: '/agencies' },
-            { label: 'Favourites', icon: '❤️', href: user ? `/@${user.username}/saved` : '/login' },
+            { label: 'Favourites', icon: '❤️', href: user ? `/@${user.username}/saved` : '/auth/login' },
         ]
     },
     {
@@ -72,7 +72,7 @@ export const bottomNavItems = (user: any): MenuItem[] => [
     { label: 'Home', icon: '🏠', href: '/' },
     { label: 'Explore', icon: '🧭', href: '/explore' },
     { label: 'Post', icon: '➕', href: '/sell' },
-    { label: 'Saved', icon: '❤️', href: user ? `/@${user.username}/saved` : '/login' },
+    { label: 'Saved', icon: '❤️', href: user ? `/@${user.username}/saved` : '/auth/login' },
     { label: 'Menu', icon: '☰', href: '#menu' }
 ];
 

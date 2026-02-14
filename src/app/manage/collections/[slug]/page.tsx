@@ -10,7 +10,7 @@ export default async function CollectionManagePage(props: { params: Promise<{ sl
     const { slug } = params;
 
     const session = await getSession();
-    if (!session) redirect('/login');
+    if (!session) redirect('/auth/login');
     const userId = parseInt(session.id);
 
     const collection = await prisma.collection.findFirst({

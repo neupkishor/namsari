@@ -12,7 +12,7 @@ interface EditProfilePageProps {
 export default async function EditProfilePage({ params }: EditProfilePageProps) {
     const session = await getSession();
     if (!session) {
-        redirect('/login');
+        redirect('/auth/login');
     }
 
     const resolvedParams = await params;

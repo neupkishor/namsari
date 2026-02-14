@@ -5,7 +5,7 @@ import { CollectionsClient } from "@/app/manage/collections/CollectionsClient";
 
 export default async function CollectionsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
     const session = await getSession();
-    if (!session) redirect('/login');
+    if (!session) redirect('/auth/login');
 
     const userId = parseInt(session.id); // Convert to number for DB and Client
 

@@ -48,7 +48,7 @@ export function HeaderProfile({ user }: { user: any }) {
         return (
             <>
                 <Link
-                    href="/login"
+                    href="/auth/login"
                     className="header-link desktop-only"
                     style={{
                         padding: '8px 16px',
@@ -62,7 +62,7 @@ export function HeaderProfile({ user }: { user: any }) {
                 </Link>
 
                 <Link
-                    href="/login"
+                    href="/auth/login"
                     className="mobile-only-icon"
                     style={{ textDecoration: 'none', color: 'var(--color-text-main)' }}
                 >
@@ -85,7 +85,7 @@ export function HeaderProfile({ user }: { user: any }) {
                 </Link>
 
                 <Link
-                    href="/register"
+                    href="/auth/register"
                     className="desktop-only"
                     style={{
                         background: 'var(--color-primary)',

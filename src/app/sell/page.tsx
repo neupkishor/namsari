@@ -7,7 +7,7 @@ import SellClient from '@/app/sell/SellClient';
 export default async function SellPage() {
     const session = await getSession();
     if (!session || !session.id) {
-        redirect('/login');
+        redirect('/auth/login');
     }
 
     const userId = Number(session.id);
