@@ -12,6 +12,8 @@ interface LayoutProps {
     }>;
 }
 
+import ScrollToTop from '@/components/ScrollToTop';
+
 export default async function ProfileLayout({ children, params }: LayoutProps) {
     const resolvedParams = await params;
     const username = resolvedParams['@username'];
@@ -39,6 +41,7 @@ export default async function ProfileLayout({ children, params }: LayoutProps) {
 
     return (
         <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
+            <ScrollToTop />
             <Header user={currentUser} />
 
             {/* Profile Header (Cover, Info, Tabs) */}

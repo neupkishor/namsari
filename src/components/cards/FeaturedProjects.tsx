@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { AutoScrollCarousel } from '@/components/ui';
 
 interface FeaturedProjectsProps {
     properties?: any[];
@@ -37,11 +38,7 @@ export const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ properties =
                 </div>
             </div>
 
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                gap: '24px'
-            }}>
+            <AutoScrollCarousel itemWidth="280px" gap="24px">
                 {displayProjects.map((p) => {
                     const slug = p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
                     const propertyUrl = `/properties/${slug}-${p.id}`;
@@ -57,7 +54,7 @@ export const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ properties =
                             'Location Unspecified';
 
                     return (
-                        <Link key={p.id} href={propertyUrl} style={{ textDecoration: 'none' }}>
+                        <Link key={p.id} href={propertyUrl} style={{ textDecoration: 'none', height: '100%', display: 'block' }}>
                             <div
                                 className="card"
                                 style={{
@@ -122,7 +119,7 @@ export const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ properties =
                         </Link>
                     );
                 })}
-            </div>
+            </AutoScrollCarousel>
         </section>
     );
 };

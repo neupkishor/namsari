@@ -3,6 +3,7 @@ import { Header } from '@/components/menu/Header';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import SidebarContent from '@/app/manage/SidebarContent';
+import ScrollToTop from '@/components/ScrollToTop';
 
 export default async function ManageLayout({ children }: { children: React.ReactNode }) {
     const session = await getSession();
@@ -10,6 +11,7 @@ export default async function ManageLayout({ children }: { children: React.React
 
     return (
         <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            <ScrollToTop />
             <Header user={currentUser} fullWidth />
             
             <div style={{ flex: 1, display: 'flex', marginTop: 'var(--header-height)' }}>

@@ -12,6 +12,9 @@ export default function HomepageLayout({ children }: { children: React.ReactNode
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // Scroll to top on mount
+        window.scrollTo(0, 0);
+        
         async function fetchUser() {
             try {
                 const userData = await getCurrentUser();
@@ -38,7 +41,7 @@ export default function HomepageLayout({ children }: { children: React.ReactNode
                 minHeight: 'calc(100vh - var(--header-height))',
                 maxWidth: 'var(--container-max)',
                 margin: '0 auto',
-                marginTop: '64px',
+                marginTop: 'calc(var(--header-height) + 24px)',
                 paddingLeft: '24px',
                 paddingRight: '24px',
                 width: '100%',

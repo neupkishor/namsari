@@ -150,7 +150,7 @@ function FeedView({ properties, user, onRefresh, onLoadMore, isFetchingMore, has
   }
 
   return (
-    <div className="layout-container" style={{ display: 'flex', gap: '40px', paddingTop: '24px', paddingBottom: '120px', alignItems: 'flex-start' }}>
+    <div className="layout-container" style={{ display: 'flex', gap: '40px', paddingTop: '0px', paddingBottom: '120px', alignItems: 'flex-start' }}>
       <div className="feed-main-content" style={{
         flex: 1,
         display: 'flex',

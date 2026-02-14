@@ -6,3 +6,4 @@ export * from '@/components/ui/Select';
 export * from '@/components/ui/Checkbox';
 export * from '@/components/ui/Pagination';
 export * from '@/components/ui/PaginationControl';
+export * from '@/components/ui/AutoScrollCarousel';

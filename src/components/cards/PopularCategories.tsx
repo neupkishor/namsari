@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { AutoScrollCarousel } from '@/components/ui';
 
 interface Category {
     id: string;
@@ -27,16 +28,12 @@ export const PopularCategories: React.FC<PopularCategoriesProps> = ({ categories
             <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '24px' }}>
                 Popular Categories
             </h2>
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-                gap: '20px'
-            }}>
+            <AutoScrollCarousel itemWidth="160px" gap="20px">
                 {categories.map((cat) => (
                     <Link
                         key={cat.id}
                         href={`/explore?q=${cat.name}`}
-                        style={{ textDecoration: 'none' }}
+                        style={{ textDecoration: 'none', display: 'block', height: '100%' }}
                     >
                         <div
                             style={{
@@ -47,7 +44,8 @@ export const PopularCategories: React.FC<PopularCategoriesProps> = ({ categories
                                 boxShadow: 'none',
                                 border: '1px solid var(--color-border)',
                                 cursor: 'pointer',
-                                transition: 'transform 0.2s, box-shadow 0.2s'
+                                transition: 'transform 0.2s, box-shadow 0.2s',
+                                height: '100%'
                             }}
                             onMouseOver={(e) => {
                                 e.currentTarget.style.transform = 'translateY(-4px)';
@@ -78,7 +76,7 @@ export const PopularCategories: React.FC<PopularCategoriesProps> = ({ categories
                         </div>
                     </Link>
                 ))}
-            </div>
+            </AutoScrollCarousel>
         </section>
     );
 };
