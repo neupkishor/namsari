@@ -10,15 +10,12 @@ import { PopularCategories, FeaturedProjects } from '@/components/HomeSections';
 import { TrendingSearches } from '@/components/TrendingSearches';
 import { PostPropertyBanner } from '@/components/PostPropertyBanner';
 import { FeaturedCollectionsSection, FeaturedCollectionsFeedItem } from '@/components/FeaturedCollections';
-import { HeaderNavigation } from '@/components/HeaderNavigation';
 import { PropertyCard } from '@/components/PropertyCard';
 import { AdvertisementCard, AdvertisementCarousel } from '@/components/AdvertisementCard';
-import HomeDesktopLayout from '@/app/HomeDesktopLayout';
-import { BottomNavigation } from '@/components/navigation/BottomNavigation';
+import { BottomNavigation } from '@/components/menu/BottomNavigation';
 
-export default function Home({ user, settings, featuredCollections, trendingSearches, featuredProperties = [], featuredAgencies = [], advertisements = [] }: { user: any, settings: any, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[], advertisements?: any[] }) {
+export default function Home({ user, settings, featuredCollections, trendingSearches, featuredProperties = [], featuredAgencies = [], advertisements = [] }: { user: any, settings?: any, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[], advertisements?: any[] }) {
   const router = useRouter();
-  const viewType = settings?.view_mode || 'classic';
   const [isLoading, setIsLoading] = useState(true);
 
   const [properties, setProperties] = useState<any[]>([]);
@@ -66,50 +63,25 @@ export default function Home({ user, settings, featuredCollections, trendingSear
   }, []);
 
   return (
-    <main style={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
-      {/* Shared Responsive Logic for Feed Sidebar */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        @media (min-width: 1025px) {
-          .feed-sidebar-desktop { display: block !important; }
-        }
-        @media (max-width: 1024px) {
-           .feed-main-content { margin-left: 0 !important; }
-        }
-      `}} />
-
-      <HeaderNavigation user={user} />
-
-
+    <div style={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
       {/* Check if the page is loading content */}
       {isLoading ? (
         <FeedSkeleton />
       ) : (
-        <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} trendingSearches={trendingSearches} featuredAgencies={featuredAgencies} advertisements={advertisements} />
+        <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} trendingSearches={trendingSearches} featuredProperties={featuredProperties} featuredAgencies={featuredAgencies} advertisements={advertisements} />
       )}
 
       {/* Mobile Bottom Navigation */}
-      <BottomNavigation user={user} />
-    </main>
+      <div className="mobile-only">
+        <BottomNavigation user={user} />
+      </div>
+    </div>
   );
 }
 
 function FeedSkeleton() {
   return (
     <div className="layout-container" style={{ display: 'flex', gap: '40px', paddingTop: '40px' }}>
-      {/* Sidebar Skeleton - Responsive */}
-      <aside className="feed-sidebar-desktop" style={{ width: '240px', flexShrink: 0, display: 'none' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {[1, 2, 3, 4, 5].map(i => (
-            <div key={i} className="skeleton" style={{ height: '48px', width: '100%', borderRadius: '8px' }}></div>
-          ))}
-          <div style={{ margin: '16px 0', height: '1px', background: 'rgba(0,0,0,0.05)' }} />
-          {[1, 2, 3].map(i => (
-            <div key={i} className="skeleton" style={{ height: '40px', width: '80%', borderRadius: '8px' }}></div>
-          ))}
-        </div>
-      </aside>
-
       {/* Feed Content Skeleton */}
       <div style={{ flex: 1, maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: 'var(--card-gap)', margin: '0 auto' }}>
         {[1, 2].map(i => (
@@ -161,7 +133,7 @@ function GridListingCard({ properties, title, className }: { properties: any[], 
   );
 }
 
-function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchingMore, hasMore, featuredCollections, trendingSearches, featuredAgencies, advertisements = [] }: { properties: any[], user: any, settings: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean, featuredCollections?: any[], trendingSearches?: string[], featuredAgencies?: any[], advertisements?: any[] }) {
+function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchingMore, hasMore, featuredCollections, trendingSearches, featuredProperties, featuredAgencies, advertisements = [] }: { properties: any[], user: any, settings: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[], advertisements?: any[] }) {
   const [activeCommentPostId, setActiveCommentPostId] = React.useState<number | null>(null);
 
   const carouselAds = advertisements?.filter(ad => ad.shows_on_top) || [];
@@ -177,101 +149,119 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
   }
 
   return (
-    <HomeDesktopLayout user={user}>
+    <div className="layout-container" style={{ display: 'flex', gap: '40px', paddingTop: '24px', paddingBottom: '120px', alignItems: 'flex-start' }}>
+      <div className="feed-main-content" style={{
+        flex: 1,
+        display: 'flex',
+        justifyContent: 'center',
+        minWidth: 0
+      }}>
+        <div style={{
+          width: '100%',
+          maxWidth: '680px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--card-gap)'
+        }}>
           <QuickActionsCard user={user} />
+          
+          <PopularCategories />
 
-        {/* Top Carousel Advertisement */}
-        {carouselAds.length > 0 && (
-          <AdvertisementCarousel ads={carouselAds} />
-        )}
+          {/* Top Carousel Advertisement */}
+          {carouselAds.length > 0 && (
+            <AdvertisementCarousel ads={carouselAds} />
+          )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0px', marginTop: '16px' }}>
-          {(() => {
-            const feedItems: any[] = [];
-            let i = 0;
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0px', marginTop: '16px' }}>
+            {(() => {
+              const feedItems: any[] = [];
+              let i = 0;
 
-            while (i < properties.length) {
-              const p = properties[i];
-              feedItems.push({ type: 'single', data: p });
+              while (i < properties.length) {
+                const p = properties[i];
+                feedItems.push({ type: 'single', data: p });
 
-              const index = feedItems.length - 1;
+                const index = feedItems.length - 1;
 
-              if (index === 2 && featuredCollections && featuredCollections.length > 0) feedItems.push({ type: 'featured_collections' });
-              if (index === 3) feedItems.push({ type: 'trending_searches' });
-              if (index === 5 && properties.length > 6) feedItems.push({ type: 'grid_random' });
+                if (index === 2 && featuredCollections && featuredCollections.length > 0) feedItems.push({ type: 'featured_collections' });
+                if (index === 3) feedItems.push({ type: 'trending_searches' });
+                if (index === 5 && properties.length > 6) feedItems.push({ type: 'grid_random' });
+                if (index === 7 && featuredProperties && featuredProperties.length > 0) feedItems.push({ type: 'featured_projects' });
 
-              // Ads every 5 items
-              if ((index + 1) % 5 === 0 && feedAds.length > 0) {
-                const adIndex = Math.floor((index + 1) / 5) - 1;
-                feedItems.push({ type: 'ad', data: feedAds[adIndex % feedAds.length] });
+                // Ads every 5 items
+                if ((index + 1) % 5 === 0 && feedAds.length > 0) {
+                  const adIndex = Math.floor((index + 1) / 5) - 1;
+                  feedItems.push({ type: 'ad', data: feedAds[adIndex % feedAds.length] });
+                }
+                i++;
               }
-              i++;
-            }
 
-            const getGroupType = (type: string) => {
-              if (type === 'single') return 'PROPERTY';
-              if (type === 'grid_random') return 'GRID';
-              if (type === 'ad') return 'AD';
-              if (['featured_agencies', 'featured_collections'].includes(type)) return 'FEATURED';
-              if (type === 'trending_searches') return 'TRENDING';
-              return type;
-            };
+              const getGroupType = (type: string) => {
+                if (type === 'single') return 'PROPERTY';
+                if (type === 'grid_random') return 'GRID';
+                if (type === 'ad') return 'AD';
+                if (['featured_agencies', 'featured_collections', 'featured_projects'].includes(type)) return 'FEATURED';
+                if (type === 'trending_searches') return 'TRENDING';
+                return type;
+              };
 
-            return feedItems.map((item, idx) => {
-              const currentGroupType = getGroupType(item.type);
-              const prevItem = feedItems[idx - 1];
-              const nextItem = feedItems[idx + 1];
-              const prevGroupType = prevItem ? getGroupType(prevItem.type) : null;
-              const nextGroupType = nextItem ? getGroupType(nextItem.type) : null;
+              return feedItems.map((item, idx) => {
+                const currentGroupType = getGroupType(item.type);
+                const prevItem = feedItems[idx - 1];
+                const nextItem = feedItems[idx + 1];
+                const prevGroupType = prevItem ? getGroupType(prevItem.type) : null;
+                const nextGroupType = nextItem ? getGroupType(nextItem.type) : null;
 
-              const isFirstInGroup = currentGroupType !== prevGroupType;
-              const isLastInGroup = currentGroupType !== nextGroupType;
+                const isFirstInGroup = currentGroupType !== prevGroupType;
+                const isLastInGroup = currentGroupType !== nextGroupType;
 
-              const groupClass = isFirstInGroup && isLastInGroup
-                ? ''
-                : isFirstInGroup
-                  ? 'group-top'
-                  : isLastInGroup
-                    ? 'group-bottom'
-                    : 'group-middle';
+                const groupClass = isFirstInGroup && isLastInGroup
+                  ? ''
+                  : isFirstInGroup
+                    ? 'group-top'
+                    : isLastInGroup
+                      ? 'group-bottom'
+                      : 'group-middle';
 
-              const marginTop = isFirstInGroup && idx > 0 ? (isFirstInGroup && isLastInGroup ? '16px' : '24px') : '0px';
+                const marginTop = isFirstInGroup && idx > 0 ? (isFirstInGroup && isLastInGroup ? '16px' : '24px') : '0px';
 
-              let component = null;
+                let component = null;
 
-              if (item.type === 'single') {
-                const isTrigger = properties.indexOf(item.data) === properties.length - 5;
-                component = (
-                  <PropertyPost
-                    property={item.data}
-                    user={user}
-                    settings={settings}
-                    onRefresh={onRefresh}
-                    onVisible={isTrigger ? onLoadMore : undefined}
-                    isCommentsOpen={activeCommentPostId === item.data.id}
-                    onToggleComments={() => setActiveCommentPostId(activeCommentPostId === item.data.id ? null : item.data.id)}
-                    className={groupClass}
-                  />
+                if (item.type === 'single') {
+                  const isTrigger = properties.indexOf(item.data) === properties.length - 5;
+                  component = (
+                    <PropertyPost
+                      property={item.data}
+                      user={user}
+                      settings={settings}
+                      onRefresh={onRefresh}
+                      onVisible={isTrigger ? onLoadMore : undefined}
+                      isCommentsOpen={activeCommentPostId === item.data.id}
+                      onToggleComments={() => setActiveCommentPostId(activeCommentPostId === item.data.id ? null : item.data.id)}
+                      className={groupClass}
+                    />
+                  );
+                } else if (item.type === 'ad') {
+                  component = <AdvertisementCard ad={item.data} className={groupClass} />;
+                } else if (item.type === 'featured_collections') {
+                  component = <FeaturedCollectionsFeedItem collections={featuredCollections || []} className={groupClass} />;
+                } else if (item.type === 'trending_searches') {
+                  component = <TrendingSearches searches={trendingSearches || []} className={groupClass} />;
+                } else if (item.type === 'grid_random') {
+                  const randomProps = [...properties].sort(() => 0.5 - Math.random()).slice(0, 4);
+                  component = <GridListingCard properties={randomProps} title="Market Highlights" className={groupClass} />;
+                } else if (item.type === 'featured_projects') {
+                  component = <FeaturedProjects properties={featuredProperties || []} className={groupClass} />;
+                }
+
+                return (
+                  <div key={`${item.type}-${idx}`} style={{ marginTop }}>
+                    {component}
+                  </div>
                 );
-              } else if (item.type === 'ad') {
-                component = <AdvertisementCard ad={item.data} className={groupClass} />;
-              } else if (item.type === 'featured_collections') {
-                component = <FeaturedCollectionsFeedItem collections={featuredCollections || []} className={groupClass} />;
-              } else if (item.type === 'trending_searches') {
-                component = <TrendingSearches searches={trendingSearches || []} className={groupClass} />;
-              } else if (item.type === 'grid_random') {
-                const randomProps = [...properties].sort(() => 0.5 - Math.random()).slice(0, 4);
-                component = <GridListingCard properties={randomProps} title="Market Highlights" className={groupClass} />;
-              }
-
-              return (
-                <div key={`${item.type}-${idx}`} style={{ marginTop }}>
-                  {component}
-                </div>
-              );
-            });
-          })()}
-        </div>
+              });
+            })()}
+          </div>
 
         {isFetchingMore && (
           <div style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)', fontWeight: '600' }}>
@@ -284,7 +274,9 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
             You've reached the end of the registry.
           </div>
         )}
-      </HomeDesktopLayout>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -571,44 +563,3 @@ function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommen
   );
 }
 
-function ClassicView({ properties, featuredCollections, trendingSearches, user, featuredProperties = [] }: { properties: any[], featuredCollections?: any[], trendingSearches?: string[], user?: any, featuredProperties?: any[] }) {
-  if (!properties || properties.length === 0) {
-    return (
-      <div className="layout-container" style={{ padding: '100px 0', textAlign: 'center' }}>
-        <h3>No listings found.</h3>
-        <Link href="/sell" style={{ color: 'var(--color-primary)' }}>Create the first one!</Link>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <section className="hero-section" style={{ paddingTop: '40px', paddingBottom: '60px', background: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)' }}>
-        <div className="layout-container">
-          <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-            <h1 className="hero-title" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', color: 'var(--color-primary)', marginBottom: '16px' }}>Institutional Real Estate.</h1>
-            <p className="hero-subtitle" style={{ fontSize: '1.2rem', color: 'var(--color-text-muted)', marginBottom: '40px' }}>The premier marketplace for premium residential and commercial assets.</p>
-            <QuickActionsCard user={user} />
-          </div>
-        </div>
-      </section>
-
-      <div className="layout-container" style={{ display: 'flex', flexDirection: 'column', gap: '40px', marginTop: '40px' }}>
-        <PopularCategories />
-        {featuredCollections && featuredCollections.length > 0 && <FeaturedCollectionsSection collections={featuredCollections} />}
-        <FeaturedProjects properties={featuredProperties} />
-        <PostPropertyBanner />
-        <TrendingSearches searches={trendingSearches || []} />
-      </div>
-
-      <div className="layout-container" style={{ paddingBottom: '120px', marginTop: '60px' }}>
-        <h2 className="section-title">Latest Listings</h2>
-        <div className="listings-grid">
-          {properties.map(p => (
-            <PropertyCard key={p.id} property={p} />
-          ))}
-        </div>
-      </div>
-    </>
-  );
-}

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PropertyMap from '@/app/properties/[slugAndId]/PropertyMap';
-import { HeaderContainer } from '@/components/HeaderNavigation';
+import { Header } from '@/components/menu/Header';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { PropertyCard } from '@/components/PropertyCard';
@@ -95,7 +95,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
     return (
         <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', paddingBottom: '100px', paddingTop: 'var(--header-height, 72px)' }}>
-            <HeaderContainer user={currentUser} />
+            <Header user={currentUser} />
 
             <style dangerouslySetInnerHTML={{
                 __html: `

@@ -5,7 +5,7 @@ import { getSession } from '@/lib/auth';
 import Link from 'next/link';
 import { ClassicCollectionView } from '@/app/collection/[slug]/views/ClassicCollectionView';
 import { SocialCollectionView } from '@/app/collection/[slug]/views/SocialCollectionView';
-import { HeaderContainer } from '@/components/HeaderNavigation';
+import { Header } from '@/components/menu/Header';
 
 export default async function CollectionPublicPage(props: { params: Promise<{ slug: string }>, searchParams: Promise<{ view?: string }> }) {
     const params = await props.params;
@@ -53,7 +53,7 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
 
     return (
         <div style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: '80px' }}>
-            <HeaderContainer user={currentUser} />
+            <Header user={currentUser} />
             {/* Header Section */}
             <header style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '60px 0' }}>
                 <div className="layout-container">

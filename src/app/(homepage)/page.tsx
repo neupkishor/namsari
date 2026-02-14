@@ -1,4 +1,4 @@
-import HomeClient from '@/app/HomeClient';
+import HomeClient from './HomeClient';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { getActiveAdvertisements } from '@/actions/advertisements';
@@ -14,7 +14,6 @@ export default async function HomePage() {
                 await (prisma as any).systemSettings.create({
                     data: {
                         id: 1,
-                        view_mode: 'classic',
                         show_like_button: true,
                         show_share_button: true,
                         show_comment_button: true,
@@ -30,7 +29,6 @@ export default async function HomePage() {
     // Default settings if DB fetch falls through
     if (!settings) {
         settings = {
-            view_mode: 'classic',
             show_like_button: true,
             show_share_button: true,
             show_comment_button: true,

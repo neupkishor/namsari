@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import { HeaderContainer } from '@/components/HeaderNavigation';
+import { Header } from '@/components/menu/Header';
 import { getSession } from '@/lib/auth';
 import Link from 'next/link';
 
@@ -26,7 +26,7 @@ export default async function AgenciesPage() {
 
     return (
         <main style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-            <HeaderContainer user={currentUser} />
+            <Header user={currentUser} />
 
             <div className="layout-container" style={{ padding: '100px 24px 80px' }}>
                 <div style={{ marginBottom: '40px', maxWidth: '600px' }}>

@@ -1,0 +1,87 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { Header } from '@/components/menu/Header';
+import { Footer } from '@/components/menu/Footer';
+import { Sidebar } from '@/components/menu/Sidebar';
+import { BottomNavigation } from '@/components/menu/BottomNavigation';
+import { getCurrentUser } from '@/actions/auth';
+
+export default function HomepageLayout({ children }: { children: React.ReactNode }) {
+    const [user, setUser] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchUser() {
+            try {
+                const userData = await getCurrentUser();
+                setUser(userData);
+            } catch (error) {
+                console.error("Failed to fetch user", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchUser();
+    }, []);
+
+    return (
+        <>
+            <Header user={user} />
+
+            <div className="layout-container" style={{
+                display: 'flex',
+                gap: '40px',
+                paddingTop: '24px',
+                paddingBottom: '120px',
+                alignItems: 'flex-start',
+                minHeight: 'calc(100vh - var(--header-height))',
+                maxWidth: 'var(--container-max)',
+                margin: '0 auto',
+                marginTop: '64px',
+                paddingLeft: '24px',
+                paddingRight: '24px',
+                width: '100%',
+                position: 'relative'
+            }}>
+
+                <div className="desktop-only">
+                    <Sidebar user={user} loading={loading} />
+                </div>
+
+                <main style={{
+                    flex: 1,
+                    width: '100%',
+                    paddingLeft: '32px'
+                }}>
+                    {children}
+                </main>
+            </div>
+
+            <Footer />
+
+            <div className="mobile-only">
+                <BottomNavigation user={user} />
+            </div>
+
+            <style jsx global>{`
+            @media (max-width: 1024px) {
+                main {
+                    padding-left: 0 !important;
+                }
+                .layout-container {
+                    padding: 0 8px !important;
+                }
+                .desktop-only {
+                    display: none !important;
+                }
+            }
+            @media (min-width: 1025px) {
+                .mobile-only {
+                    display: none !important;
+                }
+            }
+        `}</style>
+        </>
+    );
+}

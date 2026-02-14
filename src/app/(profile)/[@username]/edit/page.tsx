@@ -1,7 +1,7 @@
 import prisma from '@/lib/prisma';
 import { notFound, redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
-import EditProfileClient from '@/app/@[username]/edit/EditProfileClient';
+import EditProfileClient from '@/app/(profile)/[@username]/edit/EditProfileClient';
 
 interface EditProfilePageProps {
     params: Promise<{

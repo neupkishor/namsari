@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { HeaderContainer } from '@/components/HeaderNavigation';
+import { Header } from '@/components/menu/Header';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import SidebarContent from '@/app/manage/SidebarContent';
@@ -10,7 +10,7 @@ export default async function ManageLayout({ children }: { children: React.React
 
     return (
         <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <HeaderContainer user={currentUser} fullWidth />
+            <Header user={currentUser} fullWidth />
             
             <div style={{ flex: 1, display: 'flex', marginTop: 'var(--header-height)' }}>
                 <div className="main-layout-wrapper" style={{ overflow: 'visible' }}>

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { User } from '@prisma/client';
 import { updateProfile } from '@/actions/profile-client';
-import ProfileImageUpload from '@/app/@[username]/ProfileImageUploadClient';
+import ProfileImageUpload from '@/app/(profile)/[@username]/ProfileImageUploadClient';
 import { useRouter } from 'next/navigation';
 
 export default function EditProfileClient({ user }: { user: User }) {

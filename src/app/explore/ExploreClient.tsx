@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
-import { HeaderContainer } from '@/components/HeaderNavigation';
+import { Header } from '@/components/menu/Header';
 import { PropertyCard } from '@/components/PropertyCard';
 
 // Dynamically import map to avoid SSR issues
@@ -136,7 +136,7 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
             background: 'white'
         }}>
             {/* Site Header */}
-            <HeaderContainer user={initialUser} />
+            <Header user={initialUser} />
 
             {/* Airbnb-style Search Bar */}
             <div className="explore-header" style={{

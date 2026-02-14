@@ -99,7 +99,7 @@ const featuredProjects = [
     }
 ];
 
-export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) => {
+export const FeaturedProjects = ({ properties = [], className }: { properties?: any[], className?: string }) => {
     // In many parts of the app, we already have a list of properties that might include featured ones
     const displayProjects = properties.filter(p => p.isFeatured);
 
@@ -120,7 +120,7 @@ export const FeaturedProjects = ({ properties = [] }: { properties?: any[] }) =>
     }
 
     return (
-        <section>
+        <section className={className}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary-light)' }}>
                     Featured Projects

@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { HeaderContainer } from '@/components/HeaderNavigation';
+import { Header } from '@/components/menu/Header';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { getBlogPostBySlug } from '@/actions/blog';
@@ -28,7 +28,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
     return (
         <main style={{ minHeight: '100vh', background: 'white' }}>
-            <HeaderContainer user={user} />
+            <Header user={user} />
 
             <article className="layout-container" style={{ paddingTop: '120px', paddingBottom: '100px', maxWidth: '800px' }}>
                 <Link href="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--color-text-muted)', textDecoration: 'none', fontWeight: '600', marginBottom: '40px' }}>

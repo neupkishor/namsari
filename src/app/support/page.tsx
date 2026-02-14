@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { HeaderContainer } from '@/components/HeaderNavigation';
+import { Header } from '@/components/menu/Header';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { getSupportArticles } from '@/actions/support';
@@ -30,7 +30,7 @@ export default async function SupportPage() {
 
     return (
         <main style={{ minHeight: '100vh', background: '#f8fafc' }}>
-            <HeaderContainer user={user} />
+            <Header user={user} />
 
             <div className="layout-container" style={{ paddingTop: '120px', paddingBottom: '100px', maxWidth: '1000px' }}>
                 <div style={{ textAlign: 'center', marginBottom: '60px' }}>

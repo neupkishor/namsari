@@ -8,7 +8,7 @@ import { BasicInformation } from '@/app/sell/components/BasicInformation';
 import { LocationInformation } from '@/app/sell/components/LocationInformation';
 import { PropertyInformation } from '@/app/sell/components/PropertyInformation';
 
-import { HeaderNavigation } from '@/components/HeaderNavigation';
+import { Header } from '@/components/menu/Header';
 
 export default function SellClient({ users, currentUserId, currentUser }: { users: any[], currentUserId: number, currentUser?: any }) {
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -277,7 +277,7 @@ export default function SellClient({ users, currentUserId, currentUser }: { user
 
     return (
         <main style={{ backgroundColor: '#f8fafc', minHeight: '100vh', paddingBottom: '100px' }}>
-            <HeaderNavigation user={currentUser} />
+            <Header user={currentUser} />
 
             <div className="layout-container" style={{ maxWidth: '900px', paddingTop: '60px' }}>
                 <div style={{ marginBottom: '40px' }}>

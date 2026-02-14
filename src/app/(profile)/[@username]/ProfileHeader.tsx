@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import ProfileImageUpload from './ProfileImageUpload';
-import ProfileTabs from '@/app/@[username]/ProfileTabs';
+import ProfileTabs from '@/app/(profile)/[@username]/ProfileTabs';
 
 interface ProfileHeaderProps {
     user: any;

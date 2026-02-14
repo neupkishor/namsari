@@ -1,8 +1,8 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { getSession } from '@/lib/auth';
-import { HeaderNavigation } from '@/components/HeaderNavigation';
-import ProfileSidebar from '@/app/@[username]/ProfileSidebar';
+import { Header } from '@/components/menu/Header';
+import ProfileSidebar from '@/app/(profile)/[@username]/ProfileSidebar';
 import ProfileHeader from './ProfileHeader';
 
 interface LayoutProps {
@@ -39,7 +39,7 @@ export default async function ProfileLayout({ children, params }: LayoutProps) {
 
     return (
         <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
-            <HeaderNavigation user={currentUser} />
+            <Header user={currentUser} />
 
             {/* Profile Header (Cover, Info, Tabs) */}
             <ProfileHeader user={user} isOwner={isOwner} />

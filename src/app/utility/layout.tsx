@@ -1,5 +1,5 @@
 import React from 'react';
-import { HeaderContainer } from '@/components/HeaderNavigation';
+import { Header } from '@/components/menu/Header';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 
@@ -12,7 +12,7 @@ export default async function UtilityLayout({ children }: { children: React.Reac
 
     return (
         <main style={{ minHeight: '100vh', background: '#f8fafc' }}>
-            <HeaderContainer user={user} />
+            <Header user={user} />
             <div className="layout-container" style={{ paddingTop: '120px', paddingBottom: '100px' }}>
                 {children}
             </div>

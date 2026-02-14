@@ -4,15 +4,20 @@ import { PropertyCard } from '@/components/PropertyCard';
 
 interface PageProps {
     params: Promise<{
-        'username': string;
+        '@username': string;
     }>;
 }
 
 export default async function ProfileFeedPage({ params }: PageProps) {
     const resolvedParams = await params;
-    const username = resolvedParams['username'];
+    const username = resolvedParams['@username'];
 
     let decoded = decodeURIComponent(username);
+    // Remove the '@' prefix if present
+    if (!decoded.startsWith('@')) {
+        return notFound();
+    }
+    // Remove the '@' prefix
     decoded = decoded.substring(1);
 
     const user = await prisma.user.findUnique({

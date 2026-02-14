@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import { Input } from '@/components/ui';
 
-import { HeaderContainer } from '@/components/HeaderNavigation';
+import { Header } from '@/components/menu/Header';
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
     const session = await getSession();
@@ -25,7 +25,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
     return (
         <main className="min-h-screen bg-gray-50">
-            <HeaderContainer />
+            <Header />
             
             <div className="flex min-h-[calc(100vh-80px)] items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
                 <div className="layout-container" style={{ maxWidth: '440px', width: '100%' }}>

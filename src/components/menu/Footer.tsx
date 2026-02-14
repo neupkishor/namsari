@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export function FooterNavigation() {
+export function Footer() {
     const pathname = usePathname();
 
     // Check if we should hide footer

@@ -2,7 +2,7 @@ import React from 'react';
 import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
-import { HeaderContainer } from '@/components/HeaderNavigation';
+import { Header } from '@/components/menu/Header';
 import RegisterClient from '@/app/auth/register/RegisterClient';
 
 export default async function RegisterPage() {
@@ -20,7 +20,7 @@ export default async function RegisterPage() {
 
     return (
         <main className="min-h-screen bg-gray-50">
-            <HeaderContainer />
+            <Header />
             <RegisterClient />
         </main>
     );
