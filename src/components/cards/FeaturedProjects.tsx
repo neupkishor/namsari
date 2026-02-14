@@ -1,105 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
 
-// --- Popular Categories Section ---
+interface FeaturedProjectsProps {
+    properties?: any[];
+    className?: string;
+}
 
-const categories = [
-    { id: 'house', name: 'House', count: 3683, icon: '🏠' },
-    { id: 'land', name: 'Land', count: 2009, icon: '🗺️' },
-    { id: 'flats', name: 'Flats', count: 94, icon: '🏢' },
-    { id: 'office', name: 'Office Space', count: 207, icon: '🏨', active: true },
-    { id: 'shop', name: 'Shop Space', count: 23, icon: '🛍️' },
-    { id: 'apartment', name: 'Apartment', count: 235, icon: '🏘️' },
-];
-
-export const PopularCategories = () => {
-    return (
-        <section>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '24px' }}>
-                Popular Categories
-            </h2>
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-                gap: '20px'
-            }}>
-                {categories.map((cat) => (
-                    <div
-                        key={cat.id}
-                        style={{
-                            background: 'white',
-                            padding: '32px 20px',
-                            borderRadius: 'var(--radius-card)',
-                            textAlign: 'center',
-                            boxShadow: 'none',
-                            border: cat.active ? '2px solid #3b82f6' : '1px solid var(--color-border)',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        <div style={{
-                            width: '64px',
-                            height: '64px',
-                            borderRadius: '50%',
-                            background: '#f0f7ff',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            margin: '0 auto 16px',
-                            fontSize: '2rem'
-                        }}>
-                            {cat.icon}
-                        </div>
-                        <h4 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#334155', marginBottom: '4px' }}>{cat.name}</h4>
-                        <p style={{ fontSize: '0.9rem', color: '#3b82f6', fontWeight: '700' }}>{cat.count}</p>
-                    </div>
-                ))}
-            </div>
-        </section>
-    );
-};
-
-// --- Featured Projects Section ---
-
-const featuredProjects = [
-    {
-        id: 1,
-        title: 'Aakriti Colony',
-        category: 'Housing',
-        location: 'Hepali Height Budhanilkantha Munici...',
-        priceRange: 'Rs. 7.01 Cr - Rs. 7.02 Cr',
-        propertiesCount: 2,
-        image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'
-    },
-    {
-        id: 2,
-        title: 'Aavash Colony',
-        category: 'Housing',
-        location: 'Panchetar Tokha Municipality',
-        priceRange: 'Rs. 3.62 Cr - Rs. 7 Cr',
-        propertiesCount: 8,
-        image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80'
-    },
-    {
-        id: 3,
-        title: 'Downtown Residency',
-        category: 'Housing & Apartment',
-        location: 'Dhapakhel Lalitpur Metropolitan Cit...',
-        priceRange: 'Price on Call',
-        propertiesCount: 5,
-        image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80'
-    },
-    {
-        id: 4,
-        title: 'Downtown Residency',
-        category: 'Housing',
-        location: 'Bhaisepati Lalitpur Metropolitan Ci...',
-        priceRange: 'Rs. 3.65 Cr - Rs. 5 Cr',
-        propertiesCount: 17,
-        image: 'https://images.unsplash.com/photo-1512915920307-446f1f4d7f0a?auto=format&fit=crop&w=800&q=80'
-    }
-];
-
-export const FeaturedProjects = ({ properties = [], className }: { properties?: any[], className?: string }) => {
+export const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ properties = [], className }) => {
     // In many parts of the app, we already have a list of properties that might include featured ones
     const displayProjects = properties.filter(p => p.isFeatured);
 

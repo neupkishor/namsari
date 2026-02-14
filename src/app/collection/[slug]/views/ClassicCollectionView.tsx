@@ -1,4 +1,4 @@
-import { PropertyCard } from '@/components/PropertyCard';
+import { PropertyCard } from '@/components/cards/PropertyCard';
 
 export function ClassicCollectionView({ properties }: { properties: any[] }) {
     if (properties.length === 0) {

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { logoutAction } from '@/actions/auth';
 
-import { sidebarMainItems, sidebarSecondaryItems } from './menu-config';
+import { sidebarMenuGroups } from './menu-config';
 
 export function SidebarSkeleton() {
     return (
@@ -75,8 +75,7 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
         );
     }
 
-    const sidebarItems = sidebarMainItems(user);
-    const secondaryItems = sidebarSecondaryItems;
+    const menuGroups = sidebarMenuGroups(user);
 
     return (
         <div className="desktop-sidebar-wrapper" style={{ width: '280px', flexShrink: 0, height: '100%' }}>
@@ -93,48 +92,47 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
                 paddingBottom: '120px',
                 borderRight: '1px solid #f1f5f9'
             }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {sidebarItems.map((item, idx) => (
-                        <Link key={idx} href={item.href} style={{ textDecoration: 'none' }}>
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '12px',
-                                padding: '12px 16px',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                fontWeight: idx === 0 ? '700' : '500',
-                                color: 'var(--color-primary)',
-                                transition: 'background 0.2s'
-                            }} onMouseOver={(e) => e.currentTarget.style.background = '#e4e6eb'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
-                                <span style={{ fontSize: '1.25rem' }}>{item.icon}</span>
-                                <span>{item.label}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    {menuGroups.map((group, groupIdx) => (
+                        <div key={groupIdx}>
+                            {group.title && (
+                                <div style={{
+                                    fontSize: '0.75rem',
+                                    fontWeight: '700',
+                                    color: '#94a3b8',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.05em',
+                                    marginBottom: '8px',
+                                    paddingLeft: '16px'
+                                }}>
+                                    {group.title}
+                                </div>
+                            )}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                {group.items.map((item, idx) => (
+                                    <Link key={idx} href={item.href} style={{ textDecoration: 'none' }}>
+                                        <div style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '12px',
+                                            padding: '10px 16px',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            fontWeight: '500',
+                                            color: 'var(--color-primary)',
+                                            transition: 'background 0.2s',
+                                            fontSize: '0.95rem'
+                                        }} onMouseOver={(e) => e.currentTarget.style.background = '#e4e6eb'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+                                            <span style={{ fontSize: '1.2rem' }}>{item.icon}</span>
+                                            <span>{item.label}</span>
+                                        </div>
+                                    </Link>
+                                ))}
                             </div>
-                        </Link>
+                        </div>
                     ))}
 
-                    <div style={{ margin: '16px 0', height: '1px', background: 'rgba(0,0,0,0.05)' }} />
-
-                    {secondaryItems.map((item, idx) => (
-                        <Link key={idx} href={item.href} style={{ textDecoration: 'none' }}>
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '12px',
-                                padding: '10px 16px',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                fontSize: '0.9rem',
-                                color: 'var(--color-text-muted)',
-                                transition: 'background 0.2s'
-                            }} onMouseOver={(e) => e.currentTarget.style.background = '#f0f2f5'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
-                                <span style={{ fontSize: '1.1rem' }}>{item.icon}</span>
-                                <span>{item.label}</span>
-                            </div>
-                        </Link>
-                    ))}
-
-                    <div style={{ margin: '16px 0', height: '1px', background: 'rgba(0,0,0,0.05)' }} />
+                    <div style={{ margin: '0 16px', height: '1px', background: 'rgba(0,0,0,0.05)' }} />
 
                     {/* Logout Option */}
                     {user && (
@@ -160,7 +158,7 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
                         </div>
                     )}
 
-                    <div style={{ padding: '20px 16px', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                    <div style={{ padding: '0 16px', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                         Namsari Estate &copy; 2026<br /> Designed by <a href="https://neupgroup.com/marketing" target="_blank" rel="noopener noreferrer">Neup.Marketing</a>
                     </div>
                 </div>

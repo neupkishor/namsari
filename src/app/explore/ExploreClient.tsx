@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
 import { Header } from '@/components/menu/Header';
-import { PropertyCard } from '@/components/PropertyCard';
+import { PropertyCard } from '@/components/cards/PropertyCard';
 
 // Dynamically import map to avoid SSR issues
 const MapComponent = dynamic(() => import('./MapComponent'), {
@@ -104,7 +104,8 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
         const query = searchQuery.toLowerCase();
         return (p.title?.toLowerCase().includes(query) ||
             p.location?.toLowerCase().includes(query) ||
-            p.price?.toString().toLowerCase().includes(query));
+            p.price?.toString().toLowerCase().includes(query) ||
+            p.property_types?.some((t: string) => t.toLowerCase().includes(query)));
     });
 
     const mapProperties = filteredProperties.filter(p => {

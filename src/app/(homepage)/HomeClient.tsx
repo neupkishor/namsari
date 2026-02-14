@@ -5,13 +5,14 @@ import Link from 'next/link';
 import { toggleLike, addComment } from '@/actions/social';
 import { Input } from '@/components/ui';
 import { useRouter } from 'next/navigation';
-import { QuickActionsCard } from '@/components/QuickActionsCard';
-import { PopularCategories, FeaturedProjects } from '@/components/HomeSections';
-import { TrendingSearches } from '@/components/TrendingSearches';
+import { QuickActionsCard } from '@/components/cards/QuickActionsCard';
+import { PopularCategories } from '@/components/cards/PopularCategories';
+import { FeaturedProjects } from '@/components/cards/FeaturedProjects';
+import { TrendingSearches } from '@/components/cards/TrendingSearches';
 import { PostPropertyBanner } from '@/components/PostPropertyBanner';
-import { FeaturedCollectionsSection, FeaturedCollectionsFeedItem } from '@/components/FeaturedCollections';
-import { PropertyCard } from '@/components/PropertyCard';
-import { AdvertisementCard, AdvertisementCarousel } from '@/components/AdvertisementCard';
+import { FeaturedCollectionsSection, FeaturedCollectionsFeedItem } from '@/components/cards/FeaturedCollections';
+import { PropertyCard } from '@/components/cards/PropertyCard';
+import { AdvertisementCard, AdvertisementCarousel } from '@/components/cards/AdvertisementCard';
 import { BottomNavigation } from '@/components/menu/BottomNavigation';
 
 export default function Home({ user, settings, featuredCollections, trendingSearches, featuredProperties = [], featuredAgencies = [], advertisements = [] }: { user: any, settings?: any, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[], advertisements?: any[] }) {
@@ -169,7 +170,9 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
 
           {/* Top Carousel Advertisement */}
           {carouselAds.length > 0 && (
-            <AdvertisementCarousel ads={carouselAds} />
+            <div style={{ marginTop: '0px', marginBottom: '0px' }}>
+              <AdvertisementCarousel ads={carouselAds} />
+            </div>
           )}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0px', marginTop: '16px' }}>
@@ -223,7 +226,9 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
                       ? 'group-bottom'
                       : 'group-middle';
 
-                const marginTop = isFirstInGroup && idx > 0 ? (isFirstInGroup && isLastInGroup ? '16px' : '24px') : '0px';
+                // Explicitly adding margin for ads
+                const isAd = item.type === 'ad';
+                const marginTop = isAd ? '24px' : (isFirstInGroup && idx > 0 ? (isFirstInGroup && isLastInGroup ? '16px' : '24px') : '0px');
 
                 let component = null;
 

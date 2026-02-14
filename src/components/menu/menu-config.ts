@@ -10,33 +10,62 @@ export interface MenuItem {
     hideIfAuth?: boolean;
 }
 
+export interface MenuGroup {
+    title?: string;
+    items: MenuItem[];
+}
+
 export const headerMenuItems: MenuItem[] = [
     // Currently header items are hardcoded in the component structure (Logo, Search, Profile)
     // Adding placeholder for future extensibility if needed
 ];
 
-export const sidebarMainItems = (user: any): MenuItem[] => [
-    { label: 'Profile', icon: '👤', href: user ? `/@${user.username}` : '/login' },
-    { label: 'Houses', icon: '🏠', href: '/find/houses' },
-    { label: 'Commercial Buildings', icon: '🏢', href: '/find/commercial-buildings' },
-    { label: 'Agencies', icon: '🧑‍💼', href: '/agencies' },
-    { label: 'Favourites', icon: '❤️', href: user ? `/@${user.username}/saved` : '/login' },
-    { label: 'Market Trends', icon: '📈', href: '/market' },
-    { label: 'Blogs/Guide', icon: '📰', href: '/blog' },
-    { label: 'Utilities', icon: '🛠️', href: '/utility' },
-    { label: 'Unit Converter', icon: '🔄', href: '/utility/unit-converter' },
-    { label: 'Date Converter', icon: '📅', href: '/utility/date-converter' },
-    { label: 'EMI Calculator', icon: '💰', href: '/utility/emi-calculator' },
-    ...(user ? [{ label: 'Manage About', icon: '📝', href: '/manage/about' }] : []),
-];
-
-export const sidebarSecondaryItems: MenuItem[] = [
-    { label: 'About Us', icon: 'ℹ️', href: '/about' },
-    { label: 'Careers', icon: '💼', href: '/careers' },
-    { label: 'Terms', icon: '📝', href: '/terms' },
-    { label: 'Privacy', icon: '🛡️', href: '/terms/privacy' },
-    { label: 'Help Center', icon: '❓', href: '/support' },
-    { label: 'Settings', icon: '⚙️', href: '/manage/settings' },
+export const sidebarMenuGroups = (user: any): MenuGroup[] => [
+    {
+        title: 'Platform',
+        items: [
+            { label: 'Profile', icon: '👤', href: user ? `/@${user.username}` : '/login' },
+            { label: 'Houses', icon: '🏠', href: '/find/houses' },
+            { label: 'Commercial Buildings', icon: '🏢', href: '/find/commercial-buildings' },
+            { label: 'Agencies', icon: '🧑‍💼', href: '/agencies' },
+            { label: 'Favourites', icon: '❤️', href: user ? `/@${user.username}/saved` : '/login' },
+        ]
+    },
+    {
+        title: 'Insights',
+        items: [
+            { label: 'Market Trends', icon: '📈', href: '/market' },
+            { label: 'Blogs/Guide', icon: '📰', href: '/blog' },
+        ]
+    },
+    {
+        title: 'Tools',
+        items: [
+            { label: 'Utilities', icon: '🛠️', href: '/utility' },
+            { label: 'Unit Converter', icon: '🔄', href: '/utility/unit-converter' },
+            { label: 'Date Converter', icon: '📅', href: '/utility/date-converter' },
+            { label: 'EMI Calculator', icon: '💰', href: '/utility/emi-calculator' },
+        ]
+    },
+    {
+        title: 'Management',
+        items: [
+            { label: 'Manage Properties', icon: '🏠', href: '/manage/properties' },
+            { label: 'Manage Users', icon: '👥', href: '/manage/users' },
+            ...(user ? [{ label: 'Manage About', icon: '📝', href: '/manage/about' }] : []),
+        ]
+    },
+    {
+        title: 'Company',
+        items: [
+            { label: 'About Us', icon: 'ℹ️', href: '/about' },
+            { label: 'Careers', icon: '💼', href: '/careers' },
+            { label: 'Terms', icon: '📝', href: '/terms' },
+            { label: 'Privacy', icon: '🛡️', href: '/terms/privacy' },
+            { label: 'Help Center', icon: '❓', href: '/support' },
+            { label: 'Settings', icon: '⚙️', href: '/manage/settings' },
+        ]
+    }
 ];
 
 export const bottomNavItems = (user: any): MenuItem[] => [

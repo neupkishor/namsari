@@ -4,7 +4,7 @@ import PropertyMap from '@/app/properties/[slugAndId]/PropertyMap';
 import { Header } from '@/components/menu/Header';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
-import { PropertyCard } from '@/components/PropertyCard';
+import { PropertyCard } from '@/components/cards/PropertyCard';
 
 function getAmenityIcon(type: string) {
     const map: Record<string, string> = {

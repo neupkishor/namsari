@@ -1,7 +1,7 @@
 import prisma from '@/lib/prisma';
 import { notFound, redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
-import { PropertyCard } from '@/components/PropertyCard';
+import { PropertyCard } from '@/components/cards/PropertyCard';
 
 interface PageProps {
     params: Promise<{
