@@ -28,7 +28,7 @@ export function BottomNavigation({ user }: { user?: any }) {
             {showMobileMenu && (
                 <div style={{
                     position: 'fixed',
-                    top: 0,
+                    top: 'var(--header-height)',
                     left: 0,
                     right: 0,
                     bottom: '70px', // Above bottom nav
