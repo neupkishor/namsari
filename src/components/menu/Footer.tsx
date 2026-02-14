@@ -4,6 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+import { footerPlatformItems, footerResourceItems } from './menu-config';
+
 export function Footer() {
     const pathname = usePathname();
 
@@ -52,12 +54,9 @@ export function Footer() {
                     <div>
                         <h4 style={{ color: 'white', fontSize: '1.1rem', fontWeight: '700', marginBottom: '32px', letterSpacing: '0.05em' }}>PLATFORM</h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <FooterLink href="/explore">Browse Properties</FooterLink>
-                            <FooterLink href="/agencies">Partner Agencies</FooterLink>
-                            <FooterLink href="/pricing">Listing Plans</FooterLink>
-                            <FooterLink href="/sell">Post Property</FooterLink>
-                            <FooterLink href="/requirements">Post Requirements</FooterLink>
-                            <FooterLink href="/membership">Platinum Club</FooterLink>
+                            {footerPlatformItems.map((item, idx) => (
+                                <FooterLink key={idx} href={item.href}>{item.label}</FooterLink>
+                            ))}
                         </div>
                     </div>
 
@@ -65,11 +64,9 @@ export function Footer() {
                     <div>
                         <h4 style={{ color: 'white', fontSize: '1.1rem', fontWeight: '700', marginBottom: '32px', letterSpacing: '0.05em' }}>RESOURCES</h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <FooterLink href="/blog">Market Reports</FooterLink>
-                            <FooterLink href="/guide">Buying Guide</FooterLink>
-                            <FooterLink href="/contact">Concierge Support</FooterLink>
-                            <FooterLink href="/faq">Help Center</FooterLink>
-                            <FooterLink href="/privacy">Privacy Policy</FooterLink>
+                            {footerResourceItems.map((item, idx) => (
+                                <FooterLink key={idx} href={item.href}>{item.label}</FooterLink>
+                            ))}
                         </div>
                     </div>
 

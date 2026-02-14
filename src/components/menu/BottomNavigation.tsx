@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+import { bottomNavItems } from './menu-config';
+
 export function BottomNavigation({ user }: { user?: any }) {
     const [pathname, setPathname] = useState('');
 
@@ -10,13 +12,7 @@ export function BottomNavigation({ user }: { user?: any }) {
         setPathname(window.location.pathname);
     }, []);
 
-    const items = [
-        { label: 'Home', icon: '🏠', href: '/' },
-        { label: 'Explore', icon: '🧭', href: '/explore' },
-        { label: 'Post', icon: '➕', href: '/sell' },
-        { label: 'Saved', icon: '❤️', href: user ? `/@${user.username}/saved` : '/login' },
-        { label: 'Menu', icon: '☰', href: '#menu' }
-    ];
+    const items = bottomNavItems(user);
 
     return (
         <div className="bottom-nav-container" style={{

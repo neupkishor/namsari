@@ -3,7 +3,48 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { logoutAction } from '@/actions/auth';
-import { SidebarSkeleton } from './SidebarSkeleton';
+
+import { sidebarMainItems, sidebarSecondaryItems } from './menu-config';
+
+export function SidebarSkeleton() {
+    return (
+        <aside className="feed-sidebar-desktop" style={{
+            width: '280px',
+            flexShrink: 0,
+            position: 'fixed',
+            top: '0px',
+            bottom: '0px',
+            height: '100vh',
+            overflowY: 'auto',
+            paddingRight: '12px',
+            paddingTop: 'calc(var(--header-height) + 24px)',
+            paddingBottom: '120px',
+            borderRight: '1px solid #f1f5f9'
+        }}>
+            <style jsx>{`
+                .feed-sidebar-desktop {
+                    display: none;
+                }
+                @media (min-width: 1025px) {
+                    .feed-sidebar-desktop {
+                        display: block;
+                    }
+                }
+            `}</style>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {[1, 2, 3, 4, 5, 6].map(i => (
+                    <div key={i} className="skeleton" style={{ height: '48px', width: '100%', borderRadius: '8px' }}></div>
+                ))}
+                
+                <div style={{ margin: '16px 0', height: '1px', background: 'rgba(0,0,0,0.05)' }} />
+                
+                {[1, 2, 3, 4].map(i => (
+                    <div key={`sec-${i}`} className="skeleton" style={{ height: '40px', width: '80%', borderRadius: '8px' }}></div>
+                ))}
+            </div>
+        </aside>
+    );
+}
 
 export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
     const [isDesktop, setIsDesktop] = useState(false);
@@ -28,47 +69,27 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
 
     if (loading) {
         return (
-            <div className="desktop-sidebar-wrapper" style={{ width: '280px', flexShrink: 0 }}>
+            <div className="desktop-sidebar-wrapper" style={{ width: '280px', flexShrink: 0, height: '100%' }}>
                 <SidebarSkeleton />
             </div>
         );
     }
 
-    const sidebarItems = [
-        { label: 'Profile', icon: '👤', href: user ? `/@${user.username}` : '/login' },
-        { label: 'Houses', icon: '🏠', href: '/find/houses' },
-        { label: 'Commercial Buildings', icon: '🏢', href: '/find/commercial-buildings' },
-        { label: 'Agencies', icon: '🧑‍💼', href: '/agencies' },
-        { label: 'Favourites', icon: '❤️', href: user ? `/@${user.username}/saved` : '/login' },
-        { label: 'Market Trends', icon: '📈', href: '/market' },
-        { label: 'Blogs/Guide', icon: '📰', href: '/blog' },
-        { label: 'Utilities', icon: '🛠️', href: '/utility' },
-        { label: 'Unit Converter', icon: '🔄', href: '/utility/unit-converter' },
-        { label: 'Date Converter', icon: '📅', href: '/utility/date-converter' },
-        { label: 'EMI Calculator', icon: '💰', href: '/utility/emi-calculator' },
-        ...(user ? [{ label: 'Manage About', icon: '📝', href: '/manage/about' }] : []),
-    ];
-
-    const secondaryItems = [
-        { label: 'About Us', icon: 'ℹ️', href: '/about' },
-        { label: 'Careers', icon: '💼', href: '/careers' },
-        { label: 'Terms', icon: '📝', href: '/terms' },
-        { label: 'Privacy', icon: '🛡️', href: '/terms/privacy' },
-        { label: 'Help Center', icon: '❓', href: '/support' },
-        { label: 'Settings', icon: '⚙️', href: '/manage/settings' },
-    ];
+    const sidebarItems = sidebarMainItems(user);
+    const secondaryItems = sidebarSecondaryItems;
 
     return (
-        <div className="desktop-sidebar-wrapper" style={{ width: '280px', flexShrink: 0 }}>
+        <div className="desktop-sidebar-wrapper" style={{ width: '280px', flexShrink: 0, height: '100%' }}>
             <aside className="feed-sidebar-desktop" style={{
                 width: '280px',
                 flexShrink: 0,
-                position: 'sticky',
-                top: 'var(--header-height)',
-                height: 'calc(100vh - var(--header-height))',
+                position: 'fixed',
+                top: '0px',
+                bottom: '0px',
+                height: '100vh',
                 overflowY: 'auto',
                 paddingRight: '12px',
-                paddingTop: '24px',
+                paddingTop: 'calc(var(--header-height) + 24px)',
                 paddingBottom: '120px',
                 borderRight: '1px solid #f1f5f9'
             }}>
