@@ -15,7 +15,7 @@ export function Header({ user, fullWidth, children }: { user?: any, fullWidth?: 
             height: 'var(--header-height)',
             background: '#ffffff',
             borderBottom: '1px solid transparent',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            boxShadow: 'var(--shadow-heavy)',
             zIndex: 1000
         }}>
             <div className={fullWidth ? "" : "layout-container"} style={{

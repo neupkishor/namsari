@@ -26,7 +26,7 @@
   --card-gap: 0px;
   --shadow-sm: none;
   --shadow-md: none;
-  --shadow-heavy: none;
+  --shadow-heavy: 0 10px 30px -10px rgba(0,0,0,0.2);
   --radius-card: 12px;
   --radius-inner: 8px;
 }
