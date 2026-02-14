@@ -15,7 +15,7 @@ import { PropertyCard } from '@/components/cards/PropertyCard';
 import { AdvertisementCard, AdvertisementCarousel } from '@/components/cards/AdvertisementCard';
 import { BottomNavigation } from '@/components/menu/BottomNavigation';
 
-export default function Home({ user, settings, featuredCollections, trendingSearches, featuredProperties = [], featuredAgencies = [], advertisements = [] }: { user: any, settings?: any, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[], advertisements?: any[] }) {
+export default function Home({ user, featuredCollections, trendingSearches, featuredProperties = [], featuredAgencies = [], advertisements = [] }: { user: any, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[], advertisements?: any[] }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -69,7 +69,7 @@ export default function Home({ user, settings, featuredCollections, trendingSear
       {isLoading ? (
         <FeedSkeleton />
       ) : (
-        <FeedView properties={properties} user={user} settings={settings} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} trendingSearches={trendingSearches} featuredProperties={featuredProperties} featuredAgencies={featuredAgencies} advertisements={advertisements} />
+        <FeedView properties={properties} user={user} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} trendingSearches={trendingSearches} featuredProperties={featuredProperties} featuredAgencies={featuredAgencies} advertisements={advertisements} />
       )}
 
       {/* Mobile Bottom Navigation */}
@@ -134,7 +134,7 @@ function GridListingCard({ properties, title, className }: { properties: any[], 
   );
 }
 
-function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchingMore, hasMore, featuredCollections, trendingSearches, featuredProperties, featuredAgencies, advertisements = [] }: { properties: any[], user: any, settings: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[], advertisements?: any[] }) {
+function FeedView({ properties, user, onRefresh, onLoadMore, isFetchingMore, hasMore, featuredCollections, trendingSearches, featuredProperties, featuredAgencies, advertisements = [] }: { properties: any[], user: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[], advertisements?: any[] }) {
   const [activeCommentPostId, setActiveCommentPostId] = React.useState<number | null>(null);
 
   const carouselAds = advertisements?.filter(ad => ad.shows_on_top) || [];
@@ -238,7 +238,6 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
                     <PropertyPost
                       property={item.data}
                       user={user}
-                      settings={settings}
                       onRefresh={onRefresh}
                       onVisible={isTrigger ? onLoadMore : undefined}
                       isCommentsOpen={activeCommentPostId === item.data.id}
@@ -285,7 +284,7 @@ function FeedView({ properties, user, settings, onRefresh, onLoadMore, isFetchin
   );
 }
 
-function PropertyPost({ property, user, settings, onRefresh, onVisible, isCommentsOpen, onToggleComments, className }: { property: any, user: any, settings: any, onRefresh: () => void, onVisible?: () => void, isCommentsOpen?: boolean, onToggleComments?: () => void, className?: string }) {
+function PropertyPost({ property, user, onRefresh, onVisible, isCommentsOpen, onToggleComments, className }: { property: any, user: any, onRefresh: () => void, onVisible?: () => void, isCommentsOpen?: boolean, onToggleComments?: () => void, className?: string }) {
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   // ... (rest of effects) ...

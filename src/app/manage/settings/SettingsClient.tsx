@@ -35,31 +35,6 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '24px' }}>Social Feed Settings</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <SettingToggle
-                        label="Show Like Button"
-                        description="Allow users to like properties in the feed."
-                        value={settings.show_like_button}
-                        onToggle={(v) => handleToggle('show_like_button', v)}
-                    />
-                    <SettingToggle
-                        label="Show Share Button"
-                        description="Enable quick sharing options for listings."
-                        value={settings.show_share_button}
-                        onToggle={(v) => handleToggle('show_share_button', v)}
-                    />
-                    <SettingToggle
-                        label="Show Comment Button"
-                        description="Enable public discussion on property listings."
-                        value={settings.show_comment_button}
-                        onToggle={(v) => handleToggle('show_comment_button', v)}
-                    />
-                    <div style={{ height: '1px', background: '#f1f5f9', margin: '8px 0' }}></div>
-                    <SettingToggle
-                        label="Show Contact Agent"
-                        description="Display the primary contact button for agents/owners."
-                        value={settings.show_contact_agent}
-                        onToggle={(v) => handleToggle('show_contact_agent', v)}
-                    />
-                    <SettingToggle
                         label="Show Make Offer"
                         description="Allow users to submit direct offers to the seller."
                         value={settings.show_make_offer}

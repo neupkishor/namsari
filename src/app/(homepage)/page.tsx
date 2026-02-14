@@ -6,37 +6,6 @@ import { getActiveAdvertisements } from '@/actions/advertisements';
 export default async function HomePage() {
     const session = await getSession();
 
-    // Safety check for systemSettings to prevent crash during schema migrations
-    let settings = null;
-    if ((prisma as any).systemSettings) {
-        try {
-            settings = await (prisma as any).systemSettings.findFirst() ||
-                await (prisma as any).systemSettings.create({
-                    data: {
-                        id: 1,
-                        show_like_button: true,
-                        show_share_button: true,
-                        show_comment_button: true,
-                        show_contact_agent: true,
-                        show_make_offer: true
-                    }
-                });
-        } catch (e) {
-            console.error("Failed to fetch settings:", e);
-        }
-    }
-
-    // Default settings if DB fetch falls through
-    if (!settings) {
-        settings = {
-            show_like_button: true,
-            show_share_button: true,
-            show_comment_button: true,
-            show_contact_agent: true,
-            show_make_offer: true
-        };
-    }
-
     let user = null;
 
     if (session?.id) {
@@ -94,7 +63,6 @@ export default async function HomePage() {
 
     return <HomeClient
         user={user}
-        settings={settings}
         featuredCollections={featuredCollections}
         trendingSearches={trendingSearches}
         featuredProperties={featuredProperties}
