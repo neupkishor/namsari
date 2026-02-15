@@ -1,23 +1,43 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { logoutAction } from '@/actions/auth';
 
 import { bottomNavItems, sidebarMenuGroups } from './menu-config';
 
 export function BottomNavigation({ user }: { user?: any }) {
-    const [pathname, setPathname] = useState('');
+    const pathname = usePathname();
     const [showMobileMenu, setShowMobileMenu] = useState(false);
-
-    useEffect(() => {
-        setPathname(window.location.pathname);
-    }, []);
+    const menuRef = useRef<HTMLDivElement>(null);
 
     // Close menu when path changes
     useEffect(() => {
         setShowMobileMenu(false);
     }, [pathname]);
+
+    // Close menu when clicking outside (e.g. Header, Logo, Search)
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (showMobileMenu && menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                // Determine if the click was on the toggle button
+                // We can check if the target is inside the bottom nav container, but specifically the menu toggle
+                // However, simply closing it is usually safe because the toggle button's onClick will handle the rest.
+                // If the toggle button logic toggles it back, we might have an issue.
+                // Let's rely on the fact that if we click outside, we want it closed.
+                setShowMobileMenu(false);
+            }
+        };
+
+        if (showMobileMenu) {
+            document.addEventListener('click', handleClickOutside);
+        }
+        
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
+    }, [showMobileMenu]);
 
     const items = bottomNavItems(user);
     const menuGroups = sidebarMenuGroups(user);
@@ -26,7 +46,7 @@ export function BottomNavigation({ user }: { user?: any }) {
         <>
             {/* Mobile Menu Overlay */}
             {showMobileMenu && (
-                <div style={{
+                <div ref={menuRef} style={{
                     position: 'fixed',
                     top: 'var(--header-height)',
                     left: 0,
@@ -63,7 +83,7 @@ export function BottomNavigation({ user }: { user?: any }) {
                                 )}
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                     {group.items.map((item, idx) => (
-                                        <Link key={idx} href={item.href} style={{ textDecoration: 'none' }}>
+                                        <Link key={idx} href={item.href} onClick={() => setShowMobileMenu(false)} style={{ textDecoration: 'none' }}>
                                             <div style={{
                                                 display: 'flex',
                                                 alignItems: 'center',
@@ -89,7 +109,10 @@ export function BottomNavigation({ user }: { user?: any }) {
                         {/* Logout Option */}
                         {user && (
                             <div
-                                onClick={() => logoutAction()}
+                                onClick={() => {
+                                    logoutAction();
+                                    setShowMobileMenu(false);
+                                }}
                                 style={{
                                     display: 'flex',
                                     alignItems: 'center',
