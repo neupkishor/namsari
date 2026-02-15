@@ -183,7 +183,7 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
                             <label htmlFor="showsOnTop" style={{ fontWeight: '600', cursor: 'pointer' }}>Show on Top (Carousel)</label>
                         </div>
                         <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '-8px', marginLeft: '26px' }}>
-                            If checked, this ad will appear in the top carousel. Otherwise, it will be injected into the feed.
+                            If checked, this ad will appear in the top carousel and the feed. Otherwise, it will only be injected into the feed.
                         </p>
 
                         <button 

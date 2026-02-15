@@ -112,7 +112,7 @@ function FeedView({ properties, user, onRefresh, onLoadMore, isFetchingMore, has
   const [activeCommentPostId, setActiveCommentPostId] = React.useState<number | null>(null);
 
   const carouselAds = advertisements?.filter(ad => ad.shows_on_top) || [];
-  const feedAds = advertisements?.filter(ad => !ad.shows_on_top) || [];
+  const feedAds = advertisements || [];
 
   if (!properties || properties.length === 0) {
     return (
