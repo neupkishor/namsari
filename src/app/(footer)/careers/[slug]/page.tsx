@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import { getJobListingBySlug } from '@/actions/careers';
-import JobApplicationForm from '@/app/careers/[slug]/JobApplicationForm';
+import JobApplicationForm from './JobApplicationForm';
 import { Header } from '@/components/menu/Header';
 import { getSession } from "@/lib/auth";
 import prisma from '@/lib/prisma';

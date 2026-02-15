@@ -2,7 +2,7 @@ import React from 'react';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import SellClient from '@/app/(sbar&header)/sell/SellClient';
+import SellClient from './SellClient';
 
 export default async function SellPage() {
     const session = await getSession();

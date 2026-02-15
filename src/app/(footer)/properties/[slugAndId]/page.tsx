@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import PropertyMap from '@/app/properties/[slugAndId]/PropertyMap';
+import PropertyMap from './PropertyMap';
 import { Header } from '@/components/menu/Header';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';

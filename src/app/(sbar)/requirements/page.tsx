@@ -1,7 +1,7 @@
 import React from 'react';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
-import RequirementsClient from '@/app/(sbar&header)/requirements/RequirementsClient';
+import RequirementsClient from './RequirementsClient';
 
 export const metadata = {
     title: 'Post Requirements | Namsari',

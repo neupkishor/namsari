@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import imageCompression from 'browser-image-compression';
-import { createListing } from '@/app/(sbar&header)/sell/actions/listing';
-import { BasicInformation } from '@/app/(sbar&header)/sell/components/BasicInformation';
-import { LocationInformation } from '@/app/(sbar&header)/sell/components/LocationInformation';
-import { PropertyInformation } from '@/app/(sbar&header)/sell/components/PropertyInformation';
+import { createListing } from './actions/listing';
+import { BasicInformation } from './components/BasicInformation';
+import { LocationInformation } from './components/LocationInformation';
+import { PropertyInformation } from './components/PropertyInformation';
 
 import { Header } from '@/components/menu/Header';
 
