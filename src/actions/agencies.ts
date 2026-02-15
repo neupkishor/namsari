@@ -33,14 +33,14 @@ export async function createAgency(formData: FormData) {
         }
     });
 
-    revalidatePath('/manage/agencies');
+    revalidatePath('/manage/accounts/agencies');
 }
 
 export async function deleteAgency(id: number) {
     await (prisma as any).agency.delete({
         where: { id }
     });
-    revalidatePath('/manage/agencies');
+    revalidatePath('/manage/accounts/agencies');
 }
 
 export async function toggleAgencyVerification(id: number, currentStatus: boolean) {
@@ -48,5 +48,5 @@ export async function toggleAgencyVerification(id: number, currentStatus: boolea
         where: { id },
         data: { is_verified: !currentStatus }
     });
-    revalidatePath('/manage/agencies');
+    revalidatePath('/manage/accounts/agencies');
 }

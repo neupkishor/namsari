@@ -45,10 +45,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
                         )}
 
                         <Input
-                            label="Username"
+                            label="Username, Email or Phone"
                             name="username"
                             type="text"
-                            placeholder="Enter your username"
+                            placeholder="Enter username, email or phone"
                             required
                         />
 

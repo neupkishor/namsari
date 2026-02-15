@@ -27,22 +27,51 @@ export async function getCurrentUser() {
 }
 
 export async function registerAction(formData: FormData) {
-    const username = formData.get('username') as string;
     const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
     const contact_number = formData.get('contact_number') as string;
     const account_type = formData.get('account_type') as string;
     const password = formData.get('password') as string;
 
-    if (!username) throw new Error("Username is required");
+    if (!name) throw new Error("Name is required");
+    if (!email) throw new Error("Email is required");
     if (!password) throw new Error("Password is required");
 
+    // Generate username: name without space and special chars
+    let username = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    
+    // Ensure username is at least 3 chars
+    if (username.length < 3) {
+        username = username.padEnd(3, 'x');
+    }
+
     // Check if username already exists
-    const existing = await prisma.user.findUnique({
+    let existingUser = await prisma.user.findUnique({
         where: { username }
     });
 
-    if (existing) {
-        throw new Error("Username already taken.");
+    if (existingUser) {
+        // Append random 4 digits
+        const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+        username = `${username}${randomSuffix}`;
+        
+        // Check again (unlikely to collide, but good practice)
+        existingUser = await prisma.user.findUnique({
+            where: { username }
+        });
+        
+        if (existingUser) {
+            throw new Error("Could not generate a unique username. Please try again.");
+        }
+    }
+
+    // Check if email already exists
+    const existingEmail = await prisma.user.findUnique({
+        where: { email }
+    });
+
+    if (existingEmail) {
+        throw new Error("Email already registered.");
     }
 
     try {
@@ -52,7 +81,8 @@ export async function registerAction(formData: FormData) {
         const user = await prisma.user.create({
             data: {
                 username,
-                name: name || username,
+                name,
+                email,
                 contact_number,
                 account_type,
                 password: hashedPassword
@@ -69,25 +99,39 @@ export async function registerAction(formData: FormData) {
 }
 
 export async function loginAction(formData: FormData) {
-    const username = formData.get('username') as string;
+    const identifier = formData.get('username') as string; // This can be username, email, or phone
     const password = formData.get('password') as string;
 
+    if (!identifier || !password) {
+        // This will be caught by the catch block and redirected
+        // throwing here is fine as it propagates to the catch block below
+         // But we can just throw directly
+    }
+
     try {
-        const user = await prisma.user.findUnique({
-            where: { username }
+        if (!identifier) throw new Error("Username/Email/Phone is required");
+        if (!password) throw new Error("Password is required");
+
+        // Find user by username OR email OR contact_number
+        const user = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    { username: identifier },
+                    { email: identifier },
+                    { contact_number: identifier }
+                ]
+            }
         });
 
         if (!user) {
-            // Using a generic error message for security is better, but following instructions directly implies simpler validation for now.
-            throw new Error("Invalid username or password.");
+            throw new Error("Invalid credentials.");
         }
 
         // Validate password
-        // Validate password using bcrypt
         const bcrypt = await import('bcryptjs');
         const isMatch = await bcrypt.compare(password, user.password || '');
         if (!isMatch) {
-            throw new Error("Invalid username or password.");
+            throw new Error("Invalid credentials.");
         }
 
         // Validate Status
@@ -114,11 +158,6 @@ export async function loginAction(formData: FormData) {
         await setSession(String(user.id));
     } catch (error: any) {
         console.error("Login error:", error);
-        // We need to pass the error back to the client. Since this is a server action called by a form, 
-        // a simple redirect or throw usually results in a generic error page in Next.js unless handled.
-        // For this specific codebase pattern, we might need a better way to show errors on the login page.
-        // However, standard Next.js actions throw errors that can be caught by error boundaries or client components using useFormState.
-        // Since the current implementation is a basic HTML form action, we'll redirect to login with an error param.
         return redirect(`/auth/login?error=${encodeURIComponent(error.message)}`);
     }
 

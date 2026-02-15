@@ -1,6 +1,6 @@
 import React from 'react';
 import prisma from '@/lib/prisma';
-import EditUserClient from '@/app/(sbar)/manage/users/[username]/edit/EditUserClient';
+import EditUserClient from '@/app/(sbar)/manage/accounts/[username]/edit/EditUserClient';
 import { notFound } from 'next/navigation';
 
 export default async function EditUserPage({ params }: { params: Promise<{ username: string }> }) {

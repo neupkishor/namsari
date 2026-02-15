@@ -19,8 +19,8 @@ export async function createBank(formData: FormData) {
         }
     });
 
-    revalidatePath('/manage/banks');
-    redirect('/manage/banks');
+    revalidatePath('/manage/accounts/banks');
+    redirect('/manage/accounts/banks');
 }
 
 export async function updateBank(id: number, formData: FormData) {
@@ -28,7 +28,7 @@ export async function updateBank(id: number, formData: FormData) {
     const icon = formData.get('icon') as string;
     const description = formData.get('description') as string;
 
-    await prisma.bank.update({
+    const bank = await prisma.bank.update({
         where: { id },
         data: {
             name,
@@ -37,14 +37,14 @@ export async function updateBank(id: number, formData: FormData) {
         }
     });
 
-    revalidatePath('/manage/banks');
-    revalidatePath(`/manage/banks/${id}`);
+    revalidatePath('/manage/accounts/banks');
+    revalidatePath(`/manage/accounts/banks/${bank.slug}`);
 }
 
 export async function deleteBank(id: number) {
     await prisma.bank.delete({ where: { id } });
-    revalidatePath('/manage/banks');
-    redirect('/manage/banks');
+    revalidatePath('/manage/accounts/banks');
+    redirect('/manage/accounts/banks');
 }
 
 export async function addBankRate(bankId: number, formData: FormData) {
@@ -63,6 +63,10 @@ export async function addBankRate(bankId: number, formData: FormData) {
         }
     });
 
-    revalidatePath('/manage/banks');
-    revalidatePath(`/manage/banks/${bankId}`); // Relying on ID for path revalidation context, assuming slug page handles revalidation correctly if it uses slug
+    const bank = await prisma.bank.findUnique({ where: { id: bankId } });
+
+    revalidatePath('/manage/accounts/banks');
+    if (bank) {
+        revalidatePath(`/manage/accounts/banks/${bank.slug}`);
+    }
 }

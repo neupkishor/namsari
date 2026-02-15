@@ -22,7 +22,7 @@ export default async function BankDetailsPage({ params }: { params: { slug: stri
 
     return (
         <div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto' }}>
-            <Link href="/manage/banks" style={{ display: 'inline-block', marginBottom: '24px', color: '#64748b' }}>
+            <Link href="/manage/accounts/banks" style={{ display: 'inline-block', marginBottom: '24px', color: '#64748b' }}>
                 ← Back to Banks
             </Link>
 

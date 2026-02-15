@@ -22,9 +22,9 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
 
     return (
         <div style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '60px' }}>
-            <Link href="/manage/users" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#64748b', textDecoration: 'none', marginBottom: '24px', fontWeight: '500' }}>
+            <Link href="/manage/accounts" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#64748b', textDecoration: 'none', marginBottom: '24px', fontWeight: '500' }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
-                Back to Users
+                Back to Accounts
             </Link>
 
             <div style={{ background: 'white', borderRadius: '24px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
@@ -41,7 +41,7 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
                             )}
                         </div>
                         <div style={{ display: 'flex', gap: '12px', paddingBottom: '12px' }}>
-                            <Link href={`/profile/edit/${user.id}`} style={{ padding: '8px 16px', borderRadius: '8px', background: '#f1f5f9', color: '#475569', fontWeight: '600', textDecoration: 'none', fontSize: '0.9rem' }}>
+                            <Link href={`/manage/accounts/${user.username}/edit`} style={{ padding: '8px 16px', borderRadius: '8px', background: '#f1f5f9', color: '#475569', fontWeight: '600', textDecoration: 'none', fontSize: '0.9rem' }}>
                                 Edit Profile
                             </Link>
                             {/* Add more actions like Delete or Ban here if needed */}

@@ -1,16 +1,24 @@
 import React from 'react';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { redirect, notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { removePropertyFromCollectionWithSlug } from '@/actions/collections';
+import { LoginPromptCard } from '@/components/cards/LoginPromptCard';
 
 export default async function CollectionManagePage(props: { params: Promise<{ slug: string }> }) {
     const params = await props.params;
     const { slug } = params;
 
     const session = await getSession();
-    if (!session) redirect('/auth/login');
+    if (!session) {
+        return (
+            <LoginPromptCard 
+                title="Access Collection" 
+                description="Please login to manage this collection." 
+            />
+        );
+    }
     const userId = parseInt(session.id);
 
     const collection = await prisma.collection.findFirst({

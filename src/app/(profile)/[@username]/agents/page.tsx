@@ -1,14 +1,14 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 
-
-interface ProfileAgentsPageProps {
+interface PageProps {
     params: Promise<{
         '@username': string;
     }>;
 }
 
-export default async function ProfileAgentsPage({ params }: ProfileAgentsPageProps) {
+export default async function ProfileAgentsPage({ params }: PageProps) {
     const resolvedParams = await params;
     const username = resolvedParams['@username'];
 
@@ -17,44 +17,72 @@ export default async function ProfileAgentsPage({ params }: ProfileAgentsPagePro
     decoded = decoded.substring(1);
 
     const agency = await prisma.user.findUnique({
-        where: { username: decoded }
+        where: { username: decoded },
+        include: {
+            agents: {
+                include: {
+                    _count: {
+                        select: { listedProperties: true }
+                    }
+                }
+            }
+        }
     });
 
-    if (!agency || agency.account_type !== 'agency') return notFound();
+    if (!agency) return notFound();
 
-    // Since there is no explicit 'agent' relation in the provided schema knowledge yet,
-    // I will assume for now we might fetch users who have this agency listed as their 'agency' (if that relation existed)
-    // OR, more likely for now since I don't see a complex agency-agent relationship in the schema context I have (which was limited),
-    // I will render a placeholder or a list of "Team Members" if there's a way to link them.
+    const agents = agency.agents;
 
-    // Checked schema earlier: `User` model.
-    // I recall `viewed_file` on `schema.prisma`. 
-    // Let's assume for this MVP step, since I cannot modify schema right now easily without migration,
-    // I will display a placeholder "Agents" list or if there is a way to associate.
-    // Actually, looking at previous steps, I don't recall seeing an "agency_id" on User.
-    // I will create a static/placeholder list or empty state for now, as adding a relationship requires schema change.
-
-    // WAIT, if the user requested "make this", they might imply the feature exists or just the page.
-    // I will create the page structure.
-
-    return (
-        <div className="card" style={{ padding: '32px', textAlign: 'center' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '16px', color: 'var(--color-primary)' }}>
-                Our Agents
-            </h2>
-            <p style={{ color: '#64748b', marginBottom: '24px' }}>
-                Meet the dedicated team of agents at {agency.name}.
-            </p>
-
-            <div style={{ padding: '40px', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
+    if (agents.length === 0) {
+        return (
+            <div className="card" style={{ padding: '60px 40px', textAlign: 'center', background: 'white' }}>
                 <div style={{ fontSize: '3rem', marginBottom: '16px' }}>👥</div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#1e293b', marginBottom: '8px' }}>
-                    Agent Listing Coming Soon
-                </h3>
-                <p style={{ color: '#64748b', maxWidth: '400px', margin: '0 auto' }}>
-                    We are currently updating our agent roster. Please contact the agency directly for specific agent inquiries.
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '8px' }}>No agents found</h3>
+                <p style={{ color: 'var(--color-text-muted)', maxWidth: '300px', margin: '0 auto' }}>
+                    This agency doesn't have any agents listed yet.
                 </p>
             </div>
+        );
+    }
+
+    return (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '24px' }}>
+            {agents.map((agent) => (
+                <Link href={`/@${agent.username}`} key={agent.id} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <div className="card" style={{ padding: '24px', textAlign: 'center', transition: 'transform 0.2s', cursor: 'pointer' }}>
+                        <div 
+                            style={{ 
+                                width: '100px', 
+                                height: '100px', 
+                                borderRadius: '50%', 
+                                overflow: 'hidden', 
+                                margin: '0 auto 16px',
+                                backgroundColor: '#e2e8f0',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '2.5rem'
+                            }}
+                        >
+                            {agent.profile_picture ? (
+                                <img 
+                                    src={agent.profile_picture} 
+                                    alt={agent.name} 
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                />
+                            ) : (
+                                <span>{(agent.name || 'U')[0]}</span>
+                            )}
+                        </div>
+                        <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '4px' }}>{agent.name}</h3>
+                        <p style={{ color: '#64748b', fontSize: '0.875rem', marginBottom: '12px' }}>@{agent.username}</p>
+                        
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '0.875rem', color: '#64748b' }}>
+                            <span>🏠 {agent._count.listedProperties} Properties</span>
+                        </div>
+                    </div>
+                </Link>
+            ))}
         </div>
     );
 }

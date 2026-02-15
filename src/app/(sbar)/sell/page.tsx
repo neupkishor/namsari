@@ -1,13 +1,18 @@
 import React from 'react';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
-import { redirect } from 'next/navigation';
 import SellClient from './SellClient';
+import { LoginPromptCard } from '@/components/cards/LoginPromptCard';
 
 export default async function SellPage() {
     const session = await getSession();
     if (!session || !session.id) {
-        redirect('/auth/login');
+        return (
+            <LoginPromptCard 
+                title="Start Selling Today" 
+                description="Please login to list your properties and reach potential buyers." 
+            />
+        );
     }
 
     const userId = Number(session.id);

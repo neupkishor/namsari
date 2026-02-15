@@ -32,56 +32,11 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
 }
 
 export default function RegisterClient() {
-    const [username, setUsername] = useState('');
-    const [isChecking, setIsChecking] = useState(false);
-    const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
-    const [accountType, setAccountType] = useState('owner');
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const accountType = 'user';
 
-    const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // Allow a-z, A-Z, 0-9, _, . only
-        // Just filter out invalid characters immediately for better UX
-        const val = e.target.value.replace(/[^a-zA-Z0-9_.]/g, '');
-        setUsername(val);
-    };
-
-    useEffect(() => {
-        const checkUsername = async () => {
-            if (username.length === 0) {
-                setIsAvailable(null);
-                return;
-            }
-
-            if (username.length < 3) {
-                // We keep null here so it shows the "Must be at least 3 chars" message from render logic
-                // But we could also explicitly set error state if we changed logic.
-                // The render logic handles < 3 check.
-                setIsAvailable(null);
-                return;
-            }
-
-            // Client-side regex check (redundant if input is filtered, but good for safety)
-            const regex = /^[a-zA-Z0-9_.]+$/;
-            if (!regex.test(username)) {
-                setIsAvailable(false);
-                return;
-            }
-
-            setIsChecking(true);
-            try {
-                const res = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`);
-                const data = await res.json();
-                setIsAvailable(data.available);
-            } catch (error) {
-                console.error('Username check failed', error);
-                setIsAvailable(false);
-            } finally {
-                setIsChecking(false);
-            }
-        };
-
-        const timeoutId = setTimeout(checkUsername, 500); // Debounce
-        return () => clearTimeout(timeoutId);
-    }, [username]);
+    // Removed username checking logic
 
     return (
         <main style={{ backgroundColor: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -97,37 +52,24 @@ export default function RegisterClient() {
                     </div>
 
                     <form action={registerAction} className="card" style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div>
-                            <Input
-                                label="Username"
-                                name="username"
-                                type="text"
-                                placeholder="Pick a unique handle"
-                                required
-                                value={username}
-                                onChange={handleUsernameChange}
-                            />
-                            {username.length > 0 && (
-                                <div style={{ fontSize: '0.85rem', marginTop: '2px', minHeight: '20px' }}>
-                                    {isChecking ? (
-                                        <span style={{ color: '#64748b' }}>Checking availability...</span>
-                                    ) : isAvailable === true ? (
-                                        <span style={{ color: '#10b981', fontWeight: '600' }}>✓ Username is available</span>
-                                    ) : isAvailable === false ? (
-                                        <span style={{ color: '#ef4444', fontWeight: '600' }}>✕ Username is taken</span>
-                                    ) : username.length < 3 ? (
-                                        <span style={{ color: '#64748b' }}>Must be at least 3 characters</span>
-                                    ) : null}
-                                </div>
-                            )}
-                        </div>
-
                         <Input
                             label="Full Name"
                             name="name"
                             type="text"
                             placeholder="Enter your name"
                             required
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        />
+
+                        <Input
+                            label="Email Address"
+                            name="email"
+                            type="email"
+                            placeholder="Enter your email"
+                            required
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                         />
 
                         <Input
@@ -146,45 +88,9 @@ export default function RegisterClient() {
                             required
                         />
 
-                        <div style={{ margin: '12px 0' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--color-primary-light)', fontSize: '0.9rem' }}>Account Type</label>
-                            <input type="hidden" name="account_type" value={accountType} />
-                            <div style={{ display: 'flex', gap: '12px' }}>
-                                {[
-                                    { value: 'owner', label: 'Owner' },
-                                    { value: 'agent', label: 'Agent' },
-                                    { value: 'agency', label: 'Agency' }
-                                ].map((type) => (
-                                    <button
-                                        key={type.value}
-                                        type="button"
-                                        onClick={() => setAccountType(type.value)}
-                                        style={{
-                                            flex: 1,
-                                            padding: '12px',
-                                            borderRadius: '8px',
-                                            border: accountType === type.value ? '2px solid var(--color-primary)' : '1px solid #cbd5e1',
-                                            background: accountType === type.value ? '#eff6ff' : 'white',
-                                            color: accountType === type.value ? 'var(--color-primary)' : '#64748b',
-                                            fontWeight: '600',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: '6px'
-                                        }}
-                                    >
-                                        {accountType === type.value && (
-                                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'currentColor' }}></div>
-                                        )}
-                                        {type.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+                        <input type="hidden" name="account_type" value={accountType} />
 
-                        <SubmitButton disabled={isAvailable !== true} />
+                        <SubmitButton disabled={false} />
 
                         <p style={{ textAlign: 'center', fontSize: '0.9rem', color: '#64748b', marginTop: '16px' }}>
                             Already have an account? <Link href="/auth/login" style={{ color: 'var(--color-primary)', fontWeight: '600' }}>Log In</Link>

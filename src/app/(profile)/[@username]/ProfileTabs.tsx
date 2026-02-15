@@ -7,21 +7,26 @@ export default function ProfileTabs({ username, isOwner, accountType }: { userna
     const pathname = usePathname();
     const baseUrl = `/@${username}`;
 
-    const isActive = (path: string) => {
-        if (path === baseUrl) {
+    const isActive = (href: string) => {
+        if (href === baseUrl) {
             return pathname === baseUrl || pathname === `${baseUrl}/`;
         }
-        return pathname?.startsWith(path);
+        return pathname?.startsWith(href);
     };
 
     const tabs = [
-        { label: 'Posts', href: baseUrl },
-        { label: 'About', href: `${baseUrl}/about` },
+        { label: 'Overview', href: baseUrl },
+        { label: 'Properties', href: `${baseUrl}/properties` },
         { label: 'Reviews', href: `${baseUrl}/reviews` },
+        { label: 'About', href: `${baseUrl}/about` },
     ];
 
     if (accountType === 'agency') {
-        tabs.push({ label: 'Agents', href: `${baseUrl}/agents` });
+        // Insert Agents after Properties
+        const propertiesIndex = tabs.findIndex(t => t.label === 'Properties');
+        if (propertiesIndex !== -1) {
+             tabs.splice(propertiesIndex + 1, 0, { label: 'Agents', href: `${baseUrl}/agents` });
+        }
     }
 
     if (isOwner) {
@@ -29,24 +34,29 @@ export default function ProfileTabs({ username, isOwner, accountType }: { userna
     }
 
     return (
-        <div className="profile-nav">
-            {tabs.map(tab => (
-                <Link
-                    key={tab.href}
-                    href={tab.href}
-                    style={{
-                        paddingBottom: '16px',
-                        borderBottom: isActive(tab.href) ? '3px solid var(--color-primary)' : '3px solid transparent',
-                        color: isActive(tab.href) ? 'var(--color-primary)' : '#64748b',
-                        fontWeight: isActive(tab.href) ? '700' : '600',
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        textDecoration: 'none'
-                    }}
-                >
-                    {tab.label}
-                </Link>
-            ))}
+        <div className="profile-nav" style={{ display: 'flex', gap: '32px', padding: '0 24px', overflowX: 'auto', borderBottom: '1px solid #f1f5f9' }}>
+            {tabs.map(tab => {
+                const active = isActive(tab.href);
+                return (
+                    <Link
+                        key={tab.href}
+                        href={tab.href}
+                        style={{
+                            padding: '16px 4px',
+                            borderBottom: active ? '3px solid var(--color-primary)' : '3px solid transparent',
+                            color: active ? 'var(--color-primary)' : '#64748b',
+                            fontWeight: active ? '700' : '600',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap',
+                            textDecoration: 'none',
+                            fontSize: '0.95rem',
+                            marginBottom: '-1px'
+                        }}
+                    >
+                        {tab.label}
+                    </Link>
+                );
+            })}
         </div>
     );
 }

@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import { notFound, redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import EditProfileClient from '@/app/(profile)/[@username]/edit/EditProfileClient';
+import { LoginPromptCard } from '@/components/cards/LoginPromptCard';
 
 interface EditProfilePageProps {
     params: Promise<{
@@ -12,7 +13,12 @@ interface EditProfilePageProps {
 export default async function EditProfilePage({ params }: EditProfilePageProps) {
     const session = await getSession();
     if (!session) {
-        redirect('/auth/login');
+        return (
+            <LoginPromptCard 
+                title="Edit Profile" 
+                description="Please login to edit your profile information." 
+            />
+        );
     }
 
     const resolvedParams = await params;

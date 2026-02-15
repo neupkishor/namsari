@@ -51,7 +51,7 @@ export default async function AgencyManagementPage({ searchParams }: { searchPar
                     users.map((u: any) => (
                         <Link
                             key={u.id}
-                            href={`/manage/users/${u.username}`}
+                            href={`/manage/accounts/${u.username}`}
                             style={{ textDecoration: 'none', color: 'inherit' }}
                         >
                             <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', alignItems: 'center', gap: '20px', transition: 'all 0.2s', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>

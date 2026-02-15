@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { PropertyCard } from '@/components/cards/PropertyCard';
+import Link from 'next/link';
 
 interface PageProps {
     params: Promise<{
@@ -8,28 +9,34 @@ interface PageProps {
     }>;
 }
 
-export default async function ProfileFeedPage({ params }: PageProps) {
+export default async function ProfileOverviewPage({ params }: PageProps) {
     const resolvedParams = await params;
     const username = resolvedParams['@username'];
 
     let decoded = decodeURIComponent(username);
-    // Remove the '@' prefix if present
-    if (!decoded.startsWith('@')) {
-        return notFound();
-    }
-    // Remove the '@' prefix
+    if (!decoded.startsWith('@')) return notFound();
     decoded = decoded.substring(1);
 
     const user = await prisma.user.findUnique({
-        where: { username: decoded }
+        where: { username: decoded },
+        include: {
+            _count: {
+                select: {
+                    listedProperties: true,
+                    reviews_received: true,
+                    agents: true
+                }
+            }
+        }
     });
 
     if (!user) return notFound();
 
-    // Fetch user's properties with relations
+    // Fetch latest 3 properties
     const properties = await prisma.property.findMany({
         where: { listedById: user.id },
         orderBy: { created_on: 'desc' },
+        take: 3,
         include: {
             listedBy: true,
             pricing: true,
@@ -41,7 +48,7 @@ export default async function ProfileFeedPage({ params }: PageProps) {
         }
     });
 
-    // Enriched properties for the view
+    // Enriched properties logic
     const enrichedProperties = properties.map((p) => {
         const priceValue = p.pricing?.price || 0;
         const formattedPrice = new Intl.NumberFormat('en-NP', {
@@ -69,22 +76,164 @@ export default async function ProfileFeedPage({ params }: PageProps) {
             author_avatar: (user as any).profile_picture || (user.name || 'U')[0]
         };
     });
+    
+    // Fetch latest 3 reviews
+    const reviews = await prisma.review.findMany({
+        where: { receiver_id: user.id },
+        orderBy: { created_at: 'desc' },
+        take: 3,
+        include: { author: true }
+    });
 
-    if (enrichedProperties.length === 0) {
-        return (
-            <div className="card" style={{ padding: '60px 40px', textAlign: 'center', background: 'white' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🏘️</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '8px' }}>No active listings</h3>
-                <p style={{ color: 'var(--color-text-muted)', maxWidth: '300px', margin: '0 auto' }}>This user hasn't posted any properties for sale or rent yet.</p>
-            </div>
-        );
+    // Fetch agents if agency (latest 4)
+    let agents: any[] = [];
+    if (user.account_type === 'agency') {
+        agents = await prisma.user.findMany({
+            where: { agency_id: user.id },
+            take: 4,
+            include: {
+                _count: { select: { listedProperties: true } }
+            }
+        });
     }
 
     return (
-        <div className="profile-property-grid">
-            {enrichedProperties.map((p: any) => (
-                <PropertyCard key={p.id} property={p} />
-            ))}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            {/* About Section */}
+            {user.bio && (
+                <div className="card" style={{ padding: '24px', background: 'white' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '12px' }}>About</h3>
+                    <p style={{ lineHeight: '1.6', color: '#334155' }}>{user.bio}</p>
+                </div>
+            )}
+
+            {/* Properties Section */}
+            <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Latest Listings</h3>
+                    {user._count.listedProperties > 3 && (
+                        <Link href={`/@${user.username}/properties`} style={{ color: 'var(--color-primary)', fontWeight: '600', textDecoration: 'none' }}>
+                            View all ({user._count.listedProperties}) →
+                        </Link>
+                    )}
+                </div>
+                
+                {enrichedProperties.length > 0 ? (
+                    <div className="profile-property-grid">
+                        {enrichedProperties.map((p: any) => (
+                            <PropertyCard key={p.id} property={p} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="card" style={{ padding: '32px', textAlign: 'center', color: '#64748b' }}>
+                        No listings yet.
+                    </div>
+                )}
+            </div>
+
+            {/* Agents Section (Agency Only) */}
+            {user.account_type === 'agency' && (
+                <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Our Agents</h3>
+                        {user._count.agents > 4 && (
+                            <Link href={`/@${user.username}/agents`} style={{ color: 'var(--color-primary)', fontWeight: '600', textDecoration: 'none' }}>
+                                View all ({user._count.agents}) →
+                            </Link>
+                        )}
+                    </div>
+
+                    {agents.length > 0 ? (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+                            {agents.map((agent) => (
+                                <Link href={`/@${agent.username}`} key={agent.id} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                    <div className="card" style={{ padding: '16px', textAlign: 'center', transition: 'transform 0.2s' }}>
+                                        <div 
+                                            style={{ 
+                                                width: '64px', 
+                                                height: '64px', 
+                                                borderRadius: '50%', 
+                                                overflow: 'hidden', 
+                                                margin: '0 auto 12px',
+                                                backgroundColor: '#e2e8f0',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: '1.5rem'
+                                            }}
+                                        >
+                                            {agent.profile_picture ? (
+                                                <img src={agent.profile_picture} alt={agent.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            ) : (
+                                                <span>{(agent.name || 'U')[0]}</span>
+                                            )}
+                                        </div>
+                                        <div style={{ fontWeight: '600' }}>{agent.name}</div>
+                                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{agent._count.listedProperties} listings</div>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="card" style={{ padding: '32px', textAlign: 'center', color: '#64748b' }}>
+                            No agents listed.
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Reviews Section */}
+            <div>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Recent Reviews</h3>
+                    {user._count.reviews_received > 3 && (
+                        <Link href={`/@${user.username}/reviews`} style={{ color: 'var(--color-primary)', fontWeight: '600', textDecoration: 'none' }}>
+                            View all ({user._count.reviews_received}) →
+                        </Link>
+                    )}
+                </div>
+                
+                {reviews.length > 0 ? (
+                    <div style={{ display: 'grid', gap: '16px' }}>
+                        {reviews.map((review) => (
+                             <div key={review.id} className="card" style={{ padding: '16px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                                    <div 
+                                        style={{ 
+                                            width: '32px', 
+                                            height: '32px', 
+                                            borderRadius: '50%', 
+                                            overflow: 'hidden', 
+                                            backgroundColor: '#e2e8f0',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '0.8rem'
+                                        }}
+                                    >
+                                        {review.author.profile_picture ? (
+                                            <img src={review.author.profile_picture} alt={review.author.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        ) : (
+                                            <span>{(review.author.name || 'U')[0]}</span>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>{review.author.name}</div>
+                                        <div style={{ fontSize: '0.8rem', color: '#fbbf24' }}>
+                                            {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                                        </div>
+                                    </div>
+                                </div>
+                                <p style={{ fontSize: '0.9rem', color: '#334155' }}>{review.comment}</p>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="card" style={{ padding: '32px', textAlign: 'center', color: '#64748b' }}>
+                        No reviews yet.
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

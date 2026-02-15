@@ -51,7 +51,7 @@ export const sidebarMenuGroups = (user: any): MenuGroup[] => [
         title: 'Management',
         items: [
             { label: 'Manage Properties', icon: '🏠', href: '/manage/properties' },
-            { label: 'Manage Users', icon: '👥', href: '/manage/users' },
+            { label: 'Manage Users', icon: '👥', href: '/manage/accounts' },
             ...(user ? [{ label: 'Manage About', icon: '📝', href: '/manage/about' }] : []),
         ]
     },
@@ -89,11 +89,11 @@ export const managementMenuGroups = (user: any): MenuGroup[] => [
     {
         title: 'User Management',
         items: [
-            { label: 'Users', icon: '👥', href: '/manage/users' },
-            { label: 'Agents', icon: '🕴️', href: '/manage/agents' },
-            { label: 'Agencies', icon: '🏢', href: '/manage/agencies' },
-            { label: 'Banks', icon: '🏦', href: '/manage/banks' },
-            { label: 'Advertisers', icon: '📢', href: '/manage/advertisers' },
+            { label: 'Users', icon: '👥', href: '/manage/accounts' },
+            { label: 'Agents', icon: '🕴️', href: '/manage/accounts/agents' },
+            { label: 'Agencies', icon: '🏢', href: '/manage/accounts/agencies' },
+            { label: 'Banks', icon: '🏦', href: '/manage/accounts/banks' },
+            { label: 'Advertisers', icon: '📢', href: '/manage/accounts/advertisers' },
         ]
     },
     {

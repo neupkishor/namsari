@@ -37,6 +37,30 @@ model User {
   user_likes     Like[]
   collections    Collection[]
   requirements   Requirement[]
+  
+  // Agency Relation
+  agency_id      Int?
+  agency         User?    @relation("AgencyAgents", fields: [agency_id], references: [id])
+  agents         User[]   @relation("AgencyAgents")
+  
+  // Reviews
+  reviews_received Review[] @relation("ReviewReceiver")
+  reviews_written  Review[] @relation("ReviewAuthor")
+}
+
+model Review {
+  id          Int      @id @default(autoincrement())
+  rating      Int      @default(5)
+  comment     String?
+  
+  author_id   Int
+  author      User     @relation("ReviewAuthor", fields: [author_id], references: [id])
+  
+  receiver_id Int
+  receiver    User     @relation("ReviewReceiver", fields: [receiver_id], references: [id])
+  
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 }
 
 model KYC {

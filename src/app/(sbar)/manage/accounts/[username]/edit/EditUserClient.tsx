@@ -63,7 +63,7 @@ export default function EditUserClient({ user }: EditUserClientProps) {
         setLoading(false);
 
         if (res.success) {
-            router.push(`/manage/users/${user.username}`);
+            router.push(`/manage/accounts/${user.username}`);
             router.refresh();
         } else {
             alert(res.message);

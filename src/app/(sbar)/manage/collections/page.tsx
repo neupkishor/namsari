@@ -1,11 +1,18 @@
 import { getSession } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { redirect } from "next/navigation";
 import { CollectionsClient } from "@/app/(sbar)/manage/collections/CollectionsClient";
+import { LoginPromptCard } from "@/components/cards/LoginPromptCard";
 
 export default async function CollectionsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
     const session = await getSession();
-    if (!session) redirect('/auth/login');
+    if (!session) {
+        return (
+            <LoginPromptCard 
+                title="Manage Your Collections" 
+                description="Please login to view and manage your saved property collections." 
+            />
+        );
+    }
 
     const userId = parseInt(session.id); // Convert to number for DB and Client
 

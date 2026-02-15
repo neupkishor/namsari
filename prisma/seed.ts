@@ -196,6 +196,45 @@ async function main() {
         }
     }
 
+    // Create Agency Relationship
+    const agency = users.find(u => u.username === 'pokhara_realty');
+    const agent1 = users.find(u => u.username === 'rajesh_hamal');
+    const agent2 = users.find(u => u.username === 'anmol_kc');
+
+    if (agency && agent1 && agent2) {
+        await prisma.user.update({
+            where: { id: agent1.id },
+            data: { agency_id: agency.id }
+        });
+        await prisma.user.update({
+            where: { id: agent2.id },
+            data: { agency_id: agency.id }
+        });
+        console.log(`Linked agents to agency ${agency.username}`);
+    }
+
+    // Create Reviews
+    if (agency && agent1) {
+        await prisma.review.create({
+            data: {
+                rating: 5,
+                comment: "Great agency to work with! Highly recommended.",
+                author_id: agent1.id,
+                receiver_id: agency.id
+            }
+        });
+        
+        await prisma.review.create({
+            data: {
+                rating: 4,
+                comment: "Professional and timely service.",
+                author_id: agency.id, // Agency reviewing agent
+                receiver_id: agent1.id
+            }
+        });
+        console.log("Seeded reviews.");
+    }
+
     console.log("Seeded properties.");
 }
 

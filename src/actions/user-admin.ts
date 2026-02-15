@@ -33,8 +33,8 @@ export async function updateUser(username: string, formData: FormData) {
             where: { username },
             data: updateData
         });
-        revalidatePath(`/manage/users/${username}`);
-        revalidatePath(`/manage/users/${username}/edit`);
+        revalidatePath(`/manage/accounts/${username}`);
+        revalidatePath(`/manage/accounts/${username}/edit`);
         return { success: true, message: 'User updated successfully' };
     } catch (error) {
         console.error('Update user error:', error);
