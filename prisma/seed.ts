@@ -10,24 +10,31 @@ async function main() {
     const hashedPassword = await bcrypt.default.hash(password, 10);
 
     // Create Admin User
-    const admin = await prisma.user.upsert({
+    const admin = await prisma.account.upsert({
         where: { username: 'neupkishor' },
         update: {
-            password: hashedPassword,
             status: 'active',
-            account_type: 'admin',
+            type: 'admin',
             profile_picture: 'https://cdn.neupgroup.com/namsari/f_697f571bf16e60.87332081.jpg',
+            credentials: {
+                upsert: {
+                    create: { password: hashedPassword },
+                    update: { password: hashedPassword }
+                }
+            }
         },
         create: {
             username: 'neupkishor',
             name: 'Kishor Neupane',
             email: 'neupkishor@neupgroup.com',
-            password: hashedPassword,
             status: 'active',
-            account_type: 'admin',
+            type: 'admin',
             bio: 'System Administrator',
             contact_number: '9840710507',
             profile_picture: 'https://cdn.neupgroup.com/namsari/f_697f571bf16e60.87332081.jpg',
+            credentials: {
+                create: { password: hashedPassword }
+            }
         },
     });
 
@@ -44,22 +51,29 @@ async function main() {
 
     const users = [];
     for (const u of usersData) {
-        const user = await prisma.user.upsert({
+        const user = await prisma.account.upsert({
             where: { username: u.username },
             update: {
-                password: hashedPassword,
-                profile_picture: u.image
+                profile_picture: u.image,
+                credentials: {
+                    upsert: {
+                        create: { password: hashedPassword },
+                        update: { password: hashedPassword }
+                    }
+                }
             },
             create: {
                 username: u.username,
                 name: u.name,
                 email: `${u.username}@example.com`,
-                password: hashedPassword,
-                account_type: u.type,
+                type: u.type,
                 bio: u.bio,
                 contact_number: '9840000000',
                 status: 'active',
-                profile_picture: u.image
+                profile_picture: u.image,
+                credentials: {
+                    create: { password: hashedPassword }
+                }
             }
         });
         users.push(user);
@@ -202,11 +216,11 @@ async function main() {
     const agent2 = users.find(u => u.username === 'anmol_kc');
 
     if (agency && agent1 && agent2) {
-        await prisma.user.update({
+        await prisma.account.update({
             where: { id: agent1.id },
             data: { agency_id: agency.id }
         });
-        await prisma.user.update({
+        await prisma.account.update({
             where: { id: agent2.id },
             data: { agency_id: agency.id }
         });

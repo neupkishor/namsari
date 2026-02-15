@@ -15,7 +15,7 @@ export default async function ProfileAboutPage({ params }: PageProps) {
     if (!decoded.startsWith('@')) return notFound();
     decoded = decoded.substring(1);
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.account.findUnique({
         where: { username: decoded }
     });
 
@@ -44,7 +44,7 @@ export default async function ProfileAboutPage({ params }: PageProps) {
                 </div>
                 <div>
                     <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>Account Type</div>
-                    <div style={{ fontWeight: '500', textTransform: 'capitalize' }}>{user.account_type || 'General'}</div>
+                    <div style={{ fontWeight: '500', textTransform: 'capitalize' }}>{user.type || 'General'}</div>
                 </div>
                 <div>
                     <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>Status</div>

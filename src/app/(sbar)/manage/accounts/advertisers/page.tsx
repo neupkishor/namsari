@@ -10,17 +10,17 @@ export default async function ManageAdvertisersPage({ searchParams }: { searchPa
     const skip = (page - 1) * limit;
 
     const where = {
-        account_type: 'advertiser'
+        type: 'advertiser'
     };
 
     const [users, totalCount] = await Promise.all([
-        prisma.user.findMany({
+        prisma.account.findMany({
             where,
             orderBy: { name: 'asc' },
             skip,
             take: limit
         }),
-        prisma.user.count({ where })
+        prisma.account.count({ where })
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);

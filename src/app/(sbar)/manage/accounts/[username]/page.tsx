@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 export default async function UserDetailsPage({ params }: { params: Promise<{ username: string }> }) {
     const { username } = await params;
 
-    const user = await prisma.user.findFirst({
+    const user = await prisma.account.findFirst({
         where: { username: username },
         include: {
             listedProperties: {
@@ -55,7 +55,7 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', padding: '24px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
                             <div>
                                 <div style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>Account Type</div>
-                                <div style={{ fontSize: '1rem', fontWeight: '600', color: '#334155', textTransform: 'capitalize' }}>{user.account_type || 'User'}</div>
+                                <div style={{ fontSize: '1rem', fontWeight: '600', color: '#334155', textTransform: 'capitalize' }}>{user.type || 'User'}</div>
                             </div>
                             <div>
                                 <div style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>Joined Date</div>

@@ -23,7 +23,7 @@ export default async function ProfileLayout({ children, params }: LayoutProps) {
     if (!decoded.startsWith('@')) return notFound();
     decoded = decoded.substring(1);
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.account.findUnique({
         where: { username: decoded }
     });
 

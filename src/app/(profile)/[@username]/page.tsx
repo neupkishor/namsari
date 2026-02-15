@@ -17,7 +17,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
     if (!decoded.startsWith('@')) return notFound();
     decoded = decoded.substring(1);
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.account.findUnique({
         where: { username: decoded },
         include: {
             _count: {
@@ -87,8 +87,8 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
 
     // Fetch agents if agency (latest 4)
     let agents: any[] = [];
-    if (user.account_type === 'agency') {
-        agents = await prisma.user.findMany({
+    if (user.type === 'agency') {
+        agents = await prisma.account.findMany({
             where: { agency_id: user.id },
             take: 4,
             include: {
@@ -132,7 +132,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
             </div>
 
             {/* Agents Section (Agency Only) */}
-            {user.account_type === 'agency' && (
+            {user.type === 'agency' && (
                 <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                         <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Our Agents</h3>

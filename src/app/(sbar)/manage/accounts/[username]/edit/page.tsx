@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 export default async function EditUserPage({ params }: { params: Promise<{ username: string }> }) {
     const { username } = await params;
 
-    const user = await prisma.user.findFirst({
+    const user = await prisma.account.findFirst({
         where: { username: username }
     });
 

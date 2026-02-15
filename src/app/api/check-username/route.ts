@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     }
 
     try {
-        const user = await prisma.user.findUnique({
+        const user = await prisma.account.findUnique({
             where: { username }
         });
 

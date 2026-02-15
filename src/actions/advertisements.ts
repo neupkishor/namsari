@@ -31,7 +31,7 @@ export async function getActiveAdvertisements() {
 
 export async function createAdvertisement(formData: FormData) {
     const session = await getSession();
-    if (!session || session.account_type !== 'admin') {
+    if (!session || session.type !== 'admin') {
         return { error: "Unauthorized" };
     }
 
@@ -66,7 +66,7 @@ export async function createAdvertisement(formData: FormData) {
 
 export async function toggleAdvertisementStatus(id: number) {
     const session = await getSession();
-    if (!session || session.account_type !== 'admin') {
+    if (!session || session.type !== 'admin') {
         return { error: "Unauthorized" };
     }
 
@@ -90,7 +90,7 @@ export async function toggleAdvertisementStatus(id: number) {
 
 export async function deleteAdvertisement(id: number) {
     const session = await getSession();
-    if (!session || session.account_type !== 'admin') {
+    if (!session || session.type !== 'admin') {
         return { error: "Unauthorized" };
     }
 

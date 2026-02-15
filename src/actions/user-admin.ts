@@ -25,11 +25,16 @@ export async function updateUser(username: string, formData: FormData) {
     if (password && password.trim() !== '') {
         const bcrypt = await import('bcryptjs');
         const hashedPassword = await bcrypt.hash(password, 10);
-        updateData.password = hashedPassword;
+        updateData.credentials = {
+            upsert: {
+                create: { password: hashedPassword },
+                update: { password: hashedPassword }
+            }
+        };
     }
 
     try {
-        await prisma.user.update({
+        await prisma.account.update({
             where: { username },
             data: updateData
         });

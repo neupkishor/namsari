@@ -8,16 +8,16 @@ export const getSession = cache(async () => {
     if (!userId) return null;
 
     try {
-        const user = await prisma.user.findUnique({
+        const user = await prisma.account.findUnique({
             where: { id: parseInt(userId) },
-            select: { id: true, account_type: true }
+            select: { id: true, type: true }
         });
 
         if (!user) return null;
 
         return {
             id: userId,
-            account_type: user.account_type
+            type: user.type
         };
     } catch (error) {
         console.error("Error in getSession:", error);
@@ -33,6 +33,12 @@ export async function setSession(userId: string) {
         maxAge: 60 * 60 * 24 * 7, // 1 week
         path: '/',
     });
+}
+
+export async function getCurrentUser() {
+    const session = await getSession();
+    if (!session) return null;
+    return { id: parseInt(session.id), type: session.type, type: session.type };
 }
 
 export async function clearSession() {

@@ -10,14 +10,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model Account {
   id             Int      @id @default(autoincrement())
   username       String   @unique
   name           String
   email          String?  @unique
-  password       String?
   contact_number String?
-  account_type   String?
+  type           String   @default("user") // agency, self (user?), bank, agent, admin
   bio            String?
   profile_picture String?
   cover_image    String?
@@ -40,12 +39,72 @@ model User {
   
   // Agency Relation
   agency_id      Int?
-  agency         User?    @relation("AgencyAgents", fields: [agency_id], references: [id])
-  agents         User[]   @relation("AgencyAgents")
+  agency         Account?    @relation("AgencyAgents", fields: [agency_id], references: [id])
+  agents         Account[]   @relation("AgencyAgents")
   
   // Reviews
   reviews_received Review[] @relation("ReviewReceiver")
   reviews_written  Review[] @relation("ReviewAuthor")
+
+  // Permissions & Auth
+  roleId         Int?
+  role           Role?    @relation(fields: [roleId], references: [id])
+
+  credentials    AccountCredential?
+  
+  permissionsGiven AccountPermission[] @relation("ResourceOwner")
+  permissionsReceived AccountPermission[] @relation("Actor")
+
+  @@map("users")
+  @@index([type])
+}
+
+model AccountCredential {
+  id        Int      @id @default(autoincrement())
+  accountId Int      @unique
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  password  String
+  updated_at DateTime @updatedAt
+  
+  @@map("account_creds")
+}
+
+model AccountPermission {
+  id             Int      @id @default(autoincrement())
+  
+  ownerId        Int      // account_of
+  owner          Account  @relation("ResourceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  actorId        Int      // permit_to
+  actor          Account  @relation("Actor", fields: [actorId], references: [id], onDelete: Cascade)
+
+  permissions    String   // JSON string of permissions
+  
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  @@unique([ownerId, actorId])
+  @@map("permissions")
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  permissions RolePermission[]
+  users       Account[]
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model RolePermission {
+  id          Int      @id @default(autoincrement())
+  roleId      Int
+  role        Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  resource    String   // e.g., "blog", "user", "property"
+  action      String   // "readOnly", "read&write", "read&write&delete", "read&delete"
+  
+  @@unique([roleId, resource])
 }
 
 model Review {
@@ -54,10 +113,10 @@ model Review {
   comment     String?
   
   author_id   Int
-  author      User     @relation("ReviewAuthor", fields: [author_id], references: [id])
+  author      Account     @relation("ReviewAuthor", fields: [author_id], references: [id])
   
   receiver_id Int
-  receiver    User     @relation("ReviewReceiver", fields: [receiver_id], references: [id])
+  receiver    Account     @relation("ReviewReceiver", fields: [receiver_id], references: [id])
   
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
@@ -66,7 +125,7 @@ model Review {
 model KYC {
   id             Int      @id @default(autoincrement())
   userId         Int      @unique
-  user           User     @relation(fields: [userId], references: [id])
+  user           Account     @relation(fields: [userId], references: [id])
   name           String
   email          String
   phone          String
@@ -117,13 +176,13 @@ model Property {
 
   // Ownership Details
   listedById             Int
-  listedBy               User     @relation("ListedBy", fields: [listedById], references: [id])
+  listedBy               Account     @relation("ListedBy", fields: [listedById], references: [id])
   
   ownerId                Int
-  owner                  User     @relation("Owner", fields: [ownerId], references: [id])
+  owner                  Account     @relation("Owner", fields: [ownerId], references: [id])
   
   authorizedPersonId     Int?
-  authorizedPerson       User?    @relation("AuthorizedPerson", fields: [authorizedPersonId], references: [id])
+  authorizedPerson       Account?    @relation("AuthorizedPerson", fields: [authorizedPersonId], references: [id])
 
   // Core metadata
   title                  String
@@ -277,7 +336,7 @@ model Comment {
   property    Property @relation(fields: [property_id], references: [id])
   
   user_id     Int
-  user        User     @relation(fields: [user_id], references: [id])
+  user        Account     @relation(fields: [user_id], references: [id])
 }
 
 model Like {
@@ -288,7 +347,7 @@ model Like {
   property    Property @relation(fields: [property_id], references: [id])
   
   user_id     Int
-  user        User     @relation(fields: [user_id], references: [id])
+  user        Account     @relation(fields: [user_id], references: [id])
 
   @@unique([property_id, user_id])
 }
@@ -355,7 +414,7 @@ model Collection {
   updated_at  DateTime   @updatedAt
 
   user_id     Int
-  user        User       @relation(fields: [user_id], references: [id])
+  user        Account       @relation(fields: [user_id], references: [id])
 
   properties  CollectionProperty[]
 }
@@ -377,7 +436,7 @@ model CollectionProperty {
 model Requirement {
   id                Int      @id @default(autoincrement())
   userId            Int?
-  user              User?    @relation(fields: [userId], references: [id])
+  user              Account?    @relation(fields: [userId], references: [id])
   
   mode              String   @default("simple") // simple, detailed
   content           String?  // For simple mode
@@ -505,6 +564,17 @@ model Advertisement {
   posted_by     String?  // Name of advertiser or user ID
   shows_on_top  Boolean  @default(false) // If true, shows in top carousel. If false, shows in feed.
   is_active     Boolean  @default(true)
+  views         Int      @default(0)
+  clicks        Int      @default(0)
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
+}
+
+model Visitor {
+  id          Int      @id @default(autoincrement())
+  session_id  String   // Cookie ID
+  page_url    String
+  user_agent  String?
+  ip_address  String?  // Anonymized or hashed if needed
+  created_at  DateTime @default(now())
 }

@@ -17,7 +17,7 @@ export default async function ProfileSavedPage({ params }: PageProps) {
     if (!decoded.startsWith('@')) return notFound();
     decoded = decoded.substring(1);
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.account.findUnique({
         where: { username: decoded }
     });
 

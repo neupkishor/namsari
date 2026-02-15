@@ -33,7 +33,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     const { slugAndId } = resolvedParams;
 
     const session = await getSession();
-    const currentUser = session ? await prisma.user.findUnique({ where: { id: Number(session.id) } }) : null;
+    const currentUser = session ? await prisma.account.findUnique({ where: { id: Number(session.id) } }) : null;
 
     // Extract ID from slug-id format
     const parts = slugAndId.split('-');

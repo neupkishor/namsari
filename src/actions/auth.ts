@@ -9,17 +9,23 @@ export async function getCurrentUser() {
     if (!session?.id) return null;
 
     try {
-        const user = await prisma.user.findUnique({
+        const user = await prisma.account.findUnique({
             where: { id: parseInt(session.id) },
             select: {
                 id: true,
                 name: true,
                 username: true,
                 profile_picture: true,
-                account_type: true
+                type: true
             }
         });
-        return user;
+        
+        if (!user) return null;
+
+        return {
+            ...user,
+            type: user.type
+        };
     } catch (error) {
         console.error("Error fetching current user:", error);
         return null;
@@ -30,7 +36,7 @@ export async function registerAction(formData: FormData) {
     const name = formData.get('name') as string;
     const email = formData.get('email') as string;
     const contact_number = formData.get('contact_number') as string;
-    const account_type = formData.get('account_type') as string;
+    const type = formData.get('account_type') as string; // Form likely still sends account_type
     const password = formData.get('password') as string;
 
     if (!name) throw new Error("Name is required");
@@ -46,7 +52,7 @@ export async function registerAction(formData: FormData) {
     }
 
     // Check if username already exists
-    let existingUser = await prisma.user.findUnique({
+    let existingUser = await prisma.account.findUnique({
         where: { username }
     });
 
@@ -56,7 +62,7 @@ export async function registerAction(formData: FormData) {
         username = `${username}${randomSuffix}`;
         
         // Check again (unlikely to collide, but good practice)
-        existingUser = await prisma.user.findUnique({
+        existingUser = await prisma.account.findUnique({
             where: { username }
         });
         
@@ -66,7 +72,7 @@ export async function registerAction(formData: FormData) {
     }
 
     // Check if email already exists
-    const existingEmail = await prisma.user.findUnique({
+    const existingEmail = await prisma.account.findUnique({
         where: { email }
     });
 
@@ -78,15 +84,25 @@ export async function registerAction(formData: FormData) {
         const bcrypt = await import('bcryptjs');
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const user = await prisma.user.create({
-            data: {
-                username,
-                name,
-                email,
-                contact_number,
-                account_type,
-                password: hashedPassword
-            }
+        const user = await prisma.$transaction(async (tx) => {
+            const newAccount = await tx.account.create({
+                data: {
+                    username,
+                    name,
+                    email,
+                    contact_number,
+                    type,
+                }
+            });
+
+            await tx.accountCredential.create({
+                data: {
+                    accountId: newAccount.id,
+                    password: hashedPassword
+                }
+            });
+            
+            return newAccount;
         });
 
         await setSession(String(user.id));
@@ -113,13 +129,16 @@ export async function loginAction(formData: FormData) {
         if (!password) throw new Error("Password is required");
 
         // Find user by username OR email OR contact_number
-        const user = await prisma.user.findFirst({
+        const user = await prisma.account.findFirst({
             where: {
                 OR: [
                     { username: identifier },
                     { email: identifier },
                     { contact_number: identifier }
                 ]
+            },
+            include: {
+                credentials: true
             }
         });
 
@@ -129,7 +148,12 @@ export async function loginAction(formData: FormData) {
 
         // Validate password
         const bcrypt = await import('bcryptjs');
-        const isMatch = await bcrypt.compare(password, user.password || '');
+        // Check if credentials exist
+        if (!user.credentials) {
+             throw new Error("Invalid credentials."); // No password set for this account
+        }
+
+        const isMatch = await bcrypt.compare(password, user.credentials.password);
         if (!isMatch) {
             throw new Error("Invalid credentials.");
         }

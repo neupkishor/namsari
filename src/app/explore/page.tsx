@@ -6,6 +6,6 @@ import prisma from '@/lib/prisma';
 export default async function ExplorePage(props: { searchParams: Promise<{ q?: string }> }) {
     const searchParams = await props.searchParams;
     const session = await getSession();
-    const user = session ? await prisma.user.findUnique({ where: { id: Number(session.id) } }) : null;
+    const user = session ? await prisma.account.findUnique({ where: { id: Number(session.id) } }) : null;
     return <ExploreClient initialUser={user} initialQuery={searchParams.q || ''} />;
 }

@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
 
 export async function updateUserProfilePicture(userId: number, url: string) {
-    await (prisma as any).user.update({
+    await prisma.account.update({
         where: { id: userId },
         data: { profile_picture: url }
     });
@@ -24,11 +24,16 @@ export async function updateProfile(userId: number, formData: FormData) {
 
     if (password && password.trim() !== '') {
         const hashedPassword = await bcrypt.hash(password, 10);
-        data.password = hashedPassword;
+        data.credentials = {
+            upsert: {
+                create: { password: hashedPassword },
+                update: { password: hashedPassword }
+            }
+        };
     }
 
     try {
-        await prisma.user.update({
+        await prisma.account.update({
             where: { id: userId },
             data
         });

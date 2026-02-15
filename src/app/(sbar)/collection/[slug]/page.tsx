@@ -10,7 +10,7 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
 
     const session = await getSession();
     const currentUserId = session ? parseInt(session.id) : null;
-    const currentUser = currentUserId ? await prisma.user.findUnique({ where: { id: currentUserId } }) : null;
+    const currentUser = currentUserId ? await prisma.account.findUnique({ where: { id: currentUserId } }) : null;
 
     const collection = await prisma.collection.findFirst({
         where: { slug: slug },

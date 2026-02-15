@@ -6,12 +6,12 @@ import Link from 'next/link';
 export default async function AgenciesPage() {
     const session = await getSession();
     const currentUserId = session ? parseInt(session.id) : null;
-    const currentUser = currentUserId ? await prisma.user.findUnique({ where: { id: currentUserId } }) : null;
+    const currentUser = currentUserId ? await prisma.account.findUnique({ where: { id: currentUserId } }) : null;
 
     // Fetch all users with account_type = 'agency'
-    const agencies = await prisma.user.findMany({
+    const agencies = await prisma.account.findMany({
         where: {
-            account_type: 'agency',
+            type: 'agency',
             status: 'active'
         },
         orderBy: {

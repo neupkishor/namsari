@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { User } from '@prisma/client';
+import { Account as User } from '@prisma/client';
 import { updateProfile } from '@/actions/profile-client';
 import ProfileImageUpload from '@/app/(profile)/[@username]/ProfileImageUploadClient';
 import { useRouter } from 'next/navigation';

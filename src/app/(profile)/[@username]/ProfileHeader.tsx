@@ -38,8 +38,8 @@ export default function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
                                 <span style={{ fontSize: '1rem', color: '#64748b', fontWeight: '500' }}>@{user.username}</span>
                                 <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#cbd5e1' }}></span>
                                 <span style={{
-                                    background: user.account_type === 'agency' ? '#f0f7ff' : '#f8fafc',
-                                    color: user.account_type === 'agency' ? '#0284c7' : '#475569',
+                                    background: user.type === 'agency' ? '#f0f7ff' : '#f8fafc',
+                                    color: user.type === 'agency' ? '#0284c7' : '#475569',
                                     padding: '4px 10px',
                                     borderRadius: '20px',
                                     fontSize: '0.8rem',
@@ -47,7 +47,7 @@ export default function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
                                     textTransform: 'uppercase',
                                     letterSpacing: '0.025em'
                                 }}>
-                                    {user.account_type || 'General User'}
+                                    {user.type || 'General User'}
                                 </span>
                             </div>
                         </div>
@@ -64,7 +64,7 @@ export default function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
                     </div>
                 </div>
 
-                <ProfileTabs username={user.username} isOwner={isOwner} accountType={user.account_type} />
+                <ProfileTabs username={user.username} isOwner={isOwner} accountType={user.type} />
             </div>
             
              <style dangerouslySetInnerHTML={{
