@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logoutAction } from '@/actions/auth';
 
-import { bottomNavItems, sidebarMenuGroups } from './menu-config';
+import { bottomNavItems, sidebarMenuGroups, managementMenuGroups } from './menu-config';
 
 export function BottomNavigation({ user }: { user?: any }) {
     const pathname = usePathname();
@@ -40,7 +40,8 @@ export function BottomNavigation({ user }: { user?: any }) {
     }, [showMobileMenu]);
 
     const items = bottomNavItems(user);
-    const menuGroups = sidebarMenuGroups(user);
+    const isManagePage = pathname?.startsWith('/manage');
+    const menuGroups = isManagePage ? managementMenuGroups(user) : sidebarMenuGroups(user);
 
     return (
         <>
