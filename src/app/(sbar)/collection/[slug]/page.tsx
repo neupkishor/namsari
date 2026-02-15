@@ -1,11 +1,8 @@
 import React from 'react';
 import prisma from '@/lib/prisma';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { getSession } from '@/lib/auth';
-import Link from 'next/link';
-import { ClassicCollectionView } from '@/app/(header&footer)/collection/[slug]/views/ClassicCollectionView';
-import { SocialCollectionView } from '@/app/(header&footer)/collection/[slug]/views/SocialCollectionView';
-import { Header } from '@/components/menu/Header';
+import { SocialCollectionView } from './views/SocialCollectionView';
 
 export default async function CollectionPublicPage(props: { params: Promise<{ slug: string }>, searchParams: Promise<{ view?: string }> }) {
     const params = await props.params;
@@ -52,8 +49,7 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
     }
 
     return (
-        <div style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: '80px' }}>
-            <Header user={currentUser} />
+        <div style={{ background: '#ffffff', minHeight: '100vh', paddingBottom: '80px' }}>
             {/* Header Section */}
             <header style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '60px 0' }}>
                 <div className="layout-container">
@@ -94,19 +90,13 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
                                 <div style={{ fontWeight: '600', color: 'var(--color-primary-light)' }}>{collection.user.name}</div>
                             </div>
                         </div>
-
-                        {/* View Toggles Removed as per requirement */}
                     </div>
                 </div>
             </header>
 
             {/* Content Section */}
             <div className="layout-container" style={{ marginTop: '0px' }}>
-                {(collection as any).view_mode === 'social' ? (
-                    <SocialCollectionView properties={collection.properties} user={collection.user} />
-                ) : (
-                    <ClassicCollectionView properties={collection.properties} />
-                )}
+                <SocialCollectionView properties={collection.properties} user={collection.user} />
             </div>
         </div>
     );
