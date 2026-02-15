@@ -16,6 +16,8 @@ export const metadata: Metadata = {
   description: "Real Estate Application",
 };
 
+import { Tracker } from '@/components/analytics/Tracker';
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -27,6 +29,7 @@ export default async function RootLayout({
     <html lang="en">
       <body className={`${outfit.variable} antialiased`}>
         <Providers>
+            <Tracker />
             <Header user={user} />
             {children}
             <div className="mobile-only">

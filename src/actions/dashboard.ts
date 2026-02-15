@@ -1,7 +1,6 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { getServerSession } from 'next-auth'; // Assuming next-auth, or custom auth
 import { getCurrentUser } from '@/lib/auth'; // Replace with actual auth method
 import { cookies } from 'next/headers';
 
@@ -297,21 +296,36 @@ export async function getDashboardStats() {
     // --- Webmaster (Visitors) ---
     // Only Admin
     if (isAdmin) {
-        const [
-            totalVisits,
-            visits30,
-            visits7,
-            visits1
-        ] = await Promise.all([
-            prisma.visitor.count(),
-            prisma.visitor.count({ where: { created_at: { gte: thirtyDaysAgo } } }),
-            prisma.visitor.count({ where: { created_at: { gte: sevenDaysAgo } } }),
-            prisma.visitor.count({ where: { created_at: { gte: oneDayAgo } } })
-        ]);
-        
-        // Count unique visitors (by session_id) - approximate
-        const uniqueVisitors = await prisma.visitor.groupBy({
+        // Total Visits (Sessions)
+        const totalVisitsGroup = await prisma.visitor.groupBy({
             by: ['session_id'],
+        });
+        const totalVisits = totalVisitsGroup.length;
+
+        // Visits in last 30 days
+        const visits30Group = await prisma.visitor.groupBy({
+            by: ['session_id'],
+            where: { created_at: { gte: thirtyDaysAgo } }
+        });
+        const visits30 = visits30Group.length;
+
+        // Visits in last 7 days
+        const visits7Group = await prisma.visitor.groupBy({
+            by: ['session_id'],
+            where: { created_at: { gte: sevenDaysAgo } }
+        });
+        const visits7 = visits7Group.length;
+
+        // Visits in last 24 hours
+        const visits1Group = await prisma.visitor.groupBy({
+            by: ['session_id'],
+            where: { created_at: { gte: oneDayAgo } }
+        });
+        const visits1 = visits1Group.length;
+        
+        // Count unique visitors (by IP Address)
+        const uniqueVisitorsGroup = await prisma.visitor.groupBy({
+            by: ['ip_address'],
             where: { created_at: { gte: thirtyDaysAgo } },
         });
         
@@ -320,7 +334,7 @@ export async function getDashboardStats() {
             visits30,
             visits7,
             visits1,
-            uniqueVisitors30: uniqueVisitors.length
+            uniqueVisitors30: uniqueVisitorsGroup.length
         };
     }
 

@@ -78,6 +78,10 @@ export default async function ManageDashboard() {
 
             {/* Bank Stats Row */}
             {stats.banks && <BankStats stats={stats.banks} />}
+
+            <div style={{ textAlign: 'center', marginTop: '40px', color: '#94a3b8', fontSize: '0.9rem' }}>
+                For more information, visit the <a href="/support" style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}>Help Center</a>.
+            </div>
         </div>
     );
 }

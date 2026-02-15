@@ -29,6 +29,7 @@ export const sidebarMenuGroups = (user: any): MenuGroup[] => [
             { label: 'Commercial Buildings', icon: '🏢', href: '/find/commercial-buildings' },
             { label: 'Agencies', icon: '🧑‍💼', href: '/agencies' },
             { label: 'Favourites', icon: '❤️', href: user ? `/@${user.username}/saved` : '/auth/login' },
+            ...(user ? [{ label: 'Manage', icon: '⚙️', href: '/manage' }] : []),
         ]
     },
     {
@@ -48,14 +49,6 @@ export const sidebarMenuGroups = (user: any): MenuGroup[] => [
         ]
     },
     {
-        title: 'Management',
-        items: [
-            { label: 'Manage Properties', icon: '🏠', href: '/manage/properties' },
-            { label: 'Manage Users', icon: '👥', href: '/manage/accounts' },
-            ...(user ? [{ label: 'Manage About', icon: '📝', href: '/manage/about' }] : []),
-        ]
-    },
-    {
         title: 'Company',
         items: [
             { label: 'About Us', icon: 'ℹ️', href: '/about' },
@@ -63,7 +56,6 @@ export const sidebarMenuGroups = (user: any): MenuGroup[] => [
             { label: 'Terms', icon: '📝', href: '/terms' },
             { label: 'Privacy', icon: '🛡️', href: '/terms/privacy' },
             { label: 'Help Center', icon: '❓', href: '/support' },
-            { label: 'Settings', icon: '⚙️', href: '/manage/settings' },
         ]
     }
 ];
