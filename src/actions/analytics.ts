@@ -13,7 +13,7 @@ export async function trackVisit(sessionId: string, path: string) {
                    headersList.get('x-real-ip') || 
                    'unknown';
 
-        await prisma.visitor.create({
+        await (prisma as any).visitor.create({
             data: {
                 session_id: sessionId,
                 page_url: path,
