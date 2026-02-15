@@ -9,10 +9,10 @@ export default async function BlogPage() {
     const session = await getSession();
     let user = null;
     if (session?.id) {
-        user = await prisma.account.findUnique({ where: { id: Number(session.id) } });
+        user = await (prisma as any).account.findUnique({ where: { id: Number(session.id) } });
     }
 
-    let posts = [];
+    let posts: any[] = [];
     try {
         posts = await getBlogPosts('published');
     } catch (e) {

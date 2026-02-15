@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
 export async function toggleFeatured(propertyId: number) {
-    const property = await prisma.property.findUnique({
+    const property = await (prisma as any).property.findUnique({
         where: { id: propertyId }
     });
 
@@ -15,14 +15,14 @@ export async function toggleFeatured(propertyId: number) {
     // Use a transaction to ensure database consistency
     await prisma.$transaction(async (tx) => {
         // 1. Update the property status
-        await tx.property.update({
+        await (tx as any).property.update({
             where: { id: propertyId },
             data: { isFeatured: newStatus }
         });
 
         if (newStatus) {
             // 2. If becoming featured, create a new history record
-            await tx.featuredInformation.create({
+            await (tx as any).featuredInformation.create({
                 data: {
                     property_id: propertyId,
                     is_active: true,
@@ -31,7 +31,7 @@ export async function toggleFeatured(propertyId: number) {
             });
         } else {
             // 3. If being removed from featured, close the active history record
-            const activeFeatured = await tx.featuredInformation.findFirst({
+            const activeFeatured = await (tx as any).featuredInformation.findFirst({
                 where: {
                     property_id: propertyId,
                     is_active: true
@@ -39,7 +39,7 @@ export async function toggleFeatured(propertyId: number) {
             });
 
             if (activeFeatured) {
-                await tx.featuredInformation.update({
+                await (tx as any).featuredInformation.update({
                     where: { id: activeFeatured.id },
                     data: {
                         is_active: false,

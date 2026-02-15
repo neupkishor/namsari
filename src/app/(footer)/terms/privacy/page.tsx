@@ -7,7 +7,7 @@ export default async function PrivacyPage() {
     const session = await getSession();
     let user = null;
     if (session?.id) {
-        user = await prisma.account.findUnique({ where: { id: Number(session.id) } });
+        user = await (prisma as any).account.findUnique({ where: { id: Number(session.id) } });
     }
 
     return (

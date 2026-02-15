@@ -6,10 +6,10 @@ import Link from 'next/link';
 export default async function AgenciesPage() {
     const session = await getSession();
     const currentUserId = session ? parseInt(session.id) : null;
-    const currentUser = currentUserId ? await prisma.account.findUnique({ where: { id: currentUserId } }) : null;
+    const currentUser = currentUserId ? await (prisma as any).account.findUnique({ where: { id: currentUserId } }) : null;
 
     // Fetch all users with account_type = 'agency'
-    const agencies = await prisma.account.findMany({
+    const agencies = await (prisma as any).account.findMany({
         where: {
             type: 'agency',
             status: 'active'
@@ -46,7 +46,7 @@ export default async function AgenciesPage() {
                     </div>
                 ) : (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '20px' }}>
-                        {agencies.map(agency => (
+                        {agencies.map((agency: any) => (
                             <Link
                                 href={`/@${agency.username}`}
                                 key={agency.id}

@@ -16,7 +16,7 @@ export default async function ProfileReviewsPage({ params }: PageProps) {
     if (!decoded.startsWith('@')) return notFound();
     decoded = decoded.substring(1);
 
-    const user = await prisma.account.findUnique({
+    const user = await (prisma as any).account.findUnique({
         where: { username: decoded },
         include: {
             reviews_received: {
@@ -47,7 +47,7 @@ export default async function ProfileReviewsPage({ params }: PageProps) {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '8px' }}>Reviews ({reviews.length})</h2>
-            {reviews.map((review) => (
+            {reviews.map((review: any) => (
                 <div key={review.id} className="card" style={{ padding: '24px' }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
                         <Link href={`/@${review.author.username}`} style={{ textDecoration: 'none' }}>

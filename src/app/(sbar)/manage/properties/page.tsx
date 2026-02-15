@@ -48,7 +48,7 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
     }
 
     const [properties, totalCount] = await Promise.all([
-        prisma.property.findMany({
+        (prisma as any).property.findMany({
             where: whereClause,
             include: {
                 listedBy: true,
@@ -61,12 +61,12 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
             skip,
             take: limit
         }),
-        prisma.property.count({ where: whereClause })
+        (prisma as any).property.count({ where: whereClause })
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);
 
-    const enrichedProperties = properties.map((p) => {
+    const enrichedProperties = properties.map((p: any) => {
         const priceValue = p.pricing?.price || 0;
         const formattedPrice = new Intl.NumberFormat('en-NP', {
             style: 'currency',
@@ -90,7 +90,7 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
             author_username: p.listedBy?.username || '',
             author_avatar: p.listedBy?.profile_picture || (p.listedBy?.name || 'U')[0],
             main_category: mainCategory,
-            images: p.images.map(img => img.url),
+            images: p.images.map((img: any) => img.url),
         };
     });
 
@@ -140,7 +140,7 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
                         No properties found.
                     </div>
                 ) : (
-                    enrichedProperties.map((p) => (
+                    enrichedProperties.map((p: any) => (
                         <div key={p.id} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', transition: 'all 0.2s', display: 'flex', flexDirection: 'column' }}>
                             <div style={{ height: '200px', width: '100%', background: '#f1f5f9', position: 'relative' }}>
                                 {p.images && p.images[0] ? (

@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     }
 
     try {
-        const dbProperties = await prisma.property.findMany({
+        const dbProperties = await (prisma as any).property.findMany({
             where,
             include: {
                 listedBy: true,
@@ -50,12 +50,12 @@ export async function GET(request: Request) {
         });
 
         // Normalize data
-        const normalized = dbProperties.map((p) => {
+        const normalized = dbProperties.map((p: any) => {
             const authorUser = p.listedBy;
 
             // Basic relative time calculation
             const now = new Date();
-            const diff = now.getTime() - p.created_on.getTime();
+            const diff = now.getTime() - new Date(p.created_on).getTime();
             let timestamp = "Just now";
             const minutes = Math.floor(diff / 60000);
             const hours = Math.floor(minutes / 60);
@@ -88,8 +88,8 @@ export async function GET(request: Request) {
                 location: locationStr,
                 latitude: p.location?.latitude,
                 longitude: p.location?.longitude,
-                images: p.images.map(img => img.url),
-                property_types: p.types.map(t => t.name),
+                images: p.images.map((img: any) => img.url),
+                property_types: p.types.map((t: any) => t.name),
                 specs: specs,
                 // Enrich with author details
                 author_username: authorUser ? authorUser.username : null,

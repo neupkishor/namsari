@@ -43,7 +43,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     if (isNaN(id)) return notFound();
 
     // Fetch property and settings
-    const property = await prisma.property.findUnique({
+    const property = await (prisma as any).property.findUnique({
         where: { id },
         include: {
             listedBy: true,
@@ -69,8 +69,8 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         data: { views: { increment: 1 } }
     });
 
-    const isLiked = session && property.property_likes.some(l => l.user_id === Number(session.id));
-    const images = property.images.map(img => img.url);
+    const isLiked = session && property.property_likes.some((l: any) => l.user_id === Number(session.id));
+    const images = property.images.map((img: any) => img.url);
     const locationStr = property.location
         ? `${property.location.area}, ${property.location.district}`
         : 'Unspecified';
@@ -78,10 +78,10 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     const formattedPrice = new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(priceValue).replace('NPR', 'Rs.');
 
     // Fetch recommended properties
-    const recommendedProperties = await prisma.property.findMany({
+    const recommendedProperties = await (prisma as any).property.findMany({
         where: {
             id: { not: id },
-            types: { some: { id: { in: property.types.map(t => t.id) } } }
+            types: { some: { id: { in: property.types.map((t: any) => t.id) } } }
         },
         take: 3,
         orderBy: { created_on: 'desc' },
@@ -395,7 +395,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                             <div style={{ marginBottom: '40px' }}>
                                 <h2 className="section-title">Nearby Amenities</h2>
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-                                    {property.amenities.map(amenity => (
+                                    {property.amenities.map((amenity: any) => (
                                         <div key={amenity.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                                 <span style={{ fontSize: '1.5rem' }}>{getAmenityIcon(amenity.type)}</span>
@@ -468,7 +468,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                                 </a>
 
                                 <a
-                                    href={`https://wa.me/${property.listedBy?.contact_number?.replace(/[^0-9]/g, '') || ''}?text=${encodeURIComponent(`I'm interested in the ${property.title} [#${property.id}], For the property, I'm willing to offer a price of ........`)}`}
+                                    href={`https://wa.me/${property.listedBy?.contact_number?.replace(/[^0-9]/g, '') || ''}?text=${encodeURIComponent(`I'm interested in the ${property.title} [#${property.id}], For the property, I'm willing to offer a price of ${formattedPrice}`)}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="action-btn"
@@ -513,7 +513,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
                         gap: '32px'
                     }}>
-                        {recommendedProperties.map((p) => (
+                        {recommendedProperties.map((p: any) => (
                             <PropertyCard key={p.id} property={{
                                 id: p.id,
                                 title: p.title,

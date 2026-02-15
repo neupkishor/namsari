@@ -13,14 +13,14 @@ export default async function GalleryPage({ params }: { params: Promise<{ slugAn
 
     if (isNaN(id)) return notFound();
 
-    const property = await prisma.property.findUnique({
+    const property = await (prisma as any).property.findUnique({
         where: { id },
         include: { images: true }
     });
 
     if (!property) return notFound();
 
-    const images = property.images.map(img => img.url);
+    const images = property.images.map((img: any) => img.url);
 
     return (
         <div style={{ backgroundColor: 'black', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -39,7 +39,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ slugAn
                 padding: '4px',
                 alignContent: 'start'
             }}>
-                {images.map((img, idx) => (
+                {images.map((img: string, idx: number) => (
                     <div key={idx} style={{ position: 'relative', aspectRatio: '1.5/1' }}>
                         <img
                             src={img}

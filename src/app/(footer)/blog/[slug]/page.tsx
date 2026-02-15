@@ -13,11 +13,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     const session = await getSession();
     let user = null;
     if (session?.id) {
-        user = await prisma.account.findUnique({ where: { id: Number(session.id) } });
+        user = await (prisma as any).account.findUnique({ where: { id: Number(session.id) } });
     }
 
     // Fetch blog post
-    let post = null;
+    let post: any = null;
     try {
         post = await getBlogPostBySlug(slug);
     } catch (e) {

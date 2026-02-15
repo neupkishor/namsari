@@ -16,7 +16,7 @@ export default async function ProfileAgentsPage({ params }: PageProps) {
     if (!decoded.startsWith('@')) return notFound();
     decoded = decoded.substring(1);
 
-    const agency = await prisma.account.findUnique({
+    const agency = await (prisma as any).account.findUnique({
         where: { username: decoded },
         include: {
             agents: {
@@ -47,7 +47,7 @@ export default async function ProfileAgentsPage({ params }: PageProps) {
 
     return (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '24px' }}>
-            {agents.map((agent) => (
+            {agents.map((agent: any) => (
                 <Link href={`/@${agent.username}`} key={agent.id} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <div className="card" style={{ padding: '24px', textAlign: 'center', transition: 'transform 0.2s', cursor: 'pointer' }}>
                         <div 

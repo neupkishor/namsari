@@ -28,7 +28,7 @@ export default async function EditProfilePage({ params }: EditProfilePageProps) 
     if (!decoded.startsWith('@')) return notFound();
     decoded = decoded.substring(1);
 
-    const user = await prisma.account.findUnique({
+    const user = await (prisma as any).account.findUnique({
         where: { username: decoded }
     });
 

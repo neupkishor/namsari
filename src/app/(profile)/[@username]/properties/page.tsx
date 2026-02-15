@@ -20,14 +20,14 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
     // Remove the '@' prefix
     decoded = decoded.substring(1);
 
-    const user = await prisma.account.findUnique({
+    const user = await (prisma as any).account.findUnique({
         where: { username: decoded }
     });
 
     if (!user) return notFound();
 
     // Fetch user's properties with relations
-    const properties = await prisma.property.findMany({
+    const properties = await (prisma as any).property.findMany({
         where: { listedById: user.id },
         orderBy: { created_on: 'desc' },
         include: {
@@ -42,7 +42,7 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
     });
 
     // Enriched properties for the view
-    const enrichedProperties = properties.map((p) => {
+    const enrichedProperties = properties.map((p: any) => {
         const priceValue = p.pricing?.price || 0;
         const formattedPrice = new Intl.NumberFormat('en-NP', {
             style: 'currency',
@@ -62,7 +62,7 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
             ...p,
             price: formattedPrice,
             location: locationStr,
-            images: p.images.map(img => img.url),
+            images: p.images.map((img: any) => img.url),
             specs: specs,
             author_username: user.username,
             author_name: user.name,

@@ -16,7 +16,7 @@ export async function createCollection(formData: FormData) {
         throw new Error("Invalid Input");
     }
 
-    await prisma.collection.create({
+    await (prisma as any).collection.create({
         data: {
             name,
             description,
@@ -32,7 +32,7 @@ export async function createCollection(formData: FormData) {
 }
 
 export async function deleteCollection(id: number) {
-    await prisma.collection.delete({
+    await (prisma as any).collection.delete({
         where: { id }
     });
     revalidatePath('/manage/collections');
@@ -41,7 +41,7 @@ export async function deleteCollection(id: number) {
 export async function removePropertyFromCollection(collectionId: number, propertyId: number) {
     if (!collectionId || !propertyId) return;
 
-    await prisma.collectionProperty.deleteMany({
+    await (prisma as any).collectionProperty.deleteMany({
         where: {
             collection_id: collectionId,
             property_id: propertyId
@@ -49,15 +49,13 @@ export async function removePropertyFromCollection(collectionId: number, propert
     });
 
     revalidatePath('/manage/collections');
-    revalidatePath(`/manage/collections/[slug]`, 'page'); // We don't know the slug here easily unless passed, but revalidating the path by pattern or specific path handles it. 
-    // Ideally we revalidate the specific path, but for now we can just let Next.js handle it on refresh or if we pass the slug.
-    // Let's passed slug too for better revalidation
+    revalidatePath(`/manage/collections/[slug]`, 'page');
 }
 
 export async function removePropertyFromCollectionWithSlug(collectionId: number, propertyId: number, slug: string) {
     if (!collectionId || !propertyId) return;
 
-    await prisma.collectionProperty.deleteMany({
+    await (prisma as any).collectionProperty.deleteMany({
         where: {
             collection_id: collectionId,
             property_id: propertyId

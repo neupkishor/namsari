@@ -9,11 +9,11 @@ export default async function CareersPage() {
     const session = await getSession();
     let user = null;
     if (session?.id) {
-        user = await prisma.account.findUnique({ where: { id: Number(session.id) } });
+        user = await (prisma as any).account.findUnique({ where: { id: Number(session.id) } });
     }
 
     // Fetch real jobs from the database
-    let positions = [];
+    let positions: any[] = [];
     try {
         positions = await getJobListings();
     } catch (e) {

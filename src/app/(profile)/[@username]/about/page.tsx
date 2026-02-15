@@ -15,7 +15,7 @@ export default async function ProfileAboutPage({ params }: PageProps) {
     if (!decoded.startsWith('@')) return notFound();
     decoded = decoded.substring(1);
 
-    const user = await prisma.account.findUnique({
+    const user = await (prisma as any).account.findUnique({
         where: { username: decoded }
     });
 
@@ -27,7 +27,7 @@ export default async function ProfileAboutPage({ params }: PageProps) {
 
             <div style={{ fontSize: '1.05rem', lineHeight: '1.7', color: '#334155', marginBottom: '32px' }}>
                 {user.bio ? (
-                    user.bio.split('\n').map((paragraph, idx) => (
+                    user.bio.split('\n').map((paragraph: string, idx: number) => (
                         <p key={idx} style={{ marginBottom: '16px' }}>{paragraph}</p>
                     ))
                 ) : (

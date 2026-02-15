@@ -12,7 +12,7 @@ export async function POST(req: Request) {
         const userId = session?.id ? parseInt(session.id) : body.userId;
 
         // @ts-ignore - prisma client might not have updated in lint yet
-        const requirement = await prisma.requirement.create({
+        const requirement = await (prisma as any).requirement.create({
             data: {
                 ...body,
                 userId: userId || null,
@@ -33,7 +33,7 @@ export async function GET(req: Request) {
 
         const where = userId ? { userId: parseInt(userId) } : {};
 
-        const requirements = await prisma.requirement.findMany({
+        const requirements = await (prisma as any).requirement.findMany({
             where,
             orderBy: { created_at: 'desc' },
             include: {

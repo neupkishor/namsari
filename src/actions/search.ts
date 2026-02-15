@@ -9,7 +9,7 @@ export async function recordSearch(term: string) {
     const searchTerm = term.trim().toLowerCase();
 
     try {
-        await prisma.searchTerm.upsert({
+        await (prisma as any).searchTerm.upsert({
             where: { term: searchTerm },
             update: {
                 count: { increment: 1 },
@@ -31,7 +31,7 @@ export async function recordSearch(term: string) {
 export async function getTrendingSearches() {
     try {
         // Fetch all search terms ordered by count desc
-        const allTerms = await prisma.searchTerm.findMany({
+        const allTerms = await (prisma as any).searchTerm.findMany({
             orderBy: { count: 'desc' }
         });
 
@@ -45,7 +45,7 @@ export async function getTrendingSearches() {
         // Select random subset from this top pool to display
         // Let's say we want to show up to 10 tags
         const shuffled = topPool.sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, 10).map(t => t.term);
+        return shuffled.slice(0, 10).map((t: any) => t.term);
     } catch (error) {
         console.error('Failed to get trending searches:', error);
         return [];
