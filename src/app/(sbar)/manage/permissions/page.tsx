@@ -1,8 +1,20 @@
 import React from 'react';
 import Link from 'next/link';
 import { getUsersWithRoles } from '@/actions/permissions';
+import { getCurrentUser } from '@/actions/auth';
+import { redirect } from 'next/navigation';
 
 export default async function PermissionsPage() {
+    const user = await getCurrentUser();
+    
+    if (!user) {
+        redirect('/auth/login');
+    }
+
+    if (user.type !== 'admin' && !user.role?.name?.toLowerCase().includes('admin')) {
+        redirect('/manage');
+    }
+
     const { data: users } = await getUsersWithRoles();
 
     return (

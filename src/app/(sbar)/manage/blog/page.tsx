@@ -2,8 +2,20 @@ import React from 'react';
 import Link from 'next/link';
 import { getBlogPosts } from '@/actions/blog';
 import BlogListClient from '@/app/(sbar)/manage/blog/BlogListClient';
+import { getCurrentUser } from '@/actions/auth';
+import { redirect } from 'next/navigation';
 
 export default async function BlogManagementPage() {
+    const user = await getCurrentUser();
+    
+    if (!user) {
+        redirect('/auth/login');
+    }
+
+    if (user.type !== 'admin' && !user.role?.name?.toLowerCase().includes('admin')) {
+        redirect('/manage');
+    }
+
     let posts = [];
     try {
         posts = await getBlogPosts();

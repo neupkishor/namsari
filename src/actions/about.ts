@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { getSession } from '@/lib/auth';
 
 export async function updateAboutContent(data: {
     title: string;
@@ -11,6 +12,20 @@ export async function updateAboutContent(data: {
     group_info: string;
     content: string;
 }) {
+    const session = await getSession();
+    if (!session?.id) throw new Error("Unauthorized");
+
+    const user = await (prisma as any).account.findUnique({
+        where: { id: parseInt(session.id) },
+        include: { role: true }
+    });
+
+    if (!user) throw new Error("Unauthorized");
+
+    if (user.type !== 'admin' && !user.role?.name?.toLowerCase().includes('admin')) {
+        throw new Error("Forbidden");
+    }
+
     if (!(prisma as any).aboutContent) {
         throw new Error("AboutContent model not found in Prisma client. Please restart the developer server (npm run dev) to refresh the database schema.");
     }

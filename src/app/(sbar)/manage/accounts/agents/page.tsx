@@ -2,25 +2,44 @@ import React from 'react';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { PaginationControl } from '@/components/ui';
+import { getCurrentUser } from '@/actions/auth';
+import { redirect } from 'next/navigation';
 
 export default async function ManageAgentsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+    const user = await getCurrentUser();
+    
+    if (!user) {
+        redirect('/auth/login');
+    }
+
+    const isAdmin = user.type === 'admin' || user.role?.name?.toLowerCase().includes('admin');
+    const isAgency = user.type === 'agency';
+
+    if (!isAdmin && !isAgency) {
+        redirect('/manage');
+    }
+
     const { page: pageParam } = await searchParams;
     const page = Number(pageParam) || 1;
     const limit = 10;
     const skip = (page - 1) * limit;
 
-    const where = {
+    const where: any = {
         type: 'agent'
     };
 
+    if (isAgency) {
+        where.agency_id = user.id;
+    }
+
     const [users, totalCount] = await Promise.all([
-        prisma.account.findMany({
+        (prisma as any).account.findMany({
             where,
             orderBy: { name: 'asc' },
             skip,
             take: limit
         }),
-        prisma.account.count({ where })
+        (prisma as any).account.count({ where })
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);

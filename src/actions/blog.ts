@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { getSession } from '@/lib/auth';
 
 const generateSlug = (title: string) => {
     return title
@@ -9,6 +10,20 @@ const generateSlug = (title: string) => {
         .replace(/[^a-z0-9 ]/g, '')
         .replace(/\s+/g, '-') + '-' + Math.random().toString(36).substring(2, 7);
 };
+
+async function checkAdmin() {
+    const session = await getSession();
+    if (!session?.id) return false;
+
+    const user = await (prisma as any).account.findUnique({
+        where: { id: parseInt(session.id) },
+        include: { role: true }
+    });
+
+    if (!user) return false;
+
+    return user.type === 'admin' || user.role?.name?.toLowerCase().includes('admin');
+}
 
 export async function getBlogPosts(status?: string) {
     if (!(prisma as any).blogPost) {
@@ -48,6 +63,10 @@ export async function createBlogPost(data: {
     author?: string;
     status?: string;
 }) {
+    if (!(await checkAdmin())) {
+        throw new Error("Unauthorized");
+    }
+
     if (!(prisma as any).blogPost) {
         throw new Error("BlogPost model not found.");
     }
@@ -77,6 +96,10 @@ export async function updateBlogPost(id: number, data: {
     author?: string;
     status: string;
 }) {
+    if (!(await checkAdmin())) {
+        throw new Error("Unauthorized");
+    }
+
     if (!(prisma as any).blogPost) {
         throw new Error("BlogPost model not found.");
     }
@@ -100,6 +123,10 @@ export async function updateBlogPost(id: number, data: {
 }
 
 export async function deleteBlogPost(id: number) {
+    if (!(await checkAdmin())) {
+        throw new Error("Unauthorized");
+    }
+
     if (!(prisma as any).blogPost) {
         throw new Error("BlogPost model not found.");
     }

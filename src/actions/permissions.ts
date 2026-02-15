@@ -2,10 +2,28 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { getSession } from '@/lib/auth';
+
+async function checkAdmin() {
+    const session = await getSession();
+    if (!session?.id) return false;
+
+    const user = await (prisma as any).account.findUnique({
+        where: { id: parseInt(session.id) },
+        include: { role: true }
+    });
+
+    if (!user) return false;
+
+    return user.type === 'admin' || user.role?.name?.toLowerCase().includes('admin');
+}
 
 export async function getRoles() {
+  const isAdmin = await checkAdmin();
+  if (!isAdmin) return { success: false, error: 'Unauthorized' };
+
   try {
-    const roles = await prisma.role.findMany({
+    const roles = await (prisma as any).role.findMany({
       include: {
         permissions: true,
         _count: {
@@ -22,8 +40,11 @@ export async function getRoles() {
 }
 
 export async function getRole(id: number) {
+  const isAdmin = await checkAdmin();
+  if (!isAdmin) return { success: false, error: 'Unauthorized' };
+
   try {
-    const role = await prisma.role.findUnique({
+    const role = await (prisma as any).role.findUnique({
       where: { id },
       include: {
         permissions: true
@@ -37,8 +58,11 @@ export async function getRole(id: number) {
 }
 
 export async function createRole(name: string, description: string, permissions: { resource: string, action: string }[]) {
+  const isAdmin = await checkAdmin();
+  if (!isAdmin) return { success: false, error: 'Unauthorized' };
+
   try {
-    const role = await prisma.role.create({
+    const role = await (prisma as any).role.create({
       data: {
         name,
         description,
@@ -56,24 +80,27 @@ export async function createRole(name: string, description: string, permissions:
 }
 
 export async function updateRole(id: number, name: string, description: string, permissions: { resource: string, action: string }[]) {
+  const isAdmin = await checkAdmin();
+  if (!isAdmin) return { success: false, error: 'Unauthorized' };
+
   try {
     // Transaction to update role and replace permissions
     const role = await prisma.$transaction(async (tx) => {
       // Update basic info
-      const updatedRole = await tx.role.update({
+      const updatedRole = await (tx as any).role.update({
         where: { id },
         data: { name, description }
       });
 
       // Delete existing permissions
-      await tx.rolePermission.deleteMany({
+      await (tx as any).rolePermission.deleteMany({
         where: { roleId: id }
       });
 
       // Create new permissions
       if (permissions.length > 0) {
-        await tx.rolePermission.createMany({
-          data: permissions.map(p => ({
+        await (tx as any).rolePermission.createMany({
+          data: permissions.map((p: any) => ({
             roleId: id,
             resource: p.resource,
             action: p.action
@@ -93,8 +120,11 @@ export async function updateRole(id: number, name: string, description: string, 
 }
 
 export async function deleteRole(id: number) {
+  const isAdmin = await checkAdmin();
+  if (!isAdmin) return { success: false, error: 'Unauthorized' };
+
   try {
-    await prisma.role.delete({
+    await (prisma as any).role.delete({
       where: { id }
     });
     revalidatePath('/manage/permissions/roles');
@@ -106,8 +136,11 @@ export async function deleteRole(id: number) {
 }
 
 export async function getUsersWithRoles() {
+  const isAdmin = await checkAdmin();
+  if (!isAdmin) return { success: false, error: 'Unauthorized' };
+
   try {
-    const users = await prisma.account.findMany({
+    const users = await (prisma as any).account.findMany({
       select: {
         id: true,
         username: true,
@@ -136,8 +169,11 @@ export async function getUsersWithRoles() {
 }
 
 export async function getUserPermissions(userId: number) {
+  const isAdmin = await checkAdmin();
+  if (!isAdmin) return { success: false, error: 'Unauthorized' };
+
   try {
-    const user = await prisma.account.findUnique({
+    const user = await (prisma as any).account.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -170,8 +206,11 @@ export async function getUserPermissions(userId: number) {
 }
 
 export async function assignRoleToUser(userId: number, roleId: number | null) {
+  const isAdmin = await checkAdmin();
+  if (!isAdmin) return { success: false, error: 'Unauthorized' };
+
   try {
-    const user = await prisma.account.update({
+    const user = await (prisma as any).account.update({
       where: { id: userId },
       data: { roleId }
     });
@@ -185,8 +224,11 @@ export async function assignRoleToUser(userId: number, roleId: number | null) {
 }
 
 export async function grantAccountPermission(ownerId: number, actorId: number, permissions: string) {
+    const isAdmin = await checkAdmin();
+    if (!isAdmin) return { success: false, error: 'Unauthorized' };
+
     try {
-      const perm = await prisma.accountPermission.upsert({
+      const perm = await (prisma as any).accountPermission.upsert({
         where: {
           ownerId_actorId: {
             ownerId,
@@ -212,8 +254,11 @@ export async function grantAccountPermission(ownerId: number, actorId: number, p
   }
   
   export async function revokeAccountPermission(ownerId: number, actorId: number) {
+      const isAdmin = await checkAdmin();
+      if (!isAdmin) return { success: false, error: 'Unauthorized' };
+
       try {
-          await prisma.accountPermission.delete({
+          await (prisma as any).accountPermission.delete({
               where: {
                   ownerId_actorId: {
                       ownerId,

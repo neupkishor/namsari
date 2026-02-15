@@ -60,51 +60,92 @@ export const sidebarMenuGroups = (user: any): MenuGroup[] => [
     }
 ];
 
-export const managementMenuGroups = (user: any): MenuGroup[] => [
-    {
-        title: 'Overview',
-        items: [
-            { label: 'Dashboard', icon: '📊', href: '/manage' },
-            { label: 'Properties', icon: '🏠', href: '/manage/properties' },
-            { label: 'Requirements', icon: '📋', href: '/manage/requirements' },
-        ]
-    },
-    {
-        title: 'Content',
-        items: [
-            { label: 'Featured', icon: '⭐', href: '/manage/featured' },
-            { label: 'Collections', icon: '📁', href: '/manage/collections' },
-            { label: 'Advertisements', icon: '📢', href: '/manage/advertisements' },
-            { label: 'Newsletter', icon: '📧', href: '/manage/newsletter' },
-        ]
-    },
-    {
-        title: 'User Management',
-        items: [
+export const managementMenuGroups = (user: any): MenuGroup[] => {
+    const isUserAdmin = user?.type === 'admin' || user?.role?.name?.toLowerCase().includes('admin');
+    const isAgency = user?.type === 'agency';
+    const isAgent = user?.type === 'agent';
+    const isBank = user?.type === 'bank';
+    const isAdvertiser = user?.type === 'advertiser'; // Assuming this type exists based on prompt
+
+    // Base menu for everyone who can access manage
+    const groups: MenuGroup[] = [
+        {
+            title: 'Overview',
+            items: [
+                { label: 'Dashboard', icon: '📊', href: '/manage' },
+                // Properties: Visible to Admin, Agency, Agent
+                ...((isUserAdmin || isAgency || isAgent) ? [{ label: 'Properties', icon: '🏠', href: '/manage/properties' }] : []),
+                // Requirements: Visible to Admin, Agency, Agent
+                ...((isUserAdmin || isAgency || isAgent) ? [{ label: 'Requirements', icon: '📋', href: '/manage/requirements' }] : []),
+            ]
+        }
+    ];
+
+    // Content Management (Admin & Marketing)
+    if (isUserAdmin) {
+        groups.push({
+            title: 'Content',
+            items: [
+                { label: 'Featured', icon: '⭐', href: '/manage/featured' },
+                { label: 'Collections', icon: '📁', href: '/manage/collections' },
+                { label: 'Advertisements', icon: '📢', href: '/manage/advertisements' },
+                { label: 'Newsletter', icon: '📧', href: '/manage/newsletter' },
+            ]
+        });
+    }
+
+    // User Management
+    const userManagementItems: MenuItem[] = [];
+    if (isUserAdmin) {
+        userManagementItems.push(
             { label: 'Users', icon: '👥', href: '/manage/accounts' },
             { label: 'Agents', icon: '🕴️', href: '/manage/accounts/agents' },
             { label: 'Agencies', icon: '🏢', href: '/manage/accounts/agencies' },
             { label: 'Banks', icon: '🏦', href: '/manage/accounts/banks' },
-            { label: 'Advertisers', icon: '📢', href: '/manage/accounts/advertisers' },
-        ]
-    },
-    {
-        title: 'System',
-        items: [
-            { label: 'About', icon: 'ℹ️', href: '/manage/about' },
-            { label: 'Careers', icon: '💼', href: '/manage/careers' },
-            { label: 'Support', icon: '🔧', href: '/manage/support' },
-            { label: 'Blog', icon: '📝', href: '/manage/blog' },
-        ]
-    },
-    {
-        title: 'Configuration',
-        items: [
-            { label: 'Permissions', icon: '🛡️', href: '/manage/permissions' },
-            { label: 'Settings', icon: '⚙️', href: '/manage/settings' },
-        ]
+            { label: 'Advertisers', icon: '📢', href: '/manage/accounts/advertisers' }
+        );
+    } else if (isAgency) {
+        // Agency can manage their own agents
+        userManagementItems.push(
+            { label: 'My Agents', icon: '🕴️', href: '/manage/accounts/agents' }
+        );
     }
-];
+
+    if (userManagementItems.length > 0) {
+        groups.push({
+            title: 'User Management',
+            items: userManagementItems
+        });
+    }
+
+    // System (Admin only mostly, but Support might be for all)
+    if (isUserAdmin) {
+        groups.push({
+            title: 'System',
+            items: [
+                { label: 'About', icon: 'ℹ️', href: '/manage/about' },
+                { label: 'Careers', icon: '💼', href: '/manage/careers' },
+                { label: 'Support', icon: '🔧', href: '/manage/support' },
+                { label: 'Blog', icon: '📝', href: '/manage/blog' },
+            ]
+        });
+    }
+
+    // Configuration
+    const configItems: MenuItem[] = [];
+    if (isUserAdmin) {
+        configItems.push({ label: 'Permissions', icon: '🛡️', href: '/manage/permissions' });
+    }
+    // Everyone likely has settings
+    configItems.push({ label: 'Settings', icon: '⚙️', href: '/manage/settings' });
+
+    groups.push({
+        title: 'Configuration',
+        items: configItems
+    });
+
+    return groups;
+};
 
 export const bottomNavItems = (user: any): MenuItem[] => [
     { label: 'Home', icon: '🏠', href: '/' },

@@ -2,8 +2,21 @@ import React from 'react';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { PaginationControl } from '@/components/ui';
+import { getCurrentUser } from '@/actions/auth';
+import { redirect } from 'next/navigation';
 
 export default async function ManageAdvertisersPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+    const user = await getCurrentUser();
+    
+    if (!user) {
+        redirect('/auth/login');
+    }
+    
+    // Only Admins can manage advertisers
+    if (user.type !== 'admin') {
+        redirect('/manage');
+    }
+
     const { page: pageParam } = await searchParams;
     const page = Number(pageParam) || 1;
     const limit = 10;
@@ -14,13 +27,13 @@ export default async function ManageAdvertisersPage({ searchParams }: { searchPa
     };
 
     const [users, totalCount] = await Promise.all([
-        prisma.account.findMany({
+        (prisma as any)['account'].findMany({
             where,
             orderBy: { name: 'asc' },
             skip,
             take: limit
         }),
-        prisma.account.count({ where })
+        (prisma as any)['account'].count({ where })
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);

@@ -2,15 +2,54 @@ import React from 'react';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { PaginationControl } from '@/components/ui';
+import { getCurrentUser } from '@/actions/auth';
+import { redirect } from 'next/navigation';
 
-export default async function ManagePropertiesPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
-    const { page: pageParam } = await searchParams;
+export default async function ManagePropertiesPage({ searchParams }: { searchParams: Promise<{ page?: string; view?: string }> }) {
+    const user = await getCurrentUser();
+    
+    if (!user) {
+        redirect('/auth/login');
+    }
+
+    const { page: pageParam, view: viewParam } = await searchParams;
     const page = Number(pageParam) || 1;
     const limit = 10;
     const skip = (page - 1) * limit;
 
+    const isAdmin = user.type === 'admin';
+    const isAgency = user.type === 'agency';
+    const isAgent = user.type === 'agent';
+
+    let whereClause: any = {};
+
+    // Logic for Filtering based on User Role and View Param
+    if (isAdmin) {
+        if (viewParam === 'mine') {
+            whereClause = { listedById: user.id };
+        } else {
+            // Default: All properties (No filter)
+        }
+    } else if (isAgency) {
+        if (viewParam === 'mine') {
+            whereClause = { listedById: user.id };
+        } else {
+            // Default: Agency Properties (Own + Agents)
+            whereClause = {
+                OR: [
+                    { listedById: user.id },
+                    { listedBy: { agency_id: user.id } }
+                ]
+            };
+        }
+    } else {
+        // Agent or Regular User: Only their own properties
+        whereClause = { listedById: user.id };
+    }
+
     const [properties, totalCount] = await Promise.all([
         prisma.property.findMany({
+            where: whereClause,
             include: {
                 listedBy: true,
                 pricing: true,
@@ -22,7 +61,7 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
             skip,
             take: limit
         }),
-        prisma.property.count()
+        prisma.property.count({ where: whereClause })
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);
@@ -55,22 +94,50 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
         };
     });
 
+    // Helper for Pill Styles
+    const getPillStyle = (active: boolean) => ({
+        padding: '6px 16px',
+        borderRadius: '20px',
+        fontSize: '0.85rem',
+        fontWeight: '600',
+        cursor: 'pointer',
+        textDecoration: 'none',
+        background: active ? 'var(--color-primary)' : '#f1f5f9',
+        color: active ? 'white' : '#64748b',
+        border: active ? '1px solid var(--color-primary)' : '1px solid #e2e8f0',
+        transition: 'all 0.2s'
+    });
+
     return (
         <div>
-            <header style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                <div>
-                    <h1 className="section-title" style={{ fontSize: '2rem', marginBottom: '8px' }}>Property Management</h1>
-                    <p style={{ color: 'var(--color-text-muted)' }}>Overview of all listed assets across the network.</p>
+            <header style={{ marginBottom: '32px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+                    <div>
+                        <h1 className="section-title" style={{ fontSize: '2rem', marginBottom: '8px' }}>Property Management</h1>
+                        <p style={{ color: 'var(--color-text-muted)' }}>Overview of all listed assets.</p>
+                    </div>
+                    <Link href="/sell" style={{ background: 'var(--color-primary)', color: 'white', padding: '10px 20px', borderRadius: '6px', textDecoration: 'none', fontWeight: '600' }}>
+                        + Add New Asset
+                    </Link>
                 </div>
-                <Link href="/sell" style={{ background: 'var(--color-primary)', color: 'white', padding: '10px 20px', borderRadius: '6px', textDecoration: 'none', fontWeight: '600' }}>
-                    + Add New Asset
-                </Link>
+
+                {/* View Filters (Pills) */}
+                {(isAdmin || isAgency) && (
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                        <Link href="/manage/properties" style={getPillStyle(!viewParam || viewParam === 'default')}>
+                            {isAdmin ? 'All Properties' : 'Agency Properties'}
+                        </Link>
+                        <Link href="/manage/properties?view=mine" style={getPillStyle(viewParam === 'mine')}>
+                            My Properties
+                        </Link>
+                    </div>
+                )}
             </header>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
                 {enrichedProperties.length === 0 ? (
                     <div style={{ gridColumn: '1 / -1', padding: '60px', textAlign: 'center', color: 'var(--color-text-muted)', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                        No properties found in the registry.
+                        No properties found.
                     </div>
                 ) : (
                     enrichedProperties.map((p) => (

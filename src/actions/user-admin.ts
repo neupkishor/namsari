@@ -2,9 +2,39 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { getSession } from '@/lib/auth';
 
 export async function updateUser(username: string, formData: FormData) {
-    'use server';
+    const session = await getSession();
+    if (!session?.id) {
+        return { success: false, message: 'Unauthorized' };
+    }
+
+    const currentUser = await (prisma as any).account.findUnique({
+        where: { id: parseInt(session.id) },
+        include: { role: true }
+    });
+
+    if (!currentUser) {
+        return { success: false, message: 'Unauthorized' };
+    }
+
+    const targetUser = await (prisma as any).account.findUnique({
+        where: { username }
+    });
+
+    if (!targetUser) {
+        return { success: false, message: 'User not found' };
+    }
+
+    // Permission Check
+    const isAdmin = currentUser.type === 'admin' || currentUser.role?.name?.toLowerCase().includes('admin');
+    const isSelf = currentUser.id === targetUser.id;
+    const isAgencyOwner = currentUser.type === 'agency' && targetUser.agency_id === currentUser.id;
+
+    if (!isAdmin && !isSelf && !isAgencyOwner) {
+        return { success: false, message: 'Forbidden' };
+    }
 
     const name = formData.get('name') as string;
     const email = formData.get('email') as string;
@@ -18,7 +48,12 @@ export async function updateUser(username: string, formData: FormData) {
     if (name) updateData.name = name;
     if (email) updateData.email = email;
     if (contact_number) updateData.contact_number = contact_number;
-    if (status) updateData.status = status;
+    
+    // Only Admin or Agency (for their agents) can change status
+    if (status && (isAdmin || isAgencyOwner)) {
+        updateData.status = status;
+    }
+    
     if (profile_picture) updateData.profile_picture = profile_picture;
     if (cover_image) updateData.cover_image = cover_image;
 
@@ -34,7 +69,7 @@ export async function updateUser(username: string, formData: FormData) {
     }
 
     try {
-        await prisma.account.update({
+        await (prisma as any).account.update({
             where: { username },
             data: updateData
         });
