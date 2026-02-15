@@ -119,7 +119,7 @@ export async function loginAction(formData: FormData) {
         // For this specific codebase pattern, we might need a better way to show errors on the login page.
         // However, standard Next.js actions throw errors that can be caught by error boundaries or client components using useFormState.
         // Since the current implementation is a basic HTML form action, we'll redirect to login with an error param.
-        return redirect(`/login?error=${encodeURIComponent(error.message)}`);
+        return redirect(`/auth/login?error=${encodeURIComponent(error.message)}`);
     }
 
     redirect('/');

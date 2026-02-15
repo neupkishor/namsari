@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { logoutAction } from '@/actions/auth';
 
-import { sidebarMenuGroups } from './menu-config';
+import { sidebarMenuGroups, managementMenuGroups } from './menu-config';
 
 export function SidebarSkeleton() {
     return (
@@ -47,6 +48,7 @@ export function SidebarSkeleton() {
 }
 
 export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
+    const pathname = usePathname();
     const [isDesktop, setIsDesktop] = useState(false);
     const [mounted, setMounted] = useState(false);
 
@@ -75,7 +77,14 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
         );
     }
 
-    const menuGroups = sidebarMenuGroups(user);
+    const isManagePage = pathname?.startsWith('/manage');
+    const menuGroups = isManagePage ? managementMenuGroups(user) : sidebarMenuGroups(user);
+
+    const isActive = (href: string) => {
+        if (href === '/' || href === '/manage') return pathname === href;
+        if (href === '/manage/requirements') return pathname?.startsWith(href);
+        return pathname?.startsWith(href);
+    };
 
     return (
         <div className="desktop-sidebar-wrapper" style={{ width: '280px', flexShrink: 0, height: '100%' }}>
@@ -109,25 +118,32 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
                                 </div>
                             )}
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                {group.items.map((item, idx) => (
-                                    <Link key={idx} href={item.href} style={{ textDecoration: 'none' }}>
-                                        <div style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '12px',
-                                            padding: '10px 16px',
-                                            borderRadius: '8px',
-                                            cursor: 'pointer',
-                                            fontWeight: '500',
-                                            color: 'var(--color-primary)',
-                                            transition: 'background 0.2s',
-                                            fontSize: '0.95rem'
-                                        }} onMouseOver={(e) => e.currentTarget.style.background = '#e4e6eb'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
-                                            <span style={{ fontSize: '1.2rem' }}>{item.icon}</span>
-                                            <span>{item.label}</span>
-                                        </div>
-                                    </Link>
-                                ))}
+                                {group.items.map((item, idx) => {
+                                    const active = isActive(item.href);
+                                    return (
+                                        <Link key={idx} href={item.href} style={{ textDecoration: 'none' }}>
+                                            <div style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '12px',
+                                                padding: '10px 16px',
+                                                borderRadius: '8px',
+                                                cursor: 'pointer',
+                                                fontWeight: active ? '600' : '500',
+                                                color: active ? 'var(--color-primary)' : '#64748b',
+                                                backgroundColor: active ? '#eff6ff' : 'transparent',
+                                                transition: 'all 0.2s',
+                                                fontSize: '0.95rem'
+                                            }} 
+                                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = active ? '#eff6ff' : '#f1f5f9'} 
+                                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = active ? '#eff6ff' : 'transparent'}
+                                            >
+                                                <span style={{ fontSize: '1.2rem' }}>{item.icon}</span>
+                                                <span>{item.label}</span>
+                                            </div>
+                                        </Link>
+                                    );
+                                })}
                             </div>
                         </div>
                     ))}

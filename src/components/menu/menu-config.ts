@@ -68,6 +68,52 @@ export const sidebarMenuGroups = (user: any): MenuGroup[] => [
     }
 ];
 
+export const managementMenuGroups = (user: any): MenuGroup[] => [
+    {
+        title: 'Overview',
+        items: [
+            { label: 'Dashboard', icon: '📊', href: '/manage' },
+            { label: 'Properties', icon: '🏠', href: '/manage/properties' },
+            { label: 'Requirements', icon: '📋', href: '/manage/requirements' },
+        ]
+    },
+    {
+        title: 'Content',
+        items: [
+            { label: 'Featured', icon: '⭐', href: '/manage/featured' },
+            { label: 'Collections', icon: '📁', href: '/manage/collections' },
+            { label: 'Advertisements', icon: '📢', href: '/manage/advertisements' },
+            { label: 'Newsletter', icon: '📧', href: '/manage/newsletter' },
+        ]
+    },
+    {
+        title: 'User Management',
+        items: [
+            { label: 'Users', icon: '👥', href: '/manage/users' },
+            { label: 'Agents', icon: '🕴️', href: '/manage/agents' },
+            { label: 'Agencies', icon: '🏢', href: '/manage/agencies' },
+            { label: 'Banks', icon: '🏦', href: '/manage/banks' },
+            { label: 'Advertisers', icon: '📢', href: '/manage/advertisers' },
+        ]
+    },
+    {
+        title: 'System',
+        items: [
+            { label: 'About', icon: 'ℹ️', href: '/manage/about' },
+            { label: 'Careers', icon: '💼', href: '/manage/careers' },
+            { label: 'Support', icon: '🔧', href: '/manage/support' },
+            { label: 'Blog', icon: '📝', href: '/manage/blog' },
+        ]
+    },
+    {
+        title: 'Configuration',
+        items: [
+            { label: 'Permissions', icon: '🛡️', href: '/manage/permissions' },
+            { label: 'Settings', icon: '⚙️', href: '/manage/settings' },
+        ]
+    }
+];
+
 export const bottomNavItems = (user: any): MenuItem[] => [
     { label: 'Home', icon: '🏠', href: '/' },
     { label: 'Explore', icon: '🧭', href: '/explore' },

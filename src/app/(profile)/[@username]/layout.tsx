@@ -1,7 +1,6 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { getSession } from '@/lib/auth';
-import { Header } from '@/components/menu/Header';
 import ProfileSidebar from '@/app/(profile)/[@username]/ProfileSidebar';
 import ProfileHeader from './ProfileHeader';
 
@@ -19,8 +18,6 @@ export default async function ProfileLayout({ children, params }: LayoutProps) {
     const username = resolvedParams['@username'];
 
     const session = await getSession();
-    const currentUserId = session ? parseInt(session.id) : null;
-    const currentUser = currentUserId ? await prisma.user.findUnique({ where: { id: currentUserId } }) : null;
 
     let decoded = decodeURIComponent(username);
     if (!decoded.startsWith('@')) return notFound();
@@ -42,8 +39,7 @@ export default async function ProfileLayout({ children, params }: LayoutProps) {
     return (
         <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
             <ScrollToTop />
-            <Header user={currentUser} />
-
+            
             {/* Profile Header (Cover, Info, Tabs) */}
             <ProfileHeader user={user} isOwner={isOwner} />
 

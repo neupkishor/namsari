@@ -2,9 +2,13 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { HeaderProfile } from '../HeaderProfile';
 
-export function Header({ user, fullWidth, children }: { user?: any, fullWidth?: boolean, children?: React.ReactNode }) {
+export function Header({ user, fullWidth: propFullWidth, children }: { user?: any, fullWidth?: boolean, children?: React.ReactNode }) {
+    const pathname = usePathname();
+    const fullWidth = propFullWidth;
+
     return (
         <header className="header-container" style={{
             position: 'fixed',
