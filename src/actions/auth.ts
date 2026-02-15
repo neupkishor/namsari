@@ -9,23 +9,25 @@ export async function getCurrentUser() {
     if (!session?.id) return null;
 
     try {
-        const user = await prisma.account.findUnique({
+        const user = await (prisma as any).account.findUnique({
             where: { id: parseInt(session.id) },
             select: {
                 id: true,
                 name: true,
                 username: true,
                 profile_picture: true,
-                type: true
+                type: true,
+                role: {
+                    select: {
+                        name: true
+                    }
+                }
             }
         });
         
         if (!user) return null;
 
-        return {
-            ...user,
-            type: user.type
-        };
+        return user;
     } catch (error) {
         console.error("Error fetching current user:", error);
         return null;

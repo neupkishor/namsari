@@ -33,7 +33,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     const { slugAndId } = resolvedParams;
 
     const session = await getSession();
-    const currentUser = session ? await prisma.account.findUnique({ where: { id: Number(session.id) } }) : null;
+    const currentUser = session ? await (prisma as any).account.findUnique({ where: { id: Number(session.id) } }) : null;
 
     // Extract ID from slug-id format
     const parts = slugAndId.split('-');
@@ -363,7 +363,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                                 </div>
                                 <div>
                                     <div style={{ fontWeight: '700', fontSize: '1.1rem', color: '#1a1a1a' }}>Hosted by {property.listedBy?.name || 'Agent'}</div>
-                                    <div style={{ color: '#6b7280', fontSize: '0.9rem' }}>{property.listedBy?.account_type ? property.listedBy.account_type.charAt(0).toUpperCase() + property.listedBy.account_type.slice(1) : 'Host'} • Joined {new Date(property.listedBy?.created_on || Date.now()).getFullYear()}</div>
+                                    <div style={{ color: '#6b7280', fontSize: '0.9rem' }}>{(property.listedBy as any)?.type ? (property.listedBy as any).type.charAt(0).toUpperCase() + (property.listedBy as any).type.slice(1) : 'Host'} • Joined {new Date(property.listedBy?.created_on || Date.now()).getFullYear()}</div>
                                 </div>
                             </div>
                             <p style={{ lineHeight: '1.8', fontSize: '1.05rem', color: '#4b5563' }}>
@@ -453,7 +453,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                                 <div>
                                     <div style={{ fontWeight: '800', fontSize: '1.25rem', color: '#1a1a1a', lineHeight: '1.2' }}>{property.listedBy?.name || 'Agent'}</div>
                                     <div style={{ color: '#6b7280', fontSize: '0.9rem', marginTop: '4px' }}>
-                                        {property.listedBy?.account_type ? property.listedBy.account_type.charAt(0).toUpperCase() + property.listedBy.account_type.slice(1) : 'Host'} • Joined {new Date(property.listedBy?.created_on || Date.now()).getFullYear()}
+                                        {(property.listedBy as any)?.type ? (property.listedBy as any).type.charAt(0).toUpperCase() + (property.listedBy as any).type.slice(1) : 'Host'} • Joined {new Date(property.listedBy?.created_on || Date.now()).getFullYear()}
                                     </div>
                                 </div>
                             </div>
@@ -464,7 +464,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                                 </button>
 
                                 <a href={`tel:${property.listedBy?.contact_number || ''}`} className="action-btn btn-primary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', textDecoration: 'none' }}>
-                                    <span>📞</span> Contact {property.listedBy?.account_type === 'agency' ? 'Agency' : 'Agent'}
+                                    <span>📞</span> Contact {(property.listedBy as any)?.type === 'agency' ? 'Agency' : 'Agent'}
                                 </a>
 
                                 <a

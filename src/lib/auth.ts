@@ -8,7 +8,7 @@ export const getSession = cache(async () => {
     if (!userId) return null;
 
     try {
-        const user = await prisma.account.findUnique({
+        const user = await (prisma as any).account.findUnique({
             where: { id: parseInt(userId) },
             select: { id: true, type: true }
         });
@@ -38,7 +38,7 @@ export async function setSession(userId: string) {
 export async function getCurrentUser() {
     const session = await getSession();
     if (!session) return null;
-    return { id: parseInt(session.id), type: session.type, type: session.type };
+    return { id: parseInt(session.id), type: session.type };
 }
 
 export async function clearSession() {
