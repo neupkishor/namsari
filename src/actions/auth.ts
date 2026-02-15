@@ -54,7 +54,7 @@ export async function registerAction(formData: FormData) {
     }
 
     // Check if username already exists
-    let existingUser = await prisma.account.findUnique({
+    let existingUser = await (prisma as any).account.findUnique({
         where: { username }
     });
 
@@ -64,7 +64,7 @@ export async function registerAction(formData: FormData) {
         username = `${username}${randomSuffix}`;
         
         // Check again (unlikely to collide, but good practice)
-        existingUser = await prisma.account.findUnique({
+        existingUser = await (prisma as any).account.findUnique({
             where: { username }
         });
         
@@ -74,7 +74,7 @@ export async function registerAction(formData: FormData) {
     }
 
     // Check if email already exists
-    const existingEmail = await prisma.account.findUnique({
+    const existingEmail = await (prisma as any).account.findUnique({
         where: { email }
     });
 
@@ -87,7 +87,7 @@ export async function registerAction(formData: FormData) {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await prisma.$transaction(async (tx) => {
-            const newAccount = await tx.account.create({
+            const newAccount = await (tx as any).account.create({
                 data: {
                     username,
                     name,
@@ -97,7 +97,7 @@ export async function registerAction(formData: FormData) {
                 }
             });
 
-            await tx.accountCredential.create({
+            await (tx as any).accountCredential.create({
                 data: {
                     accountId: newAccount.id,
                     password: hashedPassword
@@ -131,7 +131,7 @@ export async function loginAction(formData: FormData) {
         if (!password) throw new Error("Password is required");
 
         // Find user by username OR email OR contact_number
-        const user = await prisma.account.findFirst({
+        const user = await (prisma as any).account.findFirst({
             where: {
                 OR: [
                     { username: identifier },
