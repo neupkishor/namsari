@@ -16,7 +16,7 @@ export default async function ProfileAgentsPage({ params }: PageProps) {
     if (!decoded.startsWith('@')) return notFound();
     decoded = decoded.substring(1);
 
-    const agency = await prisma.account.findUnique({
+    const agency = await prisma.user.findUnique({
         where: { username: decoded },
         include: {
             agents: {

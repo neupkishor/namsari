@@ -11,7 +11,7 @@ import { Header } from '@/components/menu/Header';
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
     const session = await getSession();
     if (session) {
-        const user = await prisma.account.findUnique({
+        const user = await prisma.user.findUnique({
             where: { id: Number(session.id) }
         });
 

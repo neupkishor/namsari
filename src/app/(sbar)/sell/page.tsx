@@ -16,10 +16,10 @@ export default async function SellPage() {
     }
 
     const userId = Number(session.id);
-    const user = await prisma.account.findUnique({ where: { id: userId } });
+    const user = await prisma.user.findUnique({ where: { id: userId } });
 
     // Fetch all users for owner/authorized person selection
-    const users = await prisma.account.findMany({
+    const users = await prisma.user.findMany({
         orderBy: { name: 'asc' }
     });
 

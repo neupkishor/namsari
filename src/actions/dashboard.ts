@@ -1,9 +1,8 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { getCurrentUser } from '@/lib/auth'; // Replace with actual auth method
-import { cookies } from 'next/headers';
-import { Account, Role, RolePermission } from '@prisma/client';
+import { getCurrentUser, getSession } from '@/lib/auth';
+import { User, Role, RolePermission } from '@prisma/client';
 
 // Helper to calculate date ranges
 const getDateRange = (days: number) => {
@@ -12,405 +11,232 @@ const getDateRange = (days: number) => {
     return date;
 };
 
-type UserWithRole = Account & {
-    role: (Role & { permissions: RolePermission[] }) | null;
-};
+// Helper to fetch stats for a specific scope (User, Agency, or Admin/Global)
+async function fetchScopeStats(whereConditions: any, scopeType: 'user' | 'agency' | 'admin') {
+    const thirtyDaysAgo = getDateRange(30);
+    const sevenDaysAgo = getDateRange(7);
+    const oneDayAgo = getDateRange(1);
 
-// Helper to check permission
-const hasPermission = (user: UserWithRole, resource: string, action: string) => {
-    if (!user?.role?.permissions) return false;
-    // Map action levels to numeric values for comparison
-    const actionLevels: Record<string, number> = {
-        'view': 1, 'readOnly': 1,
-        'create': 2,
-        'view&create': 3, 'read&write': 3,
-        'view&update': 4,
-        'view&create&update': 5,
-        'view&create&delete': 6, 'read&write&delete': 6,
-        'view&update&delete': 7,
-        'view&create&update&delete': 8
+    // --- Property Stats ---
+    const totalProperties = await prisma.property.count({ where: whereConditions.property });
+    
+    const [last30, last7, last1] = await Promise.all([
+        prisma.property.count({ where: { ...whereConditions.property, created_on: { gte: thirtyDaysAgo } } }),
+        prisma.property.count({ where: { ...whereConditions.property, created_on: { gte: sevenDaysAgo } } }),
+        prisma.property.count({ where: { ...whereConditions.property, created_on: { gte: oneDayAgo } } })
+    ]);
+
+    const propertyViews = await prisma.property.aggregate({
+        where: whereConditions.property,
+        _sum: { views: true }
+    });
+
+    const propertyStats = {
+        my: scopeType === 'user' ? totalProperties : 0,
+        agency: scopeType === 'agency' ? totalProperties : 0,
+        all: scopeType === 'admin' ? totalProperties : 0,
+        total: totalProperties,
+        last30,
+        last7,
+        last1,
+        totalViews: propertyViews._sum.views || 0
     };
 
-    const requiredLevel = actionLevels[action] || 0;
+    // --- Requirements Stats ---
+    const totalRequirements = await prisma.requirement.count({ where: { ...whereConditions.requirement, status: 'active' } });
+    const publicRequirements = await prisma.requirement.count({ where: { ...whereConditions.requirement, status: 'active', is_public: true } });
+    const privateRequirements = await prisma.requirement.count({ where: { ...whereConditions.requirement, status: 'active', is_public: false } });
     
-    // Check if user has permission for this resource with equal or higher level
-    // Actually, the requirement is specific: "admin_property_view" usually implies a specific role or permission set.
-    // For simplicity, we will check if the user has ANY permission on the resource that includes 'view' (odd numbers usually in our new scheme, or just existence).
-    // But the prompt implies specific "admin_property_view" vs "agency_admin_property_view". 
-    // We will infer these from role names or specific permission entries if they existed, 
-    // but here we will implement logic based on the user's account type and their role permissions.
-    
-    const perm = user.role.permissions.find((p) => p.resource === resource);
-    if (!perm) return false;
-    
-    const userLevel = actionLevels[perm.action] || 0;
-    
-    // Simple check: if we ask for 'view', we need level >= 1.
-    return userLevel >= requiredLevel;
-};
+    const requirementStats = { 
+        total: totalRequirements,
+        public: publicRequirements,
+        private: privateRequirements
+    };
+
+    // --- Featured Stats ---
+    const totalFeatured = await prisma.property.count({ where: { ...whereConditions.property, isFeatured: true } });
+    const featuredStats = { total: totalFeatured };
+
+    // --- Collections ---
+    let collectionStats = null;
+    if (scopeType === 'admin') {
+         const total = await prisma.collection.count();
+         collectionStats = { total };
+    } else if (scopeType === 'user' || scopeType === 'agency') {
+         const total = await prisma.collection.count({ where: { user_id: whereConditions.requirement.userId } });
+         collectionStats = { total };
+    }
+
+    // --- Advertisements ---
+    let adStats = null;
+    if (scopeType === 'admin') {
+         const totalAds = await prisma.advertisement.count({ where: { status: 'active' } as any });
+         const adViews = await prisma.advertisement.aggregate({ where: { status: 'active' } as any, _sum: { views: true } });
+         adStats = { total: totalAds, totalViews: adViews._sum?.views || 0 };
+    } else if (scopeType === 'agency') {
+         // Agency's own advertisements
+         const totalAds = await prisma.advertisement.count({ where: { userId: whereConditions.requirement.userId } as any });
+         const adViews = await prisma.advertisement.aggregate({ where: { userId: whereConditions.requirement.userId } as any, _sum: { views: true } });
+         adStats = { total: totalAds, totalViews: adViews._sum?.views || 0 };
+    }
+
+    // --- Agents (Agency Only) ---
+    let agentStats = null;
+    if (scopeType === 'agency') {
+        // whereConditions.requirement.userId usually has { in: [...] } or direct ID
+        // But better to pass agency ID explicitly or derive it. 
+        // In getDashboardStats loop, we know the agency object.
+        // We can pass it into fetchScopeStats or return it separately.
+        // For now, let's keep fetchScopeStats generic and handle agent count outside or infer from context?
+        // Actually, let's return it as null here and handle in the main function loop for agency.
+    }
+
+    return {
+        properties: propertyStats,
+        requirements: requirementStats,
+        featured: featuredStats,
+        collections: collectionStats,
+        advertisements: adStats
+    };
+}
 
 export async function getDashboardStats() {
-    const user = await getCurrentUser();
-    if (!user) return null;
+    const session = await getSession();
+    if (!session?.id) return null;
+    const userId = parseInt(session.id);
 
-    // Fetch full user with role and permissions
-    const dbUser = await prisma.account.findUnique({
-        where: { id: user.id },
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
         include: {
-            role: {
-                include: { permissions: true }
-            },
+            role: { include: { permissions: true } },
             agency: true
         }
     });
 
-    if (!dbUser) return null;
+    if (!user) return null;
 
-    const stats: any = {};
-    const now = new Date();
-    const oneDayAgo = getDateRange(1);
-    const sevenDaysAgo = getDateRange(7);
-    const thirtyDaysAgo = getDateRange(30);
+    // 1. User Stats (Personal)
+    const userStats = await fetchScopeStats({
+        property: { listedById: userId },
+        requirement: { userId: userId }
+    }, 'user');
 
-    // --- Property Stats ---
-    // Section 1: My Properties (Always visible for logged in users)
-    const myProperties = await prisma.property.count({ where: { listedById: dbUser.id } });
-    
-    // Section 2: Agency Properties (Visible if agency admin)
-    let agencyProperties = 0;
-    if (dbUser.type === 'agency') {
-        const agents = await prisma.account.findMany({
-            where: { agency_id: dbUser.id },
-            select: { id: true }
-        });
-        const agentIds = agents.map((a) => a.id);
-        agencyProperties = await prisma.property.count({
-            where: {
-                OR: [
-                    { listedById: dbUser.id },
-                    { listedById: { in: agentIds } }
-                ]
-            }
-        });
-    }
-
-    // Section 3: All Properties (Visible if Admin)
-    const isAdmin = dbUser.role?.name?.toLowerCase().includes('admin') || false;
-    let allProperties = 0;
-    if (isAdmin) {
-        allProperties = await prisma.property.count();
-    }
-
-    stats.properties = {
-        my: myProperties,
-        agency: agencyProperties,
-        all: allProperties,
-        // Detailed breakdown for the primary view (highest permission)
-        // We keep the old breakdown logic but apply it to the most relevant scope
-        // If Admin -> All, If Agency -> Agency, Else -> My
-        total: isAdmin ? allProperties : (dbUser.type === 'agency' ? agencyProperties : myProperties)
-    };
-
-    // Calculate time-based stats for the primary view scope
-    let primaryScopeWhere: any = {};
-    if (isAdmin) {
-        primaryScopeWhere = {};
-    } else if (dbUser.type === 'agency') {
-        const agents = await prisma.account.findMany({
-            where: { agency_id: dbUser.id },
-            select: { id: true }
-        });
-        const agentIds = agents.map((a) => a.id);
-        primaryScopeWhere = {
-            OR: [
-                { listedById: dbUser.id },
-                { listedById: { in: agentIds } }
-            ]
-        };
-    } else {
-        primaryScopeWhere = { listedById: dbUser.id };
-    }
-
-    const [
-        last30,
-        last7,
-        last1
-    ] = await Promise.all([
-        prisma.property.count({ where: { ...primaryScopeWhere, created_on: { gte: thirtyDaysAgo } } }),
-        prisma.property.count({ where: { ...primaryScopeWhere, created_on: { gte: sevenDaysAgo } } }),
-        prisma.property.count({ where: { ...primaryScopeWhere, created_on: { gte: oneDayAgo } } })
-    ]);
-
-    const propertyViews = await prisma.property.aggregate({
-        where: primaryScopeWhere,
-        _sum: { views: true }
+    // 2. Agency Stats
+    // Find agencies this user manages
+    const permissions = await prisma.userPermission.findMany({
+        where: { actorId: userId, owner: { type: 'agency' } },
+        include: { owner: true }
     });
-
-    stats.properties.last30 = last30;
-    stats.properties.last7 = last7;
-    stats.properties.last1 = last1;
-    stats.properties.totalViews = propertyViews._sum.views || 0;
-
-
-    // --- Requirements Stats ---
-    const hasRequirementView = hasPermission(dbUser, 'Property', 'view'); // Using Property as proxy
     
-    let reqWhere: any = {};
-    if (isAdmin && hasRequirementView) {
-        reqWhere = {};
-    } else if (dbUser.type === 'agency') {
-         const agents = await prisma.account.findMany({
-            where: { agency_id: dbUser.id },
+    let agencies = permissions.map(p => p.owner);
+    // If user is agency, include self if not already in list
+    if (user.type === 'agency' && !agencies.find(a => a.id === user.id)) {
+        agencies.push(user);
+    }
+
+    const agenciesStats = await Promise.all(agencies.map(async (agency) => {
+        // Find all agents of this agency
+        const agents = await prisma.user.findMany({
+            where: { agency_id: agency.id },
             select: { id: true }
         });
-        const agentIds = agents.map((a) => a.id);
-        reqWhere = {
-            OR: [
-                { userId: dbUser.id },
-                { userId: { in: agentIds } }
-            ]
+        const agentIds = agents.map(a => a.id);
+        const memberIds = [agency.id, ...agentIds];
+
+        const stats = await fetchScopeStats({
+            property: { listedById: { in: memberIds } },
+            requirement: { userId: { in: memberIds } }
+        }, 'agency');
+
+        return {
+            agency,
+            agentCount: agents.length,
+            stats
         };
-    } else {
-        reqWhere = { userId: dbUser.id };
-    }
+    }));
 
-    const totalRequirements = await prisma.requirement.count({ where: { ...reqWhere, status: 'active' } });
-    stats.requirements = {
-        total: totalRequirements
-    };
-
-    // --- Featured Stats ---
-    const hasFeaturedView = hasPermission(dbUser, 'Featured', 'view');
-    let featuredWhere: any = { isFeatured: true };
+    // 3. Admin Stats
+    let adminStats = null;
+    const isAdmin = user.type === 'admin' || user.role?.name?.toLowerCase().includes('admin');
     
-    if (!isAdmin || !hasFeaturedView) {
-        // If not admin, show only own featured properties
-        if (dbUser.type === 'agency') {
-            const agents = await prisma.account.findMany({
-                where: { agency_id: dbUser.id },
-                select: { id: true }
-            });
-            const agentIds = agents.map((a) => a.id);
-            featuredWhere = {
-                isFeatured: true,
-                OR: [
-                    { listedById: dbUser.id },
-                    { listedById: { in: agentIds } }
-                ]
-            };
-        } else {
-            featuredWhere = { isFeatured: true, listedById: dbUser.id };
-        }
-    }
-
-    const totalFeatured = await prisma.property.count({ where: featuredWhere });
-    stats.featured = {
-        total: totalFeatured
-    };
-
-    // --- Collections ---
-    const hasCollectionView = hasPermission(dbUser, 'Collection', 'view');
-    if (hasCollectionView) {
-        const totalCollections = await prisma.collection.count();
-        stats.collections = { total: totalCollections };
-    }
-
-    // --- Advertisements ---
-    const hasAdView = hasPermission(dbUser, 'Advertisement', 'view');
-    let adWhere: any = { is_active: true };
-    
-    if (!isAdmin || !hasAdView) {
-        adWhere = {
-            is_active: true,
-            posted_by: dbUser.username 
-        };
-    }
-
-    const [totalAds, adViewsAgg] = await Promise.all([
-        prisma.advertisement.count({ where: adWhere }),
-        prisma.advertisement.aggregate({
-            where: adWhere,
-            _sum: { views: true }
-        })
-    ]);
-    
-    stats.advertisements = {
-        total: totalAds,
-        totalViews: adViewsAgg._sum.views || 0
-    };
-
-
-    // --- Newsletter ---
-    const hasNewsletterView = isAdmin; 
-    if (hasNewsletterView) {
-        const [
-            totalSubs,
-            subsLast30,
-            subsLast7,
-            subsLast1
-        ] = await Promise.all([
-            prisma.subscriber.count({ where: { isActive: true } }),
-            prisma.subscriber.count({ where: { isActive: true, createdAt: { gte: thirtyDaysAgo } } }),
-            prisma.subscriber.count({ where: { isActive: true, createdAt: { gte: sevenDaysAgo } } }),
-            prisma.subscriber.count({ where: { isActive: true, createdAt: { gte: oneDayAgo } } })
-        ]);
-        stats.newsletter = {
-            total: totalSubs,
-            last30: subsLast30,
-            last7: subsLast7,
-            last1: subsLast1
-        };
-    }
-
-    // --- User Management ---
-    const hasUserView = hasPermission(dbUser, 'User', 'view');
-    if (hasUserView) {
-        const [
-            totalUsers,
-            usersLast30,
-            usersLast7,
-            usersLast1,
-            totalAgency,
-            totalAgent, // Independent
-            totalAgencyAgent // Linked to agency
-        ] = await Promise.all([
-            prisma.account.count(),
-            prisma.account.count({ where: { created_on: { gte: thirtyDaysAgo } } }),
-            prisma.account.count({ where: { created_on: { gte: sevenDaysAgo } } }),
-            prisma.account.count({ where: { created_on: { gte: oneDayAgo } } }),
-            prisma.account.count({ where: { type: 'agency' } }),
-            prisma.account.count({ where: { type: { in: ['agent', 'user'] }, agency_id: null } }), // Assuming 'agent' or default 'user'
-            prisma.account.count({ where: { agency_id: { not: null } } })
-        ]);
-        
-        // Banks count
-        const totalBanks = await prisma.bank.count();
-
-        stats.users = {
-            total: totalUsers,
-            last30: usersLast30,
-            last7: usersLast7,
-            last1: usersLast1,
-            agency: totalAgency,
-            agent: totalAgent,
-            agencyAgent: totalAgencyAgent,
-            bank: totalBanks
-        };
-    }
-
-    // --- Webmaster (Visitors) ---
-    // Only Admin
     if (isAdmin) {
-        // Total Visits (Sessions)
-        const totalVisitsGroup = await prisma.visitor.groupBy({
-            by: ['session_id'],
-        });
-        const totalVisits = totalVisitsGroup.length;
+        // Admin View includes Global Stats
+        const baseStats = await fetchScopeStats({
+            property: {},
+            requirement: {}
+        }, 'admin');
 
-        // Visits in last 30 days
-        const visits30Group = await prisma.visitor.groupBy({
-            by: ['session_id'],
-            where: { created_at: { gte: thirtyDaysAgo } }
-        });
-        const visits30 = visits30Group.length;
+        // Add extra admin-only stats (Users, Webmaster, etc.)
+        const thirtyDaysAgo = getDateRange(30);
+        const sevenDaysAgo = getDateRange(7);
+        const oneDayAgo = getDateRange(1);
 
-        // Visits in last 7 days
-        const visits7Group = await prisma.visitor.groupBy({
-            by: ['session_id'],
-            where: { created_at: { gte: sevenDaysAgo } }
-        });
-        const visits7 = visits7Group.length;
+        // User Management
+        const [
+            totalUsers, usersLast30, usersLast7, usersLast1,
+            totalAgency, totalAgent, totalAgencyAgent, totalBanks
+        ] = await Promise.all([
+            prisma.user.count(),
+            prisma.user.count({ where: { created_on: { gte: thirtyDaysAgo } } }),
+            prisma.user.count({ where: { created_on: { gte: sevenDaysAgo } } }),
+            prisma.user.count({ where: { created_on: { gte: oneDayAgo } } }),
+            prisma.user.count({ where: { type: 'agency' } }),
+            prisma.user.count({ where: { type: { in: ['agent', 'user'] }, agency_id: null } }),
+            prisma.user.count({ where: { agency_id: { not: null } } }),
+            prisma.bank.count()
+        ]);
 
-        // Visits in last 24 hours
-        const visits1Group = await prisma.visitor.groupBy({
-            by: ['session_id'],
-            where: { created_at: { gte: oneDayAgo } }
-        });
-        const visits1 = visits1Group.length;
-        
-        // Count unique visitors (by IP Address)
-        const uniqueVisitorsGroup = await prisma.visitor.groupBy({
-            by: ['ip_address'],
-            where: { created_at: { gte: thirtyDaysAgo } },
-        });
-        
-        stats.webmaster = {
-            totalVisits,
-            visits30,
-            visits7,
-            visits1,
+        const userManagementStats = {
+            total: totalUsers,
+            last30: usersLast30, last7: usersLast7, last1: usersLast1,
+            agency: totalAgency, agent: totalAgent, agencyAgent: totalAgencyAgent, bank: totalBanks
+        };
+
+        // Webmaster
+        const totalVisitsGroup = await prisma.visitor.groupBy({ by: ['session_id'] });
+        const visits30Group = await prisma.visitor.groupBy({ by: ['session_id'], where: { created_at: { gte: thirtyDaysAgo } } });
+        const uniqueVisitorsGroup = await prisma.visitor.groupBy({ by: ['ip_address'], where: { created_at: { gte: thirtyDaysAgo } } });
+
+        const webmasterStats = {
+            totalVisits: totalVisitsGroup.length,
+            visits30: visits30Group.length,
+            visits7: (await prisma.visitor.groupBy({ by: ['session_id'], where: { created_at: { gte: sevenDaysAgo } } })).length,
+            visits1: (await prisma.visitor.groupBy({ by: ['session_id'], where: { created_at: { gte: oneDayAgo } } })).length,
             uniqueVisitors30: uniqueVisitorsGroup.length
         };
-    }
 
-    // --- Career ---
-    const hasCareerView = hasPermission(dbUser, 'Career', 'view');
-    if (hasCareerView) {
-        const totalJobs = await prisma.jobListing.count();
-        const activeJobs = await prisma.jobListing.count({ where: { status: 'open' } });
-        // Applicants on active jobs
-        const activeJobIds = await prisma.jobListing.findMany({ 
-            where: { status: 'open' }, 
-            select: { id: true } 
-        });
-        const activeIds = activeJobIds.map((j) => j.id);
-        const totalApplicants = await prisma.jobApplication.count({
-            where: { application_for_id: { in: activeIds } }
-        });
-        
-        stats.career = {
-            total: totalJobs,
-            active: activeJobs,
-            applicants: totalApplicants
+        // Newsletter
+        const totalSubs = await prisma.subscriber.count({ where: { isActive: true } });
+        const newsletterStats = {
+            total: totalSubs,
+            last30: await prisma.subscriber.count({ where: { isActive: true, createdAt: { gte: thirtyDaysAgo } } }),
+            last7: await prisma.subscriber.count({ where: { isActive: true, createdAt: { gte: sevenDaysAgo } } }),
+            last1: await prisma.subscriber.count({ where: { isActive: true, createdAt: { gte: oneDayAgo } } })
         };
-    }
 
-    // --- Support ---
-    const hasSupportView = hasPermission(dbUser, 'Support', 'view');
-    if (hasSupportView) {
-        const tenDaysAgo = getDateRange(10);
-        const totalArticles = await prisma.supportArticle.count();
-        const publishedLast10 = await prisma.supportArticle.count({
-            where: { status: 'published', created_at: { gte: tenDaysAgo } }
-        });
-        
-        stats.support = {
-            total: totalArticles,
-            publishedLast10
-        };
-    }
-
-    // --- Blog ---
-    const hasBlogView = hasPermission(dbUser, 'Blog', 'view');
-    if (hasBlogView) {
-        const tenDaysAgo = getDateRange(10);
-        const totalPosts = await prisma.blogPost.count();
-        const publishedLast10 = await prisma.blogPost.count({
-            where: { status: 'published', created_at: { gte: tenDaysAgo } }
-        });
-        stats.blog = {
-            total: totalPosts,
-            publishedLast10
-        };
-    }
-
-    // --- Bank Specific ---
-    if (isAdmin || hasPermission(dbUser, 'Bank', 'view')) {
+        // Banks
          const banks = await prisma.bank.findMany({
-             include: {
-                 rates: {
-                     orderBy: { created_at: 'desc' },
-                     take: 1
-                 }
-             }
+             include: { rates: { orderBy: { created_at: 'desc' }, take: 1 } }
          });
-         
-         stats.banks = banks.map((b) => ({
+         const bankStats = banks.map((b) => ({
              name: b.name,
              currentRate: b.rates[0]?.interest || 'N/A',
              lastChange: b.rates[0]?.created_at || 'N/A'
          }));
+
+        adminStats = {
+            ...baseStats,
+            users: userManagementStats,
+            webmaster: webmasterStats,
+            newsletter: newsletterStats,
+            banks: bankStats
+        };
     }
 
-    return { stats, user: dbUser };
+    return {
+        user: { ...user, operatingId: session.operatingId },
+        userStats,
+        agenciesStats,
+        adminStats
+    };
 }

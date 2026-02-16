@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Account {
+model User {
   id             Int      @id @default(autoincrement())
   username       String   @unique
   name           String
@@ -31,6 +31,7 @@ model Account {
   listedProperties    Property[] @relation("ListedBy")
   ownedProperties     Property[] @relation("Owner")
   authorizedProperties Property[] @relation("AuthorizedPerson")
+  advertisements      Advertisement[]
   
   comments       Comment[]
   user_likes     Like[]
@@ -39,9 +40,16 @@ model Account {
   
   // Agency Relation
   agency_id      Int?
-  agency         Account?    @relation("AgencyAgents", fields: [agency_id], references: [id])
-  agents         Account[]   @relation("AgencyAgents")
+  agency         User?    @relation("AgencyAgents", fields: [agency_id], references: [id])
+  agents         User[]   @relation("AgencyAgents")
   
+  // Membership Relations
+  memberships    Member[] @relation("MemberAccount")
+  members        Member[] @relation("AgencyMembers")
+
+  // Notifications
+  notifications  Notification[]
+
   // Reviews
   reviews_received Review[] @relation("ReviewReceiver")
   reviews_written  Review[] @relation("ReviewAuthor")
@@ -50,33 +58,35 @@ model Account {
   roleId         Int?
   role           Role?    @relation(fields: [roleId], references: [id])
 
-  credentials    AccountCredential?
+  credentials    UserCredential?
   
-  permissionsGiven AccountPermission[] @relation("ResourceOwner")
-  permissionsReceived AccountPermission[] @relation("Actor")
+  permissionsGiven UserPermission[] @relation("ResourceOwner")
+  permissionsReceived UserPermission[] @relation("Actor")
 
+  sessions       Session[]
+  
   @@map("users")
   @@index([type])
 }
 
-model AccountCredential {
+model UserCredential {
   id        Int      @id @default(autoincrement())
-  accountId Int      @unique
-  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  userId    Int      @unique @map("accountId")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   password  String
   updated_at DateTime @updatedAt
   
   @@map("account_creds")
 }
 
-model AccountPermission {
+model UserPermission {
   id             Int      @id @default(autoincrement())
   
   ownerId        Int      // account_of
-  owner          Account  @relation("ResourceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  owner          User  @relation("ResourceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
 
   actorId        Int      // permit_to
-  actor          Account  @relation("Actor", fields: [actorId], references: [id], onDelete: Cascade)
+  actor          User  @relation("Actor", fields: [actorId], references: [id], onDelete: Cascade)
 
   permissions    String   // JSON string of permissions
   
@@ -92,7 +102,7 @@ model Role {
   name        String   @unique
   description String?
   permissions RolePermission[]
-  users       Account[]
+  users       User[]
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 }
@@ -113,10 +123,10 @@ model Review {
   comment     String?
   
   author_id   Int
-  author      Account     @relation("ReviewAuthor", fields: [author_id], references: [id])
+  author      User     @relation("ReviewAuthor", fields: [author_id], references: [id])
   
   receiver_id Int
-  receiver    Account     @relation("ReviewReceiver", fields: [receiver_id], references: [id])
+  receiver    User     @relation("ReviewReceiver", fields: [receiver_id], references: [id])
   
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
@@ -125,7 +135,7 @@ model Review {
 model KYC {
   id             Int      @id @default(autoincrement())
   userId         Int      @unique
-  user           Account     @relation(fields: [userId], references: [id])
+  user           User     @relation(fields: [userId], references: [id])
   name           String
   email          String
   phone          String
@@ -176,13 +186,13 @@ model Property {
 
   // Ownership Details
   listedById             Int
-  listedBy               Account     @relation("ListedBy", fields: [listedById], references: [id])
+  listedBy               User     @relation("ListedBy", fields: [listedById], references: [id])
   
   ownerId                Int
-  owner                  Account     @relation("Owner", fields: [ownerId], references: [id])
+  owner                  User     @relation("Owner", fields: [ownerId], references: [id])
   
   authorizedPersonId     Int?
-  authorizedPerson       Account?    @relation("AuthorizedPerson", fields: [authorizedPersonId], references: [id])
+  authorizedPerson       User?    @relation("AuthorizedPerson", fields: [authorizedPersonId], references: [id])
 
   // Core metadata
   title                  String
@@ -336,7 +346,7 @@ model Comment {
   property    Property @relation(fields: [property_id], references: [id])
   
   user_id     Int
-  user        Account     @relation(fields: [user_id], references: [id])
+  user        User     @relation(fields: [user_id], references: [id])
 }
 
 model Like {
@@ -347,7 +357,7 @@ model Like {
   property    Property @relation(fields: [property_id], references: [id])
   
   user_id     Int
-  user        Account     @relation(fields: [user_id], references: [id])
+  user        User     @relation(fields: [user_id], references: [id])
 
   @@unique([property_id, user_id])
 }
@@ -382,7 +392,6 @@ model SystemSettings {
   show_share_button       Boolean  @default(true)
   show_comment_button     Boolean  @default(true)
   show_contact_agent      Boolean  @default(true)
-  show_make_offer         Boolean  @default(true)
   updated_at              DateTime @updatedAt
 }
 
@@ -414,7 +423,7 @@ model Collection {
   updated_at  DateTime   @updatedAt
 
   user_id     Int
-  user        Account       @relation(fields: [user_id], references: [id])
+  user        User       @relation(fields: [user_id], references: [id])
 
   properties  CollectionProperty[]
 }
@@ -436,7 +445,7 @@ model CollectionProperty {
 model Requirement {
   id                Int      @id @default(autoincrement())
   userId            Int?
-  user              Account?    @relation(fields: [userId], references: [id])
+  user              User?    @relation(fields: [userId], references: [id])
   
   mode              String   @default("simple") // simple, detailed
   content           String?  // For simple mode
@@ -457,6 +466,7 @@ model Requirement {
   longitude         Float?
   remarks           String?
   
+  is_public         Boolean  @default(true)
   status            String   @default("active")
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt
@@ -559,15 +569,80 @@ model BankRate {
 
 model Advertisement {
   id            Int      @id @default(autoincrement())
+  title         String?  // Title for internal reference
   image         String   // URL of the advertisement image
-  takes_to      String?  // Redirect URL
-  posted_by     String?  // Name of advertiser or user ID
-  shows_on_top  Boolean  @default(false) // If true, shows in top carousel. If false, shows in feed.
-  is_active     Boolean  @default(true)
+  link          String?  // Redirect URL (renamed from takes_to for clarity)
+  
+  // Relations
+  userId        Int?
+  user          User?    @relation(fields: [userId], references: [id])
+  
+  // Status & Approval
+  status        String   @default("pending") // pending, approved, rejected, active, paused, ended
+  rejectionReason String?
+  
+  // Placement & Configuration
+  position      String   @default("feed") // feed, sidebar, banner_top
+  
+  // Budget & Duration
+  budget        Float?
+  durationDays  Int?
+  targetViews   Int?     // Calculated limit
+  startDate     DateTime?
+  endDate       DateTime?
+
+  // Stats (Aggregated for quick access)
   views         Int      @default(0)
   clicks        Int      @default(0)
+  
+  // Detailed Tracking
+  impressions   AdImpression[]
+  ad_clicks     AdClick[]
+
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
+}
+
+model AdRate {
+  id          Int      @id @default(autoincrement())
+  name        String   // e.g. "Standard Feed", "Premium Banner"
+  description String?
+  price       Float
+  duration    Int      // in days
+  position    String   // feed, sidebar, banner_top
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model AdImpression {
+  id          Int      @id @default(autoincrement())
+  adId        Int
+  ad          Advertisement @relation(fields: [adId], references: [id], onDelete: Cascade)
+  
+  viewerId    Int?     // If logged in
+  sessionId   String?  // For anonymous tracking
+  device      String?  // mobile, desktop, tablet
+  userAgent   String?
+  ipAddress   String?
+  
+  created_at  DateTime @default(now())
+  
+  @@index([adId, created_at])
+}
+
+model AdClick {
+  id          Int      @id @default(autoincrement())
+  adId        Int
+  ad          Advertisement @relation(fields: [adId], references: [id], onDelete: Cascade)
+  
+  viewerId    Int?
+  sessionId   String?
+  userAgent   String?
+  
+  created_at  DateTime @default(now())
+  
+  @@index([adId, created_at])
 }
 
 model Visitor {
@@ -576,5 +651,58 @@ model Visitor {
   page_url    String
   user_agent  String?
   ip_address  String?  // Anonymized or hashed if needed
+  created_at  DateTime @default(now())
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique // This is the session_id
+  sessionKey   String   // This is the session_key
+  
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  operatingId  Int?     // If null, operating as self
+  
+  ipAddress    String?
+  userAgent    String?
+  
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  lastActive   DateTime @updatedAt
+
+  @@map("sessions")
+}
+
+model Member {
+  id          Int      @id @default(autoincrement())
+  accountId   Int
+  user        User     @relation("MemberAccount", fields: [accountId], references: [id])
+  
+  partOf      Int
+  agency      User     @relation("AgencyMembers", fields: [partOf], references: [id])
+  
+  exclusive   Boolean  @default(false)
+  status      String   @default("active") // active, invited, suspended
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@unique([accountId, partOf])
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  userId      Int      // Recipient
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title       String
+  message     String
+  type        String   // system, invite, exclusive_request, info
+  
+  // Action related (e.g. for invites)
+  actionLink  String?
+  actionId    Int?     // e.g. agencyId or memberId
+  
+  isRead      Boolean  @default(false)
   created_at  DateTime @default(now())
 }

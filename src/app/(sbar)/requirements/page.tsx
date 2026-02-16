@@ -10,7 +10,7 @@ export const metadata = {
 
 export default async function RequirementsPage() {
     const session = await getSession();
-    const user = session ? await prisma.account.findUnique({ where: { id: Number(session.id) } }) : null;
+    const user = session ? await prisma.user.findUnique({ where: { id: Number(session.id) } }) : null;
 
     return <RequirementsClient currentUser={user} />;
 }

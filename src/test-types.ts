@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 async function test() {
   // This should compile if types are correct
-  const acc = await prisma.account.findFirst();
+  const acc = await prisma.user.findFirst();
   const prop = await prisma.property.findFirst();
   
   // This should fail

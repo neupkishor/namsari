@@ -59,12 +59,42 @@ export function PropertyStats({ stats }: { stats: any }) {
 export function RequirementStats({ stats }: { stats: any }) {
     if (!stats) return null;
     return (
+        <div style={{ background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <div>
+                    <h3 style={{ fontSize: '0.9rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase' }}>Active Requirements</h3>
+                    <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#f59e0b', marginTop: '4px' }}>{stats.total}</div>
+                </div>
+                <div style={{ color: '#f59e0b' }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+            </div>
+            
+            {/* Split Public/Private if available */}
+            {(stats.public !== undefined || stats.private !== undefined) && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
+                    <div>
+                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Public</div>
+                        <div style={{ fontWeight: '700', color: '#334155' }}>{stats.public || 0}</div>
+                    </div>
+                    <div>
+                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Private</div>
+                        <div style={{ fontWeight: '700', color: '#334155' }}>{stats.private || 0}</div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+export function AgentStats({ count }: { count: number }) {
+    return (
         <StatCard 
-            title="Active Requirements" 
-            value={stats.total} 
-            subtitle="Posted by users/agents"
-            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>}
-            color="#f59e0b"
+            title="Total Agents" 
+            value={count} 
+            subtitle="Registered agents"
+            icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>}
+            color="#8b5cf6"
         />
     );
 }

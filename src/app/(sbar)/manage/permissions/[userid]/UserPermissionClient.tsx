@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { assignRoleToUser, grantAccountPermission, revokeAccountPermission } from '@/actions/permissions';
+import { assignRoleToUser, grantUserPermission, revokeUserPermission } from '@/actions/permissions';
 import { useRouter } from 'next/navigation';
 
 export default function UserPermissionClient({ user, roles }: { user: any, roles: any[] }) {
@@ -34,7 +34,7 @@ export default function UserPermissionClient({ user, roles }: { user: any, roles
         if (!actorId || !permString) return;
 
         setGrantLoading(true);
-        const res = await grantAccountPermission(user.id, Number(actorId), permString);
+        const res = await grantUserPermission(user.id, Number(actorId), permString);
         setGrantLoading(false);
 
         if (res.success) {
@@ -50,7 +50,7 @@ export default function UserPermissionClient({ user, roles }: { user: any, roles
     const handleRevoke = async (actorId: number) => {
         if (!confirm('Are you sure you want to revoke these permissions?')) return;
         
-        const res = await revokeAccountPermission(user.id, actorId);
+        const res = await revokeUserPermission(user.id, actorId);
         if (res.success) {
             router.refresh();
         } else {

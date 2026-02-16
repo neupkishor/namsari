@@ -12,8 +12,8 @@ export default async function ManageAdvertisersPage({ searchParams }: { searchPa
         redirect('/auth/login');
     }
     
-    // Only Admins can manage advertisers
-    if (user.type !== 'admin') {
+    // Only Admins can manage advertisers (and not when switched)
+    if (user.type !== 'admin' || user.operatingId) {
         redirect('/manage');
     }
 
@@ -27,13 +27,13 @@ export default async function ManageAdvertisersPage({ searchParams }: { searchPa
     };
 
     const [users, totalCount] = await Promise.all([
-        prisma.account.findMany({
+        prisma.user.findMany({
             where,
             orderBy: { name: 'asc' },
             skip,
             take: limit
         }),
-        prisma.account.count({ where })
+        prisma.user.count({ where })
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);
@@ -44,14 +44,6 @@ export default async function ManageAdvertisersPage({ searchParams }: { searchPa
                 <div>
                     <h1 className="section-title" style={{ fontSize: '2rem', marginBottom: '8px' }}>Advertiser Management</h1>
                     <p style={{ color: 'var(--color-text-muted)' }}>Directory of registered advertisers.</p>
-                </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                    <button style={{ background: 'white', border: '1px solid #cbd5e1', padding: '10px 16px', borderRadius: '6px', fontWeight: '600', color: '#475569', cursor: 'pointer' }}>
-                        Export CSV
-                    </button>
-                    <button style={{ background: 'var(--color-primary)', color: 'white', padding: '10px 20px', borderRadius: '6px', border: 'none', fontWeight: '600', cursor: 'pointer' }}>
-                        Add Advertiser
-                    </button>
                 </div>
             </header>
 

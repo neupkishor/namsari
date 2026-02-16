@@ -19,7 +19,7 @@ export async function getAdvertisements() {
 export async function getActiveAdvertisements() {
     try {
         const ads = await prisma.advertisement.findMany({
-            where: { is_active: true },
+            where: { status: 'active' },
             orderBy: { created_at: 'desc' }
         });
         return ads;
@@ -48,10 +48,11 @@ export async function createAdvertisement(formData: FormData) {
         await prisma.advertisement.create({
             data: {
                 image,
-                takes_to: takes_to || null,
-                posted_by: posted_by || null,
-                shows_on_top,
-                is_active: true
+                link: takes_to || null,
+                title: posted_by || "Untitled Ad", // Mapping posted_by to title for legacy compatibility
+                position: shows_on_top ? 'banner_top' : 'feed',
+                status: 'active',
+                userId: parseInt(session.id)
             }
         });
 
@@ -74,9 +75,11 @@ export async function toggleAdvertisementStatus(id: number) {
         const ad = await prisma.advertisement.findUnique({ where: { id } });
         if (!ad) return { error: "Advertisement not found" };
 
+        const newStatus = ad.status === 'active' ? 'paused' : 'active';
+
         await prisma.advertisement.update({
             where: { id },
-            data: { is_active: !ad.is_active }
+            data: { status: newStatus }
         });
 
         revalidatePath('/manage/advertisements');

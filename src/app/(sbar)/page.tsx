@@ -10,7 +10,7 @@ export default async function HomePage() {
 
     if (session?.id) {
         try {
-            user = await prisma.account.findUnique({
+            user = await prisma.user.findUnique({
                 where: { id: Number(session.id) }
             });
         } catch (e) {
@@ -48,7 +48,7 @@ export default async function HomePage() {
             },
             orderBy: { created_on: 'desc' }
         }),
-        prisma.account.findMany({
+        prisma.user.findMany({
             where: { type: 'agency' },
             take: 10,
             orderBy: { created_on: 'desc' },

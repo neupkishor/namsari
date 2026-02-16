@@ -1,20 +1,82 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { createAgency, deleteAgency, toggleAgencyVerification } from '@/actions/agencies';
 import imageCompression from 'browser-image-compression';
 
 import { PaginationControl } from '@/components/ui';
 
 interface AgencyManagementClientProps {
-    agencies: any[];
+    yourAgencies: any[];
+    allAgencies: any[];
+    showAllAgencies: boolean;
     totalPages: number;
 }
 
-export default function AgencyManagementClient({ agencies, totalPages }: AgencyManagementClientProps) {
+export default function AgencyManagementClient({ yourAgencies, allAgencies, showAllAgencies, totalPages }: AgencyManagementClientProps) {
     const [showForm, setShowForm] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [profilePic, setProfilePic] = useState('');
+
+    const normalizeAgencies = (list: any[]) => {
+        return list.map(agency => {
+            let moreInfo: any = {};
+            try {
+                moreInfo = typeof agency.moreInfo === 'string' ? JSON.parse(agency.moreInfo) : (agency.moreInfo || {});
+            } catch (e) {
+                // ignore error
+            }
+            
+            return {
+                ...agency,
+                phone: agency.contact_number || agency.phone,
+                website: moreInfo.website || agency.website,
+                is_verified: moreInfo.is_verified || agency.is_verified,
+            };
+        });
+    };
+
+    const normalizedYourAgencies = normalizeAgencies(yourAgencies);
+    const normalizedAllAgencies = normalizeAgencies(allAgencies);
+
+    const renderAgencyCard = (agency: any, canVerify: boolean) => (
+        <Link 
+            key={agency.id} 
+            href={`/manage/accounts/${agency.username}`}
+            style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+            <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative', cursor: 'pointer', transition: 'box-shadow 0.2s', height: '100%' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#f8fafc', overflow: 'hidden', border: '2px solid #f1f5f9' }}>
+                        {agency.profile_picture ? (
+                            <img src={agency.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={agency.name} />
+                        ) : (
+                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary)', background: '#eff6ff' }}>{agency.name[0]}</div>
+                        )}
+                    </div>
+                    <div>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '4px' }}>{agency.name}</h3>
+                        <p style={{ fontSize: '0.85rem', color: '#64748b' }}>@{agency.username}</p>
+                    </div>
+                </div>
+
+                <div style={{ padding: '16px', background: '#f8fafc', borderRadius: '12px', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ color: '#94a3b8' }}>📞</span> <span>{agency.phone || 'No phone'}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ color: '#94a3b8' }}>✉️</span> <span>{agency.email || 'No email'}</span>
+                    </div>
+                    {agency.website && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ color: '#94a3b8' }}>🌐</span> <span style={{ color: '#3b82f6' }}>Website</span>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </Link>
+    );
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         // ... previous implementation ...
@@ -132,75 +194,35 @@ export default function AgencyManagementClient({ agencies, totalPages }: AgencyM
                 </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-                {agencies.length === 0 ? (
-                    <div style={{ gridColumn: '1 / -1', padding: '60px', textAlign: 'center', color: 'var(--color-text-muted)', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                        No agencies found. Add your first agency above.
-                    </div>
-                ) : (
-                    agencies.map((agency) => (
-                        <div key={agency.id} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}>
-                            <div style={{ position: 'absolute', top: '16px', right: '16px' }}>
-                                <button
-                                    onClick={() => deleteAgency(agency.id)}
-                                    style={{ background: 'white', border: '1px solid #fecaca', color: '#ef4444', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
-                                    title="Delete Agency"
-                                >
-                                    ✕
-                                </button>
-                            </div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#f8fafc', overflow: 'hidden', border: '2px solid #f1f5f9' }}>
-                                    {agency.profile_picture ? (
-                                        <img src={agency.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={agency.name} />
-                                    ) : (
-                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary)', background: '#eff6ff' }}>{agency.name[0]}</div>
-                                    )}
-                                </div>
-                                <div>
-                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '4px' }}>{agency.name}</h3>
-                                    <p style={{ fontSize: '0.85rem', color: '#64748b' }}>@{agency.username}</p>
-                                </div>
-                            </div>
-
-                            <div style={{ padding: '16px', background: '#f8fafc', borderRadius: '12px', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <span style={{ color: '#94a3b8' }}>📞</span> <span>{agency.phone || 'No phone'}</span>
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <span style={{ color: '#94a3b8' }}>✉️</span> <span>{agency.email || 'No email'}</span>
-                                </div>
-                                {agency.website && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <span style={{ color: '#94a3b8' }}>🌐</span> <a href={agency.website} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none' }}>Website</a>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'center' }}>
-                                <button
-                                    onClick={() => toggleAgencyVerification(agency.id, agency.is_verified)}
-                                    style={{
-                                        width: '100%',
-                                        padding: '10px',
-                                        borderRadius: '8px',
-                                        fontSize: '0.85rem',
-                                        fontWeight: '700',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        background: agency.is_verified ? '#dcfce7' : '#f1f5f9',
-                                        color: agency.is_verified ? '#166534' : '#64748b',
-                                        transition: 'all 0.2s'
-                                    }}
-                                >
-                                    {agency.is_verified ? '✓ Verified Agency' : 'Mark as Verified'}
-                                </button>
-                            </div>
+            {/* Your Agencies */}
+            <section>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '16px', color: 'var(--color-primary)' }}>Your Agencies</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                    {normalizedYourAgencies.length === 0 ? (
+                        <div style={{ gridColumn: '1 / -1', padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                            You don't have any agencies yet. Create one above.
                         </div>
-                    ))
-                )}
-            </div>
+                    ) : (
+                        normalizedYourAgencies.map((agency) => renderAgencyCard(agency, showAllAgencies))
+                    )}
+                </div>
+            </section>
+
+            {/* All Agencies */}
+            {showAllAgencies && (
+                <section>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '16px', marginTop: '32px', color: 'var(--color-primary)' }}>All Agencies</h2>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                        {normalizedAllAgencies.length === 0 ? (
+                            <div style={{ gridColumn: '1 / -1', padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                                No agencies found.
+                            </div>
+                        ) : (
+                            normalizedAllAgencies.map((agency) => renderAgencyCard(agency, true))
+                        )}
+                    </div>
+                </section>
+            )}
 
             <PaginationControl totalPages={totalPages} />
         </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { getDashboardStats } from '@/actions/dashboard';
+import { switchProfileAction } from '@/actions/auth';
 import {
     PropertyStats,
     RequirementStats,
@@ -9,9 +10,8 @@ import {
     NewsletterStats,
     UserStats,
     WebmasterStats,
-    ContentStats,
-    CareerStats,
-    BankStats
+    BankStats,
+    AgentStats
 } from '@/components/dashboard/DashboardWidgets';
 
 export default async function ManageDashboard() {
@@ -25,59 +25,129 @@ export default async function ManageDashboard() {
         );
     }
 
-    const { stats, user } = data;
+    const { user, userStats, agenciesStats, adminStats } = data;
+    const isOperatingAsAgency = user.operatingId !== null && user.operatingId !== undefined;
 
     return (
         <div style={{ maxWidth: '1200px', margin: '0 auto', paddingBottom: '60px' }}>
-            <header style={{ marginBottom: '32px' }}>
-                <h1 className="section-title" style={{ fontSize: '2rem', marginBottom: '8px' }}>Dashboard</h1>
-                <p style={{ color: 'var(--color-text-muted)' }}>
-                    Welcome back, <span style={{ fontWeight: '600', color: 'var(--color-primary)' }}>{user.name || user.username}</span>. 
-                    Here's what's happening today.
-                </p>
+            <header style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                    <h1 className="section-title" style={{ fontSize: '2rem', marginBottom: '8px' }}>Dashboard</h1>
+                    <p style={{ color: 'var(--color-text-muted)' }}>
+                        Welcome back, <span style={{ fontWeight: '600', color: 'var(--color-primary)' }}>{user.name || user.username}</span>.
+                        {isOperatingAsAgency && (
+                            <span style={{ marginLeft: '8px', background: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: '600' }}>
+                                Operating as Agency
+                            </span>
+                        )}
+                    </p>
+                </div>
+                {isOperatingAsAgency && (
+                    <form action={async () => {
+                        'use server';
+                        await switchProfileAction(null);
+                    }}>
+                        <button 
+                            type="submit" 
+                            style={{ 
+                                background: 'white', 
+                                border: '1px solid #cbd5e1', 
+                                padding: '8px 16px', 
+                                borderRadius: '6px', 
+                                fontWeight: '600', 
+                                color: '#475569', 
+                                cursor: 'pointer',
+                                fontSize: '0.9rem'
+                            }}
+                        >
+                            Switch to Personal Profile
+                        </button>
+                    </form>
+                )}
             </header>
 
-            {/* Top Row: Key Metrics */}
-            <PropertyStats stats={stats.properties} />
+            {/* If operating as agency, ONLY show that agency's stats */}
+            {isOperatingAsAgency ? (
+                agenciesStats.map((item: any) => {
+                    if (item.agency.id !== user.operatingId) return null;
+                    
+                    return (
+                        <section key={item.agency.id} style={{ marginBottom: '48px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                                 <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#f1f5f9', overflow: 'hidden' }}>
+                                    {item.agency.profile_picture ? (
+                                        <img src={item.agency.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={item.agency.name} />
+                                    ) : (
+                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', color: '#64748b' }}>{item.agency.name[0]}</div>
+                                    )}
+                                 </div>
+                                 <div>
+                                    <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: 'var(--color-primary)' }}>{item.agency.name}</h2>
+                                    <p style={{ fontSize: '0.9rem', color: '#64748b' }}>Agency Overview (@{item.agency.username})</p>
+                                 </div>
+                                 
+                                 <div style={{ marginLeft: 'auto' }}>
+                                    <span style={{ padding: '8px 16px', background: '#dcfce7', color: '#166534', borderRadius: '6px', fontWeight: '600', fontSize: '0.9rem' }}>Active</span>
+                                 </div>
+                            </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px', marginBottom: '32px' }}>
-                {stats.requirements && <RequirementStats stats={stats.requirements} />}
-                {stats.featured && <FeaturedStats stats={stats.featured} />}
-                {stats.collections && <CollectionStats stats={stats.collections} />}
-                {stats.advertisements && <AdStats stats={stats.advertisements} />}
-            </div>
+                            <PropertyStats stats={item.stats.properties} />
 
-            {/* Middle Section: Complex Stats */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px', marginBottom: '32px' }}>
-                {stats.webmaster && <WebmasterStats stats={stats.webmaster} />}
-                {stats.users && <UserStats stats={stats.users} />}
-            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+                                <AgentStats count={item.agentCount} />
+                                {item.stats.requirements && <RequirementStats stats={item.stats.requirements} />}
+                                {item.stats.featured && <FeaturedStats stats={item.stats.featured} />}
+                                {item.stats.collections && <CollectionStats stats={item.stats.collections} />}
+                                {item.stats.advertisements && <AdStats stats={item.stats.advertisements} />}
+                            </div>
+                        </section>
+                    );
+                })
+            ) : (
+                <>
+                    {/* 1. User's View - Only when NOT operating as agency */}
+                    <section style={{ marginBottom: '48px' }}>
+                        <h2 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Personal Overview</h2>
+                        <PropertyStats stats={userStats.properties} />
+                        
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+                            {userStats.requirements && <RequirementStats stats={userStats.requirements} />}
+                            {userStats.featured && <FeaturedStats stats={userStats.featured} />}
+                            {userStats.collections && <CollectionStats stats={userStats.collections} />}
+                        </div>
+                    </section>
 
-            {/* Content & Growth */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '32px' }}>
-                {stats.newsletter && <NewsletterStats stats={stats.newsletter} />}
-                
-                {stats.career && <CareerStats stats={stats.career} />}
+                    {/* 3. Admin View - Only when NOT operating as agency */}
+                    {adminStats && (
+                        <section style={{ marginBottom: '48px' }}>
+                            <header style={{ marginBottom: '24px' }}>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--color-primary)' }}>Admin Overview</h2>
+                                <p style={{ color: '#64748b' }}>Global platform statistics and management.</p>
+                            </header>
 
-                {stats.support && (
-                    <ContentStats 
-                        title="Support Articles" 
-                        stats={stats.support} 
-                        icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>}
-                    />
-                )}
-                
-                {stats.blog && (
-                    <ContentStats 
-                        title="Blog Posts" 
-                        stats={stats.blog} 
-                        icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>}
-                    />
-                )}
-            </div>
+                            <PropertyStats stats={adminStats.properties} />
 
-            {/* Bank Stats Row */}
-            {stats.banks && <BankStats stats={stats.banks} />}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+                                {adminStats.requirements && <RequirementStats stats={adminStats.requirements} />}
+                                {adminStats.featured && <FeaturedStats stats={adminStats.featured} />}
+                                {adminStats.collections && <CollectionStats stats={adminStats.collections} />}
+                                {adminStats.advertisements && <AdStats stats={adminStats.advertisements} />}
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+                                {adminStats.webmaster && <WebmasterStats stats={adminStats.webmaster} />}
+                                {adminStats.users && <UserStats stats={adminStats.users} />}
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+                                {adminStats.newsletter && <NewsletterStats stats={adminStats.newsletter} />}
+                            </div>
+
+                            {adminStats.banks && <BankStats stats={adminStats.banks} />}
+                        </section>
+                    )}
+                </>
+            )}
 
             <div style={{ textAlign: 'center', marginTop: '40px', color: '#94a3b8', fontSize: '0.9rem' }}>
                 For more information, visit the <a href="/support" style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}>Help Center</a>.

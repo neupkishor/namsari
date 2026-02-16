@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { PaginationControl } from '@/components/ui';
 import { getCurrentUser } from '@/actions/auth';
 import { redirect } from 'next/navigation';
+import CreateAgentForm from '@/components/agents/CreateAgentForm';
 
 export default async function ManageAgentsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
     const user = await getCurrentUser();
@@ -12,8 +13,13 @@ export default async function ManageAgentsPage({ searchParams }: { searchParams:
         redirect('/auth/login');
     }
 
+    // Check if user is operating as agency
+    const isOperatingAsAgency = !!user.operatingId;
+    // Get the effective agency ID if operating as one, or if user is agency type themselves
+    const agencyId = isOperatingAsAgency ? user.operatingId : (user.type === 'agency' ? user.id : null);
+
     const isAdmin = user.type === 'admin' || user.role?.name?.toLowerCase().includes('admin');
-    const isAgency = user.type === 'agency';
+    const isAgency = !!agencyId;
 
     if (!isAdmin && !isAgency) {
         redirect('/manage');
@@ -24,22 +30,36 @@ export default async function ManageAgentsPage({ searchParams }: { searchParams:
     const limit = 10;
     const skip = (page - 1) * limit;
 
-    const where: any = {
-        type: 'agent'
-    };
-
+    const where: any = {};
+    
     if (isAgency) {
-        where.agency_id = user.id;
+        where.OR = [
+            { agency_id: agencyId },
+            { memberships: { some: { partOf: agencyId } } }
+        ];
+    } else {
+        // Admin sees all agents and agency_agents
+        where.OR = [
+            { type: 'agent' },
+            { type: 'agency_agent' }
+        ];
     }
 
     const [users, totalCount] = await Promise.all([
-        prisma.account.findMany({
+        prisma.user.findMany({
             where,
             orderBy: { name: 'asc' },
+            include: { 
+                agency: { select: { name: true } },
+                memberships: {
+                    where: { partOf: agencyId || -1 },
+                    take: 1
+                }
+            } as any,
             skip,
             take: limit
         }),
-        prisma.account.count({ where })
+        prisma.user.count({ where })
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);
@@ -51,14 +71,9 @@ export default async function ManageAgentsPage({ searchParams }: { searchParams:
                     <h1 className="section-title" style={{ fontSize: '2rem', marginBottom: '8px' }}>Agent Management</h1>
                     <p style={{ color: 'var(--color-text-muted)' }}>Directory of registered real estate agents.</p>
                 </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                    <button style={{ background: 'white', border: '1px solid #cbd5e1', padding: '10px 16px', borderRadius: '6px', fontWeight: '600', color: '#475569', cursor: 'pointer' }}>
-                        Export CSV
-                    </button>
-                    <button style={{ background: 'var(--color-primary)', color: 'white', padding: '10px 20px', borderRadius: '6px', border: 'none', fontWeight: '600', cursor: 'pointer' }}>
-                        Add Agent
-                    </button>
-                </div>
+                {isAgency && (
+                    <CreateAgentForm agencyId={agencyId!} />
+                )}
             </header>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -84,10 +99,18 @@ export default async function ManageAgentsPage({ searchParams }: { searchParams:
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{ fontWeight: '700', color: 'var(--color-primary)', fontSize: '1.1rem', marginBottom: '4px' }}>{u.name}</div>
                                     <div style={{ fontSize: '0.95rem', color: '#64748b' }}>@{u.username}</div>
+                                    <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                                        {isAgency && u.memberships?.[0]?.exclusive && (
+                                            <span style={{ fontSize: '0.75rem', color: '#dc2626', background: '#fef2f2', padding: '2px 6px', borderRadius: '4px', fontWeight: '600' }}>Exclusive</span>
+                                        )}
+                                        {isAgency && u.memberships?.[0]?.status === 'invited' && (
+                                            <span style={{ fontSize: '0.75rem', color: '#d97706', background: '#fffbeb', padding: '2px 6px', borderRadius: '4px', fontWeight: '600' }}>Invited</span>
+                                        )}
+                                    </div>
                                 </div>
                                 <div>
                                     <span style={{ background: '#f1f5f9', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '600', color: '#64748b' }}>
-                                        Agent
+                                        {u.type === 'agency_agent' && u.agency ? `Agent of ${u.agency.name}` : 'Agent'}
                                     </span>
                                 </div>
                             </div>

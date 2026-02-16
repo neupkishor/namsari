@@ -9,7 +9,7 @@ export default async function RegisterPage() {
     const session = await getSession();
     if (session) {
         // Verify if user actually exists in the new DB
-        const user = await prisma.account.findUnique({
+        const user = await prisma.user.findUnique({
             where: { id: Number(session.id) }
         });
 

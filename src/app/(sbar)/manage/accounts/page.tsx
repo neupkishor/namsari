@@ -12,8 +12,8 @@ export default async function ManageUsersPage({ searchParams }: { searchParams: 
         redirect('/auth/login');
     }
 
-    // Only Admins can see all users
-    if (user.type !== 'admin' && !user.role?.name?.toLowerCase().includes('admin')) {
+    // Only Admins can see all users (and not when switched)
+    if ((user.type !== 'admin' && !user.role?.name?.toLowerCase().includes('admin')) || user.operatingId) {
         redirect('/manage');
     }
 
@@ -23,12 +23,12 @@ export default async function ManageUsersPage({ searchParams }: { searchParams: 
     const skip = (page - 1) * limit;
 
     const [users, totalCount] = await Promise.all([
-        prisma.account.findMany({
+        prisma.user.findMany({
             orderBy: { name: 'asc' },
             skip,
             take: limit
         }),
-        prisma.account.count()
+        prisma.user.count()
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);
@@ -39,15 +39,6 @@ export default async function ManageUsersPage({ searchParams }: { searchParams: 
                 <div>
                     <h1 className="section-title" style={{ fontSize: '2rem', marginBottom: '8px' }}>User Management</h1>
                     <p style={{ color: 'var(--color-text-muted)' }}>Directory of all registered connected users.</p>
-                </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                    {/* Export/Invite buttons can remain or be simplified as needed, keeping them for now */}
-                    <button style={{ background: 'white', border: '1px solid #cbd5e1', padding: '10px 16px', borderRadius: '6px', fontWeight: '600', color: '#475569', cursor: 'pointer' }}>
-                        Export CSV
-                    </button>
-                    <button style={{ background: 'var(--color-primary)', color: 'white', padding: '10px 20px', borderRadius: '6px', border: 'none', fontWeight: '600', cursor: 'pointer' }}>
-                        Invite User
-                    </button>
                 </div>
             </header>
 

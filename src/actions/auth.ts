@@ -1,15 +1,16 @@
 "use server";
 
 import prisma from '@/lib/prisma';
-import { clearSession, setSession, getSession } from '@/lib/auth';
+import { clearSession, setSession, getSession, createSession, switchProfile, revokeSession as revokeSessionLib } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 
 export async function getCurrentUser() {
     const session = await getSession();
     if (!session?.id) return null;
 
     try {
-        const user = await prisma.account.findUnique({
+        const user = await prisma.user.findUnique({
             where: { id: parseInt(session.id) },
             select: {
                 id: true,
@@ -27,11 +28,72 @@ export async function getCurrentUser() {
         
         if (!user) return null;
 
-        return user;
+        // If operating as someone else, we might want to return that user?
+        // But getCurrentUser is usually for the "main" identity.
+        // Or maybe we return the operating user?
+        // For the header profile, we usually want the real user.
+        // For the dashboard context, we check operatingId.
+        // Let's return the main user here, and let specific pages handle operating context.
+        // However, if we want the UI to reflect the "Acting As", we should probably return it.
+        // But the prompt asked for "operating_id" to be saved.
+        
+        return { ...user, operatingId: session.operatingId };
     } catch (error) {
         console.error("Error fetching current user:", error);
         return null;
     }
+}
+
+export async function getUserSessions() {
+    const session = await getSession();
+    if (!session?.id) return [];
+    
+    const sessions = await prisma.session.findMany({
+        where: { userId: parseInt(session.id) },
+        orderBy: { lastActive: 'desc' }
+    });
+    
+    return sessions.map(s => ({
+        ...s,
+        isCurrent: s.id === session.sessionId
+    }));
+}
+
+export async function switchProfileAction(targetId: number | null) {
+    const session = await getSession();
+    if (!session?.id) throw new Error("Unauthorized");
+    
+    const userId = parseInt(session.id);
+
+    if (targetId) {
+        // Verify permission
+        if (targetId !== userId) {
+            const permission = await prisma.userPermission.findUnique({
+                where: {
+                    ownerId_actorId: {
+                        ownerId: targetId,
+                        actorId: userId
+                    }
+                }
+            });
+            
+            if (!permission) {
+                 throw new Error("Unauthorized to access this profile");
+            }
+        }
+    }
+
+    const success = await switchProfile(targetId);
+    if (success) {
+        redirect('/manage');
+    } else {
+        throw new Error("Failed to switch profile");
+    }
+}
+
+export async function revokeSessionAction(sessionId: string) {
+    await revokeSessionLib(sessionId);
+    revalidatePath('/manage/logins');
 }
 
 export async function registerAction(formData: FormData) {
@@ -43,7 +105,12 @@ export async function registerAction(formData: FormData) {
 
     if (!name) throw new Error("Name is required");
     if (!email) throw new Error("Email is required");
-    if (!password) throw new Error("Password is required");
+    if (type === 'user' && !password) throw new Error("Password is required");
+
+    // Validate Account Type
+    if (!['user', 'agency', 'bank'].includes(type)) {
+        throw new Error("Invalid account type.");
+    }
 
     // Generate username: name without space and special chars
     let username = name.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -54,7 +121,7 @@ export async function registerAction(formData: FormData) {
     }
 
     // Check if username already exists
-    let existingUser = await prisma.account.findUnique({
+    let existingUser = await prisma.user.findUnique({
         where: { username }
     });
 
@@ -64,7 +131,7 @@ export async function registerAction(formData: FormData) {
         username = `${username}${randomSuffix}`;
         
         // Check again (unlikely to collide, but good practice)
-        existingUser = await prisma.account.findUnique({
+        existingUser = await prisma.user.findUnique({
             where: { username }
         });
         
@@ -74,7 +141,7 @@ export async function registerAction(formData: FormData) {
     }
 
     // Check if email already exists
-    const existingEmail = await prisma.account.findUnique({
+    const existingEmail = await prisma.user.findUnique({
         where: { email }
     });
 
@@ -87,7 +154,7 @@ export async function registerAction(formData: FormData) {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await prisma.$transaction(async (tx) => {
-            const newAccount = await (tx as any).account.create({
+            const newAccount = await (tx as any).user.create({
                 data: {
                     username,
                     name,
@@ -97,17 +164,22 @@ export async function registerAction(formData: FormData) {
                 }
             });
 
-            await (tx as any).accountCredential.create({
-                data: {
-                    accountId: newAccount.id,
-                    password: hashedPassword
-                }
-            });
+            // Only create credentials for "user" type
+            if (type === 'user') {
+                await (tx as any).userCredential.create({
+                    data: {
+                        userId: newAccount.id,
+                        password: hashedPassword
+                    }
+                });
+            }
             
             return newAccount;
         });
 
-        await setSession(String(user.id));
+        await setSession(String(user.id)); // Use deprecated setSession for now, which calls createSession inside lib/auth.ts if updated
+        // Wait, I updated setSession in lib/auth.ts to call createSession(parseInt(userId)).
+        // So this is fine.
     } catch (error) {
         console.error("Registration error:", error);
         throw new Error("Failed to create account.");
@@ -131,7 +203,7 @@ export async function loginAction(formData: FormData) {
         if (!password) throw new Error("Password is required");
 
         // Find user by username OR email OR contact_number
-        const user = await prisma.account.findFirst({
+        const user = await prisma.user.findFirst({
             where: {
                 OR: [
                     { username: identifier },

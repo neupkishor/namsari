@@ -10,7 +10,7 @@ export async function updateUser(username: string, formData: FormData) {
         return { success: false, message: 'Unauthorized' };
     }
 
-    const currentUser = await prisma.account.findUnique({
+    const currentUser = await prisma.user.findUnique({
         where: { id: parseInt(session.id) },
         include: { role: true }
     });
@@ -19,7 +19,7 @@ export async function updateUser(username: string, formData: FormData) {
         return { success: false, message: 'Unauthorized' };
     }
 
-    const targetUser = await prisma.account.findUnique({
+    const targetUser = await prisma.user.findUnique({
         where: { username }
     });
 
@@ -69,7 +69,7 @@ export async function updateUser(username: string, formData: FormData) {
     }
 
     try {
-        await prisma.account.update({
+        await prisma.user.update({
             where: { username },
             data: updateData
         });

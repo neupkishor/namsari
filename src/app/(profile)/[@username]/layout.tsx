@@ -23,7 +23,7 @@ export default async function ProfileLayout({ children, params }: LayoutProps) {
     if (!decoded.startsWith('@')) return notFound();
     decoded = decoded.substring(1);
 
-    const user = await prisma.account.findUnique({
+    const user = await prisma.user.findUnique({
         where: { username: decoded }
     });
 
@@ -32,9 +32,19 @@ export default async function ProfileLayout({ children, params }: LayoutProps) {
     const isOwner = session?.id === user.id.toString();
 
     // Fetch stats for sidebar
-    const listingsCount = await prisma.property.count({
-        where: { listedById: user.id }
-    });
+    const [listingsCount, reviewsAggregate] = await Promise.all([
+        prisma.property.count({
+            where: { listedById: user.id }
+        }),
+        prisma.review.aggregate({
+            where: { receiver_id: user.id },
+            _avg: { rating: true },
+            _count: { rating: true }
+        })
+    ]);
+
+    const averageRating = reviewsAggregate._avg.rating || 0;
+    const reviewCount = reviewsAggregate._count.rating || 0;
 
     return (
         <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
@@ -45,7 +55,7 @@ export default async function ProfileLayout({ children, params }: LayoutProps) {
 
             <div className="layout-container profile-main-grid">
                 {/* Persistent Sidebar */}
-                <ProfileSidebar user={user} listingsCount={listingsCount} />
+                <ProfileSidebar user={user} listingsCount={listingsCount} rating={averageRating} reviewCount={reviewCount} />
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     {children}

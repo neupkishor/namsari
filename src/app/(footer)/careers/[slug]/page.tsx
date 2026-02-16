@@ -22,7 +22,7 @@ export default async function PublicJobPage({
     const sessionData = await getSession();
     let user = null;
     if (sessionData?.id) {
-        user = await prisma.account.findUnique({
+        user = await prisma.user.findUnique({
             where: { id: Number(sessionData.id) }
         });
     }

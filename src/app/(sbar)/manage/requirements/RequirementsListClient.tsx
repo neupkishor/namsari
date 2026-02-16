@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from 'react';
 import { FormGrid, FormCard } from '@/components/form';
 import { PaginationControl } from '@/components/ui';
 
@@ -19,6 +20,8 @@ interface Requirement {
     maxPrice: number | null;
     pricingUnit: string | null;
     remarks: string | null;
+    is_public: boolean;
+    userId: number; // Added userId
     created_at: string;
     user: {
         name: string;
@@ -27,29 +30,113 @@ interface Requirement {
     updated_at: string;
 }
 
-export default function RequirementsListClient({ requirements, totalPages }: { requirements: Requirement[], totalPages: number }) {
+export default function RequirementsListClient({ 
+    requirements, 
+    totalPages,
+    title = "User Requirements",
+    description = "Manage and view property demands submitted by users across the platform.",
+    currentUserId
+}: { 
+    requirements: Requirement[], 
+    totalPages: number,
+    title?: string,
+    description?: string,
+    currentUserId?: number
+}) {
+    const [filter, setFilter] = useState<'all' | 'my' | 'private'>('all');
+
+    // Check availability
+    const hasMyRequirements = currentUserId && requirements.some(req => req.userId === currentUserId);
+    const hasPrivateRequirements = requirements.some(req => !req.is_public);
+
+    // Apply Filter
+    const filteredRequirements = requirements.filter(req => {
+        if (filter === 'my') return req.userId === currentUserId;
+        if (filter === 'private') return !req.is_public;
+        return true;
+    });
 
     return (
         <div style={{ paddingBottom: '60px' }}>
             <header style={{ marginBottom: '32px' }}>
-                <h1 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--color-primary)', marginBottom: '8px' }}>User Requirements</h1>
-                <p style={{ color: '#64748b' }}>Manage and view property demands submitted by users across the platform.</p>
+                <h1 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--color-primary)', marginBottom: '8px' }}>{title}</h1>
+                <p style={{ color: '#64748b' }}>{description}</p>
             </header>
 
+            {/* Filter Tabs */}
+            {(hasMyRequirements || hasPrivateRequirements) && (
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
+                    <button 
+                        onClick={() => setFilter('all')}
+                        style={{ 
+                            padding: '8px 16px', 
+                            borderRadius: '20px', 
+                            border: 'none', 
+                            background: filter === 'all' ? 'var(--color-primary)' : '#f1f5f9', 
+                            color: filter === 'all' ? 'white' : '#64748b',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        All
+                    </button>
+                    
+                    {hasMyRequirements && (
+                        <button 
+                            onClick={() => setFilter('my')}
+                            style={{ 
+                                padding: '8px 16px', 
+                                borderRadius: '20px', 
+                                border: 'none', 
+                                background: filter === 'my' ? 'var(--color-primary)' : '#f1f5f9', 
+                                color: filter === 'my' ? 'white' : '#64748b',
+                                fontWeight: '600',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            My Requirements
+                        </button>
+                    )}
+                    
+                    {hasPrivateRequirements && (
+                        <button 
+                            onClick={() => setFilter('private')}
+                            style={{ 
+                                padding: '8px 16px', 
+                                borderRadius: '20px', 
+                                border: 'none', 
+                                background: filter === 'private' ? 'var(--color-primary)' : '#f1f5f9', 
+                                color: filter === 'private' ? 'white' : '#64748b',
+                                fontWeight: '600',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Private
+                        </button>
+                    )}
+                </div>
+            )}
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                {requirements.length === 0 ? (
+                {filteredRequirements.length === 0 ? (
                     <div className="card" style={{ textAlign: 'center', padding: '48px' }}>
-                        <p style={{ color: '#64748b' }}>No requirements posted yet.</p>
+                        <p style={{ color: '#64748b' }}>No requirements found.</p>
                     </div>
                 ) : (
-                    requirements.map((req) => (
+                    filteredRequirements.map((req) => (
                         <FormCard key={req.id} padding="24px" background="white" border="1px solid #e2e8f0" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                            {/* ... same card content ... */}
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                                 <div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
                                         <span style={{ fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', background: req.mode === 'simple' ? '#f1f5f9' : '#f0f9ff', color: req.mode === 'simple' ? '#475569' : '#0369a1', padding: '4px 8px', borderRadius: '4px' }}>
                                             {req.mode} mode
                                         </span>
+                                        {!req.is_public && (
+                                            <span style={{ fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', background: '#fef2f2', color: '#991b1b', padding: '4px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                🔒 Private
+                                            </span>
+                                        )}
                                         <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
                                             Posted on {new Date(req.created_at).toLocaleDateString()}
                                         </span>

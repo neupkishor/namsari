@@ -200,6 +200,34 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                     {group.items.map((item, idx) => {
                                         const active = isActive(item.href);
+                                        
+                                        // Handle Logout Item Special Case
+                                        if (item.label === 'LogOut') {
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    onClick={() => logoutAction()}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '12px',
+                                                        padding: '10px 16px',
+                                                        borderRadius: '8px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.95rem',
+                                                        color: '#ef4444',
+                                                        fontWeight: '600',
+                                                        transition: 'background 0.2s'
+                                                    }}
+                                                    onMouseOver={(e) => e.currentTarget.style.background = '#fef2f2'}
+                                                    onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+                                                >
+                                                    <span style={{ fontSize: '1.2rem' }}>{item.icon}</span>
+                                                    <span>{item.label}</span>
+                                                </div>
+                                            );
+                                        }
+
                                         return (
                                             <Link key={idx} href={item.href} style={{ textDecoration: 'none' }}>
                                                 <div style={{
@@ -229,30 +257,6 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
                         ))}
 
                         <div style={{ margin: '0 16px', height: '1px', background: 'rgba(0,0,0,0.05)' }} />
-
-                        {/* Logout Option */}
-                        {user && (
-                            <div
-                                onClick={() => logoutAction()}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px',
-                                    padding: '10px 16px',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                    fontSize: '0.9rem',
-                                    color: '#ef4444',
-                                    fontWeight: '600',
-                                    transition: 'background 0.2s'
-                                }}
-                                onMouseOver={(e) => e.currentTarget.style.background = '#fef2f2'}
-                                onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
-                            >
-                                <span style={{ fontSize: '1.1rem' }}>🚪</span>
-                                <span>Logout</span>
-                            </div>
-                        )}
 
                         <div style={{ padding: '0 16px', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                             Namsari Estate &copy; 2026<br /> Designed by <a href="https://neupgroup.com/marketing" target="_blank" rel="noopener noreferrer">Neup.Marketing</a>

@@ -65,7 +65,8 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
     const isAgency = user?.type === 'agency';
     const isAgent = user?.type === 'agent';
     const isBank = user?.type === 'bank';
-    const isAdvertiser = user?.type === 'advertiser'; // Assuming this type exists based on prompt
+    const isAdvertiser = user?.type === 'advertiser';
+    const isSwitchedAccount = user?.operatingId != null; // Check if user has switched profile
 
     // Base menu for everyone who can access manage
     const groups: MenuGroup[] = [
@@ -77,12 +78,13 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
                 ...((isUserAdmin || isAgency || isAgent) ? [{ label: 'Properties', icon: '🏠', href: '/manage/properties' }] : []),
                 // Requirements: Visible to Admin, Agency, Agent
                 ...((isUserAdmin || isAgency || isAgent) ? [{ label: 'Requirements', icon: '📋', href: '/manage/requirements' }] : []),
+                { label: 'Notifications', icon: '🔔', href: '/manage/notifications' },
             ]
         }
     ];
 
-    // Content Management (Admin & Marketing)
-    if (isUserAdmin) {
+    // Content Management (Admin & Agency)
+    if (isUserAdmin && !isSwitchedAccount) {
         groups.push({
             title: 'Content',
             items: [
@@ -92,11 +94,20 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
                 { label: 'Newsletter', icon: '📧', href: '/manage/newsletter' },
             ]
         });
+    } else if (isAgency || isSwitchedAccount) {
+        groups.push({
+            title: 'Content',
+            items: [
+                { label: 'Featured', icon: '⭐', href: '/manage/featured' },
+                { label: 'Collections', icon: '📁', href: '/manage/collections' },
+                { label: 'Advertisements', icon: '📢', href: '/manage/advertisements' },
+            ]
+        });
     }
 
     // User Management
     const userManagementItems: MenuItem[] = [];
-    if (isUserAdmin) {
+    if (isUserAdmin && !isSwitchedAccount) {
         userManagementItems.push(
             { label: 'Users', icon: '👥', href: '/manage/accounts' },
             { label: 'Agents', icon: '🕴️', href: '/manage/accounts/agents' },
@@ -104,7 +115,7 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
             { label: 'Banks', icon: '🏦', href: '/manage/accounts/banks' },
             { label: 'Advertisers', icon: '📢', href: '/manage/accounts/advertisers' }
         );
-    } else if (isAgency) {
+    } else if (isAgency || isSwitchedAccount) {
         // Agency can manage their own agents
         userManagementItems.push(
             { label: 'My Agents', icon: '🕴️', href: '/manage/accounts/agents' }
@@ -118,8 +129,8 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
         });
     }
 
-    // System (Admin only mostly, but Support might be for all)
-    if (isUserAdmin) {
+    // System (Admin only)
+    if (isUserAdmin && !isSwitchedAccount) {
         groups.push({
             title: 'System',
             items: [
@@ -133,15 +144,34 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
 
     // Configuration
     const configItems: MenuItem[] = [];
-    if (isUserAdmin) {
+    if (isUserAdmin && !isSwitchedAccount) {
         configItems.push({ label: 'Permissions', icon: '🛡️', href: '/manage/permissions' });
     }
-    // Everyone likely has settings
-    configItems.push({ label: 'Settings', icon: '⚙️', href: '/manage/settings' });
+    
+    if (configItems.length > 0) {
+        groups.push({
+            title: 'Configuration',
+            items: configItems
+        });
+    }
+
+    // Account Section
+    const accountItems: MenuItem[] = [
+        { label: 'Subscriptions', icon: '💳', href: '/manage/subscriptions' },
+    ];
+
+    if (!isSwitchedAccount) {
+        accountItems.push(
+            { label: 'Logins', icon: '🔐', href: '/manage/logins' },
+            { label: 'Activity', icon: '⚡', href: '/manage/activity' }
+        );
+    }
+
+    accountItems.push({ label: 'LogOut', icon: '🚪', href: '/auth/logout' });
 
     groups.push({
-        title: 'Configuration',
-        items: configItems
+        title: 'Account',
+        items: accountItems
     });
 
     return groups;

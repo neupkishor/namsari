@@ -213,25 +213,25 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
                                 <div style={{ flex: 1 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                                         <span style={{ 
-                                            background: ad.shows_on_top ? '#dbeafe' : '#f1f5f9', 
-                                            color: ad.shows_on_top ? '#1e40af' : '#475569',
+                                            background: (ad.position === 'banner_top' || ad.shows_on_top) ? '#dbeafe' : '#f1f5f9', 
+                                            color: (ad.position === 'banner_top' || ad.shows_on_top) ? '#1e40af' : '#475569',
                                             padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase' 
                                         }}>
-                                            {ad.shows_on_top ? 'Top Carousel' : 'Feed'}
+                                            {(ad.position === 'banner_top' || ad.shows_on_top) ? 'Top Carousel' : 'Feed'}
                                         </span>
                                         <span style={{ 
-                                            background: ad.is_active ? '#dcfce7' : '#fee2e2', 
-                                            color: ad.is_active ? '#166534' : '#991b1b',
+                                            background: (ad.status === 'active' || ad.is_active) ? '#dcfce7' : '#fee2e2', 
+                                            color: (ad.status === 'active' || ad.is_active) ? '#166534' : '#991b1b',
                                             padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase' 
                                         }}>
-                                            {ad.is_active ? 'Active' : 'Inactive'}
+                                            {(ad.status === 'active' || ad.is_active) ? 'Active' : 'Inactive'}
                                         </span>
                                     </div>
                                     <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#334155' }}>
-                                        {ad.posted_by || 'Unknown Advertiser'}
+                                        {ad.title || ad.posted_by || 'Unknown Advertiser'}
                                     </div>
                                     <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', wordBreak: 'break-all', marginTop: '2px' }}>
-                                        Link: <a href={ad.takes_to} target="_blank" rel="noreferrer" style={{ color: 'var(--color-primary)' }}>{ad.takes_to || 'None'}</a>
+                                        Link: <a href={ad.link || ad.takes_to} target="_blank" rel="noreferrer" style={{ color: 'var(--color-primary)' }}>{ad.link || ad.takes_to || 'None'}</a>
                                     </div>
                                     <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '4px' }}>
                                         Created on {new Date(ad.created_at).toLocaleDateString()}
@@ -242,9 +242,9 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
                                         onClick={() => handleToggle(ad.id)}
                                         disabled={isPending}
                                         style={{ background: 'none', border: '1px solid #e2e8f0', padding: '8px', borderRadius: '6px', cursor: 'pointer', color: '#64748b' }}
-                                        title={ad.is_active ? "Deactivate" : "Activate"}
+                                        title={(ad.status === 'active' || ad.is_active) ? "Deactivate" : "Activate"}
                                     >
-                                        {ad.is_active ? '⏸️' : '▶️'}
+                                        {(ad.status === 'active' || ad.is_active) ? '⏸️' : '▶️'}
                                     </button>
                                     <button 
                                         onClick={() => handleDelete(ad.id)}

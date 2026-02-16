@@ -15,7 +15,7 @@ async function checkAdmin() {
     const session = await getSession();
     if (!session?.id) return false;
 
-    const user = await prisma.account.findUnique({
+    const user = await prisma.user.findUnique({
         where: { id: parseInt(session.id) },
         include: { role: true }
     });

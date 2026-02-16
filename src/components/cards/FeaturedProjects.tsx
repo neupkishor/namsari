@@ -38,7 +38,7 @@ export const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ properties =
                 </div>
             </div>
 
-            <AutoScrollCarousel itemWidth="280px" gap="24px">
+            <AutoScrollCarousel itemWidth="220px" gap="16px">
                 {displayProjects.map((p) => {
                     const slug = p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
                     const propertyUrl = `/properties/${slug}-${p.id}`;

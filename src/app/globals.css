@@ -601,3 +601,29 @@ h3 {
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
 }
+
+/* Profile Page Layout */
+.profile-main-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 24px;
+  align-items: start;
+  padding-top: 24px;
+  padding-bottom: 40px;
+}
+
+.profile-sidebar {
+  position: sticky;
+  top: 24px;
+  /* Adjust based on header height if needed */
+}
+
+@media (max-width: 1024px) {
+  .profile-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-sidebar {
+    position: static;
+  }
+}

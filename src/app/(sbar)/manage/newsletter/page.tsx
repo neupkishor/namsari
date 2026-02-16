@@ -1,7 +1,14 @@
 import prisma from '@/lib/prisma';
 import NewsletterClient from '@/app/(sbar)/manage/newsletter/NewsletterClient';
+import { getCurrentUser } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
 export default async function NewsletterPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+    const user = await getCurrentUser();
+    if (!user || (user.type !== 'admin' && !user.type?.includes('admin')) || user.operatingId) {
+        redirect('/manage');
+    }
+
     const { page: pageParam } = await searchParams;
     const page = Number(pageParam) || 1;
     const limit = 10;

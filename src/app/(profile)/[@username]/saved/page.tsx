@@ -1,7 +1,7 @@
 import prisma from '@/lib/prisma';
 import { notFound, redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
-import { PropertyCard } from '@/components/cards/PropertyCard';
+import { SavedPropertyCard } from '@/components/cards/SavedPropertyCard';
 
 interface PageProps {
     params: Promise<{
@@ -17,7 +17,7 @@ export default async function ProfileSavedPage({ params }: PageProps) {
     if (!decoded.startsWith('@')) return notFound();
     decoded = decoded.substring(1);
 
-    const user = await prisma.account.findUnique({
+    const user = await prisma.user.findUnique({
         where: { username: decoded }
     });
 
@@ -109,9 +109,9 @@ export default async function ProfileSavedPage({ params }: PageProps) {
     }
 
     return (
-        <div className="profile-property-grid">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {enrichedProperties.map((p) => (
-                <PropertyCard key={p.id} property={p} />
+                <SavedPropertyCard key={p.id} property={p} />
             ))}
         </div>
     );

@@ -8,7 +8,7 @@ async function checkAdmin() {
     const session = await getSession();
     if (!session?.id) return false;
 
-    const user = await prisma.account.findUnique({
+    const user = await prisma.user.findUnique({
         where: { id: parseInt(session.id) },
         include: { role: true }
     });
@@ -125,7 +125,7 @@ export async function getUsersWithRoles() {
   if (!isAdmin) return { success: false, error: 'Unauthorized' };
 
   try {
-    const users = await prisma.account.findMany({
+    const users = await prisma.user.findMany({
       select: {
         id: true,
         username: true,
@@ -158,7 +158,7 @@ export async function getUserPermissions(userId: number) {
   if (!isAdmin) return { success: false, error: 'Unauthorized' };
 
   try {
-    const user = await prisma.account.findUnique({
+    const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -195,7 +195,7 @@ export async function assignRoleToUser(userId: number, roleId: number | null) {
   if (!isAdmin) return { success: false, error: 'Unauthorized' };
 
   try {
-    const user = await prisma.account.update({
+    const user = await prisma.user.update({
       where: { id: userId },
       data: { roleId }
     });
@@ -208,12 +208,12 @@ export async function assignRoleToUser(userId: number, roleId: number | null) {
   }
 }
 
-export async function grantAccountPermission(ownerId: number, actorId: number, permissions: string) {
+export async function grantUserPermission(ownerId: number, actorId: number, permissions: string) {
     const isAdmin = await checkAdmin();
     if (!isAdmin) return { success: false, error: 'Unauthorized' };
 
     try {
-      const perm = await prisma.accountPermission.upsert({
+      const perm = await prisma.userPermission.upsert({
         where: {
           ownerId_actorId: {
             ownerId,
@@ -238,12 +238,12 @@ export async function grantAccountPermission(ownerId: number, actorId: number, p
     }
   }
   
-  export async function revokeAccountPermission(ownerId: number, actorId: number) {
+  export async function revokeUserPermission(ownerId: number, actorId: number) {
       const isAdmin = await checkAdmin();
       if (!isAdmin) return { success: false, error: 'Unauthorized' };
 
       try {
-          await prisma.accountPermission.delete({
+          await prisma.userPermission.delete({
               where: {
                   ownerId_actorId: {
                       ownerId,

@@ -20,7 +20,7 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
     // Remove the '@' prefix
     decoded = decoded.substring(1);
 
-    const user = await prisma.account.findUnique({
+    const user = await prisma.user.findUnique({
         where: { username: decoded }
     });
 

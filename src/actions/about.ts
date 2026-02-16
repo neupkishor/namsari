@@ -15,7 +15,7 @@ export async function updateAboutContent(data: {
     const session = await getSession();
     if (!session?.id) throw new Error("Unauthorized");
 
-    const user = await prisma.account.findUnique({
+    const user = await prisma.user.findUnique({
         where: { id: parseInt(session.id) },
         include: { role: true }
     });
