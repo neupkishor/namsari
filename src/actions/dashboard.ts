@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth'; // Replace with actual auth method
 import { cookies } from 'next/headers';
+import { Account, Role, RolePermission } from '@prisma/client';
 
 // Helper to calculate date ranges
 const getDateRange = (days: number) => {
@@ -11,8 +12,12 @@ const getDateRange = (days: number) => {
     return date;
 };
 
+type UserWithRole = Account & {
+    role: (Role & { permissions: RolePermission[] }) | null;
+};
+
 // Helper to check permission
-const hasPermission = (user: any, resource: string, action: string) => {
+const hasPermission = (user: UserWithRole, resource: string, action: string) => {
     if (!user?.role?.permissions) return false;
     // Map action levels to numeric values for comparison
     const actionLevels: Record<string, number> = {
@@ -35,7 +40,7 @@ const hasPermission = (user: any, resource: string, action: string) => {
     // We will infer these from role names or specific permission entries if they existed, 
     // but here we will implement logic based on the user's account type and their role permissions.
     
-    const perm = user.role.permissions.find((p: any) => p.resource === resource);
+    const perm = user.role.permissions.find((p) => p.resource === resource);
     if (!perm) return false;
     
     const userLevel = actionLevels[perm.action] || 0;
@@ -49,7 +54,7 @@ export async function getDashboardStats() {
     if (!user) return null;
 
     // Fetch full user with role and permissions
-    const dbUser = await (prisma as any).account.findUnique({
+    const dbUser = await prisma.account.findUnique({
         where: { id: user.id },
         include: {
             role: {
@@ -69,17 +74,17 @@ export async function getDashboardStats() {
 
     // --- Property Stats ---
     // Section 1: My Properties (Always visible for logged in users)
-    const myProperties = await (prisma as any).property.count({ where: { listedById: dbUser.id } });
+    const myProperties = await prisma.property.count({ where: { listedById: dbUser.id } });
     
     // Section 2: Agency Properties (Visible if agency admin)
     let agencyProperties = 0;
     if (dbUser.type === 'agency') {
-        const agents = await (prisma as any).account.findMany({
+        const agents = await prisma.account.findMany({
             where: { agency_id: dbUser.id },
             select: { id: true }
         });
-        const agentIds = agents.map((a: any) => a.id);
-        agencyProperties = await (prisma as any).property.count({
+        const agentIds = agents.map((a) => a.id);
+        agencyProperties = await prisma.property.count({
             where: {
                 OR: [
                     { listedById: dbUser.id },
@@ -93,7 +98,7 @@ export async function getDashboardStats() {
     const isAdmin = dbUser.role?.name?.toLowerCase().includes('admin') || false;
     let allProperties = 0;
     if (isAdmin) {
-        allProperties = await (prisma as any).property.count();
+        allProperties = await prisma.property.count();
     }
 
     stats.properties = {
@@ -111,11 +116,11 @@ export async function getDashboardStats() {
     if (isAdmin) {
         primaryScopeWhere = {};
     } else if (dbUser.type === 'agency') {
-        const agents = await (prisma as any).account.findMany({
+        const agents = await prisma.account.findMany({
             where: { agency_id: dbUser.id },
             select: { id: true }
         });
-        const agentIds = agents.map((a: any) => a.id);
+        const agentIds = agents.map((a) => a.id);
         primaryScopeWhere = {
             OR: [
                 { listedById: dbUser.id },
@@ -131,12 +136,12 @@ export async function getDashboardStats() {
         last7,
         last1
     ] = await Promise.all([
-        (prisma as any).property.count({ where: { ...primaryScopeWhere, created_on: { gte: thirtyDaysAgo } } }),
-        (prisma as any).property.count({ where: { ...primaryScopeWhere, created_on: { gte: sevenDaysAgo } } }),
-        (prisma as any).property.count({ where: { ...primaryScopeWhere, created_on: { gte: oneDayAgo } } })
+        prisma.property.count({ where: { ...primaryScopeWhere, created_on: { gte: thirtyDaysAgo } } }),
+        prisma.property.count({ where: { ...primaryScopeWhere, created_on: { gte: sevenDaysAgo } } }),
+        prisma.property.count({ where: { ...primaryScopeWhere, created_on: { gte: oneDayAgo } } })
     ]);
 
-    const propertyViews = await (prisma as any).property.aggregate({
+    const propertyViews = await prisma.property.aggregate({
         where: primaryScopeWhere,
         _sum: { views: true }
     });
@@ -154,11 +159,11 @@ export async function getDashboardStats() {
     if (isAdmin && hasRequirementView) {
         reqWhere = {};
     } else if (dbUser.type === 'agency') {
-         const agents = await (prisma as any).account.findMany({
+         const agents = await prisma.account.findMany({
             where: { agency_id: dbUser.id },
             select: { id: true }
         });
-        const agentIds = agents.map((a: any) => a.id);
+        const agentIds = agents.map((a) => a.id);
         reqWhere = {
             OR: [
                 { userId: dbUser.id },
@@ -169,7 +174,7 @@ export async function getDashboardStats() {
         reqWhere = { userId: dbUser.id };
     }
 
-    const totalRequirements = await (prisma as any).requirement.count({ where: { ...reqWhere, status: 'active' } });
+    const totalRequirements = await prisma.requirement.count({ where: { ...reqWhere, status: 'active' } });
     stats.requirements = {
         total: totalRequirements
     };
@@ -180,12 +185,12 @@ export async function getDashboardStats() {
     
     if (!isAdmin || !hasFeaturedView) {
         // If not admin, show only own featured properties
-         if (dbUser.type === 'agency') {
-            const agents = await (prisma as any).account.findMany({
+        if (dbUser.type === 'agency') {
+            const agents = await prisma.account.findMany({
                 where: { agency_id: dbUser.id },
                 select: { id: true }
             });
-            const agentIds = agents.map((a: any) => a.id);
+            const agentIds = agents.map((a) => a.id);
             featuredWhere = {
                 isFeatured: true,
                 OR: [
@@ -198,7 +203,7 @@ export async function getDashboardStats() {
         }
     }
 
-    const totalFeatured = await (prisma as any).property.count({ where: featuredWhere });
+    const totalFeatured = await prisma.property.count({ where: featuredWhere });
     stats.featured = {
         total: totalFeatured
     };
@@ -206,7 +211,7 @@ export async function getDashboardStats() {
     // --- Collections ---
     const hasCollectionView = hasPermission(dbUser, 'Collection', 'view');
     if (hasCollectionView) {
-        const totalCollections = await (prisma as any).collection.count();
+        const totalCollections = await prisma.collection.count();
         stats.collections = { total: totalCollections };
     }
 
@@ -222,8 +227,8 @@ export async function getDashboardStats() {
     }
 
     const [totalAds, adViewsAgg] = await Promise.all([
-        (prisma as any).advertisement.count({ where: adWhere }),
-        (prisma as any).advertisement.aggregate({
+        prisma.advertisement.count({ where: adWhere }),
+        prisma.advertisement.aggregate({
             where: adWhere,
             _sum: { views: true }
         })
@@ -348,7 +353,7 @@ export async function getDashboardStats() {
             where: { status: 'open' }, 
             select: { id: true } 
         });
-        const activeIds = activeJobIds.map(j => j.id);
+        const activeIds = activeJobIds.map((j) => j.id);
         const totalApplicants = await prisma.jobApplication.count({
             where: { application_for_id: { in: activeIds } }
         });
@@ -400,7 +405,7 @@ export async function getDashboardStats() {
              }
          });
          
-         stats.banks = banks.map(b => ({
+         stats.banks = banks.map((b) => ({
              name: b.name,
              currentRate: b.rates[0]?.interest || 'N/A',
              lastChange: b.rates[0]?.created_at || 'N/A'

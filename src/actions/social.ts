@@ -13,7 +13,7 @@ export async function toggleLike(propertyId: number) {
     const userId = Number(session.id);
 
     try {
-        const existingLike = await (prisma as any).like.findUnique({
+        const existingLike = await prisma.like.findUnique({
             where: {
                 property_id_user_id: {
                     property_id: propertyId,
@@ -23,11 +23,11 @@ export async function toggleLike(propertyId: number) {
         });
 
         if (existingLike) {
-            await (prisma as any).like.delete({
+            await prisma.like.delete({
                 where: { id: existingLike.id }
             });
         } else {
-            await (prisma as any).like.create({
+            await prisma.like.create({
                 data: {
                     property_id: propertyId,
                     user_id: userId
@@ -56,7 +56,7 @@ export async function addComment(propertyId: number, content: string) {
     const userId = Number(session.id);
 
     try {
-        await (prisma as any).comment.create({
+        await prisma.comment.create({
             data: {
                 content,
                 property_id: propertyId,

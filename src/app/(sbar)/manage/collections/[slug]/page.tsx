@@ -141,7 +141,7 @@ export default async function CollectionManagePage(props: { params: Promise<{ sl
                             </tr>
                         </thead>
                         <tbody>
-                            {collection.properties.map(({ property, added_at }) => (
+                            {collection.properties.map(({ property, added_at }: any) => (
                                 <tr key={property.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                                     <td style={{ padding: '16px 24px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>

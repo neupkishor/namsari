@@ -204,7 +204,7 @@ export async function createPropertyListing(input: CreatePropertyInput) {
     // 3. Wrap in a transaction to ensure atomic operations across multiple tables
     return await prisma.$transaction(async (tx) => {
         // Create the main property record first
-        const property = await tx.property.create({
+        const property = await (tx as any).property.create({
             data: {
                 ...propertyData,
                 slug,
@@ -285,7 +285,7 @@ export async function createPropertyListing(input: CreatePropertyInput) {
         // 4. Handle propertyId logic: if unfilled (same as the id)
         const typedProperty = property as any;
         if (!typedProperty.propertyId) {
-            await tx.property.update({
+            await (tx as any).property.update({
                 where: { id: property.id },
                 data: { propertyId: property.id.toString() }
             });

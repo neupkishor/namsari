@@ -15,7 +15,7 @@ export default async function ProfileAboutPage({ params }: PageProps) {
     if (!decoded.startsWith('@')) return notFound();
     decoded = decoded.substring(1);
 
-    const user = await (prisma as any).account.findUnique({
+    const user = await prisma.account.findUnique({
         where: { username: decoded }
     });
 

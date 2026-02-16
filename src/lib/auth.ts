@@ -8,7 +8,7 @@ export const getSession = cache(async () => {
     if (!userId) return null;
 
     try {
-        const user = await (prisma as any).account.findUnique({
+        const user = await prisma.account.findUnique({
             where: { id: parseInt(userId) },
             select: { id: true, type: true }
         });

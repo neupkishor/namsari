@@ -18,7 +18,7 @@ export default async function NewsletterPage({ searchParams }: { searchParams: P
 
     const totalPages = Math.ceil(totalCount / limit);
 
-    const serializedSubscribers = subscribers.map(sub => ({
+    const serializedSubscribers = subscribers.map((sub: any) => ({
         ...sub,
         createdAt: sub.createdAt.toISOString(),
         updatedAt: sub.updatedAt.toISOString()

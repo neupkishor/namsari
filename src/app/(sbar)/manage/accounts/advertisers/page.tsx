@@ -27,13 +27,13 @@ export default async function ManageAdvertisersPage({ searchParams }: { searchPa
     };
 
     const [users, totalCount] = await Promise.all([
-        (prisma as any)['account'].findMany({
+        prisma.account.findMany({
             where,
             orderBy: { name: 'asc' },
             skip,
             take: limit
         }),
-        (prisma as any)['account'].count({ where })
+        prisma.account.count({ where })
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);
@@ -61,7 +61,7 @@ export default async function ManageAdvertisersPage({ searchParams }: { searchPa
                         No advertisers found in the registry.
                     </div>
                 ) : (
-                    users.map((u: any) => (
+                    users.map((u) => (
                         <Link
                             key={u.id}
                             href={`/manage/accounts/${u.username}`}

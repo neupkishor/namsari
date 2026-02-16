@@ -21,7 +21,7 @@ export default async function FeaturedManagementPage({ searchParams }: { searchP
     const skip = (page - 1) * limit;
 
     const [properties, totalCount] = await Promise.all([
-        (prisma as any).property.findMany({
+        prisma.property.findMany({
             include: {
                 location: true,
                 images: true
@@ -30,7 +30,7 @@ export default async function FeaturedManagementPage({ searchParams }: { searchP
             skip,
             take: limit
         }),
-        (prisma as any).property.count()
+        prisma.property.count()
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);

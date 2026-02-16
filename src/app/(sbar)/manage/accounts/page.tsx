@@ -23,12 +23,12 @@ export default async function ManageUsersPage({ searchParams }: { searchParams: 
     const skip = (page - 1) * limit;
 
     const [users, totalCount] = await Promise.all([
-        (prisma as any).account.findMany({
+        prisma.account.findMany({
             orderBy: { name: 'asc' },
             skip,
             take: limit
         }),
-        (prisma as any).account.count()
+        prisma.account.count()
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);

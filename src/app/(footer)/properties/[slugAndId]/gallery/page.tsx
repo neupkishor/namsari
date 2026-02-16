@@ -13,7 +13,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ slugAn
 
     if (isNaN(id)) return notFound();
 
-    const property = await (prisma as any).property.findUnique({
+    const property = await prisma.property.findUnique({
         where: { id },
         include: { images: true }
     });

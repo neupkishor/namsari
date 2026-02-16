@@ -9,7 +9,7 @@ export async function getCurrentUser() {
     if (!session?.id) return null;
 
     try {
-        const user = await (prisma as any).account.findUnique({
+        const user = await prisma.account.findUnique({
             where: { id: parseInt(session.id) },
             select: {
                 id: true,
@@ -54,7 +54,7 @@ export async function registerAction(formData: FormData) {
     }
 
     // Check if username already exists
-    let existingUser = await (prisma as any).account.findUnique({
+    let existingUser = await prisma.account.findUnique({
         where: { username }
     });
 
@@ -64,7 +64,7 @@ export async function registerAction(formData: FormData) {
         username = `${username}${randomSuffix}`;
         
         // Check again (unlikely to collide, but good practice)
-        existingUser = await (prisma as any).account.findUnique({
+        existingUser = await prisma.account.findUnique({
             where: { username }
         });
         
@@ -74,7 +74,7 @@ export async function registerAction(formData: FormData) {
     }
 
     // Check if email already exists
-    const existingEmail = await (prisma as any).account.findUnique({
+    const existingEmail = await prisma.account.findUnique({
         where: { email }
     });
 
@@ -131,7 +131,7 @@ export async function loginAction(formData: FormData) {
         if (!password) throw new Error("Password is required");
 
         // Find user by username OR email OR contact_number
-        const user = await (prisma as any).account.findFirst({
+        const user = await prisma.account.findFirst({
             where: {
                 OR: [
                     { username: identifier },

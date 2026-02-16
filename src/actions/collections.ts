@@ -16,7 +16,7 @@ export async function createCollection(formData: FormData) {
         throw new Error("Invalid Input");
     }
 
-    await (prisma as any).collection.create({
+    await prisma.collection.create({
         data: {
             name,
             description,
@@ -32,7 +32,7 @@ export async function createCollection(formData: FormData) {
 }
 
 export async function deleteCollection(id: number) {
-    await (prisma as any).collection.delete({
+    await prisma.collection.delete({
         where: { id }
     });
     revalidatePath('/manage/collections');
@@ -41,7 +41,7 @@ export async function deleteCollection(id: number) {
 export async function removePropertyFromCollection(collectionId: number, propertyId: number) {
     if (!collectionId || !propertyId) return;
 
-    await (prisma as any).collectionProperty.deleteMany({
+    await prisma.collectionProperty.deleteMany({
         where: {
             collection_id: collectionId,
             property_id: propertyId
@@ -55,7 +55,7 @@ export async function removePropertyFromCollection(collectionId: number, propert
 export async function removePropertyFromCollectionWithSlug(collectionId: number, propertyId: number, slug: string) {
     if (!collectionId || !propertyId) return;
 
-    await (prisma as any).collectionProperty.deleteMany({
+    await prisma.collectionProperty.deleteMany({
         where: {
             collection_id: collectionId,
             property_id: propertyId

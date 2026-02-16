@@ -4,6 +4,7 @@ import { getBlogPosts } from '@/actions/blog';
 import BlogListClient from '@/app/(sbar)/manage/blog/BlogListClient';
 import { getCurrentUser } from '@/actions/auth';
 import { redirect } from 'next/navigation';
+import { BlogPost } from '@prisma/client';
 
 export default async function BlogManagementPage() {
     const user = await getCurrentUser();
@@ -16,7 +17,7 @@ export default async function BlogManagementPage() {
         redirect('/manage');
     }
 
-    let posts = [];
+    let posts: BlogPost[] = [];
     try {
         posts = await getBlogPosts();
     } catch (e) {

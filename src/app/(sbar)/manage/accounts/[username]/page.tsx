@@ -78,7 +78,7 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
                 <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary)', marginBottom: '20px' }}>Recent Properties</h2>
                 {user.listedProperties.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        {user.listedProperties.map((property) => (
+                        {user.listedProperties.map((property: any) => (
                             <div key={property.id} style={{ display: 'flex', gap: '16px', background: 'white', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                                 <div style={{ width: '80px', height: '80px', borderRadius: '8px', background: '#f1f5f9', flexShrink: 0 }}>
                                     {/* Placeholder for property image, assuming property model has images relation but simplified here since we didn't fetch deep images for list */}

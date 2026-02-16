@@ -33,7 +33,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     const { slugAndId } = resolvedParams;
 
     const session = await getSession();
-    const currentUser = session ? await (prisma as any).account.findUnique({ where: { id: Number(session.id) } }) : null;
+    const currentUser = session ? await prisma.account.findUnique({ where: { id: Number(session.id) } }) : null;
 
     // Extract ID from slug-id format
     const parts = slugAndId.split('-');
@@ -43,7 +43,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     if (isNaN(id)) return notFound();
 
     // Fetch property and settings
-    const property = await (prisma as any).property.findUnique({
+    const property = await prisma.property.findUnique({
         where: { id },
         include: {
             listedBy: true,
@@ -64,13 +64,13 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     if (!property) return notFound();
 
     // Increment view count asynchronously
-    await (prisma as any).property.update({
+    await prisma.property.update({
         where: { id: property.id },
         data: { views: { increment: 1 } }
     });
 
-    const isLiked = session && property.property_likes.some((l: any) => l.user_id === Number(session.id));
-    const images = property.images.map((img: any) => img.url);
+    const isLiked = session && property.property_likes.some((l) => l.user_id === Number(session.id));
+    const images = property.images.map((img) => img.url);
     const locationStr = property.location
         ? `${property.location.area}, ${property.location.district}`
         : 'Unspecified';
@@ -78,10 +78,10 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     const formattedPrice = new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(priceValue).replace('NPR', 'Rs.');
 
     // Fetch recommended properties
-    const recommendedProperties = await (prisma as any).property.findMany({
+    const recommendedProperties = await prisma.property.findMany({
         where: {
             id: { not: id },
-            types: { some: { id: { in: property.types.map((t: any) => t.id) } } }
+            types: { some: { id: { in: property.types.map((t) => t.id) } } }
         },
         take: 3,
         orderBy: { created_on: 'desc' },
@@ -513,14 +513,15 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
                         gap: '32px'
                     }}>
-                        {recommendedProperties.map((p: any) => (
+                        {recommendedProperties.map((p) => (
                             <PropertyCard key={p.id} property={{
                                 id: p.id,
                                 title: p.title,
+                                slug: p.slug || undefined,
                                 price: new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(p.pricing?.price || 0).replace('NPR', 'Rs.'),
                                 location: p.location ? `${p.location.area}, ${p.location.district}` : 'Unspecified',
                                 specs: `${p.features?.bedrooms || 0} Beds • ${p.features?.bathrooms || 0} Baths`,
-                                images: p.images.map((img: any) => img.url)
+                                images: p.images.map((img) => img.url)
                             }} />
                         ))}
                     </div>

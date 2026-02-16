@@ -61,7 +61,7 @@ export default async function ProfileSavedPage({ params }: PageProps) {
         orderBy: { created_at: 'desc' }
     });
 
-    const enrichedProperties = likes.map(like => {
+    const enrichedProperties = likes.map((like) => {
         const p = like.property;
         const authorUser = p.listedBy;
 
@@ -82,15 +82,16 @@ export default async function ProfileSavedPage({ params }: PageProps) {
 
         return {
             ...p,
+            slug: p.slug || undefined,
             price: formattedPrice,
             location: locationStr,
-            images: p.images.map(img => img.url),
+            images: p.images.map((img) => img.url),
             specs: specs,
             likes_count: p.property_likes?.length || 0,
             // Proper author info from the property lister
             author_username: authorUser ? authorUser.username : null,
             author_name: authorUser ? authorUser.name : 'Unknown',
-            author_avatar: (authorUser as any)?.profile_picture || ((authorUser as any)?.name || 'U')[0],
+            author_avatar: authorUser?.profile_picture || (authorUser?.name || 'U')[0],
             timestamp: 'Saved'
         };
     });
@@ -109,7 +110,7 @@ export default async function ProfileSavedPage({ params }: PageProps) {
 
     return (
         <div className="profile-property-grid">
-            {enrichedProperties.map((p: any) => (
+            {enrichedProperties.map((p) => (
                 <PropertyCard key={p.id} property={p} />
             ))}
         </div>

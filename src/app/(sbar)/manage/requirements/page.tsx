@@ -21,7 +21,7 @@ export default async function ManageRequirementsPage({ searchParams }: { searchP
     const totalPages = Math.ceil(totalCount / limit);
 
     // Serialize dates for client
-    const serializedRequirements = requirements.map(req => ({
+    const serializedRequirements = requirements.map((req: any) => ({
         ...req,
         created_at: req.created_at.toISOString(),
         updated_at: req.updated_at.toISOString()

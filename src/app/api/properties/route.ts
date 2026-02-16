@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     }
 
     try {
-        const dbProperties = await (prisma as any).property.findMany({
+        const dbProperties = await prisma.property.findMany({
             where,
             include: {
                 listedBy: true,

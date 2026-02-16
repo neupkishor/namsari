@@ -11,30 +11,30 @@ const generateSlug = (title: string) => {
 };
 
 export async function getSupportArticles(status?: string) {
-    if (!(prisma as any).supportArticle) {
+    if (!prisma.supportArticle) {
         throw new Error("SupportArticle model not found in Prisma client. Please restart your developer server (npm run dev) to refresh the schema.");
     }
     const where = status ? { status } : {};
-    return await (prisma as any).supportArticle.findMany({
+    return await prisma.supportArticle.findMany({
         where,
         orderBy: { created_at: 'desc' }
     });
 }
 
 export async function getSupportArticle(id: number) {
-    if (!(prisma as any).supportArticle) {
+    if (!prisma.supportArticle) {
         throw new Error("SupportArticle model not found in Prisma client.");
     }
-    return await (prisma as any).supportArticle.findUnique({
+    return await prisma.supportArticle.findUnique({
         where: { id }
     });
 }
 
 export async function getSupportArticleBySlug(slug: string) {
-    if (!(prisma as any).supportArticle) {
+    if (!prisma.supportArticle) {
         throw new Error("SupportArticle model not found in Prisma client.");
     }
-    return await (prisma as any).supportArticle.findUnique({
+    return await prisma.supportArticle.findUnique({
         where: { slug }
     });
 }
@@ -46,10 +46,10 @@ export async function createSupportArticle(data: {
     emoji?: string;
     status?: string;
 }) {
-    if (!(prisma as any).supportArticle) {
+    if (!prisma.supportArticle) {
         throw new Error("SupportArticle model not found in Prisma client.");
     }
-    const article = await (prisma as any).supportArticle.create({
+    const article = await prisma.supportArticle.create({
         data: {
             title: data.title,
             slug: generateSlug(data.title),
@@ -70,10 +70,10 @@ export async function updateSupportArticle(id: number, data: {
     emoji?: string;
     status: string;
 }) {
-    if (!(prisma as any).supportArticle) {
+    if (!prisma.supportArticle) {
         throw new Error("SupportArticle model not found in Prisma client.");
     }
-    const article = await (prisma as any).supportArticle.update({
+    const article = await prisma.supportArticle.update({
         where: { id },
         data: {
             title: data.title,
@@ -89,10 +89,10 @@ export async function updateSupportArticle(id: number, data: {
 }
 
 export async function deleteSupportArticle(id: number) {
-    if (!(prisma as any).supportArticle) {
+    if (!prisma.supportArticle) {
         throw new Error("SupportArticle model not found in Prisma client.");
     }
-    await (prisma as any).supportArticle.delete({
+    await prisma.supportArticle.delete({
         where: { id }
     });
     revalidatePath('/manage/support');

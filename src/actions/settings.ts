@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
 export async function getSystemSettings() {
-    if (!(prisma as any).systemSettings) {
+    if (!prisma.systemSettings) {
         return {
             id: 1,
             view_mode: 'classic',
@@ -17,9 +17,9 @@ export async function getSystemSettings() {
     }
 
     try {
-        let settings = await (prisma as any).systemSettings.findFirst();
+        let settings = await prisma.systemSettings.findFirst();
         if (!settings) {
-            settings = await (prisma as any).systemSettings.create({
+            settings = await prisma.systemSettings.create({
                 data: {
                     id: 1,
                     view_mode: 'classic',
@@ -47,12 +47,12 @@ export async function getSystemSettings() {
 }
 
 export async function updateSystemSettings(data: any) {
-    if (!(prisma as any).systemSettings) {
+    if (!prisma.systemSettings) {
         throw new Error("SystemSettings model not available in current Prisma client. Please restart server.");
     }
 
     const settings = await getSystemSettings();
-    await (prisma as any).systemSettings.update({
+    await prisma.systemSettings.update({
         where: { id: settings.id },
         data
     });

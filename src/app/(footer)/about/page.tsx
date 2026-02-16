@@ -7,13 +7,13 @@ export default async function AboutPage() {
     const session = await getSession();
     let user = null;
     if (session?.id) {
-        user = await (prisma as any).account.findUnique({ where: { id: Number(session.id) } });
+        user = await prisma.account.findUnique({ where: { id: Number(session.id) } });
     }
 
     let content = null;
-    if ((prisma as any).aboutContent) {
+    if (prisma.aboutContent) {
         try {
-            content = await (prisma as any).aboutContent.findFirst({
+            content = await prisma.aboutContent.findFirst({
                 where: { id: 1 }
             });
         } catch (e) {

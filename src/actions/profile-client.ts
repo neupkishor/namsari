@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
 
 export async function updateUserProfilePicture(userId: number, url: string) {
-    await (prisma as any).account.update({
+    await prisma.account.update({
         where: { id: userId },
         data: { profile_picture: url }
     });
@@ -33,7 +33,7 @@ export async function updateProfile(userId: number, formData: FormData) {
     }
 
     try {
-        await (prisma as any).account.update({
+        await prisma.account.update({
             where: { id: userId },
             data
         });

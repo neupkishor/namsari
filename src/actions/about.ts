@@ -15,7 +15,7 @@ export async function updateAboutContent(data: {
     const session = await getSession();
     if (!session?.id) throw new Error("Unauthorized");
 
-    const user = await (prisma as any).account.findUnique({
+    const user = await prisma.account.findUnique({
         where: { id: parseInt(session.id) },
         include: { role: true }
     });
@@ -26,12 +26,12 @@ export async function updateAboutContent(data: {
         throw new Error("Forbidden");
     }
 
-    if (!(prisma as any).aboutContent) {
+    if (!prisma.aboutContent) {
         throw new Error("AboutContent model not found in Prisma client. Please restart the developer server (npm run dev) to refresh the database schema.");
     }
     console.log('UPDATING ABOUT CONTENT:', data);
     try {
-        await (prisma as any).aboutContent.upsert({
+        await prisma.aboutContent.upsert({
             where: { id: 1 },
             update: data,
             create: {
@@ -52,7 +52,7 @@ export async function updateAboutContent(data: {
 
 export async function getAboutContent() {
     try {
-        const content = await (prisma as any).aboutContent.findFirst({
+        const content = await prisma.aboutContent.findFirst({
             where: { id: 1 }
         });
         return content;

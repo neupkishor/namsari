@@ -7,7 +7,7 @@ export async function GET(req: Request) {
         const session = await getSession();
         // Ideally check for admin role here
 
-        const subscribers = await (prisma as any).subscriber.findMany({
+        const subscribers = await prisma.subscriber.findMany({
             orderBy: { createdAt: 'desc' }
         });
 
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Email is required' }, { status: 400 });
         }
 
-        const subscriber = await (prisma as any).subscriber.upsert({
+        const subscriber = await prisma.subscriber.upsert({
             where: { email },
             update: { isActive: true },
             create: { email }

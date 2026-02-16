@@ -10,7 +10,7 @@ async function main() {
     const hashedPassword = await bcrypt.default.hash(password, 10);
 
     // Create Admin User
-    const admin = await (prisma as any).account.upsert({
+    const admin = await prisma.account.upsert({
         where: { username: 'neupkishor' },
         update: {
             status: 'active',
@@ -51,7 +51,7 @@ async function main() {
 
     const users = [];
     for (const u of usersData) {
-        const user = await (prisma as any).account.upsert({
+        const user = await prisma.account.upsert({
             where: { username: u.username },
             update: {
                 profile_picture: u.image,
@@ -81,7 +81,7 @@ async function main() {
     console.log(`Seeded ${users.length} fake users.`);
 
     // Create Requirements
-    await (prisma as any).requirement.createMany({
+    await prisma.requirement.createMany({
         data: [
             { userId: users[0].id, mode: 'simple', content: 'Looking for 4BHK House in Bhaisepati, budget 5Cr.' },
             { userId: users[2].id, mode: 'detailed', propertyTypes: 'Land', district: 'Kathmandu', maxPrice: 50000000, remarks: 'Urgent requirement for commercial land.' }
@@ -90,7 +90,7 @@ async function main() {
 
     // Create Collections
     // Create Collections (Upsert to avoid duplicates)
-    const collection = await (prisma as any).collection.upsert({
+    const collection = await prisma.collection.upsert({
         where: { slug: 'luxury-villas-kathmandu' },
         update: {},
         create: {
@@ -124,7 +124,7 @@ async function main() {
         const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
         // Check if property exists to avoid duplicates
-        const existingProperty = await (prisma as any).property.findFirst({
+        const existingProperty = await prisma.property.findFirst({
             where: { slug: slug }
         });
 
@@ -132,7 +132,7 @@ async function main() {
 
         const price = 5000000 + Math.floor(Math.random() * 95000000); // 50L to 10Cr
 
-        const prop = await (prisma as any).property.create({
+        const prop = await prisma.property.create({
             data: {
                 title: title,
                 slug: slug,
@@ -192,7 +192,7 @@ async function main() {
         // Add some to collection
         if (i < 5) {
             // Upsert collection item
-            const existingItem = await (prisma as any).collectionProperty.findFirst({
+            const existingItem = await prisma.collectionProperty.findFirst({
                 where: {
                     collection_id: collection.id,
                     property_id: prop.id
@@ -200,7 +200,7 @@ async function main() {
             });
 
             if (!existingItem) {
-                await (prisma as any).collectionProperty.create({
+                await prisma.collectionProperty.create({
                     data: {
                         collection_id: collection.id,
                         property_id: prop.id
@@ -216,11 +216,11 @@ async function main() {
     const agent2 = users.find(u => u.username === 'anmol_kc');
 
     if (agency && agent1 && agent2) {
-        await (prisma as any).account.update({
+        await prisma.account.update({
             where: { id: agent1.id },
             data: { agency_id: agency.id }
         });
-        await (prisma as any).account.update({
+        await prisma.account.update({
             where: { id: agent2.id },
             data: { agency_id: agency.id }
         });
@@ -229,7 +229,7 @@ async function main() {
 
     // Create Reviews
     if (agency && agent1) {
-        await (prisma as any).review.create({
+        await prisma.review.create({
             data: {
                 rating: 5,
                 comment: "Great agency to work with! Highly recommended.",
@@ -238,7 +238,7 @@ async function main() {
             }
         });
         
-        await (prisma as any).review.create({
+        await prisma.review.create({
             data: {
                 rating: 4,
                 comment: "Professional and timely service.",

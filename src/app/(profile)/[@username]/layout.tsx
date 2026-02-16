@@ -23,7 +23,7 @@ export default async function ProfileLayout({ children, params }: LayoutProps) {
     if (!decoded.startsWith('@')) return notFound();
     decoded = decoded.substring(1);
 
-    const user = await (prisma as any).account.findUnique({
+    const user = await prisma.account.findUnique({
         where: { username: decoded }
     });
 
@@ -32,7 +32,7 @@ export default async function ProfileLayout({ children, params }: LayoutProps) {
     const isOwner = session?.id === user.id.toString();
 
     // Fetch stats for sidebar
-    const listingsCount = await (prisma as any).property.count({
+    const listingsCount = await prisma.property.count({
         where: { listedById: user.id }
     });
 

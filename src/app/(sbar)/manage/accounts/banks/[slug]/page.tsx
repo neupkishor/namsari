@@ -4,9 +4,10 @@ import { updateBank, deleteBank, addBankRate } from '@/actions/banks';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-export default async function BankDetailsPage({ params }: { params: { slug: string } }) {
+export default async function BankDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
     const bank = await prisma.bank.findUnique({
-        where: { slug: params.slug },
+        where: { slug },
         include: {
             rates: {
                 orderBy: { interest_from: 'desc' }
@@ -77,7 +78,7 @@ export default async function BankDetailsPage({ params }: { params: { slug: stri
                                         <td colSpan={3} style={{ padding: '24px', textAlign: 'center', color: '#64748b' }}>No rates recorded yet.</td>
                                     </tr>
                                 ) : (
-                                    bank.rates.map(rate => (
+                                    bank.rates.map((rate: any) => (
                                         <tr key={rate.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                                             <td style={{ padding: '12px 24px', fontWeight: '600', color: 'var(--color-primary)' }}>{rate.interest}%</td>
                                             <td style={{ padding: '12px 24px' }}>{new Date(rate.interest_from).toLocaleDateString()}</td>

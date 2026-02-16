@@ -17,7 +17,7 @@ export async function createAgency(formData: FormData) {
     const twitter = formData.get('twitter') as string;
     const linkedin = formData.get('linkedin') as string;
 
-    await (prisma as any).agency.create({
+    await prisma.agency.create({
         data: {
             name,
             username,
@@ -37,14 +37,14 @@ export async function createAgency(formData: FormData) {
 }
 
 export async function deleteAgency(id: number) {
-    await (prisma as any).agency.delete({
+    await prisma.agency.delete({
         where: { id }
     });
     revalidatePath('/manage/accounts/agencies');
 }
 
 export async function toggleAgencyVerification(id: number, currentStatus: boolean) {
-    await (prisma as any).agency.update({
+    await prisma.agency.update({
         where: { id },
         data: { is_verified: !currentStatus }
     });

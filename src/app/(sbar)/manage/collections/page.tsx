@@ -27,7 +27,7 @@ export default async function CollectionsPage({ searchParams }: { searchParams: 
     const skip = (page - 1) * limit;
 
     const [rawCollections, totalCount] = await Promise.all([
-        (prisma as any).collection.findMany({
+        prisma.collection.findMany({
             where: { user_id: userId },
             include: {
                 properties: {
@@ -50,7 +50,7 @@ export default async function CollectionsPage({ searchParams }: { searchParams: 
             skip,
             take: limit
         }),
-        (prisma as any).collection.count({ where: { user_id: userId } })
+        prisma.collection.count({ where: { user_id: userId } })
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);

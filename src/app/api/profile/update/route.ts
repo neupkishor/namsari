@@ -12,7 +12,7 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { name, bio, contact_number } = body;
 
-        const updatedUser = await (prisma as any).account.update({
+        const updatedUser = await prisma.account.update({
             where: { id: parseInt(session.id) },
             data: {
                 name,

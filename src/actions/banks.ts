@@ -11,7 +11,7 @@ export async function createBank(formData: FormData) {
 
     if (!name) throw new Error('Bank name is required');
 
-    const bank = await (prisma as any).bank.create({
+    const bank = await prisma.bank.create({
         data: {
             name,
             icon,
@@ -28,7 +28,7 @@ export async function updateBank(id: number, formData: FormData) {
     const icon = formData.get('icon') as string;
     const description = formData.get('description') as string;
 
-    const bank = await (prisma as any).bank.update({
+    const bank = await prisma.bank.update({
         where: { id },
         data: {
             name,
@@ -42,7 +42,7 @@ export async function updateBank(id: number, formData: FormData) {
 }
 
 export async function deleteBank(id: number) {
-    await (prisma as any).bank.delete({ where: { id } });
+    await prisma.bank.delete({ where: { id } });
     revalidatePath('/manage/accounts/banks');
     redirect('/manage/accounts/banks');
 }
@@ -54,7 +54,7 @@ export async function addBankRate(bankId: number, formData: FormData) {
 
     if (isNaN(interest) || !from) throw new Error('Invalid rate data');
 
-    await (prisma as any).bankRate.create({
+    await prisma.bankRate.create({
         data: {
             bank_id: bankId,
             interest: interest,
@@ -63,7 +63,7 @@ export async function addBankRate(bankId: number, formData: FormData) {
         }
     });
 
-    const bank = await (prisma as any).bank.findUnique({ where: { id: bankId } });
+    const bank = await prisma.bank.findUnique({ where: { id: bankId } });
 
     revalidatePath('/manage/accounts/banks');
     if (bank) {

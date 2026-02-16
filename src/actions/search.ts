@@ -9,7 +9,7 @@ export async function recordSearch(term: string) {
     const searchTerm = term.trim().toLowerCase();
 
     try {
-        await (prisma as any).searchTerm.upsert({
+        await prisma.searchTerm.upsert({
             where: { term: searchTerm },
             update: {
                 count: { increment: 1 },
@@ -31,7 +31,7 @@ export async function recordSearch(term: string) {
 export async function getTrendingSearches() {
     try {
         // Fetch all search terms ordered by count desc
-        const allTerms = await (prisma as any).searchTerm.findMany({
+        const allTerms = await prisma.searchTerm.findMany({
             orderBy: { count: 'desc' }
         });
 

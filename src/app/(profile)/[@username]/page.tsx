@@ -17,7 +17,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
     if (!decoded.startsWith('@')) return notFound();
     decoded = decoded.substring(1);
 
-    const user = await (prisma as any).account.findUnique({
+    const user = await prisma.account.findUnique({
         where: { username: decoded },
         include: {
             _count: {
@@ -33,7 +33,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
     if (!user) return notFound();
 
     // Fetch latest 3 properties
-    const properties = await (prisma as any).property.findMany({
+    const properties = await prisma.property.findMany({
         where: { listedById: user.id },
         orderBy: { created_on: 'desc' },
         take: 3,
@@ -78,7 +78,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
     });
     
     // Fetch latest 3 reviews
-    const reviews = await (prisma as any).review.findMany({
+    const reviews = await prisma.review.findMany({
         where: { receiver_id: user.id },
         orderBy: { created_at: 'desc' },
         take: 3,
@@ -88,7 +88,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
     // Fetch agents if agency (latest 4)
     let agents: any[] = [];
     if (user.type === 'agency') {
-        agents = await (prisma as any).account.findMany({
+        agents = await prisma.account.findMany({
             where: { agency_id: user.id },
             take: 4,
             include: {

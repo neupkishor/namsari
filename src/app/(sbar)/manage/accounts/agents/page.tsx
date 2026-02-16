@@ -33,13 +33,13 @@ export default async function ManageAgentsPage({ searchParams }: { searchParams:
     }
 
     const [users, totalCount] = await Promise.all([
-        (prisma as any).account.findMany({
+        prisma.account.findMany({
             where,
             orderBy: { name: 'asc' },
             skip,
             take: limit
         }),
-        (prisma as any).account.count({ where })
+        prisma.account.count({ where })
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);

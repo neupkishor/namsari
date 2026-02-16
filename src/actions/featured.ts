@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
 export async function toggleFeatured(propertyId: number) {
-    const property = await (prisma as any).property.findUnique({
+    const property = await prisma.property.findUnique({
         where: { id: propertyId }
     });
 

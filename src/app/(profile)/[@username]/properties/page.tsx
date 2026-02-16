@@ -20,14 +20,14 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
     // Remove the '@' prefix
     decoded = decoded.substring(1);
 
-    const user = await (prisma as any).account.findUnique({
+    const user = await prisma.account.findUnique({
         where: { username: decoded }
     });
 
     if (!user) return notFound();
 
     // Fetch user's properties with relations
-    const properties = await (prisma as any).property.findMany({
+    const properties = await prisma.property.findMany({
         where: { listedById: user.id },
         orderBy: { created_on: 'desc' },
         include: {
@@ -42,7 +42,7 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
     });
 
     // Enriched properties for the view
-    const enrichedProperties = properties.map((p: any) => {
+    const enrichedProperties = properties.map((p) => {
         const priceValue = p.pricing?.price || 0;
         const formattedPrice = new Intl.NumberFormat('en-NP', {
             style: 'currency',
@@ -60,13 +60,14 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
 
         return {
             ...p,
+            slug: p.slug || undefined,
             price: formattedPrice,
             location: locationStr,
-            images: p.images.map((img: any) => img.url),
+            images: p.images.map((img) => img.url),
             specs: specs,
             author_username: user.username,
             author_name: user.name,
-            author_avatar: (user as any).profile_picture || (user.name || 'U')[0]
+            author_avatar: user.profile_picture || (user.name || 'U')[0]
         };
     });
 
@@ -82,7 +83,7 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
 
     return (
         <div className="profile-property-grid">
-            {enrichedProperties.map((p: any) => (
+            {enrichedProperties.map((p) => (
                 <PropertyCard key={p.id} property={p} />
             ))}
         </div>

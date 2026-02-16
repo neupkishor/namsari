@@ -15,7 +15,7 @@ async function checkAdmin() {
     const session = await getSession();
     if (!session?.id) return false;
 
-    const user = await (prisma as any).account.findUnique({
+    const user = await prisma.account.findUnique({
         where: { id: parseInt(session.id) },
         include: { role: true }
     });
@@ -26,30 +26,30 @@ async function checkAdmin() {
 }
 
 export async function getBlogPosts(status?: string) {
-    if (!(prisma as any).blogPost) {
+    if (!prisma.blogPost) {
         throw new Error("BlogPost model not found. Restart server.");
     }
     const where = status ? { status } : {};
-    return await (prisma as any).blogPost.findMany({
+    return await prisma.blogPost.findMany({
         where,
         orderBy: { created_at: 'desc' }
     });
 }
 
 export async function getBlogPost(id: number) {
-    if (!(prisma as any).blogPost) {
+    if (!prisma.blogPost) {
         throw new Error("BlogPost model not found.");
     }
-    return await (prisma as any).blogPost.findUnique({
+    return await prisma.blogPost.findUnique({
         where: { id }
     });
 }
 
 export async function getBlogPostBySlug(slug: string) {
-    if (!(prisma as any).blogPost) {
+    if (!prisma.blogPost) {
         throw new Error("BlogPost model not found.");
     }
-    return await (prisma as any).blogPost.findUnique({
+    return await prisma.blogPost.findUnique({
         where: { slug }
     });
 }
@@ -67,10 +67,10 @@ export async function createBlogPost(data: {
         throw new Error("Unauthorized");
     }
 
-    if (!(prisma as any).blogPost) {
+    if (!prisma.blogPost) {
         throw new Error("BlogPost model not found.");
     }
-    const post = await (prisma as any).blogPost.create({
+    const post = await prisma.blogPost.create({
         data: {
             title: data.title,
             slug: generateSlug(data.title),
@@ -100,10 +100,10 @@ export async function updateBlogPost(id: number, data: {
         throw new Error("Unauthorized");
     }
 
-    if (!(prisma as any).blogPost) {
+    if (!prisma.blogPost) {
         throw new Error("BlogPost model not found.");
     }
-    const post = await (prisma as any).blogPost.update({
+    const post = await prisma.blogPost.update({
         where: { id },
         data: {
             title: data.title,
@@ -127,10 +127,10 @@ export async function deleteBlogPost(id: number) {
         throw new Error("Unauthorized");
     }
 
-    if (!(prisma as any).blogPost) {
+    if (!prisma.blogPost) {
         throw new Error("BlogPost model not found.");
     }
-    await (prisma as any).blogPost.delete({
+    await prisma.blogPost.delete({
         where: { id }
     });
     revalidatePath('/manage/blog');

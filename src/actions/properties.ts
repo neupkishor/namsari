@@ -9,7 +9,7 @@ async function checkPropertyAccess(propertyId: number): Promise<boolean> {
     const session = await getSession();
     if (!session?.id) return false;
 
-    const user = await (prisma as any).account.findUnique({
+    const user = await prisma.account.findUnique({
         where: { id: parseInt(session.id) },
         include: { role: true }
     });
@@ -21,7 +21,7 @@ async function checkPropertyAccess(propertyId: number): Promise<boolean> {
         return true;
     }
 
-    const property = await (prisma as any).property.findUnique({
+    const property = await prisma.property.findUnique({
         where: { id: propertyId },
         include: { listedBy: true }
     });
@@ -45,7 +45,7 @@ export async function addPropertyImage(propertyId: number, url: string, imageOf:
         throw new Error("Unauthorized");
     }
 
-    await (prisma as any).propertyImage.create({
+    await prisma.propertyImage.create({
         data: {
             propertyId,
             url,
@@ -58,7 +58,7 @@ export async function addPropertyImage(propertyId: number, url: string, imageOf:
 
 export async function removePropertyImage(imageId: number) {
     // Need to find propertyId from imageId first
-    const image = await (prisma as any).propertyImage.findUnique({
+    const image = await prisma.propertyImage.findUnique({
         where: { id: imageId },
         select: { propertyId: true }
     });
@@ -70,7 +70,7 @@ export async function removePropertyImage(imageId: number) {
         throw new Error("Unauthorized");
     }
 
-    await (prisma as any).propertyImage.delete({
+    await prisma.propertyImage.delete({
         where: { id: imageId }
     });
     revalidatePath(`/manage/properties/[slugAndId]`, 'page');
@@ -82,7 +82,7 @@ export async function updatePropertyStatus(propertyId: number, status: string) {
         throw new Error("Unauthorized");
     }
 
-    await (prisma as any).property.update({
+    await prisma.property.update({
         where: { id: propertyId },
         data: { status }
     });
@@ -95,7 +95,7 @@ export async function updateSoldStatus(propertyId: number, soldStatus: string) {
         throw new Error("Unauthorized");
     }
 
-    await (prisma as any).property.update({
+    await prisma.property.update({
         where: { id: propertyId },
         data: { soldStatus }
     });

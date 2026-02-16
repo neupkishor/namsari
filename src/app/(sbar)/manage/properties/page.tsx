@@ -48,7 +48,7 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
     }
 
     const [properties, totalCount] = await Promise.all([
-        (prisma as any).property.findMany({
+        prisma.property.findMany({
             where: whereClause,
             include: {
                 listedBy: true,
@@ -61,7 +61,7 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
             skip,
             take: limit
         }),
-        (prisma as any).property.count({ where: whereClause })
+        prisma.property.count({ where: whereClause })
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);
