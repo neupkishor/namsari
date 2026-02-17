@@ -36,60 +36,30 @@ export function Header({ user, fullWidth: propFullWidth, children }: { user?: an
                     Namsari<span style={{ color: 'var(--color-gold)', marginLeft: '1px' }}>.</span>
                 </Link>
 
-                {/* Search Bar */}
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'center', maxWidth: '600px', margin: '0 16px' }}>
-                    {/* Desktop Search */}
-                    <div className="desktop-search" style={{ position: 'relative', width: '100%', maxWidth: '480px' }}>
-                        <input
-                            type="text"
-                            placeholder="Search properties..."
-                            style={{
-                                width: '100%',
-                                padding: '10px 16px 10px 42px',
-                                borderRadius: '24px',
-                                border: '1px solid #e2e8f0',
-                                background: '#f8fafc',
-                                fontSize: '0.9rem',
-                                outline: 'none',
-                                transition: 'all 0.2s',
-                                color: 'var(--color-text-main)',
-                                fontFamily: 'inherit'
-                            }}
-                        />
-                        <svg
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            style={{
-                                position: 'absolute',
-                                left: '14px',
-                                top: '50%',
-                                transform: 'translateY(-50%)',
-                                color: '#94a3b8'
-                            }}
-                        >
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                    </div>
-                </div>
-
                 {/* User Actions */}
-                <div style={{ display: 'flex', gap: '8px', fontWeight: '600', fontSize: '0.9rem', alignItems: 'center' }}>
-                    {/* Mobile Search Icon */}
-                    <div className="mobile-search-icon" style={{ marginRight: '8px', cursor: 'pointer' }}>
+                <div style={{ display: 'flex', gap: '8px', fontWeight: '600', fontSize: '0.9rem', alignItems: 'center', marginLeft: 'auto' }}>
+                    {/* Search Icon */}
+                    <div style={{ marginRight: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-text-main)' }}>
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
                     </div>
-
-                    <HeaderProfile user={user} />
+                    
+                    {/* Always Render Container Box with User Icon */}
+                    <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        width: '40px', 
+                        height: '40px', 
+                        borderRadius: '50%', 
+                        background: '#e2e8f0', 
+                        padding: '4px',
+                        overflow: 'hidden'
+                    }}>
+                        <HeaderProfile user={user} />
+                    </div>
                 </div>
             </div>
             {children}
@@ -101,25 +71,13 @@ export function Header({ user, fullWidth: propFullWidth, children }: { user?: an
                 .mobile-only-icon {
                     display: none;
                 }
-                .mobile-search-icon {
-                    display: none;
-                }
-                .desktop-search {
-                    display: block;
-                }
-
+                
                 @media (max-width: 768px) {
                     .desktop-only {
                         display: none !important;
                     }
                     .mobile-only-icon {
                         display: block;
-                    }
-                    .mobile-search-icon {
-                        display: block !important;
-                    }
-                    .desktop-search {
-                        display: none !important;
                     }
                     .layout-container {
                         padding: 0 16px !important;
