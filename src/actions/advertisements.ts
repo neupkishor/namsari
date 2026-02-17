@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/auth';
+import { logActivity } from '@/lib/activity';
 
 export async function getAdvertisements() {
     try {
@@ -56,6 +57,12 @@ export async function createAdvertisement(formData: FormData) {
             }
         });
 
+        await logActivity({
+            activity_type: 'create_advertisement',
+            description: `Created advertisement: ${posted_by || "Untitled Ad"}`,
+            account_id: parseInt(session.id),
+        });
+
         revalidatePath('/manage/advertisements');
         revalidatePath('/'); // Update home page
         return { success: true };
@@ -82,6 +89,12 @@ export async function toggleAdvertisementStatus(id: number) {
             data: { status: newStatus }
         });
 
+        await logActivity({
+            activity_type: 'toggle_advertisement_status',
+            description: `Changed advertisement status from "${ad.status}" to "${newStatus}"`,
+            account_id: parseInt(session.id),
+        });
+
         revalidatePath('/manage/advertisements');
         revalidatePath('/');
         return { success: true };
@@ -98,9 +111,19 @@ export async function deleteAdvertisement(id: number) {
     }
 
     try {
+        const ad = await prisma.advertisement.findUnique({ where: { id } });
+        
         await prisma.advertisement.delete({
             where: { id }
         });
+
+        if (ad) {
+            await logActivity({
+                activity_type: 'delete_advertisement',
+                description: `Deleted advertisement: ${ad.title}`,
+                account_id: parseInt(session.id),
+            });
+        }
 
         revalidatePath('/manage/advertisements');
         revalidatePath('/');

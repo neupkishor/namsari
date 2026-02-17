@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import { createPropertyListing } from '@/lib/services/property';
+import { logActivity } from '@/lib/activity';
 
 export async function createListing(formData: FormData) {
     const session = await getSession();
@@ -147,6 +148,12 @@ export async function createListing(formData: FormData) {
             amenities,
             images,
             features
+        });
+
+        await logActivity({
+            activity_type: 'create_property',
+            description: `Created property listing: ${title}`,
+            account_id: userId,
         });
     } catch (error: any) {
         console.error("Failed to add property:", error);

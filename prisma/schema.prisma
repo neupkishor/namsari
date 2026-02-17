@@ -710,3 +710,17 @@ model Notification {
   isRead      Boolean  @default(false)
   created_at  DateTime @default(now())
 }
+
+model ActivityLog {
+  id              String   @id @default(cuid())
+  temp_account_id String
+  account_id      Int?
+  activity_on     DateTime @default(now())
+  activity_type   String
+  description     String
+  
+  // Metadata for tracking
+  ip_address      String?
+  user_agent      String?
+  device_type     String? // mobile, tablet, desktop
+}

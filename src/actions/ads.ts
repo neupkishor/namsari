@@ -5,6 +5,8 @@ import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 
+import { logActivity } from '@/lib/activity';
+
 // --- Ad Rates Management ---
 
 export async function getAdRates() {
@@ -275,6 +277,16 @@ export async function trackClick(adId: number, sessionId?: string) {
     await prisma.advertisement.update({
         where: { id: adId },
         data: { clicks: { increment: 1 } }
+    });
+
+    // Log to main ActivityLog as well
+    // account_id (permanent) is viewerId if logged in
+    // temp_account_id is sessionId if not logged in (or if both exist, we pass both to let logActivity handle it)
+    await logActivity({
+        activity_type: 'ad_click',
+        description: `Ad #${adId} clicked`,
+        account_id: viewerId,
+        temp_account_id: sessionId
     });
 }
 

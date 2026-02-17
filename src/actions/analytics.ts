@@ -2,6 +2,7 @@
 
 import { headers } from 'next/headers';
 import prisma from '@/lib/prisma';
+import { logActivity } from '@/lib/activity';
 
 export async function trackVisit(sessionId: string, path: string) {
     try {
@@ -20,6 +21,14 @@ export async function trackVisit(sessionId: string, path: string) {
                 user_agent: userAgent,
                 ip_address: ip
             }
+        });
+
+        // Log to ActivityLog as requested
+        await logActivity({
+            activity_type: 'page_visit',
+            description: `visited to "${path}"`,
+            temp_account_id: sessionId,
+            // account_id will be resolved inside logActivity if user is logged in
         });
         
         return { success: true };
