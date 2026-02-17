@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { trackImpression, trackClick } from '@/actions/ads';
 
 interface Ad {
     id: number;
@@ -11,8 +12,35 @@ interface Ad {
 }
 
 export const AdvertisementCard = ({ ad, className }: { ad: Ad, className?: string }) => {
+    const [hasViewed, setHasViewed] = useState(false);
+    const cardRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && !hasViewed) {
+                    setHasViewed(true);
+                    const sessionId = sessionStorage.getItem('namsari_session_id') || undefined;
+                    trackImpression(ad.id, sessionId).catch(console.error);
+                }
+            },
+            { threshold: 0.5 }
+        );
+
+        if (cardRef.current) {
+            observer.observe(cardRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [ad.id, hasViewed]);
+
+    const handleAdClick = () => {
+        const sessionId = sessionStorage.getItem('namsari_session_id') || undefined;
+        trackClick(ad.id, sessionId).catch(console.error);
+    };
+
     const content = (
-        <div className={`card ${className || ''}`} style={{
+        <div ref={cardRef} className={`card ${className || ''}`} style={{
             width: '100%',
             overflow: 'hidden',
             position: 'relative',
@@ -47,7 +75,7 @@ export const AdvertisementCard = ({ ad, className }: { ad: Ad, className?: strin
     );
 
     if (ad.takes_to) {
-        return <Link href={ad.takes_to} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>{content}</Link>;
+        return <Link href={ad.takes_to} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }} onClick={handleAdClick}>{content}</Link>;
     }
     return content;
 };
@@ -55,6 +83,32 @@ export const AdvertisementCard = ({ ad, className }: { ad: Ad, className?: strin
 export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
     const [activeIndex, setActiveIndex] = useState(0);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [isInView, setIsInView] = useState(false);
+
+    // Track visibility of the carousel
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                setIsInView(entries[0].isIntersecting);
+            },
+            { threshold: 0.5 }
+        );
+
+        if (containerRef.current) {
+            observer.observe(containerRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, []);
+
+    // Track impression when slide changes AND is in view
+    useEffect(() => {
+        if (isInView && ads[activeIndex]) {
+            const sessionId = sessionStorage.getItem('namsari_session_id') || undefined;
+            trackImpression(ads[activeIndex].id, sessionId).catch(console.error);
+        }
+    }, [activeIndex, isInView, ads]);
 
     const nextSlide = () => {
         setActiveIndex((prev) => (prev + 1) % ads.length);
@@ -80,10 +134,15 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
         }
     };
 
+    const handleAdClick = (adId: number) => {
+        const sessionId = sessionStorage.getItem('namsari_session_id') || undefined;
+        trackClick(adId, sessionId).catch(console.error);
+    };
+
     if (ads.length === 0) return null;
 
     return (
-        <div className="advertisement-carousel-container" style={{
+        <div ref={containerRef} className="advertisement-carousel-container" style={{
             width: '100%',
             borderRadius: '12px',
             overflow: 'hidden',
@@ -123,7 +182,12 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
                             pointerEvents: idx === activeIndex ? 'auto' : 'none'
                         }}
                     >
-                        <Link href={ad.takes_to || '#'} target={ad.takes_to ? "_blank" : undefined} style={{ display: 'block', width: '100%', height: '100%', cursor: ad.takes_to ? 'pointer' : 'default' }}>
+                        <Link 
+                            href={ad.takes_to || '#'} 
+                            target={ad.takes_to ? "_blank" : undefined} 
+                            style={{ display: 'block', width: '100%', height: '100%', cursor: ad.takes_to ? 'pointer' : 'default' }}
+                            onClick={() => handleAdClick(ad.id)}
+                        >
                             <img
                                 src={ad.image}
                                 alt={`Ad by ${ad.posted_by}`}

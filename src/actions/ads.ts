@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
 
 // --- Ad Rates Management ---
 
@@ -182,7 +183,13 @@ export async function rejectAd(id: number, reason: string) {
 
 // --- Analytics ---
 
-export async function trackImpression(adId: number, viewerId?: number, sessionId?: string, userAgent?: string) {
+export async function trackImpression(adId: number, sessionId?: string) {
+    const session = await getSession();
+    const viewerId = session ? parseInt(session.id) : undefined;
+    
+    const headersList = await headers();
+    const userAgent = headersList.get('user-agent') || 'unknown';
+
     await prisma.adImpression.create({
         data: {
             adId,
@@ -201,7 +208,10 @@ export async function trackImpression(adId: number, viewerId?: number, sessionId
     });
 }
 
-export async function trackClick(adId: number, viewerId?: number, sessionId?: string) {
+export async function trackClick(adId: number, sessionId?: string) {
+    const session = await getSession();
+    const viewerId = session ? parseInt(session.id) : undefined;
+
     await prisma.adClick.create({
         data: {
             adId,
