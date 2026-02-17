@@ -126,10 +126,33 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
     const isManagePage = pathname?.startsWith('/manage');
     const menuGroups = isManagePage ? managementMenuGroups(user) : sidebarMenuGroups(user);
 
+    const allItems = menuGroups.flatMap(g => g.items);
+
     const isActive = (href: string) => {
-        if (href === '/' || href === '/manage') return pathname === href;
-        if (href === '/manage/requirements') return pathname?.startsWith(href);
-        return pathname?.startsWith(href);
+        if (!pathname) return false;
+        
+        // Exact match always wins
+        if (pathname === href) return true;
+        
+        // If it's the root path or manage root, only exact match counts
+        if (href === '/' || href === '/manage') return false;
+
+        // For nested paths, check if we start with it
+        if (pathname.startsWith(href)) {
+             // Find if there is a longer matching href in our menu items
+             const betterMatch = allItems.find(otherItem => 
+                otherItem.href !== href && 
+                otherItem.href.length > href.length &&
+                pathname.startsWith(otherItem.href)
+            );
+
+            // If a longer match exists, this one shouldn't be active
+            if (betterMatch) return false;
+
+            return true;
+        }
+
+        return false;
     };
 
     const isScrollbarVisible = (isScrolling || isHovering) && thumbHeight > 0;
