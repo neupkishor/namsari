@@ -12,7 +12,7 @@ import { AdvertisementCard, AdvertisementCarousel } from '@/components/cards/Adv
 import { BottomNavigation } from '@/components/menu/BottomNavigation';
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
 
-export default function HomeClient({ user, featuredCollections, trendingSearches, featuredProperties = [], featuredAgencies = [], advertisements = [] }: { user: any, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[], advertisements?: any[] }) {
+export default function HomeClient({ user, featuredCollections, trendingSearches, featuredProperties = [], featuredAgencies = [], advertisements = [], categories = [] }: { user: any, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[], advertisements?: any[], categories?: any[] }) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
 
@@ -66,7 +66,20 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
             {isLoading ? (
                 <FeedSkeleton />
             ) : (
-                <FeedView properties={properties} user={user} onRefresh={() => fetchProperties(true)} onLoadMore={() => fetchProperties(false)} isFetchingMore={isFetchingMore} hasMore={hasMore} featuredCollections={featuredCollections} trendingSearches={trendingSearches} featuredProperties={featuredProperties} featuredAgencies={featuredAgencies} advertisements={advertisements} />
+                <FeedView 
+                    properties={properties} 
+                    user={user} 
+                    onRefresh={() => fetchProperties(true)} 
+                    onLoadMore={() => fetchProperties(false)} 
+                    isFetchingMore={isFetchingMore} 
+                    hasMore={hasMore} 
+                    featuredCollections={featuredCollections} 
+                    trendingSearches={trendingSearches} 
+                    featuredProperties={featuredProperties} 
+                    featuredAgencies={featuredAgencies} 
+                    advertisements={advertisements}
+                    categories={categories}
+                />
             )}
 
             {/* Mobile Bottom Navigation */}
@@ -103,7 +116,7 @@ function FeedSkeleton() {
     );
 }
 
-function FeedView({ properties, user, onRefresh, onLoadMore, isFetchingMore, hasMore, featuredCollections, trendingSearches, featuredProperties, featuredAgencies, advertisements = [] }: { properties: any[], user: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[], advertisements?: any[] }) {
+function FeedView({ properties, user, onRefresh, onLoadMore, isFetchingMore, hasMore, featuredCollections, trendingSearches, featuredProperties, featuredAgencies, advertisements = [], categories = [] }: { properties: any[], user: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[], advertisements?: any[], categories?: any[] }) {
     const [activeCommentPostId, setActiveCommentPostId] = React.useState<number | null>(null);
 
     const carouselAds = advertisements?.filter(ad => ad.shows_on_top) || [];
@@ -135,7 +148,7 @@ function FeedView({ properties, user, onRefresh, onLoadMore, isFetchingMore, has
                 }}>
                     <QuickActionsCard user={user} />
 
-                    <PopularCategories />
+                    <PopularCategories categories={categories.length > 0 ? categories : undefined} />
 
                     {/* Top Carousel Advertisement */}
                     {carouselAds.length > 0 && (

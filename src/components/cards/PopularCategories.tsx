@@ -13,6 +13,17 @@ interface PopularCategoriesProps {
     categories?: Category[];
 }
 
+const getIconForCategory = (name: string) => {
+    const n = name.toLowerCase();
+    if (n.includes('house')) return '🏠';
+    if (n.includes('land')) return '🗺️';
+    if (n.includes('flat')) return '🏢';
+    if (n.includes('office')) return '🏨';
+    if (n.includes('shop')) return '🛍️';
+    if (n.includes('apartment')) return '🏘️';
+    return '🏙️';
+};
+
 const defaultCategories: Category[] = [
     { id: 'house', name: 'House', count: 3683, icon: '🏠' },
     { id: 'land', name: 'Land', count: 2009, icon: '🗺️' },
@@ -23,6 +34,12 @@ const defaultCategories: Category[] = [
 ];
 
 export const PopularCategories: React.FC<PopularCategoriesProps> = ({ categories = defaultCategories }) => {
+    // If categories are passed (e.g. from real data), ensure they have icons
+    const displayCategories = categories.map(cat => ({
+        ...cat,
+        icon: cat.icon || getIconForCategory(cat.name)
+    }));
+
     return (
         <section style={{ marginBottom: '0px', marginTop: '24px' }}>
             <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '0px' }}>
@@ -38,7 +55,7 @@ export const PopularCategories: React.FC<PopularCategoriesProps> = ({ categories
                 tabletItemCount={3}
                 mobileItemCount={2}
             >
-                {categories.map((cat) => (
+                {displayCategories.map((cat) => (
                     <Link
                         key={cat.id}
                         href={`/explore?q=${cat.name}`}

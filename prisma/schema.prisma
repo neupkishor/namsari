@@ -213,6 +213,9 @@ model PropertyType {
   id          Int        @id @default(autoincrement())
   name        String     @unique // house, bungalow, land, apartment, commercial space, villa, penthouse
   properties  Property[]
+  
+  // Cache for quick access
+  propertyCount Int       @default(0)
 }
 
 model PropertyPurpose {
@@ -572,6 +575,7 @@ model Advertisement {
   title         String?  // Title for internal reference
   image         String   // URL of the advertisement image
   link          String?  // Redirect URL (renamed from takes_to for clarity)
+  isSponsoredRel Boolean @default(true)
   
   // Relations
   userId        Int?

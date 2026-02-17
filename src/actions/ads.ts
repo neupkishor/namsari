@@ -163,11 +163,15 @@ export async function getAdDetails(id: number) {
     return ad;
 }
 
-export async function approveAd(id: number) {
+export async function approveAd(id: number, isSponsoredRel: boolean = true) {
     // Add admin check
     await prisma.advertisement.update({
         where: { id },
-        data: { status: 'active', rejectionReason: null }
+        data: { 
+            status: 'active', 
+            rejectionReason: null,
+            isSponsoredRel: isSponsoredRel 
+        }
     });
     revalidatePath('/manage/advertisements');
 }
@@ -179,6 +183,54 @@ export async function rejectAd(id: number, reason: string) {
         data: { status: 'rejected', rejectionReason: reason }
     });
     revalidatePath('/manage/advertisements');
+}
+
+export async function updateAdStatus(id: number, status: string, reason?: string) {
+    const session = await getSession();
+    // Strict admin check
+    const user = await prisma.user.findUnique({
+        where: { id: parseInt(session?.id || '0') }
+    });
+    
+    if (user?.type !== 'admin') {
+        throw new Error("Unauthorized");
+    }
+
+    await prisma.advertisement.update({
+        where: { id },
+        data: { 
+            status,
+            rejectionReason: reason || null
+        }
+    });
+    
+    // In a real system, we would log this action to an AuditLog table here
+    // e.g. await prisma.auditLog.create({ ... })
+    
+    revalidatePath('/manage/advertisements');
+    revalidatePath(`/manage/advertisements/${id}`);
+    revalidatePath(`/manage/advertisements/administer/${id}`);
+}
+
+export async function updateAdDetails(id: number, data: { title?: string, link?: string, position?: string, budget?: number, durationDays?: number }) {
+    const session = await getSession();
+    // Strict admin check
+    const user = await prisma.user.findUnique({
+        where: { id: parseInt(session?.id || '0') }
+    });
+    
+    if (user?.type !== 'admin') {
+        throw new Error("Unauthorized");
+    }
+
+    await prisma.advertisement.update({
+        where: { id },
+        data
+    });
+    
+    revalidatePath('/manage/advertisements');
+    revalidatePath(`/manage/advertisements/${id}`);
+    revalidatePath(`/manage/advertisements/administer/${id}`);
 }
 
 // --- Analytics ---

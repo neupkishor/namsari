@@ -8,12 +8,22 @@ interface Ad {
     id: number;
     image: string;
     takes_to?: string | null;
+    link?: string | null;
     posted_by?: string | null;
+    isSponsoredRel?: boolean;
 }
 
 export const AdvertisementCard = ({ ad, className }: { ad: Ad, className?: string }) => {
     const [hasViewed, setHasViewed] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
+
+    // Use link or takes_to (fallback)
+    const destinationUrl = ad.link || ad.takes_to;
+    const relAttributes = [
+        "noopener", 
+        "noreferrer", 
+        ad.isSponsoredRel ? "sponsored" : ""
+    ].filter(Boolean).join(" ");
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -46,36 +56,52 @@ export const AdvertisementCard = ({ ad, className }: { ad: Ad, className?: strin
             position: 'relative',
             padding: 0
         }}>
-            <img
-                src={ad.image}
-                alt="Advertisement"
-                style={{
+            <style jsx>{`
+                .ad-wrapper {
+                    position: relative;
+                    width: 100%;
+                    padding-top: 44.44%; /* 18:8 Aspect Ratio */
+                }
+            `}</style>
+            <div className="ad-wrapper">
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
                     width: '100%',
-                    height: 'auto',
-                    display: 'block',
-                    maxHeight: '500px',
-                    objectFit: 'cover'
-                }}
-            />
-            <div style={{
-                position: 'absolute',
-                top: '8px',
-                right: '8px',
-                background: 'rgba(0,0,0,0.6)',
-                color: 'white',
-                padding: '2px 6px',
-                borderRadius: '4px',
-                fontSize: '0.65rem',
-                fontWeight: '600',
-                backdropFilter: 'blur(4px)'
-            }}>
-                Sponsored {ad.posted_by ? `by ${ad.posted_by}` : ''}
+                    height: '100%'
+                }}>
+                    <img
+                        src={ad.image}
+                        alt="Advertisement"
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            display: 'block',
+                            objectFit: 'cover'
+                        }}
+                    />
+                    <div style={{
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        background: 'rgba(0,0,0,0.6)',
+                        color: 'white',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        fontSize: '0.65rem',
+                        fontWeight: '600',
+                        backdropFilter: 'blur(4px)'
+                    }}>
+                        Sponsored {ad.posted_by ? `by ${ad.posted_by}` : ''}
+                    </div>
+                </div>
             </div>
         </div>
     );
 
-    if (ad.takes_to) {
-        return <Link href={ad.takes_to} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }} onClick={handleAdClick}>{content}</Link>;
+    if (destinationUrl) {
+        return <Link href={destinationUrl} target="_blank" rel={relAttributes} style={{ display: 'block' }} onClick={handleAdClick}>{content}</Link>;
     }
     return content;
 };
@@ -153,7 +179,7 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
                 .carousel-wrapper {
                      position: relative;
                      width: 100%;
-                     padding-top: 35%; /* Desktop Aspect Ratio */
+                     padding-top: 44.44%; /* 18:8 Aspect Ratio for Desktop */
                 }
                 @media (max-width: 768px) {
                     .carousel-wrapper {
@@ -167,51 +193,57 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
                 }
             `}</style>
             <div className="carousel-wrapper">
-                {ads.map((ad, idx) => (
-                    <div
-                        key={`${ad.id}-${idx}`}
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            opacity: idx === activeIndex ? 1 : 0,
-                            transition: 'opacity 0.6s ease-in-out',
-                            zIndex: idx === activeIndex ? 1 : 0,
-                            pointerEvents: idx === activeIndex ? 'auto' : 'none'
-                        }}
-                    >
-                        <Link 
-                            href={ad.takes_to || '#'} 
-                            target={ad.takes_to ? "_blank" : undefined} 
-                            style={{ display: 'block', width: '100%', height: '100%', cursor: ad.takes_to ? 'pointer' : 'default' }}
-                            onClick={() => handleAdClick(ad.id)}
+                {ads.map((ad, idx) => {
+                    const adUrl = ad.link || ad.takes_to;
+                    const adRel = ["noopener", "noreferrer", ad.isSponsoredRel ? "sponsored" : ""].filter(Boolean).join(" ");
+                    
+                    return (
+                        <div
+                            key={`${ad.id}-${idx}`}
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                opacity: idx === activeIndex ? 1 : 0,
+                                transition: 'opacity 0.6s ease-in-out',
+                                zIndex: idx === activeIndex ? 1 : 0,
+                                pointerEvents: idx === activeIndex ? 'auto' : 'none'
+                            }}
                         >
-                            <img
-                                src={ad.image}
-                                alt={`Ad by ${ad.posted_by}`}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            />
-                        </Link>
-                        <div style={{
-                            position: 'absolute',
-                            top: '12px',
-                            right: '12px',
-                            background: 'rgba(0,0,0,0.7)',
-                            color: 'white',
-                            padding: '4px 10px',
-                            borderRadius: '6px',
-                            fontSize: '0.7rem',
-                            fontWeight: '700',
-                            backdropFilter: 'blur(8px)',
-                            letterSpacing: '0.02em',
-                            textTransform: 'uppercase'
-                        }}>
-                            Sponsored {ad.posted_by ? `by ${ad.posted_by}` : ''}
+                            <Link 
+                                href={adUrl || '#'}
+                                target={adUrl ? "_blank" : undefined}
+                                rel={adUrl ? adRel : undefined} 
+                                style={{ display: 'block', width: '100%', height: '100%', cursor: adUrl ? 'pointer' : 'default' }}
+                                onClick={() => handleAdClick(ad.id)}
+                            >
+                                <img
+                                    src={ad.image}
+                                    alt={`Ad by ${ad.posted_by}`}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                            </Link>
+                            <div style={{
+                                position: 'absolute',
+                                top: '12px',
+                                right: '12px',
+                                background: 'rgba(0,0,0,0.7)',
+                                color: 'white',
+                                padding: '4px 10px',
+                                borderRadius: '6px',
+                                fontSize: '0.7rem',
+                                fontWeight: '700',
+                                backdropFilter: 'blur(8px)',
+                                letterSpacing: '0.02em',
+                                textTransform: 'uppercase'
+                            }}>
+                                Sponsored {ad.posted_by ? `by ${ad.posted_by}` : ''}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {/* Navigation Controls */}
