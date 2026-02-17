@@ -131,6 +131,7 @@ export function HeaderProfile({ user }: { user: any }) {
                         alt={displayName}
                         className="profile-image"
                         onError={() => setImageFailed(true)}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
                     />
                 </div>
             );
