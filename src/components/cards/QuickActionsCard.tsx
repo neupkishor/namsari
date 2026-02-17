@@ -11,17 +11,23 @@ interface QuickActionsCardProps {
 export const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ user }) => {
     return (
         <div style={{ marginTop: '0px' }}>
-            <div style={{ marginBottom: '20px' }}>
+            <div style={{ marginBottom: '16px' }}>
                 <h2 style={{
                     fontSize: '1.75rem',
                     fontWeight: '700',
                     color: 'var(--color-primary)',
                     marginBottom: '8px',
-                    letterSpacing: '-0.02em'
+                    letterSpacing: '-0.02em',
+                    marginTop: 0
                 }}>
                     Welcome back, {user?.name?.split(' ')[0] || 'Guest'}
                 </h2>
-                <p style={{ color: 'var(--color-text-muted)', fontSize: '1rem', fontWeight: '400' }}>
+                <p style={{ 
+                    color: 'var(--color-text-muted)', 
+                    fontSize: '1rem', 
+                    fontWeight: '400',
+                    margin: 0
+                }}>
                     Manage your real estate interests with precision.
                 </p>
             </div>

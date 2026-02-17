@@ -110,7 +110,7 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
             <div className="carousel-wrapper">
                 {ads.map((ad, idx) => (
                     <div
-                        key={ad.id}
+                        key={`${ad.id}-${idx}`}
                         style={{
                             position: 'absolute',
                             top: 0,
