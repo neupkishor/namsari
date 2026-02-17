@@ -65,9 +65,6 @@ export function FeaturedCollectionsFeedItem({ collections, className }: { collec
 
     return (
         <section className={className} style={{ marginBottom: '0px' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '16px' }}>
-                Recommended Collections
-            </h2>
             <AutoScrollCarousel 
                 itemWidth="280px" 
                 gap="12px"
@@ -144,7 +141,7 @@ export function FeaturedCollectionsFeedItem({ collections, className }: { collec
                                         fontSize: '0.85rem',
                                         fontWeight: '500'
                                     }}>
-                                        Curated Selection
+                                        {col.properties?.length || 0} Properties
                                     </div>
                                 </div>
                             </div>

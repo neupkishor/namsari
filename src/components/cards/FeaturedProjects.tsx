@@ -24,66 +24,64 @@ export const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ properties =
 
     return (
         <section className={className}>
-            <AutoScrollCarousel itemWidth="220px" gap="16px">
+            <AutoScrollCarousel 
+                itemWidth="280px" 
+                gap="12px"
+                desktopItemCount={3}
+                tabletItemCount={2}
+                mobileItemCount={1.2}
+            >
                 {displayProjects.map((p) => {
                     const slug = p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
                     const propertyUrl = `/properties/${slug}-${p.id}`;
-
-                    // Handle price formatting if not already string (from API)
-                    const displayPrice = typeof p.price === 'string' ? p.price :
-                        p.pricing ? new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(p.pricing.price).replace('NPR', 'NRs.') :
-                            'Price on Request';
-
-                    // Handle location formatting
-                    const displayLocation = typeof p.location === 'string' ? p.location :
-                        p.location ? `${p.location.area}, ${p.location.district}` :
-                            'Location Unspecified';
+                    const imageUrl = p.images?.[0] ? (typeof p.images[0] === 'string' ? p.images[0] : (p.images[0] as any).url) : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80';
 
                     return (
                         <Link key={p.id} href={propertyUrl} style={{ textDecoration: 'none', height: '100%', display: 'block' }}>
-                            <div
-                                className="card"
-                                style={{
-                                    padding: '0',
-                                    overflow: 'hidden',
-                                    borderRadius: 'var(--radius-card)',
-                                    border: '1px solid var(--color-border)',
-                                    background: 'white',
-                                    height: '100%',
-                                }}
-                            >
-                                <div style={{ position: 'relative', height: '220px' }}>
-                                    <img
-                                        src={p.images?.[0] ? (typeof p.images[0] === 'string' ? p.images[0] : (p.images[0] as any).url) : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'}
-                                        alt={p.title}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    />
-                                    <div style={{
-                                        position: 'absolute',
-                                        bottom: '12px',
-                                        left: '12px',
-                                        background: '#e0f2fe',
-                                        color: '#0369a1',
-                                        padding: '6px 12px',
-                                        borderRadius: 'var(--radius-inner)',
-                                        fontSize: '0.8rem',
-                                        fontWeight: '700',
-                                        border: '1px solid #bae6fd'
+                            <div style={{
+                                position: 'relative',
+                                borderRadius: 'var(--radius-inner)',
+                                overflow: 'hidden',
+                                height: '100%',
+                                minHeight: '160px',
+                                background: '#f8fafc',
+                                border: '1px solid var(--color-border)',
+                                cursor: 'pointer'
+                            }}>
+                                <img
+                                    src={imageUrl}
+                                    alt={p.title}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                />
+                                
+                                {/* Overlay with Title */}
+                                <div style={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)',
+                                    padding: '16px',
+                                    paddingTop: '32px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'flex-end'
+                                }}>
+                                    <div style={{ 
+                                        color: 'white', 
+                                        fontWeight: '700', 
+                                        fontSize: '1.1rem', 
+                                        marginBottom: '4px',
+                                        textShadow: '0 2px 4px rgba(0,0,0,0.3)'
                                     }}>
-                                        {displayPrice}
-                                    </div>
-                                </div>
-
-                                <div style={{ padding: '20px' }}>
-                                    <p style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: '700', textTransform: 'uppercase', marginBottom: '4px' }}>
-                                        {p.property_types?.[0] || 'Property'}
-                                    </p>
-                                    <h3 style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '8px', lineHeight: '1.3' }}>
                                         {p.title}
-                                    </h3>
-                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '4px', marginBottom: '16px' }}>
-                                        <span style={{ fontSize: '0.9rem' }}>📍</span>
-                                        <span style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: '1.4' }}>{displayLocation}</span>
+                                    </div>
+                                    <div style={{ 
+                                        color: 'rgba(255,255,255,0.9)', 
+                                        fontSize: '0.85rem',
+                                        fontWeight: '500'
+                                    }}>
+                                        {p.property_types?.[0] || 'Project'}
                                     </div>
                                 </div>
                             </div>
