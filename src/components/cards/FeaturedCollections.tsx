@@ -58,50 +58,100 @@ export function FeaturedCollectionsSection({ collections }: { collections: any[]
     );
 }
 
+import { AutoScrollCarousel } from '@/components/ui';
+
 export function FeaturedCollectionsFeedItem({ collections, className }: { collections: any[], className?: string }) {
     if (!collections || collections.length === 0) return null;
 
-    // Show a horizontal scroll list for feed
     return (
-        <div className={`card ${className || ''}`} style={{ background: 'white', padding: '16px' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '16px', color: 'var(--color-primary-light)' }}>Recommended Collections</h3>
-            <div style={{
-                display: 'flex',
-                gap: '16px',
-                overflowX: 'auto',
-                paddingBottom: '8px',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none'
-            }}>
-                <style dangerouslySetInnerHTML={{ __html: `div::-webkit-scrollbar { display: none; }` }} />
-                {collections.map(col => (
-                    <Link
-                        key={col.id}
-                        href={`/collection/${col.slug}`}
-                        style={{ textDecoration: 'none', color: 'inherit', flexShrink: 0, width: '240px' }}
-                    >
-                        <div style={{ borderRadius: 'var(--radius-inner)', border: '1px solid #f1f5f9', overflow: 'hidden' }}>
-                            <div style={{ height: '140px', background: '#f8fafc' }}>
-                                {col.properties[0]?.property?.images[0]?.url ? (
+        <section className={className} style={{ marginBottom: '0px' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '16px' }}>
+                Recommended Collections
+            </h2>
+            <AutoScrollCarousel 
+                itemWidth="280px" 
+                gap="12px"
+                desktopItemCount={3}
+                tabletItemCount={2}
+                mobileItemCount={1.2}
+            >
+                {collections.map(col => {
+                    // Handle image URL extraction safely
+                    const imageUrl = col.properties?.[0]?.property?.images?.[0]?.url || col.properties?.[0]?.property?.images?.[0];
+                    const hasImage = !!imageUrl;
+
+                    return (
+                        <Link
+                            key={col.id}
+                            href={`/collection/${col.slug}`}
+                            style={{ textDecoration: 'none', height: '100%', display: 'block' }}
+                        >
+                            <div style={{
+                                position: 'relative',
+                                borderRadius: 'var(--radius-inner)',
+                                overflow: 'hidden',
+                                height: '100%',
+                                minHeight: '160px',
+                                background: '#f8fafc',
+                                border: '1px solid var(--color-border)',
+                                cursor: 'pointer'
+                            }}>
+                                {hasImage ? (
                                     <img
-                                        src={col.properties[0].property.images[0].url}
+                                        src={imageUrl}
                                         alt={col.name}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                                     />
                                 ) : (
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontSize: '1.5rem' }}>
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        justifyContent: 'center', 
+                                        height: '100%', 
+                                        color: '#94a3b8', 
+                                        fontSize: '2rem',
+                                        background: 'linear-gradient(45deg, #f1f5f9 25%, #e2e8f0 25%, #e2e8f0 50%, #f1f5f9 50%, #f1f5f9 75%, #e2e8f0 75%, #e2e8f0 100%)',
+                                        backgroundSize: '20px 20px'
+                                    }}>
                                         📁
                                     </div>
                                 )}
+                                
+                                {/* Overlay with Title */}
+                                <div style={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)',
+                                    padding: '16px',
+                                    paddingTop: '32px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'flex-end'
+                                }}>
+                                    <div style={{ 
+                                        color: 'white', 
+                                        fontWeight: '700', 
+                                        fontSize: '1.1rem', 
+                                        marginBottom: '4px',
+                                        textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                                    }}>
+                                        {col.name}
+                                    </div>
+                                    <div style={{ 
+                                        color: 'rgba(255,255,255,0.9)', 
+                                        fontSize: '0.85rem',
+                                        fontWeight: '500'
+                                    }}>
+                                        Curated Selection
+                                    </div>
+                                </div>
                             </div>
-                            <div style={{ padding: '12px' }}>
-                                <div style={{ fontWeight: '600', fontSize: '0.95rem', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{col.name}</div>
-                                <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Curated Selection</div>
-                            </div>
-                        </div>
-                    </Link>
-                ))}
-            </div>
-        </div>
+                        </Link>
+                    );
+                })}
+            </AutoScrollCarousel>
+        </section>
     );
 }

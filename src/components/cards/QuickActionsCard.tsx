@@ -16,7 +16,7 @@ export const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ user }) => {
                     fontSize: '1.75rem',
                     fontWeight: '700',
                     color: 'var(--color-primary)',
-                    marginBottom: '8px',
+                    marginBottom: '0px',
                     letterSpacing: '-0.02em',
                     marginTop: 0
                 }}>
@@ -32,7 +32,13 @@ export const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ user }) => {
                 </p>
             </div>
             
-            <AutoScrollCarousel itemWidth="280px" gap="16px">
+            <AutoScrollCarousel 
+                itemWidth="280px" 
+                gap="12px"
+                desktopItemCount={3}
+                tabletItemCount={2}
+                mobileItemCount={1.2}
+            >
                 <ActionTile
                     title="Post Property"
                     description="List Premium Asset"

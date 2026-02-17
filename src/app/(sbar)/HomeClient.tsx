@@ -2,15 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { toggleLike, addComment } from '@/actions/social';
-import { Input } from '@/components/ui';
 import { useRouter } from 'next/navigation';
 import { QuickActionsCard } from '@/components/cards/QuickActionsCard';
 import { PopularCategories } from '@/components/cards/PopularCategories';
 import { FeaturedProjects } from '@/components/cards/FeaturedProjects';
 import { TrendingSearches } from '@/components/cards/TrendingSearches';
-import { PostPropertyBanner } from '@/components/PostPropertyBanner';
-import { FeaturedCollectionsSection, FeaturedCollectionsFeedItem } from '@/components/cards/FeaturedCollections';
+import { FeaturedCollectionsFeedItem } from '@/components/cards/FeaturedCollections';
 import { AdvertisementCard, AdvertisementCarousel } from '@/components/cards/AdvertisementCard';
 import { BottomNavigation } from '@/components/menu/BottomNavigation';
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';

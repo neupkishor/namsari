@@ -24,11 +24,20 @@ const defaultCategories: Category[] = [
 
 export const PopularCategories: React.FC<PopularCategoriesProps> = ({ categories = defaultCategories }) => {
     return (
-        <section style={{ marginBottom: '0px' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '24px' }}>
+        <section style={{ marginBottom: '0px', marginTop: '24px' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '0px' }}>
                 Popular Categories
             </h2>
-            <AutoScrollCarousel itemWidth="160px" gap="20px">
+            <p style={{ fontSize: '1rem', fontWeight: '400', color: 'var(--color-text-muted)', marginBottom: '16px' }}>
+                Browse the most searched property types.
+            </p>
+            <AutoScrollCarousel 
+                itemWidth="160px" 
+                gap="12px" 
+                desktopItemCount={4}
+                tabletItemCount={3}
+                mobileItemCount={2}
+            >
                 {categories.map((cat) => (
                     <Link
                         key={cat.id}
@@ -44,17 +53,13 @@ export const PopularCategories: React.FC<PopularCategoriesProps> = ({ categories
                                 boxShadow: 'none',
                                 border: '1px solid var(--color-border)',
                                 cursor: 'pointer',
-                                transition: 'transform 0.2s, box-shadow 0.2s',
+                                transition: 'none',
                                 height: '100%'
                             }}
                             onMouseOver={(e) => {
-                                e.currentTarget.style.transform = 'translateY(-4px)';
-                                e.currentTarget.style.boxShadow = '0 10px 20px -5px rgba(0, 0, 0, 0.1)';
                                 e.currentTarget.style.borderColor = '#3b82f6';
                             }}
                             onMouseOut={(e) => {
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = 'none';
                                 e.currentTarget.style.borderColor = 'var(--color-border)';
                             }}
                         >
