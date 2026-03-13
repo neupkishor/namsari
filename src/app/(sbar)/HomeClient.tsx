@@ -278,31 +278,39 @@ function FeedSkeleton() {
                     <div className="w-full h-32 bg-surface animate-pulse rounded-2xl"></div>
 
                     {/* Property Feed Skeleton */}
-                    <div className="w-full flex flex-col gap-6">
+                    <div className="w-full flex flex-col">
                         {[1, 2, 3].map(i => (
-                            <div key={i} className="bg-white rounded-2xl overflow-hidden border border-border flex flex-col sm:flex-row">
-                                {/* Image Section Skeleton */}
-                                <div className="w-full sm:w-[200px] md:w-[240px] flex flex-col flex-shrink-0">
-                                    <div className="aspect-[2/1] sm:aspect-[4/3] bg-surface animate-pulse"></div>
-                                    <div className="flex gap-1 p-1.5 bg-slate-50 border-t border-slate-100">
+                            <div key={i} className="py-4 border-b border-slate-100 last:border-0 flex gap-4">
+                                {/* Left: Image Section Skeleton */}
+                                <div className="w-[120px] sm:w-[160px] flex-shrink-0 flex flex-col gap-2">
+                                    <div className="aspect-square bg-slate-100 animate-pulse rounded-lg"></div>
+                                    <div className="flex gap-1 overflow-hidden">
                                         {[1, 2, 3].map(j => (
-                                            <div key={j} className="w-8 h-8 rounded-md bg-surface animate-pulse"></div>
+                                            <div key={j} className="w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-slate-100 animate-pulse flex-shrink-0"></div>
                                         ))}
                                     </div>
                                 </div>
-                                {/* Content Section Skeleton */}
-                                <div className="flex-1 p-3 sm:p-4 flex flex-col gap-3">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-4 h-4 rounded-full bg-surface animate-pulse"></div>
-                                        <div className="h-3 w-24 bg-surface rounded animate-pulse"></div>
+                                {/* Right: Content Section Skeleton */}
+                                <div className="flex-1 flex flex-col gap-2 py-1">
+                                    {/* Seller Name Skeleton at Top */}
+                                    <div className="h-3 w-32 bg-slate-100 animate-pulse rounded mb-1"></div>
+                                    
+                                    <div className="flex justify-between items-start">
+                                        <div className="h-5 w-3/4 bg-slate-100 animate-pulse rounded"></div>
+                                        <div className="h-5 w-5 bg-slate-100 animate-pulse rounded"></div>
                                     </div>
-                                    <div className="flex flex-col gap-2">
-                                        <div className="h-5 w-3/4 bg-surface rounded animate-pulse"></div>
-                                        <div className="h-3 w-1/2 bg-surface rounded animate-pulse"></div>
+                                    <div className="h-4 w-full bg-slate-100 animate-pulse rounded mt-1"></div>
+                                    <div className="h-4 w-2/3 bg-slate-100 animate-pulse rounded"></div>
+                                    <div className="flex gap-2 items-center mt-2">
+                                        <div className="h-6 w-24 bg-slate-100 animate-pulse rounded-full"></div>
+                                        <div className="h-4 w-16 bg-slate-100 animate-pulse rounded-full"></div>
                                     </div>
-                                    <div className="mt-auto pt-2 flex flex-col gap-2">
-                                        <div className="h-6 w-1/3 bg-surface rounded animate-pulse"></div>
-                                        <div className="h-3 w-1/2 bg-surface rounded animate-pulse"></div>
+                                    <div className="flex justify-between items-center mt-auto">
+                                        <div className="h-4 w-24 bg-slate-100 animate-pulse rounded"></div>
+                                        <div className="h-4 w-12 bg-slate-100 animate-pulse rounded"></div>
+                                    </div>
+                                    <div className="flex justify-end items-center mt-auto">
+                                        <div className="w-6 h-6 bg-slate-100 animate-pulse rounded"></div>
                                     </div>
                                 </div>
                             </div>
