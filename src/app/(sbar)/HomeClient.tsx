@@ -58,9 +58,14 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
     const [hasMore, setHasMore] = useState(true);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
 
-    // Derived ads data
-    const carouselAds = advertisements.filter((ad: any) => ad.type === 'CAROUSEL' || ad.type === 'TOP_BANNER');
-    const feedAds = advertisements.filter((ad: any) => ad.type === 'FEED' || ad.type === 'IN_FEED');
+    // Derived ads data - all active ads can appear in both carousel and feed
+    const activeAds = advertisements.filter((ad: any) => ad.status === 'active').map((ad: any) => ({
+        ...ad,
+        posted_by: ad.posted_by || ad.title // Ensure posted_by is available for the carousel UI
+    }));
+    
+    const carouselAds = activeAds;
+    const feedAds = activeAds;
 
     const fetchProperties = async (reset = false) => {
         if (!reset && (!hasMore || isFetchingMore)) return;
@@ -105,17 +110,17 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
         <div className="bg-[#F8FAFC] min-h-screen">
             {/* Check if the page is loading content */}
             {isLoading ? (
-                <FeedSkeleton />
+                <FeedSkeleton hasCarouselAds={carouselAds.length > 0} />
             ) : (
                 <div className="w-full">
-                    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-                        {/* Advertisement Carousel - Now the very first item */}
-                        {carouselAds.length > 0 && (
-                            <div className="w-full mb-12">
-                                <AdvertisementCarousel ads={carouselAds} />
-                            </div>
-                        )}
+                    {/* Advertisement Carousel - Full Width at Top */}
+                    {carouselAds.length > 0 && (
+                        <div className="w-full mb-8">
+                            <AdvertisementCarousel ads={carouselAds} />
+                        </div>
+                    )}
 
+                    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
                         {/* Featured Properties Section (eSewa Style) */}
                         {featuredProperties && featuredProperties.length > 0 && (
                             <section className="w-full mb-16">
@@ -255,13 +260,15 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
     );
 }
 
-function FeedSkeleton() {
+function FeedSkeleton({ hasCarouselAds = true }: { hasCarouselAds?: boolean }) {
     return (
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-            <div className="w-full flex flex-col">
-                {/* Carousel Skeleton */}
-                <div className="h-[400px] w-full bg-surface animate-pulse rounded-2xl mb-12"></div>
-                
+        <div className="w-full flex flex-col">
+            {/* Carousel Skeleton - Full Width */}
+            {hasCarouselAds && (
+                <div className="h-[400px] w-full bg-surface animate-pulse mb-8"></div>
+            )}
+            
+            <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Featured Properties Skeleton */}
                 <div className="w-full flex flex-col gap-6 mb-16">
                     <div className="h-6 w-1/4 bg-surface rounded animate-pulse"></div>

@@ -39,7 +39,6 @@ export async function createAdvertisement(formData: FormData) {
     const image = formData.get('image') as string;
     const takes_to = formData.get('takes_to') as string;
     const posted_by = formData.get('posted_by') as string;
-    const shows_on_top = formData.get('shows_on_top') === 'true';
 
     if (!image) {
         return { error: "Missing required image" };
@@ -51,7 +50,7 @@ export async function createAdvertisement(formData: FormData) {
                 image,
                 link: takes_to || null,
                 title: posted_by || "Untitled Ad", // Mapping posted_by to title for legacy compatibility
-                position: shows_on_top ? 'banner_top' : 'feed',
+                position: 'global', // Set a default global position
                 status: 'active',
                 userId: parseInt(session.id)
             }

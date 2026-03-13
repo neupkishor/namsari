@@ -71,19 +71,18 @@ export async function createAd(formData: FormData) {
     const title = formData.get('title') as string;
     const image = formData.get('image') as string; // Assuming image upload is handled elsewhere and we get a URL
     const link = formData.get('link') as string;
-    const position = formData.get('position') as string;
     
     // Budget & Duration
     const budget = parseFloat(formData.get('budget') as string) || 0;
     const durationDays = parseInt(formData.get('duration') as string) || 0;
 
-    if (!title || !image || !position) {
+    if (!title || !image) {
         throw new Error("Missing required fields");
     }
 
-    // Calculate Target Views based on active rate
+    // Calculate Target Views based on active rate (global rate)
     const rate = await prisma.adRate.findFirst({
-        where: { position, is_active: true }
+        where: { is_active: true }
     });
     
     let targetViews = 0;
@@ -96,7 +95,7 @@ export async function createAd(formData: FormData) {
             title,
             image,
             link: link || null,
-            position,
+            position: 'global', // Set a default global position
             budget: budget || null,
             durationDays: durationDays || null,
             targetViews: targetViews > 0 ? targetViews : null,

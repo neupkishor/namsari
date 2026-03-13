@@ -13,7 +13,7 @@ export default function CreateAdForm() {
     // New Fields
     const [budget, setBudget] = useState('');
     const [duration, setDuration] = useState('');
-    const [position, setPosition] = useState('feed');
+    // Position field removed as all ads are global
     
     // Rates
     const [rates, setRates] = useState<any[]>([]);
@@ -36,10 +36,11 @@ export default function CreateAdForm() {
 
     useEffect(() => {
         calculateEstimates();
-    }, [budget, duration, position, rates]);
+    }, [budget, duration, rates]);
 
     function calculateEstimates() {
-        const rate = rates.find(r => r.position === position)?.price || 0;
+        // Since all ads are global, we use a single standard rate
+        const rate = rates[0]?.price || 0;
         const budgetVal = parseFloat(budget) || 0;
         const durationVal = parseInt(duration) || 0;
 
@@ -207,19 +208,6 @@ export default function CreateAdForm() {
                             onChange={e => setDuration(e.target.value)}
                         />
                     </div>
-                </div>
-
-                <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Position</label>
-                    <select 
-                        name="position" 
-                        className="form-control"
-                        value={position}
-                        onChange={e => setPosition(e.target.value)}
-                    >
-                        <option value="feed">News Feed</option>
-                        <option value="banner_top">Top Banner</option>
-                    </select>
                 </div>
 
                 {/* Estimate Card */}
