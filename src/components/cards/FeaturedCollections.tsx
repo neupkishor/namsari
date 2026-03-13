@@ -1,51 +1,48 @@
 import Link from 'next/link';
+import { AutoScrollCarousel } from '@/components/ui';
 
 export function FeaturedCollectionsSection({ collections }: { collections: any[] }) {
     if (!collections || collections.length === 0) return null;
 
     return (
-        <section>
-            <div className="layout-container">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--color-primary-light)' }}>
+        <section className="w-full">
+            <div className="max-w-container mx-auto px-4">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-extrabold text-primary-light">
                         Curated Collections
                     </h2>
-                    <Link href="/manage/collections" style={{ color: 'var(--color-primary)', fontWeight: '600', textDecoration: 'none' }}>
+                    <Link href="/manage/collections" className="text-primary font-semibold no-underline hover:underline">
                         Create Yours →
                     </Link>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {collections.map(col => (
                         <Link
                             key={col.id}
                             href={`/collection/${col.slug}`}
-                            style={{ textDecoration: 'none', color: 'inherit' }}
+                            className="no-underline color-inherit group"
                         >
-                            <div className="card" style={{ padding: '0', overflow: 'hidden', height: '100%', border: '1px solid #e2e8f0', background: 'white' }}>
-                                <div style={{ height: '160px', background: '#f8fafc', position: 'relative' }}>
+                            <div className="bg-white rounded-xl overflow-hidden h-full border border-slate-200 shadow-sm transition-shadow hover:shadow-md">
+                                <div className="h-40 bg-slate-50 relative">
                                     {col.properties[0]?.property?.images[0]?.url ? (
                                         <img
                                             src={col.properties[0].property.images[0].url}
                                             alt={col.name}
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                         />
                                     ) : (
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontSize: '2rem' }}>
+                                        <div className="flex items-center justify-center h-full text-slate-400 text-3xl">
                                             📁
                                         </div>
                                     )}
-                                    <div style={{
-                                        position: 'absolute', bottom: '8px', right: '8px', background: 'rgba(0,0,0,0.7)', color: 'white', padding: '2px 8px', borderRadius: 'var(--radius-inner)'
-                                        , fontSize: '0.75rem', fontWeight: '600'
-                                    }}>
-                                        {/* Ideally we count properties or passed specific counts, for now assuming at least 1 if image exists */}
+                                    <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-0.5 rounded text-[10px] font-bold">
                                         Collection
                                     </div>
                                 </div>
-                                <div style={{ padding: '16px' }}>
-                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '4px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{col.name}</h3>
-                                    <p style={{ fontSize: '0.85rem', color: '#64748b', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', height: '2.4em' }}>
+                                <div className="p-4">
+                                    <h3 className="text-lg font-bold mb-1 truncate text-slate-800">{col.name}</h3>
+                                    <p className="text-xs text-slate-500 line-clamp-2 h-[2.4em]">
                                         {col.description || 'No description.'}
                                     </p>
                                 </div>
@@ -58,13 +55,11 @@ export function FeaturedCollectionsSection({ collections }: { collections: any[]
     );
 }
 
-import { AutoScrollCarousel } from '@/components/ui';
-
 export function FeaturedCollectionsFeedItem({ collections, className }: { collections: any[], className?: string }) {
     if (!collections || collections.length === 0) return null;
 
     return (
-        <section className={className} style={{ marginBottom: '0px' }}>
+        <section className={`mb-0 ${className || ''}`}>
             <AutoScrollCarousel 
                 itemWidth="280px" 
                 gap="12px"
@@ -73,7 +68,6 @@ export function FeaturedCollectionsFeedItem({ collections, className }: { collec
                 mobileItemCount={1.2}
             >
                 {collections.map(col => {
-                    // Handle image URL extraction safely
                     const imageUrl = col.properties?.[0]?.property?.images?.[0]?.url || col.properties?.[0]?.property?.images?.[0];
                     const hasImage = !!imageUrl;
 
@@ -81,66 +75,27 @@ export function FeaturedCollectionsFeedItem({ collections, className }: { collec
                         <Link
                             key={col.id}
                             href={`/collection/${col.slug}`}
-                            style={{ textDecoration: 'none', height: '100%', display: 'block' }}
+                            className="no-underline h-full block group"
                         >
-                            <div style={{
-                                position: 'relative',
-                                borderRadius: 'var(--radius-inner)',
-                                overflow: 'hidden',
-                                height: '100%',
-                                minHeight: '160px',
-                                background: '#f8fafc',
-                                border: '1px solid var(--color-border)',
-                                cursor: 'pointer'
-                            }}>
+                            <div className="relative rounded-lg overflow-hidden h-full min-h-[160px] bg-slate-50 border border-gray-100 cursor-pointer">
                                 {hasImage ? (
                                     <img
                                         src={imageUrl}
                                         alt={col.name}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                        className="w-full h-full object-cover block group-hover:scale-105 transition-transform duration-500"
                                     />
                                 ) : (
-                                    <div style={{ 
-                                        display: 'flex', 
-                                        alignItems: 'center', 
-                                        justifyContent: 'center', 
-                                        height: '100%', 
-                                        color: '#94a3b8', 
-                                        fontSize: '2rem',
-                                        background: 'linear-gradient(45deg, #f1f5f9 25%, #e2e8f0 25%, #e2e8f0 50%, #f1f5f9 50%, #f1f5f9 75%, #e2e8f0 75%, #e2e8f0 100%)',
-                                        backgroundSize: '20px 20px'
-                                    }}>
+                                    <div className="flex items-center justify-center h-full text-slate-400 text-3xl bg-[linear-gradient(45deg,#f1f5f9_25%,#e2e8f0_25%,#e2e8f0_50%,#f1f5f9_50%,#f1f5f9_75%,#e2e8f0_75%,#e2e8f0_100%)] bg-[length:20px_20px]">
                                         📁
                                     </div>
                                 )}
                                 
                                 {/* Overlay with Title */}
-                                <div style={{
-                                    position: 'absolute',
-                                    bottom: 0,
-                                    left: 0,
-                                    right: 0,
-                                    background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)',
-                                    padding: '16px',
-                                    paddingTop: '32px',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'flex-end'
-                                }}>
-                                    <div style={{ 
-                                        color: 'white', 
-                                        fontWeight: '700', 
-                                        fontSize: '1.1rem', 
-                                        marginBottom: '4px',
-                                        textShadow: '0 2px 4px rgba(0,0,0,0.3)'
-                                    }}>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 flex flex-col justify-end">
+                                    <div className="text-white font-bold text-lg mb-1 drop-shadow-md">
                                         {col.name}
                                     </div>
-                                    <div style={{ 
-                                        color: 'rgba(255,255,255,0.9)', 
-                                        fontSize: '0.85rem',
-                                        fontWeight: '500'
-                                    }}>
+                                    <div className="text-white/90 text-sm font-medium">
                                         {col.properties?.length || 0} Properties
                                     </div>
                                 </div>

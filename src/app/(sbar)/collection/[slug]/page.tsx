@@ -78,10 +78,10 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '32px' }}>
                             <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#e2e8f0', overflow: 'hidden' }}>
                                 {collection.user.profile_picture ? (
-                                    <img src={collection.user.profile_picture} alt={collection.user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <img src={collection.user.profile_picture} alt={collection.user.name || 'User'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 ) : (
                                     <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', color: '#94a3b8' }}>
-                                        {collection.user.name[0]}
+                                        {(collection.user.name || 'U')[0]}
                                     </div>
                                 )}
                             </div>

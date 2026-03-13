@@ -10,7 +10,7 @@ async function main() {
     const hashedPassword = await bcrypt.default.hash(password, 10);
 
     // Create Admin User
-    const admin = await prisma.account.upsert({
+    const admin = await prisma.user.upsert({
         where: { username: 'neupkishor' },
         update: {
             status: 'active',
@@ -51,7 +51,7 @@ async function main() {
 
     const users = [];
     for (const u of usersData) {
-        const user = await prisma.account.upsert({
+        const user = await prisma.user.upsert({
             where: { username: u.username },
             update: {
                 profile_picture: u.image,
@@ -216,11 +216,11 @@ async function main() {
     const agent2 = users.find(u => u.username === 'anmol_kc');
 
     if (agency && agent1 && agent2) {
-        await prisma.account.update({
+        await prisma.user.update({
             where: { id: agent1.id },
             data: { agency_id: agency.id }
         });
-        await prisma.account.update({
+        await prisma.user.update({
             where: { id: agent2.id },
             data: { agency_id: agency.id }
         });

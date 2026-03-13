@@ -9,7 +9,7 @@ import { PropertyCard } from '@/components/cards/PropertyCard';
 // Dynamically import map to avoid SSR issues
 const MapComponent = dynamic(() => import('./MapComponent'), {
     ssr: false,
-    loading: () => <div className="skeleton" style={{ width: '100%', height: '100%', borderRadius: '12px' }}></div>
+    loading: () => <div className="w-full h-full bg-surface animate-pulse rounded-3xl border border-border"></div>
 });
 
 export default function ExploreClient({ initialUser, initialQuery = '' }: { initialUser: any, initialQuery?: string }) {
@@ -130,33 +130,14 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
     };
 
     return (
-        <main style={{
-            minHeight: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            background: 'white'
-        }}>
+        <main className="min-h-screen flex flex-col bg-white">
             {/* Site Header */}
             <Header user={initialUser} />
 
             {/* Airbnb-style Search Bar */}
-            <div className="explore-header" style={{
-                background: 'white',
-                borderBottom: '1px solid #EBEBEB',
-                padding: '16px 24px',
-                position: 'sticky',
-                top: 'var(--header-height)',
-                zIndex: 40
-            }}>
-                <div style={{
-                    maxWidth: '2520px',
-                    margin: '0 auto',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '16px',
-                    justifyContent: 'space-between'
-                }}>
-                    <div className="search-wrapper" style={{ flex: 1, maxWidth: '500px', position: 'relative' }}>
+            <div className="bg-white border-b border-border px-4 sm:px-6 py-4 sticky top-[var(--header-height)] z-40">
+                <div className="max-w-[2520px] mx-auto flex items-center gap-4 justify-between">
+                    <div className="relative flex-1 max-w-[500px] group">
                         <input
                             type="text"
                             placeholder="Search destinations"
@@ -167,77 +148,30 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
                                     import('@/actions/search').then(mod => mod.recordSearch(searchQuery));
                                 }
                             }}
-                            className="airbnb-search"
-                            style={{
-                                width: '100%',
-                                padding: '14px 48px 14px 20px',
-                                borderRadius: '32px',
-                                border: '1px solid #DDDDDD',
-                                fontSize: '0.95rem',
-                                outline: 'none',
-                                transition: 'box-shadow 0.2s',
-                                boxShadow: '0 1px 2px rgba(0,0,0,0.08)'
-                            }}
+                            className="w-full pl-6 pr-12 py-3.5 rounded-full border border-border text-[15px] font-medium outline-none transition-all duration-300 shadow-sm hover:shadow-md focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
-                        <button style={{
-                            position: 'absolute',
-                            right: '8px',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            background: 'var(--color-primary)',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: '32px',
-                            height: '32px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer'
-                        }}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-white rounded-full w-9 h-9 flex items-center justify-center cursor-pointer transition-transform active:scale-90 hover:bg-primary-light shadow-lg shadow-primary/20">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
                         </button>
                     </div>
 
-                    <div className="results-count" style={{
-                        fontSize: '0.9rem',
-                        color: '#717171',
-                        whiteSpace: 'nowrap'
-                    }}>
-                        {filteredProperties.length} properties
+                    <div className="hidden sm:block text-[13px] font-black text-text-muted uppercase tracking-widest opacity-60">
+                        {filteredProperties.length} properties discovered
                     </div>
                 </div>
             </div>
 
             {/* Mobile Map Toggle Button */}
             <button
-                className="mobile-map-toggle"
+                className="lg:hidden fixed bottom-10 left-1/2 -translate-x-1/2 z-50 bg-text-main text-white px-8 py-4 rounded-full font-black text-[13px] uppercase tracking-widest cursor-pointer flex items-center gap-3 shadow-2xl transition-all active:scale-95 border border-white/10"
                 onClick={() => setShowMap(!showMap)}
-                style={{
-                    display: 'none',
-                    position: 'fixed',
-                    bottom: '24px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    zIndex: 50,
-                    background: '#222222',
-                    color: 'white',
-                    border: 'none',
-                    padding: '14px 24px',
-                    borderRadius: '24px',
-                    fontWeight: '600',
-                    fontSize: '0.95rem',
-                    cursor: 'pointer',
-                    alignItems: 'center',
-                    gap: '8px',
-                    boxShadow: '0 6px 16px rgba(0,0,0,0.12)'
-                }}
             >
                 {showMap ? (
                     <>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="3" y1="12" x2="21" y2="12"></line>
                             <line x1="3" y1="6" x2="21" y2="6"></line>
                             <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -246,7 +180,7 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
                     </>
                 ) : (
                     <>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                             <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
                             <line x1="8" y1="2" x2="8" y2="18"></line>
                             <line x1="16" y1="6" x2="16" y2="22"></line>
@@ -257,39 +191,17 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
             </button>
 
             {/* Airbnb-style Split View */}
-            <div className="split-container" style={{
-                display: 'flex',
-                height: 'calc(100vh - var(--header-height) - 73px)',
-                position: 'relative'
-            }}>
+            <div className="flex flex-1 relative h-[calc(100vh-var(--header-height)-81px)]">
                 {/* Left: Scrollable Property List */}
                 <div
-                    className={`properties-section ${showMap ? 'mobile-hidden' : ''}`}
+                    className={`flex-1 lg:w-1/2 overflow-y-auto custom-scrollbar p-6 lg:p-8 bg-white ${showMap ? 'hidden lg:block' : 'block'}`}
                     onScroll={handleScroll}
-                    style={{
-                        flex: '1',
-                        overflowY: 'auto',
-                        padding: '24px',
-                        background: 'white'
-                    }}
                 >
-                    <div style={{
-                        maxWidth: '1280px',
-                        margin: '0 auto'
-                    }}>
-                        <div className="airbnb-grid" style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                            gap: '24px',
-                            paddingBottom: '80px'
-                        }}>
+                    <div className="max-w-[1280px] mx-auto">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-8 pb-32">
                             {isLoading ? (
                                 Array(12).fill(0).map((_, i) => (
-                                    <div key={i} className="skeleton-card" style={{
-                                        height: '380px',
-                                        borderRadius: '12px',
-                                        background: '#F7F7F7'
-                                    }}></div>
+                                    <div key={i} className="h-[450px] rounded-[2rem] bg-surface animate-pulse border border-border"></div>
                                 ))
                             ) : filteredProperties.map((p) => (
                                 <div
@@ -298,11 +210,7 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
                                     onMouseEnter={() => handleCardHover(p)}
                                     onMouseLeave={() => setHoveredId(null)}
                                     onClick={() => handleCardClick(p)}
-                                    style={{
-                                        cursor: 'pointer',
-                                        transition: 'transform 0.2s',
-                                        transform: hoveredId === p.id ? 'scale(1.02)' : 'scale(1)'
-                                    }}
+                                    className="transition-transform duration-500 hover:scale-[1.02] cursor-pointer h-full"
                                 >
                                     <PropertyCard property={p} />
                                 </div>
@@ -311,58 +219,29 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
 
                         {/* Loading More Indicator */}
                         {isLoadingMore && (
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                padding: '40px 0',
-                                gap: '12px'
-                            }}>
-                                <div style={{
-                                    width: '12px',
-                                    height: '12px',
-                                    borderRadius: '50%',
-                                    background: 'var(--color-primary)',
-                                    animation: 'bounce 1.4s infinite ease-in-out both'
-                                }}></div>
-                                <div style={{
-                                    width: '12px',
-                                    height: '12px',
-                                    borderRadius: '50%',
-                                    background: 'var(--color-primary)',
-                                    animation: 'bounce 1.4s infinite ease-in-out both 0.2s'
-                                }}></div>
-                                <div style={{
-                                    width: '12px',
-                                    height: '12px',
-                                    borderRadius: '50%',
-                                    background: 'var(--color-primary)',
-                                    animation: 'bounce 1.4s infinite ease-in-out both 0.4s'
-                                }}></div>
+                            <div className="flex justify-center py-12 gap-2">
+                                <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]"></div>
+                                <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]"></div>
+                                <div className="w-2 h-2 rounded-full bg-primary animate-bounce"></div>
                             </div>
                         )}
 
                         {/* No More Properties */}
                         {!isLoading && !isLoadingMore && !hasMore && filteredProperties.length > 0 && (
-                            <div style={{
-                                textAlign: 'center',
-                                padding: '40px 0',
-                                color: '#717171',
-                                fontSize: '0.9rem'
-                            }}>
-                                No more properties to load
+                            <div className="text-center py-16 border-t border-border/60">
+                                <div className="inline-block p-4 rounded-full bg-surface border border-border mb-4">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted opacity-40"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                </div>
+                                <p className="text-text-muted text-[13px] font-black tracking-widest uppercase opacity-60">
+                                    You've reached the end of the results.
+                                </p>
                             </div>
                         )}
                     </div>
                 </div>
 
                 {/* Right: Fixed Map */}
-                <div className={`map-section ${!showMap ? 'mobile-hidden' : ''}`} style={{
-                    width: '50%',
-                    height: '100%',
-                    position: 'sticky',
-                    top: 'calc(var(--header-height) + 73px)',
-                    background: '#F7F7F7'
-                }}>
+                <div className={`lg:w-1/2 h-full bg-surface sticky top-[calc(var(--header-height)+81px)] ${!showMap ? 'hidden lg:block' : 'block w-full fixed inset-0 z-40 top-[calc(var(--header-height)+81px)]'}`}>
                     <MapComponent
                         properties={mapProperties}
                         center={mapCenter}
@@ -381,107 +260,6 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
                     />
                 </div>
             </div>
-
-            <style jsx>{`
-                @keyframes bounce {
-                    0%, 80%, 100% {
-                        transform: scale(0);
-                    }
-                    40% {
-                        transform: scale(1);
-                    }
-                }
-
-                .airbnb-search:hover {
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.18) !important;
-                }
-
-                .airbnb-search:focus {
-                    box-shadow: 0 0 0 2px var(--color-primary) !important;
-                }
-
-                /* Desktop: Always show split view */
-                @media (min-width: 1025px) {
-                    .map-section {
-                        display: block !important;
-                    }
-                    .properties-section {
-                        width: 50% !important;
-                    }
-                    .mobile-map-toggle {
-                        display: none !important;
-                    }
-                }
-
-                /* Tablet (768px - 1024px) */
-                @media (min-width: 768px) and (max-width: 1024px) {
-                    .map-section {
-                        width: 45% !important;
-                    }
-                    .properties-section {
-                        width: 55% !important;
-                    }
-                    .airbnb-grid {
-                        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
-                        gap: 20px !important;
-                    }
-                }
-
-                /* Mobile (≤767px) */
-                @media (max-width: 767px) {
-                    .explore-header {
-                        padding: 12px 16px !important;
-                    }
-
-                    .search-wrapper {
-                        max-width: 100% !important;
-                    }
-
-                    .results-count {
-                        display: none;
-                    }
-
-                    .split-container {
-                        height: calc(100vh - var(--header-height) - 61px) !important;
-                    }
-
-                    .properties-section {
-                        width: 100% !important;
-                        padding: 16px !important;
-                    }
-
-                    .map-section {
-                        position: fixed !important;
-                        width: 100% !important;
-                        height: calc(100vh - var(--header-height) - 61px) !important;
-                        top: calc(var(--header-height) + 61px) !important;
-                        left: 0;
-                        z-index: 45;
-                    }
-
-                    .mobile-hidden {
-                        display: none !important;
-                    }
-
-                    .mobile-map-toggle {
-                        display: flex !important;
-                    }
-
-                    .airbnb-grid {
-                        grid-template-columns: 1fr !important;
-                        gap: 16px !important;
-                        padding-bottom: 100px !important;
-                    }
-                }
-
-                /* Small mobile (≤480px) */
-                @media (max-width: 480px) {
-                    .airbnb-search {
-                        font-size: 0.9rem !important;
-                        padding: 12px 44px 12px 16px !important;
-                    }
-                }
-            `}</style>
         </main>
     );
 }

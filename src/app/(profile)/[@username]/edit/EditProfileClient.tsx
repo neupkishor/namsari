@@ -45,7 +45,7 @@ export default function EditProfileClient({ user }: { user: User }) {
                 <ProfileImageUpload
                     userId={user.id}
                     currentImage={user.profile_picture}
-                    userName={user.name}
+                    userName={user.name || ''}
                     isOwner={true}
                 />
                 <p style={{ marginTop: '16px', color: '#64748b', fontSize: '0.9rem' }}>Click the camera icon to update your photo</p>
@@ -56,7 +56,7 @@ export default function EditProfileClient({ user }: { user: User }) {
                     <label style={{ fontWeight: '600', color: '#1e293b' }}>Display Name</label>
                     <input
                         name="name"
-                        defaultValue={user.name}
+                        defaultValue={user.name || ''}
                         required
                         style={{ padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
                     />

@@ -42,7 +42,7 @@ export default async function ProfileReviewsPage({ params }: PageProps) {
             <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '8px' }}>Reviews ({reviews.length})</h2>
 
             {session && session.id && !isSelf && (
-                <ReviewForm receiverId={user.id} receiverName={user.name} />
+                <ReviewForm receiverId={user.id} receiverName={user.name || 'User'} />
             )}
 
             {reviews.length === 0 ? (

@@ -47,7 +47,7 @@ export default async function ProfileAgentsPage({ params }: PageProps) {
 
     return (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '24px' }}>
-            {agents.map((agent) => (
+            {agents.map((agent: any) => (
                 <Link href={`/@${agent.username}`} key={agent.id} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <div className="card" style={{ padding: '24px', textAlign: 'center', transition: 'transform 0.2s', cursor: 'pointer' }}>
                         <div 
@@ -67,7 +67,7 @@ export default async function ProfileAgentsPage({ params }: PageProps) {
                             {agent.profile_picture ? (
                                 <img 
                                     src={agent.profile_picture} 
-                                    alt={agent.name} 
+                                    alt={agent.name || 'Agent'} 
                                     style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                                 />
                             ) : (

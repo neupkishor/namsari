@@ -9,38 +9,15 @@ import { sidebarMenuGroups, managementMenuGroups } from './menu-config';
 
 export function SidebarSkeleton() {
     return (
-        <aside className="feed-sidebar-desktop" style={{
-            width: '280px',
-            flexShrink: 0,
-            position: 'fixed',
-            top: '0px',
-            bottom: '0px',
-            height: '100vh',
-            overflowY: 'auto',
-            paddingRight: '12px',
-            paddingTop: 'calc(var(--header-height) + 24px)',
-            paddingBottom: '120px',
-            borderRight: '1px solid #f1f5f9'
-        }}>
-            <style jsx>{`
-                .feed-sidebar-desktop {
-                    display: none;
-                }
-                @media (min-width: 1025px) {
-                    .feed-sidebar-desktop {
-                        display: block;
-                    }
-                }
-            `}</style>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {[1, 2, 3, 4, 5, 6].map(i => (
-                    <div key={i} className="skeleton" style={{ height: '48px', width: '100%', borderRadius: '8px' }}></div>
-                ))}
-                
-                <div style={{ margin: '16px 0', height: '1px', background: 'rgba(0,0,0,0.05)' }} />
-                
-                {[1, 2, 3, 4].map(i => (
-                    <div key={`sec-${i}`} className="skeleton" style={{ height: '40px', width: '80%', borderRadius: '8px' }}></div>
+        <aside className="w-[var(--sidebar-width)] shrink-0 hidden lg:block h-full border-r border-border bg-white p-6">
+            <div className="flex flex-col gap-6">
+                {[1, 2, 3].map(group => (
+                    <div key={group} className="flex flex-col gap-2">
+                        <div className="h-3 w-16 bg-surface animate-pulse rounded mb-2"></div>
+                        {[1, 2, 3, 4].map(i => (
+                            <div key={i} className="h-10 w-full bg-surface animate-pulse rounded-lg"></div>
+                        ))}
+                    </div>
                 ))}
             </div>
         </aside>
@@ -49,262 +26,100 @@ export function SidebarSkeleton() {
 
 export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
     const pathname = usePathname();
-    const [isDesktop, setIsDesktop] = useState(false);
     const [mounted, setMounted] = useState(false);
-
-    // Custom Scrollbar Logic
-    const scrollRef = useRef<HTMLDivElement>(null);
-    const [thumbHeight, setThumbHeight] = useState(0);
-    const [thumbTop, setThumbTop] = useState(0);
-    const [isScrolling, setIsScrolling] = useState(false);
-    const [isHovering, setIsHovering] = useState(false);
-    const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-    const handleScroll = useCallback(() => {
-        if (!scrollRef.current) return;
-        const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-        
-        if (scrollHeight <= clientHeight) {
-            setThumbHeight(0);
-            return;
-        }
-
-        const minThumbHeight = 30;
-        const height = Math.max((clientHeight / scrollHeight) * clientHeight, minThumbHeight);
-        setThumbHeight(height);
-        
-        const availableScrollSpace = scrollHeight - clientHeight;
-        const availableThumbSpace = clientHeight - height;
-        
-        // Prevent division by zero
-        const scrollRatio = availableScrollSpace > 0 ? scrollTop / availableScrollSpace : 0;
-        const top = scrollRatio * availableThumbSpace;
-        
-        setThumbTop(top);
-        setIsScrolling(true);
-
-        if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-        hideTimeoutRef.current = setTimeout(() => {
-            setIsScrolling(false);
-        }, 1000);
-    }, []);
 
     useEffect(() => {
         setMounted(true);
-        const checkScreen = () => {
-            setIsDesktop(window.innerWidth >= 1025);
-            // Recalculate scrollbar on resize
-            handleScroll();
-        };
-        
-        checkScreen();
-        window.addEventListener('resize', checkScreen);
-        return () => window.removeEventListener('resize', checkScreen);
-    }, [handleScroll]);
+    }, []);
 
-    // Update scrollbar when content might change (e.g. route change)
-    useEffect(() => {
-        // Small delay to allow layout to settle
-        const timer = setTimeout(handleScroll, 100);
-        return () => clearTimeout(timer);
-    }, [pathname, handleScroll, user]);
-
-    // Don't render anything until mounted and we know the screen size
     if (!mounted) return null;
     
-    // Strictly don't render on mobile
-    if (!isDesktop) return null;
-
     if (loading) {
-        return (
-            <div className="desktop-sidebar-wrapper" style={{ width: '280px', flexShrink: 0, height: '100%' }}>
-                <SidebarSkeleton />
-            </div>
-        );
+        return <SidebarSkeleton />;
     }
 
     const isManagePage = pathname?.startsWith('/manage');
     const menuGroups = isManagePage ? managementMenuGroups(user) : sidebarMenuGroups(user);
-
     const allItems = menuGroups.flatMap(g => g.items);
 
     const isActive = (href: string) => {
         if (!pathname) return false;
-        
-        // Exact match always wins
         if (pathname === href) return true;
-        
-        // If it's the root path or manage root, only exact match counts
         if (href === '/' || href === '/manage') return false;
 
-        // For nested paths, check if we start with it
         if (pathname.startsWith(href)) {
-             // Find if there is a longer matching href in our menu items
              const betterMatch = allItems.find(otherItem => 
                 otherItem.href !== href && 
                 otherItem.href.length > href.length &&
                 pathname.startsWith(otherItem.href)
             );
-
-            // If a longer match exists, this one shouldn't be active
             if (betterMatch) return false;
-
             return true;
         }
-
         return false;
     };
 
-    const isScrollbarVisible = (isScrolling || isHovering) && thumbHeight > 0;
-
     return (
-        <div className="desktop-sidebar-wrapper" style={{ width: '280px', flexShrink: 0, height: '100%' }}>
-            <aside 
-                className="feed-sidebar-desktop" 
-                style={{
-                    width: '280px',
-                    flexShrink: 0,
-                    position: 'fixed',
-                    top: '0px',
-                    bottom: '0px',
-                    height: '100vh',
-                    overflow: 'hidden', // Hide native scrollbar on container
-                    borderRight: '1px solid #f1f5f9',
-                    // Moved padding to inner container
-                }}
-                onMouseEnter={() => setIsHovering(true)}
-                onMouseLeave={() => setIsHovering(false)}
-            >
-                <div 
-                    ref={scrollRef}
-                    onScroll={handleScroll}
-                    style={{
-                        height: '100%',
-                        overflowY: 'auto',
-                        paddingRight: '12px',
-                        paddingTop: 'calc(var(--header-height) + 24px)',
-                        paddingBottom: '120px',
-                        scrollbarWidth: 'none', // Firefox
-                        msOverflowStyle: 'none', // IE/Edge
-                    }}
-                    className="sidebar-scroll-viewport"
-                >
-                    <style jsx>{`
-                        .feed-sidebar-desktop {
-                            display: none;
-                        }
-                        @media (min-width: 1025px) {
-                            .feed-sidebar-desktop {
-                                display: block;
-                            }
-                        }
-                        /* Hide Webkit scrollbar */
-                        .sidebar-scroll-viewport::-webkit-scrollbar {
-                            display: none;
-                        }
-                    `}</style>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                        {menuGroups.map((group, groupIdx) => (
-                            <div key={groupIdx}>
-                                {group.title && (
-                                    <div style={{
-                                        fontSize: '0.75rem',
-                                        fontWeight: '700',
-                                        color: '#94a3b8',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.05em',
-                                        marginBottom: '8px',
-                                        paddingLeft: '16px'
-                                    }}>
-                                        {group.title}
-                                    </div>
-                                )}
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    {group.items.map((item, idx) => {
-                                        const active = isActive(item.href);
-                                        
-                                        // Handle Logout Item Special Case
-                                        if (item.label === 'LogOut') {
-                                            return (
-                                                <div
-                                                    key={idx}
-                                                    onClick={() => logoutAction()}
-                                                    style={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '12px',
-                                                        padding: '10px 16px',
-                                                        borderRadius: '8px',
-                                                        cursor: 'pointer',
-                                                        fontSize: '0.95rem',
-                                                        color: '#ef4444',
-                                                        fontWeight: '600',
-                                                        transition: 'background 0.2s'
-                                                    }}
-                                                    onMouseOver={(e) => e.currentTarget.style.background = '#fef2f2'}
-                                                    onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
-                                                >
-                                                    <span style={{ fontSize: '1.2rem' }}>{item.icon}</span>
-                                                    <span>{item.label}</span>
-                                                </div>
-                                            );
-                                        }
-
+        <aside className="w-[var(--sidebar-width)] shrink-0 hidden lg:flex flex-col h-full border-r border-border bg-white">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 pb-24">
+                <div className="flex flex-col gap-8">
+                    {menuGroups.map((group, groupIdx) => (
+                        <div key={groupIdx} className="flex flex-col gap-2">
+                            {group.title && (
+                                <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-widest px-3 mb-1">
+                                    {group.title}
+                                </h3>
+                            )}
+                            <nav className="flex flex-col gap-1">
+                                {group.items.map((item, idx) => {
+                                    const active = isActive(item.href);
+                                    
+                                    if (item.label === 'LogOut') {
                                         return (
-                                            <Link key={idx} href={item.href} style={{ textDecoration: 'none' }}>
-                                                <div style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '12px',
-                                                    padding: '10px 16px',
-                                                    borderRadius: '8px',
-                                                    cursor: 'pointer',
-                                                    fontWeight: active ? '600' : '500',
-                                                    color: active ? 'var(--color-primary)' : '#64748b',
-                                                    backgroundColor: active ? '#eff6ff' : 'transparent',
-                                                    transition: 'all 0.2s',
-                                                    fontSize: '0.95rem'
-                                                }} 
-                                                onMouseOver={(e) => e.currentTarget.style.backgroundColor = active ? '#eff6ff' : '#f1f5f9'} 
-                                                onMouseOut={(e) => e.currentTarget.style.backgroundColor = active ? '#eff6ff' : 'transparent'}
-                                                >
-                                                    <span style={{ fontSize: '1.2rem' }}>{item.icon}</span>
-                                                    <span>{item.label}</span>
-                                                </div>
-                                            </Link>
+                                            <button
+                                                key={idx}
+                                                onClick={() => logoutAction()}
+                                                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] text-red-600 font-semibold transition-colors hover:bg-red-50 w-full text-left"
+                                            >
+                                                <span className="text-xl opacity-80">{item.icon}</span>
+                                                <span>{item.label}</span>
+                                            </button>
                                         );
-                                    })}
-                                </div>
-                            </div>
-                        ))}
+                                    }
 
-                        <div style={{ margin: '0 16px', height: '1px', background: 'rgba(0,0,0,0.05)' }} />
-
-                        <div style={{ padding: '0 16px', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                            Namsari Estate &copy; 2026<br /> Designed by <a href="https://neupgroup.com/marketing" target="_blank" rel="noopener noreferrer">Neup.Marketing</a>
+                                    return (
+                                        <Link 
+                                            key={idx} 
+                                            href={item.href} 
+                                            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-[14px] no-underline ${
+                                                active 
+                                                ? 'font-bold text-primary bg-primary/5 shadow-sm' 
+                                                : 'font-medium text-text-muted hover:bg-surface hover:text-primary'
+                                            }`}
+                                        >
+                                            <span className={`text-xl transition-colors ${active ? 'text-primary' : 'text-text-muted group-hover:text-primary opacity-70'}`}>
+                                                {item.icon}
+                                            </span>
+                                            <span>{item.label}</span>
+                                        </Link>
+                                    );
+                                })}
+                            </nav>
                         </div>
+                    ))}
+
+                    <div className="pt-4 border-t border-border">
+                        <p className="px-3 text-[10px] text-text-muted leading-relaxed">
+                            Namsari Estate &copy; 2026<br /> 
+                            <span className="opacity-70">Designed by </span>
+                            <a href="https://neupgroup.com/marketing" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-semibold">
+                                Neup.Marketing
+                            </a>
+                        </p>
                     </div>
                 </div>
-
-                {/* Custom Scrollbar Thumb */}
-                <div 
-                    style={{
-                        position: 'absolute',
-                        right: '4px',
-                        top: 0,
-                        width: '5px',
-                        height: `${thumbHeight}px`,
-                        transform: `translateY(${thumbTop}px)`,
-                        backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                        borderRadius: '10px',
-                        opacity: isScrollbarVisible ? 1 : 0,
-                        transition: 'opacity 0.3s ease-in-out',
-                        pointerEvents: 'none', // Pass through clicks
-                        zIndex: 50
-                    }}
-                />
-            </aside>
-        </div>
+            </div>
+        </aside>
     );
 }
+

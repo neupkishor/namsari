@@ -26,54 +26,14 @@ export default function HomepageLayout({ children }: { children: React.ReactNode
     }, []);
 
     return (
-        <>
-            <div className="layout-container" style={{
-                display: 'flex',
-                gap: '40px',
-                paddingTop: '24px',
-                paddingBottom: '120px',
-                alignItems: 'flex-start',
-                minHeight: 'calc(100vh - var(--header-height))',
-                maxWidth: 'var(--container-max)',
-                margin: '0 auto',
-                marginTop: 'calc(var(--header-height) + 24px)',
-                paddingLeft: '24px',
-                paddingRight: '24px',
-                width: '100%',
-                position: 'relative'
-            }}>
-
-                <div className="desktop-only">
-                    <Sidebar user={user} loading={loading} />
-                </div>
-
-                <main style={{
-                    flex: 1,
-                    width: '100%',
-                    paddingLeft: '32px'
-                }}>
-                    {children}
-                </main>
+        <div className="flex flex-col lg:flex-row gap-8 items-start min-h-[calc(100vh-var(--header-height))] max-w-[var(--container-max)] mx-auto mt-[var(--header-height)] px-4 lg:px-8 w-full relative bg-surface">
+            <div className="hidden lg:block sticky top-[var(--header-height)] h-[calc(100vh-var(--header-height))] w-[var(--sidebar-width)] flex-shrink-0">
+                <Sidebar user={user} loading={loading} />
             </div>
 
-            <style jsx global>{`
-            @media (max-width: 1024px) {
-                main {
-                    padding-left: 0 !important;
-                }
-                .layout-container {
-                    padding: 0 8px !important;
-                }
-                .desktop-only {
-                    display: none !important;
-                }
-            }
-            @media (min-width: 1025px) {
-                .mobile-only {
-                    display: none !important;
-                }
-            }
-        `}</style>
-        </>
+            <main className="flex-1 w-full py-6 lg:py-8 min-w-0">
+                {children}
+            </main>
+        </div>
     );
 }

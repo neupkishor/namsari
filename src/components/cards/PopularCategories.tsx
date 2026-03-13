@@ -34,67 +34,46 @@ const defaultCategories: Category[] = [
 ];
 
 export const PopularCategories: React.FC<PopularCategoriesProps> = ({ categories = defaultCategories }) => {
-    // If categories are passed (e.g. from real data), ensure they have icons
     const displayCategories = categories.map(cat => ({
         ...cat,
         icon: cat.icon || getIconForCategory(cat.name)
     }));
 
     return (
-        <section style={{ marginBottom: '0px', marginTop: '24px' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '0px' }}>
-                Popular Categories
-            </h2>
-            <p style={{ fontSize: '1rem', fontWeight: '400', color: 'var(--color-text-muted)', marginBottom: '16px' }}>
-                Browse the most searched property types.
-            </p>
+        <section className="w-full py-4">
+            <div className="mb-6 px-2">
+                <h2 className="text-2xl font-black text-text-main tracking-tight leading-none mb-2">
+                    Popular Categories
+                </h2>
+                <p className="text-text-muted text-base font-medium m-0 opacity-70">
+                    Explore the most sought-after property classifications.
+                </p>
+            </div>
+            
             <AutoScrollCarousel 
-                itemWidth="160px" 
-                gap="12px" 
+                itemWidth="180px" 
+                gap="16px" 
                 desktopItemCount={4}
                 tabletItemCount={3}
-                mobileItemCount={2}
+                mobileItemCount={2.2}
             >
                 {displayCategories.map((cat) => (
                     <Link
                         key={cat.id}
                         href={`/explore?q=${cat.name}`}
-                        style={{ textDecoration: 'none', display: 'block', height: '100%' }}
+                        className="no-underline block h-full group"
                     >
                         <div
-                            style={{
-                                background: 'white',
-                                padding: '32px 20px',
-                                borderRadius: 'var(--radius-card)',
-                                textAlign: 'center',
-                                boxShadow: 'none',
-                                border: '1px solid var(--color-border)',
-                                cursor: 'pointer',
-                                transition: 'none',
-                                height: '100%'
-                            }}
-                            onMouseOver={(e) => {
-                                e.currentTarget.style.borderColor = '#3b82f6';
-                            }}
-                            onMouseOut={(e) => {
-                                e.currentTarget.style.borderColor = 'var(--color-border)';
-                            }}
+                            className="bg-white p-8 rounded-2xl text-center border border-border cursor-pointer transition-all duration-500 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 h-full flex flex-col items-center justify-center group"
                         >
-                            <div style={{
-                                width: '64px',
-                                height: '64px',
-                                borderRadius: '50%',
-                                background: '#f0f7ff',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                margin: '0 auto 16px',
-                                fontSize: '2rem'
-                            }}>
+                            <div className="w-20 h-20 rounded-2xl bg-surface flex items-center justify-center mx-auto mb-5 text-4xl transition-all duration-500 group-hover:scale-110 group-hover:bg-primary/5 shadow-inner">
                                 {cat.icon}
                             </div>
-                            <h4 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#334155', marginBottom: '4px' }}>{cat.name}</h4>
-                            <p style={{ fontSize: '0.9rem', color: '#3b82f6', fontWeight: '700' }}>{cat.count}</p>
+                            <h4 className="text-lg font-black text-text-main mb-1 tracking-tight group-hover:text-primary transition-colors">{cat.name}</h4>
+                            <div className="flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
+                                <p className="text-xs text-primary font-black uppercase tracking-widest">{cat.count.toLocaleString()} listings</p>
+                            </div>
                         </div>
                     </Link>
                 ))}

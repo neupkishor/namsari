@@ -8,67 +8,36 @@ export function TrendingSearches({ searches, className }: { searches: string[], 
 
     return (
         <section
-            className={`card ${className || ''}`}
-            style={{
-                width: '100%',
-                padding: '32px',
-                fontFamily: 'inherit',
-                border: '1px solid var(--color-border)'
-            }}
+            className={`w-full p-6 bg-surface border border-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 group ${className || ''}`}
         >
             {/* Header Unit */}
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '28px',
-                flexWrap: 'wrap',
-                gap: '16px'
-            }}>
+            <div className="flex justify-between items-end mb-6">
                 <div>
-                    <h2 style={{
-                        fontSize: '1.5rem',
-                        fontWeight: '700',
-                        color: 'var(--color-primary)',
-                        marginBottom: '4px',
-                        letterSpacing: '-0.02em'
-                    }}>
+                    <h2 className="text-xl font-black text-text-main mb-1.5 flex items-center gap-2 group-hover:text-primary transition-colors">
+                        <span className="w-1.5 h-6 bg-primary rounded-full block" />
                         Trending Searches
                     </h2>
-                    <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', fontWeight: '400' }}>
+                    <p className="text-text-muted text-[13px] font-medium leading-none">
                         Most frequent market queries.
                     </p>
                 </div>
+                <Link 
+                    href="/explore" 
+                    className="text-[12px] font-bold text-primary hover:underline px-3 py-1.5 bg-primary/5 rounded-full transition-colors"
+                >
+                    View All
+                </Link>
             </div>
 
-            {/* Separator */}
-            <div style={{ height: '1px', background: 'var(--color-border)', marginBottom: '28px' }} />
-
             {/* Tags Grid */}
-            <div style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '12px'
-            }}>
+            <div className="flex flex-wrap gap-2.5">
                 {searches.map((term, i) => (
                     <Link
                         key={i}
                         href={`/explore?q=${encodeURIComponent(term)}`}
-                        style={{
-                            color: '#475569',
-                            textDecoration: 'none',
-                            fontSize: '0.9rem',
-                            padding: '10px 14px',
-                            background: '#fcfcfc',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: 'var(--radius-inner)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            fontWeight: '500'
-                        }}
+                        className="text-text-main/80 no-underline text-[13px] py-2.5 px-4 bg-white border border-border rounded-xl flex items-center gap-2.5 font-bold hover:border-primary/30 hover:bg-primary/[0.02] hover:shadow-sm transition-all duration-200 group/tag"
                     >
-                        <span style={{ color: 'var(--color-gold)', fontSize: '1.2rem', opacity: 0.7 }}>•</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/40 group-hover/tag:bg-primary transition-colors" />
                         {term}
                     </Link>
                 ))}

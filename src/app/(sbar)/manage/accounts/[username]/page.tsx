@@ -72,7 +72,7 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
                         <div style={{ width: '120px', height: '120px', borderRadius: '50%', border: '4px solid white', background: 'white', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
                             {user.profile_picture ? (
-                                <img src={user.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={user.name} />
+                                <img src={user.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={user.name || 'User'} />
                             ) : (
                                 <div style={{ width: '100%', height: '100%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', fontWeight: 'bold', color: '#cbd5e1' }}>
                                     {(user.name || 'U')[0].toUpperCase()}

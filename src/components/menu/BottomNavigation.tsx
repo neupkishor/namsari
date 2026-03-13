@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logoutAction } from '@/actions/auth';
-
 import { bottomNavItems, sidebarMenuGroups, managementMenuGroups } from './menu-config';
 
 export function BottomNavigation({ user }: { user?: any }) {
@@ -12,30 +11,82 @@ export function BottomNavigation({ user }: { user?: any }) {
     const [showMobileMenu, setShowMobileMenu] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
+    // Dynamic Visibility Logic
+    const [isVisible, setIsVisible] = useState(true);
+    const lastScrollY = useRef(0);
+    const stopScrollTimer = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            // Don't hide if mobile menu is open
+            if (showMobileMenu) {
+                setIsVisible(true);
+                return;
+            }
+
+            const currentScrollY = window.scrollY;
+            
+            // Clear inactivity timer on any scroll
+            if (stopScrollTimer.current) {
+                clearTimeout(stopScrollTimer.current);
+            }
+
+            // Basic threshold to avoid jitter
+            const scrollDiff = currentScrollY - lastScrollY.current;
+            if (Math.abs(scrollDiff) > 10) {
+                if (scrollDiff > 0 && currentScrollY > 100) {
+                    // SCROLLING DOWN - Hide
+                    setIsVisible(false);
+                } else if (scrollDiff < 0) {
+                    // SCROLLING UP - Show
+                    setIsVisible(true);
+                }
+                lastScrollY.current = currentScrollY;
+            }
+
+            // ALWAYS start inactivity timer on scroll, even if it's small
+            stopScrollTimer.current = setTimeout(() => {
+                setIsVisible(true);
+            }, 2000);
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            if (stopScrollTimer.current) clearTimeout(stopScrollTimer.current);
+        };
+    }, [showMobileMenu]);
+
+    // Ensure visible when menu is toggled
+    useEffect(() => {
+        if (showMobileMenu) {
+            setIsVisible(true);
+        }
+    }, [showMobileMenu]);
+
     // Close menu when path changes
     useEffect(() => {
         setShowMobileMenu(false);
     }, [pathname]);
 
-    // Close menu when clicking outside (e.g. Header, Logo, Search)
+    // Close menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (showMobileMenu && menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                // Determine if the click was on the toggle button
-                // We can check if the target is inside the bottom nav container, but specifically the menu toggle
-                // However, simply closing it is usually safe because the toggle button's onClick will handle the rest.
-                // If the toggle button logic toggles it back, we might have an issue.
-                // Let's rely on the fact that if we click outside, we want it closed.
                 setShowMobileMenu(false);
             }
         };
 
         if (showMobileMenu) {
             document.addEventListener('click', handleClickOutside);
+            document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
+        } else {
+            document.body.style.overflow = '';
         }
         
         return () => {
             document.removeEventListener('click', handleClickOutside);
+            document.body.style.overflow = '';
         };
     }, [showMobileMenu]);
 
@@ -47,147 +98,139 @@ export function BottomNavigation({ user }: { user?: any }) {
         <>
             {/* Mobile Menu Overlay */}
             {showMobileMenu && (
-                <div ref={menuRef} style={{
-                    position: 'fixed',
-                    top: 'var(--header-height)',
-                    left: 0,
-                    right: 0,
-                    bottom: '70px', // Above bottom nav
-                    backgroundColor: 'white',
-                    zIndex: 999,
-                    overflowY: 'auto',
-                    padding: '24px 16px 40px',
-                    animation: 'slideUp 0.3s ease-out'
-                }}>
-                    <style jsx>{`
-                        @keyframes slideUp {
-                            from { transform: translateY(100%); opacity: 0; }
-                            to { transform: translateY(0); opacity: 1; }
-                        }
-                    `}</style>
-                    
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                        {menuGroups.map((group, groupIdx) => (
-                            <div key={groupIdx}>
-                                {group.title && (
-                                    <div style={{
-                                        fontSize: '0.75rem',
-                                        fontWeight: '700',
-                                        color: '#94a3b8',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.05em',
-                                        marginBottom: '8px',
-                                        paddingLeft: '16px'
-                                    }}>
-                                        {group.title}
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] animate-in fade-in duration-300">
+                    <div 
+                        ref={menuRef} 
+                        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] max-h-[85vh] overflow-y-auto px-6 pt-10 pb-24 shadow-2xl animate-in slide-in-from-bottom-full duration-500 ease-out"
+                    >
+                        {/* Pull Bar */}
+                        <div className="absolute top-4 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-slate-200 rounded-full" />
+
+                        <div className="flex flex-col gap-8">
+                            {menuGroups.map((group, groupIdx) => (
+                                <div key={groupIdx} className="flex flex-col gap-4">
+                                    {group.title && (
+                                        <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">
+                                            {group.title}
+                                        </h3>
+                                    )}
+                                    <div className="grid grid-cols-1 gap-2">
+                                        {group.items.map((item, idx) => {
+                                            const active = pathname === item.href;
+                                            return (
+                                                <Link 
+                                                    key={idx} 
+                                                    href={item.href} 
+                                                    onClick={() => setShowMobileMenu(false)} 
+                                                    className={`flex items-center gap-4 px-5 py-4 rounded-2xl font-bold text-[15px] transition-all no-underline ${
+                                                        active 
+                                                            ? 'bg-blue-50 text-blue-600 shadow-sm ring-1 ring-blue-100' 
+                                                            : 'text-slate-600 hover:bg-slate-50 active:scale-95'
+                                                    }`}
+                                                >
+                                                    <span className="text-xl filter grayscale-[0.5] group-hover:grayscale-0">{item.icon}</span>
+                                                    <span>{item.label}</span>
+                                                </Link>
+                                            );
+                                        })}
                                     </div>
-                                )}
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    {group.items.map((item, idx) => (
-                                        <Link key={idx} href={item.href} onClick={() => setShowMobileMenu(false)} style={{ textDecoration: 'none' }}>
-                                            <div style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '12px',
-                                                padding: '12px 16px',
-                                                borderRadius: '8px',
-                                                fontWeight: '500',
-                                                color: 'var(--color-primary)',
-                                                fontSize: '1rem',
-                                                backgroundColor: pathname === item.href ? '#f0f9ff' : 'transparent'
-                                            }}>
-                                                <span style={{ fontSize: '1.25rem' }}>{item.icon}</span>
-                                                <span>{item.label}</span>
-                                            </div>
-                                        </Link>
-                                    ))}
                                 </div>
-                            </div>
-                        ))}
+                            ))}
 
-                        <div style={{ margin: '0 16px', height: '1px', background: 'rgba(0,0,0,0.05)' }} />
-
-                        {/* Logout Option */}
-                        {user && (
-                            <div
-                                onClick={() => {
-                                    logoutAction();
-                                    setShowMobileMenu(false);
-                                }}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px',
-                                    padding: '12px 16px',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                    fontSize: '1rem',
-                                    color: '#ef4444',
-                                    fontWeight: '600'
-                                }}
-                            >
-                                <span style={{ fontSize: '1.25rem' }}>🚪</span>
-                                <span>Logout</span>
+                            {/* Logout Option */}
+                            {user && (
+                                <div className="pt-4 border-t border-slate-100">
+                                    <button
+                                        onClick={() => {
+                                            logoutAction();
+                                            setShowMobileMenu(false);
+                                        }}
+                                        className="flex items-center gap-4 px-5 py-4 rounded-2xl text-[15px] text-red-500 font-bold hover:bg-red-50 active:scale-95 w-full text-left transition-all"
+                                    >
+                                        <span className="text-xl">🚪</span>
+                                        <span>Logout</span>
+                                    </button>
+                                </div>
+                            )}
+                            
+                            <div className="px-5 py-6 mt-2 rounded-3xl bg-slate-50 border border-slate-100">
+                                <p className="text-[12px] text-slate-400 font-medium leading-relaxed">
+                                    Namsari &copy; 2026<br /> 
+                                    <span className="opacity-60">Designed by </span>
+                                    <a href="https://neupgroup.com/marketing" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline font-bold">
+                                        NEUPGROUP
+                                    </a>
+                                </p>
                             </div>
-                        )}
-                        
-                        <div style={{ padding: '0 16px', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                            Namsari Estate &copy; 2026<br /> Designed by <a href="https://neupgroup.com/marketing" target="_blank" rel="noopener noreferrer">Neup.Marketing</a>
                         </div>
                     </div>
                 </div>
             )}
 
-            <div className="bottom-nav-container" style={{
-                position: 'fixed', bottom: 0, left: 0, right: 0,
-                background: '#ffffff', borderTop: '1px solid #e2e8f0',
-                display: 'flex', justifyContent: 'space-around', padding: '10px 0 24px',
-                zIndex: 1000, boxShadow: '0 -4px 12px rgba(0,0,0,0.05)'
-            }}>
-                {items.map((item, idx) => (
-                    <div 
-                        key={idx} 
-                        onClick={(e) => {
-                            if (item.href === '#menu') {
-                                e.preventDefault();
-                                setShowMobileMenu(!showMobileMenu);
-                            }
-                        }}
-                        style={{ flex: 1, cursor: 'pointer' }}
-                    >
-                        {item.href !== '#menu' ? (
-                            <Link href={item.href} style={{
-                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
-                                textDecoration: 'none', color: pathname === item.href ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                                width: '100%'
-                            }}>
-                                <span style={{ fontSize: '1.4rem' }}>{item.icon}</span>
-                                <span style={{ fontSize: '0.65rem', fontWeight: '600' }}>{item.label}</span>
-                            </Link>
-                        ) : (
-                            <div style={{
-                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
-                                color: showMobileMenu ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                                width: '100%'
-                            }}>
-                                <span style={{ fontSize: '1.4rem' }}>{showMobileMenu ? '✖' : item.icon}</span>
-                                <span style={{ fontSize: '0.65rem', fontWeight: '600' }}>{showMobileMenu ? 'Close' : item.label}</span>
-                            </div>
-                        )}
-                    </div>
-                ))}
+            {/* Bottom App Bar */}
+            <nav className={`fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] h-[76px] bg-white/80 backdrop-blur-2xl border border-white/40 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.18)] rounded-[2.5rem] z-[1001] flex items-center justify-between px-6 lg:hidden ring-1 ring-black/5 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+                isVisible ? 'translate-y-0 opacity-100' : 'translate-y-[150%] opacity-0 pointer-events-none'
+            }`}>
+                {items.map((item, idx) => {
+                    const active = pathname === item.href || (item.href === '#menu' && showMobileMenu);
+                    const isCenter = item.label === 'Post';
 
-                <style jsx>{`
-                    .bottom-nav-container {
-                        display: flex;
+                    if (isCenter) {
+                        return (
+                            <Link 
+                                key={idx} 
+                                href={item.href}
+                                className="relative -top-8 flex flex-col items-center justify-center no-underline group"
+                            >
+                                <div className={`w-16 h-16 rounded-[2rem] flex items-center justify-center text-2xl shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:-translate-y-1 group-active:scale-95 ${
+                                    active 
+                                        ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-blue-200/50' 
+                                        : 'bg-gradient-to-br from-slate-800 to-slate-900 text-white shadow-slate-300/50'
+                                }`}>
+                                    <span className="transform group-hover:rotate-12 transition-transform duration-500">{item.icon}</span>
+                                </div>
+                                <div className="absolute -bottom-6 flex flex-col items-center">
+                                    <span className={`text-[11px] font-black uppercase tracking-widest transition-colors duration-300 ${
+                                        active ? 'text-blue-600' : 'text-slate-500'
+                                    }`}>
+                                        {item.label}
+                                    </span>
+                                </div>
+                            </Link>
+                        );
                     }
-                    @media (min-width: 1025px) {
-                        .bottom-nav-container {
-                            display: none !important;
-                        }
-                    }
-                `}</style>
-            </div>
+
+                    return (
+                        <button 
+                            key={idx}
+                            onClick={() => {
+                                if (item.href === '#menu') {
+                                    setShowMobileMenu(!showMobileMenu);
+                                } else {
+                                    window.location.href = item.href;
+                                }
+                            }}
+                            className="relative flex flex-col items-center justify-center gap-1.5 min-w-[56px] h-full transition-all duration-300 active:scale-90 group"
+                        >
+                            <div className={`text-2xl transition-all duration-500 ease-out ${
+                                active 
+                                    ? 'scale-110 -translate-y-0.5' 
+                                    : 'opacity-40 grayscale group-hover:opacity-70 group-hover:grayscale-0 group-hover:-translate-y-0.5'
+                            }`}>
+                                {item.icon}
+                            </div>
+                            <span className={`text-[10px] font-bold tracking-tight transition-all duration-300 ${
+                                active ? 'text-blue-600 opacity-100' : 'text-slate-400 opacity-0 group-hover:opacity-100'
+                            }`}>
+                                {item.label}
+                            </span>
+                            {active && (
+                                <div className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.6)] animate-in fade-in zoom-in duration-500" />
+                            )}
+                        </button>
+                    );
+                })}
+            </nav>
         </>
     );
 }

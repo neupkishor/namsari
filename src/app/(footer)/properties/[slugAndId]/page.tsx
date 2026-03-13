@@ -356,7 +356,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
                                 <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#f3f4f6', overflow: 'hidden' }}>
                                     {property.listedBy?.profile_picture ? (
-                                        <img src={property.listedBy.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={property.listedBy.name} />
+                                        <img src={property.listedBy.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={property.listedBy.name || 'User'} />
                                     ) : (
                                         <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>👤</div>
                                     )}
@@ -445,7 +445,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #f3f4f6' }}>
                                 <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#f3f4f6', overflow: 'hidden', flexShrink: 0 }}>
                                     {property.listedBy?.profile_picture ? (
-                                        <img src={property.listedBy.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={property.listedBy.name} />
+                                        <img src={property.listedBy.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={property.listedBy.name || 'User'} />
                                     ) : (
                                         <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>👤</div>
                                     )}

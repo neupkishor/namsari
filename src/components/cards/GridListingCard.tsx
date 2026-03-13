@@ -44,68 +44,30 @@ export function GridListingCard({ properties, title, className }: GridListingCar
   const mainImage = currentProperty.images?.[0] ? (typeof currentProperty.images[0] === 'string' ? currentProperty.images[0] : currentProperty.images[0].url) : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80';
 
   return (
-    <div className={`grid-listing-card ${className || ''}`} style={{
-        background: 'white',
-        borderRadius: 'var(--radius-card)',
-        padding: '0',
-        border: '1px solid var(--color-border)',
-        overflow: 'hidden'
-    }}>
-      <div className="grid-listing-header" style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '16px 20px',
-          borderBottom: '1px solid #f1f5f9'
-      }}>
-        <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '800', color: 'var(--color-primary)' }}>{title}</h4>
-        <Link href="/explore" style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--color-gold)', textDecoration: 'none' }}>Explore More</Link>
+    <div className={`bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col ${className || ''}`}>
+      <div className="flex justify-between items-center px-5 py-4 border-b border-slate-50">
+        <h4 className="m-0 text-base font-extrabold text-primary">{title}</h4>
+        <Link href="/explore" className="text-xs font-bold text-gold hover:text-gold/80 transition-colors no-underline">Explore More</Link>
       </div>
 
-      <div style={{ position: 'relative', width: '100%', paddingTop: '75%' /* 4:3 Aspect Ratio */ }}>
-        <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%'
-        }}>
-            <Link href={propertyUrl} style={{ display: 'block', width: '100%', height: '100%' }}>
+      <div className="relative w-full pt-[75%]">
+        <div className="absolute inset-0">
+            <Link href={propertyUrl} className="block w-full h-full relative group">
                 <img 
                     src={mainImage} 
                     alt={currentProperty.title} 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                 />
                 
                 {/* Overlay Content */}
-                <div style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    padding: '20px',
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.9), transparent)',
-                    color: 'white'
-                }}>
-                    <div style={{ 
-                        fontSize: '1.25rem', 
-                        fontWeight: '700', 
-                        marginBottom: '4px',
-                        color: '#fbbf24' 
-                    }}>
+                <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black/90 via-black/40 to-transparent text-white">
+                    <div className="text-xl font-bold mb-1 text-gold">
                         {currentProperty.price}
                     </div>
-                    <h3 style={{ 
-                        fontSize: '1rem', 
-                        fontWeight: '600', 
-                        marginBottom: '4px',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                    }}>
+                    <h3 className="text-base font-semibold mb-1 whitespace-nowrap overflow-hidden text-ellipsis">
                         {currentProperty.title}
                     </h3>
-                    <div style={{ fontSize: '0.85rem', opacity: 0.9 }}>
+                    <div className="text-[0.85rem] opacity-90 flex items-center gap-1">
                         📍 {currentProperty.location}
                     </div>
                 </div>
@@ -119,24 +81,7 @@ export function GridListingCard({ properties, title, className }: GridListingCar
                             e.preventDefault();
                             handleManualNav(prevSlide);
                         }}
-                        style={{
-                            position: 'absolute',
-                            left: '12px',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            background: 'rgba(0,0,0,0.5)',
-                            border: '1px solid rgba(255,255,255,0.3)',
-                            color: 'white',
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: '50%',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backdropFilter: 'blur(4px)',
-                            zIndex: 2
-                        }}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 border border-white/30 text-white w-8 h-8 rounded-full cursor-pointer flex items-center justify-center backdrop-blur-sm z-10 hover:bg-black/70 transition-colors"
                     >
                         ←
                     </button>
@@ -145,41 +90,13 @@ export function GridListingCard({ properties, title, className }: GridListingCar
                             e.preventDefault();
                             handleManualNav(nextSlide);
                         }}
-                        style={{
-                            position: 'absolute',
-                            right: '12px',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            background: 'rgba(0,0,0,0.5)',
-                            border: '1px solid rgba(255,255,255,0.3)',
-                            color: 'white',
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: '50%',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backdropFilter: 'blur(4px)',
-                            zIndex: 2
-                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 border border-white/30 text-white w-8 h-8 rounded-full cursor-pointer flex items-center justify-center backdrop-blur-sm z-10 hover:bg-black/70 transition-colors"
                     >
                         →
                     </button>
 
                     {/* Dots Indicator */}
-                    <div style={{
-                        position: 'absolute',
-                        top: '12px',
-                        right: '12px',
-                        display: 'flex',
-                        gap: '6px',
-                        zIndex: 2,
-                        background: 'rgba(0,0,0,0.4)',
-                        padding: '6px 10px',
-                        borderRadius: '20px',
-                        backdropFilter: 'blur(4px)'
-                    }}>
+                    <div className="absolute top-3 right-3 flex gap-1.5 z-10 bg-black/40 px-2.5 py-1.5 rounded-full backdrop-blur-sm">
                         {properties.map((_, idx) => (
                             <div
                                 key={idx}
@@ -187,14 +104,7 @@ export function GridListingCard({ properties, title, className }: GridListingCar
                                     e.preventDefault();
                                     handleManualNav(() => setActiveIndex(idx));
                                 }}
-                                style={{
-                                    width: '6px',
-                                    height: '6px',
-                                    borderRadius: '50%',
-                                    background: idx === activeIndex ? 'white' : 'rgba(255,255,255,0.4)',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s'
-                                }}
+                                className={`w-1.5 h-1.5 rounded-full cursor-pointer transition-all duration-200 ${idx === activeIndex ? 'bg-white scale-110' : 'bg-white/40'}`}
                             />
                         ))}
                     </div>

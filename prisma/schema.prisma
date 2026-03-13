@@ -12,9 +12,11 @@ datasource db {
 
 model User {
   id             Int      @id @default(autoincrement())
-  username       String   @unique
-  name           String
+  username       String?  @unique
+  name           String?
   email          String?  @unique
+  emailVerified  DateTime?
+  image          String?
   contact_number String?
   type           String   @default("user") // agency, self (user?), bank, agent, admin
   bio            String?
@@ -64,9 +66,30 @@ model User {
   permissionsReceived UserPermission[] @relation("Actor")
 
   sessions       Session[]
+  accounts       Account[]
   
   @@map("users")
   @@index([type])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            Int
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
 }
 
 model UserCredential {
@@ -660,22 +683,28 @@ model Visitor {
 
 model Session {
   id           String   @id @default(cuid())
-  sessionToken String   @unique // This is the session_id
-  sessionKey   String   // This is the session_key
-  
+  sessionToken String   @unique
   userId       Int
+  expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
+  // Custom fields from old session
+  sessionKey   String?
   operatingId  Int?     // If null, operating as self
-  
   ipAddress    String?
   userAgent    String?
-  
-  expiresAt    DateTime
-  createdAt    DateTime @default(now())
   lastActive   DateTime @updatedAt
 
   @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
 model Member {

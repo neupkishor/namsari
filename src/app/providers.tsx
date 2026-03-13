@@ -2,10 +2,11 @@
 
 import { AppProgressBar as ProgressBar } from 'next-nprogress-bar';
 import { Suspense } from 'react';
+import { SessionProvider } from 'next-auth/react';
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
     return (
-        <>
+        <SessionProvider>
             {children}
             <Suspense fallback={null}>
                 <ProgressBar
@@ -15,7 +16,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
                     shallowRouting
                 />
             </Suspense>
-        </>
+        </SessionProvider>
     );
 };
 

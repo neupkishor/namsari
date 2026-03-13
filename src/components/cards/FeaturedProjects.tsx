@@ -8,15 +8,16 @@ interface FeaturedProjectsProps {
 }
 
 export const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ properties = [], className }) => {
-    // In many parts of the app, we already have a list of properties that might include featured ones
     const displayProjects = properties.filter(p => p.isFeatured);
 
     if (displayProjects.length === 0) {
         return (
-            <section>
-                <div className="card" style={{ padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)', border: '1px dashed var(--color-border)' }}>
+            <section className={className}>
+                <div className="p-10 text-center text-gray-500 border border-dashed border-gray-200 rounded-xl bg-white">
                     <p>No featured projects have been assigned yet.</p>
-                    <Link href="/manage/featured" style={{ color: 'var(--color-primary)', fontSize: '0.9rem', marginTop: '8px', display: 'inline-block' }}>Manage Featured List</Link>
+                    <Link href="/manage/featured" className="text-primary text-sm mt-2 inline-block hover:underline">
+                        Manage Featured List
+                    </Link>
                 </div>
             </section>
         );
@@ -37,50 +38,20 @@ export const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ properties =
                     const imageUrl = p.images?.[0] ? (typeof p.images[0] === 'string' ? p.images[0] : (p.images[0] as any).url) : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80';
 
                     return (
-                        <Link key={p.id} href={propertyUrl} style={{ textDecoration: 'none', height: '100%', display: 'block' }}>
-                            <div style={{
-                                position: 'relative',
-                                borderRadius: 'var(--radius-inner)',
-                                overflow: 'hidden',
-                                height: '100%',
-                                minHeight: '160px',
-                                background: '#f8fafc',
-                                border: '1px solid var(--color-border)',
-                                cursor: 'pointer'
-                            }}>
+                        <Link key={p.id} href={propertyUrl} className="no-underline h-full block group">
+                            <div className="relative rounded-xl overflow-hidden h-full min-h-[160px] bg-slate-50 border border-gray-100 cursor-pointer">
                                 <img
                                     src={imageUrl}
                                     alt={p.title}
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                    className="w-full h-full object-cover block group-hover:scale-105 transition-transform duration-500"
                                 />
                                 
                                 {/* Overlay with Title */}
-                                <div style={{
-                                    position: 'absolute',
-                                    bottom: 0,
-                                    left: 0,
-                                    right: 0,
-                                    background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)',
-                                    padding: '16px',
-                                    paddingTop: '32px',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'flex-end'
-                                }}>
-                                    <div style={{ 
-                                        color: 'white', 
-                                        fontWeight: '700', 
-                                        fontSize: '1.1rem', 
-                                        marginBottom: '4px',
-                                        textShadow: '0 2px 4px rgba(0,0,0,0.3)'
-                                    }}>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 flex flex-col justify-end">
+                                    <div className="color-white font-bold text-lg mb-1 text-white text-shadow-sm">
                                         {p.title}
                                     </div>
-                                    <div style={{ 
-                                        color: 'rgba(255,255,255,0.9)', 
-                                        fontSize: '0.85rem',
-                                        fontWeight: '500'
-                                    }}>
+                                    <div className="text-white/90 text-sm font-medium">
                                         {p.property_types?.[0] || 'Project'}
                                     </div>
                                 </div>

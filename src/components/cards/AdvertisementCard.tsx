@@ -17,7 +17,6 @@ export const AdvertisementCard = ({ ad, className }: { ad: Ad, className?: strin
     const [hasViewed, setHasViewed] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
 
-    // Use link or takes_to (fallback)
     const destinationUrl = ad.link || ad.takes_to;
     const relAttributes = [
         "noopener", 
@@ -50,50 +49,23 @@ export const AdvertisementCard = ({ ad, className }: { ad: Ad, className?: strin
     };
 
     const content = (
-        <div ref={cardRef} className={`card ${className || ''}`} style={{
-            width: '100%',
-            overflow: 'hidden',
-            position: 'relative',
-            padding: 0
-        }}>
-            <style jsx>{`
-                .ad-wrapper {
-                    position: relative;
-                    width: 100%;
-                    padding-top: 44.44%; /* 18:8 Aspect Ratio */
-                }
-            `}</style>
-            <div className="ad-wrapper">
-                <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%'
-                }}>
+        <div ref={cardRef} className={`w-full overflow-hidden relative rounded-2xl border border-border bg-surface shadow-sm hover:shadow-lg transition-all duration-500 group ${className || ''}`}>
+            <div className="relative w-full pt-[44.44%] sm:pt-[40%] md:pt-[35%] lg:pt-[30%] overflow-hidden">
+                <div className="absolute inset-0 w-full h-full">
                     <img
                         src={ad.image}
                         alt="Advertisement"
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            display: 'block',
-                            objectFit: 'cover'
-                        }}
+                        className="w-full h-full block object-cover transition-transform duration-1000 group-hover:scale-110"
                     />
-                    <div style={{
-                        position: 'absolute',
-                        top: '8px',
-                        right: '8px',
-                        background: 'rgba(0,0,0,0.6)',
-                        color: 'white',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        fontSize: '0.65rem',
-                        fontWeight: '600',
-                        backdropFilter: 'blur(4px)'
-                    }}>
+                    <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white px-3 py-1.5 rounded-xl text-[10px] font-black border border-white/10 tracking-[0.15em] uppercase shadow-xl z-10">
                         Sponsored {ad.posted_by ? `by ${ad.posted_by}` : ''}
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10 opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+                    
+                    <div className="absolute bottom-4 left-6 right-6 flex items-end justify-between z-20 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                        <div className="bg-white/95 backdrop-blur-sm text-primary text-[11px] px-4 py-2 rounded-2xl font-black shadow-2xl border border-primary/10 tracking-widest uppercase">
+                            Learn More
+                        </div>
                     </div>
                 </div>
             </div>
@@ -101,7 +73,7 @@ export const AdvertisementCard = ({ ad, className }: { ad: Ad, className?: strin
     );
 
     if (destinationUrl) {
-        return <Link href={destinationUrl} target="_blank" rel={relAttributes} style={{ display: 'block' }} onClick={handleAdClick}>{content}</Link>;
+        return <Link href={destinationUrl} target="_blank" rel={relAttributes} className="block" onClick={handleAdClick}>{content}</Link>;
     }
     return content;
 };
@@ -112,7 +84,6 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [isInView, setIsInView] = useState(false);
 
-    // Track visibility of the carousel
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -128,7 +99,6 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
         return () => observer.disconnect();
     }, []);
 
-    // Track impression when slide changes AND is in view
     useEffect(() => {
         if (isInView && ads[activeIndex]) {
             const sessionId = sessionStorage.getItem('namsari_session_id') || undefined;
@@ -146,7 +116,7 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
 
     useEffect(() => {
         if (ads.length <= 1) return;
-        timeoutRef.current = setInterval(nextSlide, 5000); // Auto-advance every 5s
+        timeoutRef.current = setInterval(nextSlide, 5000);
         return () => {
             if (timeoutRef.current) clearInterval(timeoutRef.current);
         };
@@ -156,7 +126,7 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
         if (timeoutRef.current) clearInterval(timeoutRef.current);
         action();
         if (ads.length > 1) {
-            timeoutRef.current = setInterval(nextSlide, 5000); // Restart timer
+            timeoutRef.current = setInterval(nextSlide, 5000);
         }
     };
 
@@ -168,31 +138,8 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
     if (ads.length === 0) return null;
 
     return (
-        <div ref={containerRef} className="advertisement-carousel-container" style={{
-            width: '100%',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            position: 'relative',
-            background: '#f8fafc'
-        }}>
-            <style jsx>{`
-                .carousel-wrapper {
-                     position: relative;
-                     width: 100%;
-                     padding-top: 44.44%; /* 18:8 Aspect Ratio for Desktop */
-                }
-                @media (max-width: 768px) {
-                    .carousel-wrapper {
-                        padding-top: 50%; /* Tablet Aspect Ratio */
-                    }
-                }
-                @media (max-width: 480px) {
-                    .carousel-wrapper {
-                        padding-top: 66%; /* Mobile Aspect Ratio - taller for better visibility */
-                    }
-                }
-            `}</style>
-            <div className="carousel-wrapper">
+        <div ref={containerRef} className="w-full rounded-2xl overflow-hidden relative bg-surface shadow-2xl border border-border group/carousel">
+            <div className="relative w-full pt-[44.44%] sm:pt-[40%] md:pt-[35%] lg:pt-[30%] overflow-hidden">
                 {ads.map((ad, idx) => {
                     const adUrl = ad.link || ad.takes_to;
                     const adRel = ["noopener", "noreferrer", ad.isSponsoredRel ? "sponsored" : ""].filter(Boolean).join(" ");
@@ -200,45 +147,25 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
                     return (
                         <div
                             key={`${ad.id}-${idx}`}
-                            style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                width: '100%',
-                                height: '100%',
-                                opacity: idx === activeIndex ? 1 : 0,
-                                transition: 'opacity 0.6s ease-in-out',
-                                zIndex: idx === activeIndex ? 1 : 0,
-                                pointerEvents: idx === activeIndex ? 'auto' : 'none'
-                            }}
+                            className={`absolute inset-0 w-full h-full transition-all duration-1000 ease-in-out transform ${
+                                idx === activeIndex ? 'opacity-100 z-10 scale-100 pointer-events-auto' : 'opacity-0 z-0 scale-105 pointer-events-none'
+                            }`}
                         >
                             <Link 
                                 href={adUrl || '#'}
                                 target={adUrl ? "_blank" : undefined}
                                 rel={adUrl ? adRel : undefined} 
-                                style={{ display: 'block', width: '100%', height: '100%', cursor: adUrl ? 'pointer' : 'default' }}
+                                className={`block w-full h-full relative overflow-hidden ${adUrl ? 'cursor-pointer' : 'cursor-default'}`}
                                 onClick={() => handleAdClick(ad.id)}
                             >
                                 <img
                                     src={ad.image}
                                     alt={`Ad by ${ad.posted_by}`}
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    className="w-full h-full object-cover transition-transform duration-[8000ms] group-hover/carousel:scale-110"
                                 />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
                             </Link>
-                            <div style={{
-                                position: 'absolute',
-                                top: '12px',
-                                right: '12px',
-                                background: 'rgba(0,0,0,0.7)',
-                                color: 'white',
-                                padding: '4px 10px',
-                                borderRadius: '6px',
-                                fontSize: '0.7rem',
-                                fontWeight: '700',
-                                backdropFilter: 'blur(8px)',
-                                letterSpacing: '0.02em',
-                                textTransform: 'uppercase'
-                            }}>
+                            <div className="absolute top-5 right-5 bg-black/50 backdrop-blur-md text-white px-3.5 py-1.5 rounded-xl text-[10px] font-black border border-white/10 tracking-[0.2em] uppercase shadow-2xl z-20">
                                 Sponsored {ad.posted_by ? `by ${ad.posted_by}` : ''}
                             </div>
                         </div>
@@ -246,82 +173,47 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
                 })}
             </div>
 
-            {/* Navigation Controls */}
             {ads.length > 1 && (
-                <div style={{
-                    position: 'absolute',
-                    bottom: '16px',
-                    right: '16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    zIndex: 10
-                }}>
-                    {/* Dots */}
-                    <div style={{ display: 'flex', gap: '6px', marginRight: '12px' }}>
+                <>
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 z-30">
                         {ads.map((_, idx) => (
-                            <div
+                            <button
                                 key={idx}
                                 onClick={(e) => {
                                     e.preventDefault();
                                     handleManualNav(() => setActiveIndex(idx));
                                 }}
-                                style={{
-                                    width: '8px',
-                                    height: '8px',
-                                    borderRadius: '50%',
-                                    background: idx === activeIndex ? 'white' : 'rgba(255,255,255,0.4)',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s'
-                                }}
+                                className={`h-1.5 rounded-full transition-all duration-700 shadow-xl ${
+                                    idx === activeIndex ? 'bg-white w-10 ring-4 ring-white/20' : 'bg-white/40 w-3 hover:bg-white/60'
+                                }`}
+                                aria-label={`Go to slide ${idx + 1}`}
                             />
                         ))}
                     </div>
 
-                    {/* Arrows */}
-                    <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            handleManualNav(prevSlide);
-                        }}
-                        style={{
-                            background: 'rgba(0,0,0,0.6)',
-                            border: '1px solid rgba(255,255,255,0.2)',
-                            borderRadius: '4px',
-                            color: 'white',
-                            width: '32px',
-                            height: '32px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            backdropFilter: 'blur(4px)'
-                        }}
-                    >
-                        ←
-                    </button>
-                    <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            handleManualNav(nextSlide);
-                        }}
-                        style={{
-                            background: 'rgba(0,0,0,0.6)',
-                            border: '1px solid rgba(255,255,255,0.2)',
-                            borderRadius: '4px',
-                            color: 'white',
-                            width: '32px',
-                            height: '32px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            backdropFilter: 'blur(4px)'
-                        }}
-                    >
-                        →
-                    </button>
-                </div>
+                    <div className="absolute inset-y-0 left-6 flex items-center z-30 opacity-0 group-hover/carousel:opacity-100 transition-all duration-500 translate-x-[-10px] group-hover/carousel:translate-x-0">
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleManualNav(prevSlide);
+                            }}
+                            className="bg-white/90 hover:bg-white text-primary border border-white/50 rounded-2xl w-11 h-11 flex items-center justify-center cursor-pointer backdrop-blur-md transition-all active:scale-90 shadow-2xl group/btn"
+                        >
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover/btn:-translate-x-0.5 transition-transform"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </button>
+                    </div>
+                    <div className="absolute inset-y-0 right-6 flex items-center z-30 opacity-0 group-hover/carousel:opacity-100 transition-all duration-500 translate-x-[10px] group-hover/carousel:translate-x-0">
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleManualNav(nextSlide);
+                            }}
+                            className="bg-white/90 hover:bg-white text-primary border border-white/50 rounded-2xl w-11 h-11 flex items-center justify-center cursor-pointer backdrop-blur-md transition-all active:scale-90 shadow-2xl group/btn"
+                        >
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover/btn:translate-x-0.5 transition-transform"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </button>
+                    </div>
+                </>
             )}
         </div>
     );

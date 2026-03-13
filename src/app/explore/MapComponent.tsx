@@ -22,7 +22,7 @@ const RedIcon = L.icon({
 });
 
 const UserLocationIcon = L.divIcon({
-    html: `<div style="background-color: #3b82f6; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.3);"></div>`,
+    html: `<div class="bg-primary w-3 h-3 rounded-full border-2 border-white shadow-md animate-pulse"></div>`,
     className: '',
     iconSize: [12, 12],
     iconAnchor: [6, 6],
@@ -116,7 +116,7 @@ export default function MapComponent({
         <MapContainer
             center={center}
             zoom={zoom}
-            style={{ height: '100%', width: '100%', borderRadius: '12px' }}
+            className="h-full w-full rounded-3xl"
             scrollWheelZoom={true}
         >
             <TileLayer
@@ -134,11 +134,11 @@ export default function MapComponent({
                         center={userLocation}
                         radius={500} // 500 meters radius
                         pathOptions={{
-                            fillColor: '#3b82f6',
-                            fillOpacity: 0.15,
-                            color: '#3b82f6',
+                            fillColor: '#2D3E50',
+                            fillOpacity: 0.1,
+                            color: '#2D3E50',
                             weight: 1,
-                            opacity: 0.3
+                            opacity: 0.2
                         }}
                     />
                     <Marker position={userLocation} icon={UserLocationIcon} interactive={false} />
@@ -163,21 +163,22 @@ export default function MapComponent({
                         }}
                     >
                         {!disablePopups && (
-                            <Popup>
-                                <div style={{ minWidth: '180px', fontFamily: 'var(--font-outfit), sans-serif', padding: '4px' }}>
+                            <Popup className="property-popup">
+                                <div className="min-w-[180px] font-sans p-1">
                                     <img
                                         src={p.images?.[0] || 'https://via.placeholder.com/150'}
-                                        style={{ width: '100%', borderRadius: '8px', marginBottom: '12px', height: '100px', objectFit: 'cover' }}
+                                        alt={p.title}
+                                        className="w-full rounded-lg mb-3 h-[100px] object-cover"
                                     />
-                                    <div style={{ fontWeight: '800', fontSize: '1.1rem', color: 'var(--color-primary)', marginBottom: '4px' }}>{p.price}</div>
-                                    <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-primary-light)', marginBottom: '4px', lineHeight: '1.2' }}>{p.title}</div>
-                                    <div style={{ fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <div className="font-extrabold text-lg text-primary mb-1">{p.price}</div>
+                                    <div className="text-sm font-semibold text-primary/80 mb-1 leading-tight line-clamp-2">{p.title}</div>
+                                    <div className="text-xs text-slate-500 flex items-center gap-1">
                                         <span>📍</span> {p.location}
                                     </div>
-                                    <div style={{ marginTop: '12px', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
+                                    <div className="mt-3 pt-2 border-t border-slate-100">
                                         <a
                                             href={`/properties/${p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`}
-                                            style={{ color: 'var(--color-gold)', textDecoration: 'none', fontWeight: '700', fontSize: '0.8rem' }}
+                                            className="text-gold no-underline font-bold text-xs hover:text-gold/80 transition-colors"
                                         >
                                             View Details →
                                         </a>

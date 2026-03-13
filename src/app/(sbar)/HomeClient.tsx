@@ -12,6 +12,43 @@ import { AdvertisementCard, AdvertisementCarousel } from '@/components/cards/Adv
 import { BottomNavigation } from '@/components/menu/BottomNavigation';
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
 
+function FeaturedSmallCard({ property }: { property: any }) {
+    const images = property.images || [];
+    const mainImage = images.length > 0
+        ? (typeof images[0] === 'string' ? images[0] : images[0].url)
+        : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80';
+    
+    const slug = property.slug || property.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const propertyUrl = `/properties/${slug}-${property.id}`;
+    
+    return (
+        <Link href={propertyUrl} className="group block bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300">
+            <div className="aspect-square overflow-hidden relative">
+                <img 
+                    src={mainImage} 
+                    alt={property.title} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                    <div className="text-white font-bold text-xs truncate">
+                        रु {property.pricing?.price?.toLocaleString() || property.price?.toLocaleString()}
+                    </div>
+                </div>
+            </div>
+            <div className="p-3">
+                <h4 className="text-slate-900 font-bold text-xs line-clamp-1 group-hover:text-blue-600 transition-colors">
+                    {property.title}
+                </h4>
+                <div className="flex items-center gap-1 mt-1">
+                    <span className="text-blue-600 font-bold text-[10px]">View Details</span>
+                </div>
+            </div>
+        </Link>
+    );
+}
+
+import { PropertyGrid } from '@/components/ui/PropertyGrid';
+
 export default function HomeClient({ user, featuredCollections, trendingSearches, featuredProperties = [], featuredAgencies = [], advertisements = [], categories = [] }: { user: any, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[], advertisements?: any[], categories?: any[] }) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
@@ -20,6 +57,10 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
+
+    // Derived ads data
+    const carouselAds = advertisements.filter((ad: any) => ad.type === 'CAROUSEL' || ad.type === 'TOP_BANNER');
+    const feedAds = advertisements.filter((ad: any) => ad.type === 'FEED' || ad.type === 'IN_FEED');
 
     const fetchProperties = async (reset = false) => {
         if (!reset && (!hasMore || isFetchingMore)) return;
@@ -61,29 +102,153 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
     }, []);
 
     return (
-        <div style={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
+        <div className="bg-[#F8FAFC] min-h-screen">
             {/* Check if the page is loading content */}
             {isLoading ? (
                 <FeedSkeleton />
             ) : (
-                <FeedView 
-                    properties={properties} 
-                    user={user} 
-                    onRefresh={() => fetchProperties(true)} 
-                    onLoadMore={() => fetchProperties(false)} 
-                    isFetchingMore={isFetchingMore} 
-                    hasMore={hasMore} 
-                    featuredCollections={featuredCollections} 
-                    trendingSearches={trendingSearches} 
-                    featuredProperties={featuredProperties} 
-                    featuredAgencies={featuredAgencies} 
-                    advertisements={advertisements}
-                    categories={categories}
-                />
+                <div className="w-full">
+                    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+                        {/* Advertisement Carousel - Now the very first item */}
+                        {carouselAds.length > 0 && (
+                            <div className="w-full mb-12">
+                                <AdvertisementCarousel ads={carouselAds} />
+                            </div>
+                        )}
+
+                        {/* Featured Properties Section (eSewa Style) */}
+                        {featuredProperties && featuredProperties.length > 0 && (
+                            <section className="w-full mb-16">
+                                <div className="flex items-center justify-between mb-6 px-2">
+                                    <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+                                        Featured Properties
+                                    </h2>
+                                    <Link href="/explore" className="text-blue-600 text-sm font-bold hover:underline">
+                                        View more
+                                    </Link>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                    {featuredProperties.slice(0, 5).map((prop: any) => (
+                                        <FeaturedSmallCard key={prop.id} property={prop} />
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+
+                        <div className="w-full mt-12">
+                            {/* Feed Content Area - Full Width */}
+                            <div className="flex flex-col gap-10">
+                                <QuickActionsCard user={user} />
+                                
+                                <div className="space-y-10">
+                                    {/* Sub-header for the feed */}
+                                    <div className="flex items-center gap-4 px-2">
+                                        <h3 className="text-xl font-black text-text-main tracking-tight flex items-center gap-3">
+                                            <span className="w-1.5 h-8 bg-primary rounded-full" />
+                                            Market Activity
+                                        </h3>
+                                        <div className="h-px flex-1 bg-border/60" />
+                                    </div>
+
+                                    <div className="flex flex-col gap-4">
+                                        {(() => {
+                                            const feedItems: any[] = [];
+                                            let propertyIndex = 0;
+                                            let insertionCount = 0;
+
+                                            const availableCardTypes = ['featured_collections', 'trending_searches', 'featured_projects'];
+                                            const validCardTypes = availableCardTypes.filter(type => {
+                                                if (type === 'featured_collections') return featuredCollections && featuredCollections.length > 0;
+                                                if (type === 'trending_searches') return trendingSearches && trendingSearches.length > 0;
+                                                if (type === 'featured_projects') return featuredProperties && featuredProperties.length > 0;
+                                                return false;
+                                            });
+
+                                            const addAd = (seedIndex: number) => {
+                                                if (feedAds.length === 0) return;
+                                                const adIndex = seedIndex % feedAds.length;
+                                                feedItems.push({ type: 'ad', data: feedAds[adIndex] });
+                                            };
+
+                                            while (propertyIndex < properties.length) {
+                                                const chunkCount = Math.min(4, properties.length - propertyIndex);
+                                                for (let i = 0; i < chunkCount; i++) {
+                                                    feedItems.push({ type: 'single', data: properties[propertyIndex++] });
+                                                }
+
+                                                if (chunkCount > 0) {
+                                                    addAd(insertionCount);
+                                                    if (validCardTypes.length > 0) {
+                                                        const cardType = validCardTypes[insertionCount % validCardTypes.length];
+                                                        feedItems.push({ type: cardType });
+                                                    }
+                                                    insertionCount++;
+                                                }
+                                            }
+
+                                            return feedItems.map((item, idx) => {
+                                                let component = null;
+
+                                                if (item.type === 'single') {
+                                                    const isTrigger = properties.indexOf(item.data) === properties.length - 5;
+                                                    component = (
+                                                        <PropertyPost
+                                                            property={item.data}
+                                                            onVisible={isTrigger ? () => fetchProperties(false) : undefined}
+                                                        />
+                                                    );
+                                                } else if (item.type === 'ad') {
+                                                    component = <AdvertisementCard ad={item.data} />;
+                                                } else if (item.type === 'featured_collections') {
+                                                    component = <FeaturedCollectionsFeedItem collections={featuredCollections || []} />;
+                                                } else if (item.type === 'trending_searches') {
+                                                    component = <TrendingSearches searches={trendingSearches || []} />;
+                                                } else if (item.type === 'featured_projects') {
+                                                    component = <FeaturedProjects properties={featuredProperties || []} />;
+                                                }
+
+                                                return (
+                                                    <div key={`${item.type}-${idx}`} className={`w-full animate-in fade-in slide-in-from-bottom-4 duration-700`}>
+                                                        {component}
+                                                    </div>
+                                                );
+                                            });
+                                        })()}
+                                    </div>
+
+                                    {isFetchingMore && (
+                                        <div className="text-center py-12 text-text-muted font-bold animate-pulse flex flex-col items-center justify-center gap-4">
+                                            <div className="flex gap-1.5">
+                                                <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
+                                                <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
+                                                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+                                            </div>
+                                            <span className="text-[13px] uppercase tracking-[0.2em] opacity-60">Discovering more premium assets</span>
+                                        </div>
+                                    )}
+
+                                    {!hasMore && properties.length > 0 && (
+                                        <div className="text-center py-20 border-t border-border/60">
+                                            <div className="inline-block p-4 rounded-full bg-surface border border-border mb-4">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted opacity-40"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                            </div>
+                                            <p className="text-text-muted text-[15px] font-black tracking-tight">
+                                                You've reached the end of the registry.
+                                            </p>
+                                            <p className="text-text-muted/60 text-[12px] font-medium mt-1">
+                                                Check back later for new opportunities.
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
 
             {/* Mobile Bottom Navigation */}
-            <div className="mobile-only">
+            <div className="lg:hidden">
                 <BottomNavigation user={user} />
             </div>
         </div>
@@ -92,206 +257,61 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
 
 function FeedSkeleton() {
     return (
-        <div className="layout-container" style={{ display: 'flex', gap: '40px', paddingTop: '40px' }}>
-            {/* Feed Content Skeleton */}
-            <div style={{ flex: 1, maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: 'var(--card-gap)', margin: '0 auto' }}>
-                {[1, 2].map(i => (
-                    <div key={i} className="card" style={{ padding: '0', height: '600px', borderRadius: '8px' }}>
-                        <div style={{ padding: '12px 16px', display: 'flex', gap: '12px' }}>
-                            <div className="skeleton skeleton-circle" style={{ width: '40px', height: '40px' }}></div>
-                            <div style={{ flex: 1 }}>
-                                <div className="skeleton" style={{ height: '1rem', width: '30%', marginBottom: '4px' }}></div>
-                                <div className="skeleton" style={{ height: '0.75rem', width: '20%' }}></div>
-                            </div>
-                        </div>
-                        <div className="skeleton" style={{ height: '400px', width: '100%' }}></div>
-                        <div style={{ padding: '16px' }}>
-                            <div className="skeleton" style={{ height: '1rem', width: '20%', marginBottom: '12px' }}></div>
-                            <div className="skeleton" style={{ height: '1.5rem', width: '80%' }}></div>
-                        </div>
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+            <div className="w-full flex flex-col">
+                {/* Carousel Skeleton */}
+                <div className="h-[400px] w-full bg-surface animate-pulse rounded-2xl mb-12"></div>
+                
+                {/* Featured Properties Skeleton */}
+                <div className="w-full flex flex-col gap-6 mb-16">
+                    <div className="h-6 w-1/4 bg-surface rounded animate-pulse"></div>
+                    <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        {[1, 2, 3, 4, 5].map(i => (
+                            <div key={i} className="aspect-square bg-surface animate-pulse rounded-xl"></div>
+                        ))}
                     </div>
-                ))}
-            </div>
-        </div>
-    );
-}
+                </div>
 
-function FeedView({ properties, user, onRefresh, onLoadMore, isFetchingMore, hasMore, featuredCollections, trendingSearches, featuredProperties, featuredAgencies, advertisements = [], categories = [] }: { properties: any[], user: any, onRefresh: () => void, onLoadMore: () => void, isFetchingMore: boolean, hasMore: boolean, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[], advertisements?: any[], categories?: any[] }) {
-    const [activeCommentPostId, setActiveCommentPostId] = React.useState<number | null>(null);
+                {/* Feed Area Skeleton */}
+                <div className="w-full mt-12 flex flex-col gap-10">
+                    {/* QuickActionsCard Skeleton */}
+                    <div className="w-full h-32 bg-surface animate-pulse rounded-2xl"></div>
 
-    const carouselAds = advertisements?.filter(ad => ad.shows_on_top) || [];
-    const feedAds = advertisements || [];
-
-    if (!properties || properties.length === 0) {
-        return (
-            <div className="layout-container" style={{ padding: '100px 0', textAlign: 'center' }}>
-                <h3>The feed is empty.</h3>
-                <Link href="/sell" style={{ color: 'var(--color-primary)' }}>Start the conversation by listing a property.</Link>
-            </div>
-        );
-    }
-
-    return (
-        <div className="layout-container" style={{ display: 'flex', gap: '40px', paddingTop: '0px', paddingBottom: '120px', alignItems: 'flex-start' }}>
-            <div className="feed-main-content" style={{
-                flex: 1,
-                display: 'flex',
-                justifyContent: 'center',
-                minWidth: 0
-            }}>
-                <div style={{
-                    width: '100%',
-                    maxWidth: '680px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 'var(--card-gap)'
-                }}>
-                    <QuickActionsCard user={user} />
-
-                    <PopularCategories categories={categories.length > 0 ? categories : undefined} />
-
-                    {/* Top Carousel Advertisement */}
-                    {carouselAds.length > 0 && (
-                        <div style={{ marginTop: '0px', marginBottom: '0px' }}>
-                            <AdvertisementCarousel ads={carouselAds} />
-                        </div>
-                    )}
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0px', marginTop: '16px' }}>
-                        {(() => {
-                            const feedItems: any[] = [];
-                            let propertyIndex = 0;
-                            let insertionCount = 0;
-
-                            const availableCardTypes = ['featured_collections', 'trending_searches', 'featured_projects'];
-                            const validCardTypes = availableCardTypes.filter(type => {
-                                if (type === 'featured_collections') return featuredCollections && featuredCollections.length > 0;
-                                if (type === 'trending_searches') return trendingSearches && trendingSearches.length > 0;
-                                if (type === 'featured_projects') return featuredProperties && featuredProperties.length > 0;
-                                return false;
-                            });
-
-                            // Helper to add an ad deterministically
-                            const addAd = (seedIndex: number) => {
-                                if (feedAds.length === 0) return;
-
-                                // Deterministic choice for carousel (e.g., every 3rd insertion if we have enough ads)
-                                // Use seedIndex to decide. 
-                                // If seedIndex % 3 === 2 (0, 1, 2...), show carousel
-                                const isCarousel = (seedIndex % 3 === 2);
-
-                                if (isCarousel && feedAds.length > 1) {
-                                    // Deterministic selection based on seed
-                                    const start = (seedIndex * 2) % feedAds.length;
-                                    // Create a deterministic shuffled-like list by concatenating and slicing
-                                    const carouselAds = [...feedAds, ...feedAds].slice(start, start + 5);
-                                    feedItems.push({ type: 'ad_carousel', data: carouselAds });
-                                } else {
-                                    const adIndex = seedIndex % feedAds.length;
-                                    feedItems.push({ type: 'ad', data: feedAds[adIndex] });
-                                }
-                            };
-
-                            // --- BLOCK: 5 Properties + 1 Ad + 1 Cyclic Card ---
-                            while (propertyIndex < properties.length) {
-                                const chunkCount = Math.min(5, properties.length - propertyIndex);
-                                for (let i = 0; i < chunkCount; i++) {
-                                    feedItems.push({ type: 'single', data: properties[propertyIndex++] });
-                                }
-
-                                // Only add extras if we actually added properties in this chunk
-                                if (chunkCount > 0) {
-                                    addAd(insertionCount);
-
-                                    if (validCardTypes.length > 0) {
-                                        const cardType = validCardTypes[insertionCount % validCardTypes.length];
-                                        feedItems.push({ type: cardType });
-                                    }
-
-                                    insertionCount++;
-                                }
-                            }
-
-                            const getGroupType = (type: string) => {
-                                if (type === 'single') return 'PROPERTY';
-                                if (type === 'grid_random') return 'GRID';
-                                if (type === 'ad' || type === 'ad_carousel') return 'AD';
-                                if (['featured_agencies', 'featured_collections', 'featured_projects'].includes(type)) return 'FEATURED';
-                                if (type === 'trending_searches') return 'TRENDING';
-                                return type;
-                            };
-
-                            return feedItems.map((item, idx) => {
-                                const currentGroupType = getGroupType(item.type);
-                                const prevItem = feedItems[idx - 1];
-                                const nextItem = feedItems[idx + 1];
-                                const prevGroupType = prevItem ? getGroupType(prevItem.type) : null;
-                                const nextGroupType = nextItem ? getGroupType(nextItem.type) : null;
-
-                                const isFirstInGroup = currentGroupType !== prevGroupType;
-                                const isLastInGroup = currentGroupType !== nextGroupType;
-
-                                const groupClass = isFirstInGroup && isLastInGroup
-                                    ? ''
-                                    : isFirstInGroup
-                                        ? 'group-top'
-                                        : isLastInGroup
-                                            ? 'group-bottom'
-                                            : 'group-middle';
-
-                                // Explicitly adding margin for ads
-                                const isAd = item.type === 'ad' || item.type === 'ad_carousel';
-                                const marginTop = isAd ? '24px' : (isFirstInGroup && idx > 0 ? (isFirstInGroup && isLastInGroup ? '16px' : '24px') : '0px');
-
-                                let component = null;
-
-                                if (item.type === 'single') {
-                                    const isTrigger = properties.indexOf(item.data) === properties.length - 5;
-                                    component = (
-                                        <PropertyPost
-                                            property={item.data}
-                                            user={user}
-                                            onRefresh={onRefresh}
-                                            onVisible={isTrigger ? onLoadMore : undefined}
-                                            isCommentsOpen={activeCommentPostId === item.data.id}
-                                            onToggleComments={() => setActiveCommentPostId(activeCommentPostId === item.data.id ? null : item.data.id)}
-                                            className={groupClass}
-                                        />
-                                    );
-                                } else if (item.type === 'ad') {
-                                    component = <AdvertisementCard ad={item.data} className={groupClass} />;
-                                } else if (item.type === 'ad_carousel') {
-                                    component = <AdvertisementCarousel ads={item.data} />;
-                                } else if (item.type === 'featured_collections') {
-                                    component = <FeaturedCollectionsFeedItem collections={featuredCollections || []} className={groupClass} />;
-                                } else if (item.type === 'trending_searches') {
-                                    component = <TrendingSearches searches={trendingSearches || []} className={groupClass} />;
-                                } else if (item.type === 'featured_projects') {
-                                    component = <FeaturedProjects properties={featuredProperties || []} className={groupClass} />;
-                                }
-
-                                return (
-                                    <div key={`${item.type}-${idx}`} style={{ marginTop }}>
-                                        {component}
+                    {/* Property Feed Skeleton */}
+                    <div className="w-full flex flex-col gap-6">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="bg-white rounded-2xl overflow-hidden border border-border flex flex-col sm:flex-row">
+                                {/* Image Section Skeleton */}
+                                <div className="w-full sm:w-[200px] md:w-[240px] flex flex-col flex-shrink-0">
+                                    <div className="aspect-[2/1] sm:aspect-[4/3] bg-surface animate-pulse"></div>
+                                    <div className="flex gap-1 p-1.5 bg-slate-50 border-t border-slate-100">
+                                        {[1, 2, 3].map(j => (
+                                            <div key={j} className="w-8 h-8 rounded-md bg-surface animate-pulse"></div>
+                                        ))}
                                     </div>
-                                );
-                            });
-                        })()}
+                                </div>
+                                {/* Content Section Skeleton */}
+                                <div className="flex-1 p-3 sm:p-4 flex flex-col gap-3">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 rounded-full bg-surface animate-pulse"></div>
+                                        <div className="h-3 w-24 bg-surface rounded animate-pulse"></div>
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <div className="h-5 w-3/4 bg-surface rounded animate-pulse"></div>
+                                        <div className="h-3 w-1/2 bg-surface rounded animate-pulse"></div>
+                                    </div>
+                                    <div className="mt-auto pt-2 flex flex-col gap-2">
+                                        <div className="h-6 w-1/3 bg-surface rounded animate-pulse"></div>
+                                        <div className="h-3 w-1/2 bg-surface rounded animate-pulse"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-
-                    {isFetchingMore && (
-                        <div style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-muted)', fontWeight: '600' }}>
-                            🔄 Loading more premium assets...
-                        </div>
-                    )}
-
-                    {!hasMore && properties.length > 0 && (
-                        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
-                            You've reached the end of the registry.
-                        </div>
-                    )}
                 </div>
             </div>
         </div>
     );
 }
+
+

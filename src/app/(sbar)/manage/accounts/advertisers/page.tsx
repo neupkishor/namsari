@@ -53,7 +53,7 @@ export default async function ManageAdvertisersPage({ searchParams }: { searchPa
                         No advertisers found in the registry.
                     </div>
                 ) : (
-                    users.map((u) => (
+                    users.map((u: any) => (
                         <Link
                             key={u.id}
                             href={`/manage/accounts/${u.username}`}
@@ -62,7 +62,7 @@ export default async function ManageAdvertisersPage({ searchParams }: { searchPa
                             <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', alignItems: 'center', gap: '20px', transition: 'all 0.2s', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                                 <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--color-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.5rem', overflow: 'hidden', flexShrink: 0 }}>
                                     {u.profile_picture ? (
-                                        <img src={u.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={u.name} />
+                                        <img src={u.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={u.name || 'Advertiser'} />
                                     ) : (
                                         (u.name || 'A')[0].toUpperCase()
                                     )}
