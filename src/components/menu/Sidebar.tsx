@@ -9,7 +9,7 @@ import { sidebarMenuGroups, managementMenuGroups } from './menu-config';
 
 export function SidebarSkeleton() {
     return (
-        <aside className="w-[var(--sidebar-width)] shrink-0 hidden lg:block h-full border-r border-border bg-white p-6">
+        <aside className="w-[var(--sidebar-width)] shrink-0 hidden lg:block h-full min-h-0 overflow-hidden border-r border-border bg-white pt-6 pr-6 pb-6 pl-0">
             <div className="flex flex-col gap-6">
                 {[1, 2, 3].map(group => (
                     <div key={group} className="flex flex-col gap-2">
@@ -60,13 +60,13 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
     };
 
     return (
-        <aside className="w-[var(--sidebar-width)] shrink-0 hidden lg:flex flex-col h-full border-r border-border bg-white">
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 pb-24">
+        <aside className="w-[var(--sidebar-width)] shrink-0 hidden lg:flex flex-col h-full min-h-0 overflow-hidden border-r border-border bg-white">
+            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pt-6 pr-6 pb-24 pl-0">
                 <div className="flex flex-col gap-8">
                     {menuGroups.map((group, groupIdx) => (
                         <div key={groupIdx} className="flex flex-col gap-2">
                             {group.title && (
-                                <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-widest px-3 mb-1">
+                                <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-widest pr-3 pl-0 mb-1">
                                     {group.title}
                                 </h3>
                             )}
@@ -79,7 +79,7 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
                                             <button
                                                 key={idx}
                                                 onClick={() => logoutAction()}
-                                                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] text-red-600 font-semibold transition-colors hover:bg-red-50 w-full text-left"
+                                                className="flex items-center gap-3 pr-3 pl-0 py-2.5 rounded-lg text-[14px] text-red-600 font-semibold transition-colors hover:bg-red-50 w-full text-left"
                                             >
                                                 <span className="text-xl opacity-80">{item.icon}</span>
                                                 <span>{item.label}</span>
@@ -91,7 +91,7 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
                                         <Link 
                                             key={idx} 
                                             href={item.href} 
-                                            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-[14px] no-underline ${
+                                            className={`flex items-center gap-3 pr-3 pl-0 py-2.5 rounded-lg transition-all duration-200 text-[14px] no-underline ${
                                                 active 
                                                 ? 'font-bold text-primary bg-primary/5 shadow-sm' 
                                                 : 'font-medium text-text-muted hover:bg-surface hover:text-primary'
@@ -109,7 +109,7 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
                     ))}
 
                     <div className="pt-4 border-t border-border">
-                        <p className="px-3 text-[10px] text-text-muted leading-relaxed">
+                        <p className="pr-3 pl-0 text-[10px] text-text-muted leading-relaxed">
                             Namsari Estate &copy; 2026<br /> 
                             <span className="opacity-70">Designed by </span>
                             <a href="https://neupgroup.com/marketing" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-semibold">
@@ -122,4 +122,3 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
         </aside>
     );
 }
-
