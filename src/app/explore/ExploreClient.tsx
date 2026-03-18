@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { Header } from '@/components/menu/Header';
 import { PropertyCard } from '@/components/cards/PropertyCard';
@@ -12,7 +13,10 @@ const MapComponent = dynamic(() => import('./MapComponent'), {
     loading: () => <div className="w-full h-full bg-surface animate-pulse rounded-3xl border border-border"></div>
 });
 
-export default function ExploreClient({ initialUser, initialQuery = '' }: { initialUser: any, initialQuery?: string }) {
+export default function ExploreClient({ initialUser, initialQuery = '', initialShowMap = false }: { initialUser: any, initialQuery?: string, initialShowMap?: boolean }) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
     const [properties, setProperties] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -21,7 +25,8 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
     const [hoveredId, setHoveredId] = useState<number | null>(null);
     const [mapCenter, setMapCenter] = useState<[number, number]>([27.7172, 85.324]);
     const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-    const [showMap, setShowMap] = useState(false); // For mobile toggle
+    const [showMap, setShowMap] = useState(initialShowMap); // For mobile toggle
+    const [searchHoldFeedback, setSearchHoldFeedback] = useState(false);
     const [skip, setSkip] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
@@ -78,6 +83,44 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
         }
     }, []);
 
+    useEffect(() => {
+        setShowMap(initialShowMap);
+    }, [initialShowMap]);
+
+    useEffect(() => {
+        const handleHoldFeedback = (event: Event) => {
+            const customEvent = event as CustomEvent<{ active?: boolean }>;
+            setSearchHoldFeedback(Boolean(customEvent.detail?.active));
+        };
+
+        window.addEventListener('explore-view-hold-feedback', handleHoldFeedback as EventListener);
+        return () => {
+            window.removeEventListener('explore-view-hold-feedback', handleHoldFeedback as EventListener);
+        };
+    }, []);
+
+    useEffect(() => {
+        document.cookie = `explore_view=${showMap ? 'map' : 'list'}; path=/; max-age=31536000; samesite=lax`;
+    }, [showMap]);
+
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams?.toString() || '');
+        const currentView = params.get('view');
+
+        if (initialShowMap && currentView !== 'map') {
+            params.set('view', 'map');
+            const nextUrl = `${pathname}?${params.toString()}`;
+            router.replace(nextUrl, { scroll: false });
+            return;
+        }
+
+        if (!initialShowMap && currentView === 'map') {
+            params.delete('view');
+            const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+            router.replace(nextUrl, { scroll: false });
+        }
+    }, [initialShowMap, pathname, router, searchParams]);
+
     // Refetch when map bounds change
     useEffect(() => {
         if (mapBounds) {
@@ -85,6 +128,21 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
             fetchProperties(false);
         }
     }, [mapBounds]);
+
+    const toggleMobileMapView = () => {
+        const nextShowMap = !showMap;
+        setShowMap(nextShowMap);
+
+        const params = new URLSearchParams(searchParams?.toString() || '');
+        if (nextShowMap) {
+            params.set('view', 'map');
+        } else {
+            params.delete('view');
+        }
+
+        const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+        router.replace(nextUrl, { scroll: false });
+    };
 
     // Infinite scroll handler
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -137,7 +195,9 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
             {/* Airbnb-style Search Bar */}
             <div className="bg-white border-b border-border px-4 sm:px-6 py-4 sticky top-[var(--header-height)] z-40">
                 <div className="max-w-[2520px] mx-auto flex items-center gap-4 justify-between">
-                    <div className="relative flex-1 max-w-[500px] group">
+                    <div className={`relative flex-1 max-w-[500px] group transition-all duration-300 ${
+                        searchHoldFeedback ? 'lg:ring-0 ring-2 ring-blue-500 ring-offset-2 ring-offset-white rounded-full' : ''
+                    }`}>
                         <input
                             type="text"
                             placeholder="Search destinations"
@@ -167,7 +227,7 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
             {/* Mobile Map Toggle Button */}
             <button
                 className="lg:hidden fixed bottom-10 left-1/2 -translate-x-1/2 z-50 bg-text-main text-white px-8 py-4 rounded-full font-black text-[13px] uppercase tracking-widest cursor-pointer flex items-center gap-3 shadow-2xl transition-all active:scale-95 border border-white/10"
-                onClick={() => setShowMap(!showMap)}
+                onClick={toggleMobileMapView}
             >
                 {showMap ? (
                     <>

@@ -1,15 +1,48 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { logoutAction } from '@/actions/auth';
 import { bottomNavItems, sidebarMenuGroups, managementMenuGroups } from './menu-config';
 
+const EXPLORE_VIEW_HOLD_MS = 1000;
+const EXPLORE_VIEW_FEEDBACK_MS = 200;
+
+function getExploreViewCookie(): 'map' | 'list' | null {
+    if (typeof document === 'undefined') return null;
+
+    const cookie = document.cookie
+        .split('; ')
+        .find((entry) => entry.startsWith('explore_view='))
+        ?.split('=')[1];
+
+    return cookie === 'map' || cookie === 'list' ? cookie : null;
+}
+
+function setExploreViewCookie(view: 'map' | 'list') {
+    if (typeof document === 'undefined') return;
+    document.cookie = `explore_view=${view}; path=/; max-age=31536000; samesite=lax`;
+}
+
 export function BottomNavigation({ user }: { user?: any }) {
     const pathname = usePathname();
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const isExplorePage = pathname === '/explore';
+    const isMapView = isExplorePage && searchParams?.get('view') === 'map';
+    const savedExploreView = useSyncExternalStore(
+        () => () => {},
+        getExploreViewCookie,
+        () => null
+    );
     const [showMobileMenu, setShowMobileMenu] = useState(false);
+    const [pressedExploreHref, setPressedExploreHref] = useState<string | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
+    const exploreHoldTimer = useRef<NodeJS.Timeout | null>(null);
+    const exploreFeedbackTimer = useRef<NodeJS.Timeout | null>(null);
+    const exploreFeedbackShown = useRef(false);
+    const exploreHoldReady = useRef(false);
 
     // Dynamic Visibility Logic
     const [isVisible, setIsVisible] = useState(true);
@@ -94,6 +127,66 @@ export function BottomNavigation({ user }: { user?: any }) {
     const isManagePage = pathname?.startsWith('/manage');
     const menuGroups = isManagePage ? managementMenuGroups(user) : sidebarMenuGroups(user);
 
+    const clearExploreHold = () => {
+        if (exploreHoldTimer.current) {
+            clearTimeout(exploreHoldTimer.current);
+            exploreHoldTimer.current = null;
+        }
+        if (exploreFeedbackTimer.current) {
+            clearTimeout(exploreFeedbackTimer.current);
+            exploreFeedbackTimer.current = null;
+        }
+        if (exploreFeedbackShown.current && typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('explore-view-hold-feedback', { detail: { active: false } }));
+            exploreFeedbackShown.current = false;
+        }
+        exploreHoldReady.current = false;
+        setPressedExploreHref(null);
+    };
+
+    const beginExploreHold = (href: string) => {
+        if (!isExplorePage) return;
+        clearExploreHold();
+        setPressedExploreHref(href);
+        exploreFeedbackTimer.current = setTimeout(() => {
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('explore-view-hold-feedback', { detail: { active: true } }));
+                exploreFeedbackShown.current = true;
+            }
+        }, EXPLORE_VIEW_FEEDBACK_MS);
+        exploreHoldTimer.current = setTimeout(() => {
+            exploreHoldReady.current = true;
+        }, EXPLORE_VIEW_HOLD_MS);
+    };
+
+    const releaseExploreHold = (href: string) => {
+        if (!isExplorePage) {
+            clearExploreHold();
+            return;
+        }
+        const shouldToggle = exploreHoldReady.current;
+        clearExploreHold();
+
+        if (!shouldToggle) return;
+
+        setExploreViewCookie(isMapView ? 'list' : 'map');
+        router.push(href, { scroll: false });
+    };
+
+    useEffect(() => {
+        return () => {
+            if (exploreHoldTimer.current) {
+                clearTimeout(exploreHoldTimer.current);
+            }
+            if (exploreFeedbackTimer.current) {
+                clearTimeout(exploreFeedbackTimer.current);
+            }
+            if (exploreFeedbackShown.current && typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('explore-view-hold-feedback', { detail: { active: false } }));
+            }
+        };
+    }, []);
+
     return (
         <>
             {/* Mobile Menu Overlay */}
@@ -172,6 +265,25 @@ export function BottomNavigation({ user }: { user?: any }) {
                 isVisible ? 'translate-y-0 opacity-100' : 'translate-y-[150%] opacity-0 pointer-events-none'
             }`}>
                 {items.map((item, idx) => {
+                    const isExploreAction = isExplorePage && item.href === '/explore';
+                    const isExploreItem = item.href === '/explore';
+                    const itemHref = isExploreAction
+                        ? (() => {
+                            const params = new URLSearchParams(searchParams?.toString() || '');
+                            if (isMapView) {
+                                params.delete('view');
+                            } else {
+                                params.set('view', 'map');
+                            }
+                            return params.toString() ? `/explore?${params.toString()}` : '/explore';
+                        })()
+                        : item.href;
+                    const itemIcon = isExploreAction
+                        ? (isMapView ? '🧭' : '🗺️')
+                        : isExploreItem && savedExploreView === 'map'
+                            ? '🗺️'
+                            : item.icon;
+                    const isHoldingExplore = isExploreAction && pressedExploreHref === itemHref;
                     const active = pathname === item.href || (item.href === '#menu' && showMobileMenu);
                     const isCenter = item.label === 'Post';
 
@@ -179,7 +291,7 @@ export function BottomNavigation({ user }: { user?: any }) {
                         return (
                             <Link 
                                 key={idx} 
-                                href={item.href}
+                                href={itemHref}
                                 className="relative -top-8 flex flex-col items-center justify-center no-underline group"
                             >
                                 <div className={`w-16 h-16 rounded-[2rem] flex items-center justify-center text-2xl shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:-translate-y-1 group-active:scale-95 ${
@@ -187,7 +299,7 @@ export function BottomNavigation({ user }: { user?: any }) {
                                         ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-blue-200/50' 
                                         : 'bg-gradient-to-br from-slate-800 to-slate-900 text-white shadow-slate-300/50'
                                 }`}>
-                                    <span className="transform group-hover:rotate-12 transition-transform duration-500">{item.icon}</span>
+                                    <span key={`${item.label}-${itemIcon}`} className="footer-icon-swap transform group-hover:rotate-12 transition-transform duration-500">{itemIcon}</span>
                                 </div>
                                 <div className="absolute -bottom-6 flex flex-col items-center">
                                     <span className={`text-[11px] font-black uppercase tracking-widest transition-colors duration-300 ${
@@ -204,11 +316,31 @@ export function BottomNavigation({ user }: { user?: any }) {
                         <button 
                             key={idx}
                             onClick={() => {
-                                if (item.href === '#menu') {
+                                if (itemHref === '#menu') {
                                     setShowMobileMenu(!showMobileMenu);
+                                } else if (isExploreAction) {
+                                    clearExploreHold();
                                 } else {
-                                    window.location.href = item.href;
+                                    router.push(itemHref, { scroll: false });
                                 }
+                            }}
+                            onMouseDown={() => {
+                                if (isExploreAction) beginExploreHold(itemHref);
+                            }}
+                            onMouseUp={() => {
+                                if (isExploreAction) releaseExploreHold(itemHref);
+                            }}
+                            onMouseLeave={() => {
+                                if (isExploreAction) clearExploreHold();
+                            }}
+                            onTouchStart={() => {
+                                if (isExploreAction) beginExploreHold(itemHref);
+                            }}
+                            onTouchEnd={() => {
+                                if (isExploreAction) releaseExploreHold(itemHref);
+                            }}
+                            onTouchCancel={() => {
+                                if (isExploreAction) clearExploreHold();
                             }}
                             className="relative flex flex-col items-center justify-center gap-1.5 min-w-[56px] h-full transition-all duration-300 active:scale-90 group"
                         >
@@ -217,10 +349,17 @@ export function BottomNavigation({ user }: { user?: any }) {
                                     ? 'scale-110 -translate-y-0.5' 
                                     : 'opacity-40 grayscale group-hover:opacity-70 group-hover:grayscale-0 group-hover:-translate-y-0.5'
                             }`}>
-                                {item.icon}
+                                <span key={`${item.label}-${itemIcon}`} className="footer-icon-swap inline-flex">
+                                    {itemIcon}
+                                </span>
                             </div>
+                            {isExploreAction && isHoldingExplore && (
+                                <div className="absolute top-1 left-1/2 h-0.5 w-10 -translate-x-1/2 overflow-hidden rounded-full bg-slate-200">
+                                    <div className="footer-hold-progress h-full bg-blue-600 rounded-full" />
+                                </div>
+                            )}
                             <span className={`text-[10px] font-bold tracking-tight transition-all duration-300 ${
-                                active ? 'text-blue-600 opacity-100' : 'text-slate-400 opacity-0 group-hover:opacity-100'
+                                active ? 'text-blue-600 opacity-100' : 'text-slate-400 opacity-100'
                             }`}>
                                 {item.label}
                             </span>
@@ -231,6 +370,37 @@ export function BottomNavigation({ user }: { user?: any }) {
                     );
                 })}
             </nav>
+
+            <style jsx>{`
+                @keyframes footerIconSwap {
+                    0% {
+                        opacity: 0;
+                        transform: scale(0.72) rotate(-12deg);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: scale(1) rotate(0deg);
+                    }
+                }
+
+                .footer-icon-swap {
+                    animation: footerIconSwap 260ms ease;
+                }
+
+                @keyframes footerHoldProgress {
+                    0% {
+                        transform: scaleX(0);
+                    }
+                    100% {
+                        transform: scaleX(1);
+                    }
+                }
+
+                .footer-hold-progress {
+                    transform-origin: left center;
+                    animation: footerHoldProgress ${EXPLORE_VIEW_HOLD_MS}ms linear forwards;
+                }
+            `}</style>
         </>
     );
 }
