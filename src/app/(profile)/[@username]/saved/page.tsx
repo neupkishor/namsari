@@ -32,7 +32,7 @@ export default async function ProfileSavedPage({ params }: PageProps) {
         // The user specifically asked "the /@[username]/saved should only be visible and active to the user self."
         // Redirection to main profile might be cleaner, but a "Private" message is clearer why access was denied.
         return (
-            <div className="card" style={{ padding: '60px 40px', textAlign: 'center', background: 'white' }}>
+            <div className="card" style={{ padding: '60px 40px', textAlign: 'center', background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px' }}>
                 <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔒</div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '8px' }}>Private Collection</h3>
                 <p style={{ color: 'var(--color-text-muted)', maxWidth: '400px', margin: '0 auto' }}>
@@ -98,7 +98,7 @@ export default async function ProfileSavedPage({ params }: PageProps) {
 
     if (enrichedProperties.length === 0) {
         return (
-            <div className="card" style={{ padding: '60px 40px', textAlign: 'center', background: 'white' }}>
+            <div className="card" style={{ padding: '60px 40px', textAlign: 'center', background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px' }}>
                 <div style={{ fontSize: '3rem', marginBottom: '16px' }}>❤️</div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '8px' }}>No saved properties</h3>
                 <p style={{ color: 'var(--color-text-muted)', maxWidth: '300px', margin: '0 auto' }}>

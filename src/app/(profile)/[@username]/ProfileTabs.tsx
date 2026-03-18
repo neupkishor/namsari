@@ -34,7 +34,7 @@ export default function ProfileTabs({ username, isOwner, accountType }: { userna
     }
 
     return (
-        <div className="profile-nav" style={{ display: 'flex', gap: '32px', padding: '0 24px', overflowX: 'auto', borderBottom: '1px solid #f1f5f9' }}>
+        <div className="profile-nav" style={{ display: 'flex', gap: '32px', padding: '0 24px', overflowX: 'auto', overflowY: 'hidden', borderBottom: '1px solid #f1f5f9' }}>
             {tabs.map(tab => {
                 const active = isActive(tab.href);
                 return (

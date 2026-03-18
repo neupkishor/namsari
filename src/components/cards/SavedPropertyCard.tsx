@@ -34,14 +34,14 @@ export const SavedPropertyCard: React.FC<SavedPropertyCardProps> = ({ property }
             alignItems: 'center',
             background: 'white',
             border: '1px solid var(--color-border)',
-            borderRadius: '12px'
+            borderRadius: '24px'
         }}>
             {/* Image Section */}
             <Link href={propertyUrl} style={{ flexShrink: 0 }}>
                 <div style={{ 
                     width: '120px', 
                     height: '120px', 
-                    borderRadius: '8px', 
+                    borderRadius: '16px', 
                     overflow: 'hidden',
                     background: '#f1f5f9'
                 }}>

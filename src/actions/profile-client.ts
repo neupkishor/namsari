@@ -28,6 +28,28 @@ export async function updateUserProfilePicture(userId: number, url: string) {
     revalidatePath('/[@username]', 'page');
 }
 
+export async function updateUserCoverImage(userId: number, url: string) {
+    const currentUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { cover_image: true }
+    });
+
+    await prisma.user.update({
+        where: { id: userId },
+        data: { cover_image: url }
+    });
+
+    const previousUrl = currentUser?.cover_image || 'none';
+
+    await logActivity({
+        activity_type: 'update_profile',
+        description: `Updated cover image from "${previousUrl}" to "${url}"`,
+        account_id: userId,
+    });
+
+    revalidatePath('/[@username]', 'layout');
+}
+
 export async function updateProfile(userId: number, formData: FormData) {
     const name = formData.get('name') as string;
     const bio = formData.get('bio') as string;

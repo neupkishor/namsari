@@ -6,6 +6,7 @@ interface ProfileImageUploadProps {
     currentImage?: string | null;
     userName: string;
     isOwner: boolean;
+    shape?: string;
 }
 
 export default function ProfileImageUpload(props: ProfileImageUploadProps) {

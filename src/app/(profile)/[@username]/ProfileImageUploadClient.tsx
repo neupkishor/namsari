@@ -10,9 +10,10 @@ interface ProfileImageUploadProps {
     currentImage?: string | null;
     userName: string;
     isOwner: boolean;
+    shape?: string;
 }
 
-export default function ProfileImageUploadClient({ userId, currentImage, userName, isOwner }: ProfileImageUploadProps) {
+export default function ProfileImageUploadClient({ userId, currentImage, userName, isOwner, shape = '50%' }: ProfileImageUploadProps) {
     const [uploading, setUploading] = useState(false);
     const [compressing, setCompressing] = useState(false);
     const router = useRouter();
@@ -54,12 +55,11 @@ export default function ProfileImageUploadClient({ userId, currentImage, userNam
     };
 
     return (
-        <div style={{ position: 'relative', width: '168px', height: '168px' }}>
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
             <div style={{
-                width: '168px',
-                height: '168px',
-                borderRadius: '50%',
-                border: '6px solid white',
+                width: '100%',
+                height: '100%',
+                borderRadius: shape,
                 background: 'var(--color-primary)',
                 display: 'flex',
                 alignItems: 'center',
@@ -67,7 +67,6 @@ export default function ProfileImageUploadClient({ userId, currentImage, userNam
                 color: 'white',
                 fontSize: '4rem',
                 fontWeight: 'bold',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                 overflow: 'hidden',
                 position: 'relative'
             }}>
@@ -99,19 +98,19 @@ export default function ProfileImageUploadClient({ userId, currentImage, userNam
             {isOwner && (
                 <label style={{
                     position: 'absolute',
-                    bottom: '8px',
-                    right: '8px',
+                    right: '-6px',
+                    bottom: '-6px',
                     background: 'white',
-                    width: '40px',
-                    height: '40px',
+                    width: '42px',
+                    height: '42px',
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                     border: '1px solid #e2e8f0',
-                    fontSize: '1.2rem'
+                    fontSize: '1.2rem',
+                    zIndex: 2
                 }}>
                     <input type="file" style={{ display: 'none' }} onChange={handleUpload} disabled={uploading || compressing} accept="image/*" />
                     📷

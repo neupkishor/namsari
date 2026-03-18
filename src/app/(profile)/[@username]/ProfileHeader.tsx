@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import ProfileImageUpload from './ProfileImageUpload';
 import ProfileTabs from '@/app/(profile)/[@username]/ProfileTabs';
+import ProfileCoverUploadButton from './ProfileCoverUploadButton';
 
 interface ProfileHeaderProps {
     user: any;
@@ -19,22 +20,18 @@ export default function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
     const profileShape = isAgencyOrBank ? '12px' : '50%'; // Square-ish for organizations, circle for people
 
     return (
-        <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '0 0 24px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
             <div className="layout-container">
                 {/* Cover Image */}
                 <div style={{ 
                     height: '280px', 
                     background: coverImage ? `url(${coverImage}) center/cover no-repeat` : 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', 
-                    borderRadius: '0 0 16px 16px', 
+                    borderRadius: '0 0 24px 24px', 
                     position: 'relative' 
                 }}>
                     {isOwner && (
                         <div style={{ position: 'absolute', bottom: '20px', right: '20px' }}>
-                            <Link href={`/@${user.username}/edit`}>
-                                <button style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <span>📷</span> Edit Cover
-                                </button>
-                            </Link>
+                            <ProfileCoverUploadButton userId={user.id} />
                         </div>
                     )}
                 </div>
@@ -47,14 +44,15 @@ export default function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
                                  padding: '6px', 
                                  background: 'white', 
                                  borderRadius: isAgencyOrBank ? '16px' : '50%',
-                                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                                 border: '1px solid #e2e8f0'
                              }}>
-                                <div style={{ overflow: 'hidden', borderRadius: profileShape, width: '160px', height: '160px' }}>
+                                <div style={{ borderRadius: profileShape, width: '160px', height: '160px', position: 'relative', overflow: 'visible' }}>
                                     <ProfileImageUpload
                                         userId={user.id}
                                         currentImage={(user as any).profile_picture}
                                         userName={user.name}
                                         isOwner={isOwner}
+                                        shape={profileShape}
                                     />
                                 </div>
                              </div>
@@ -96,10 +94,11 @@ export default function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
 
                     <div className="profile-actions" style={{ paddingBottom: '24px', paddingTop: '12px' }}>
                         {isOwner ? (
-                            <Link href={`/@${user.username}/edit`}>
-                                <button style={{ padding: '10px 20px', background: 'white', border: '1px solid #cbd5e1', color: '#475569', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <span>⚙️</span> Manage Profile
-                                </button>
+                            <Link
+                                href={`/@${user.username}/edit`}
+                                style={{ padding: '10px 20px', background: 'white', border: '1px solid #cbd5e1', color: '#475569', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}
+                            >
+                                <span>⚙️</span> Manage Profile
                             </Link>
                         ) : (
                             <div style={{ display: 'flex', gap: '12px' }}>

@@ -47,18 +47,20 @@ export default async function ProfileLayout({ children, params }: LayoutProps) {
     const reviewCount = reviewsAggregate._count.rating || 0;
 
     return (
-        <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
+        <div className="min-h-screen bg-[#f0f2f5]">
             <ScrollToTop />
-            
-            {/* Profile Header (Cover, Info, Tabs) */}
-            <ProfileHeader user={user} isOwner={isOwner} />
 
-            <div className="layout-container profile-main-grid">
-                {/* Persistent Sidebar */}
-                <ProfileSidebar user={user} listingsCount={listingsCount} rating={averageRating} reviewCount={reviewCount} />
+            <div className="max-w-[var(--container-max)] mx-auto mt-[var(--header-height)] px-4 lg:px-6 w-full">
+                {/* Profile Header (Cover, Info, Tabs) */}
+                <ProfileHeader user={user} isOwner={isOwner} />
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    {children}
+                <div className="grid gap-6 py-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+                    {/* Persistent Sidebar */}
+                    <ProfileSidebar user={user} listingsCount={listingsCount} rating={averageRating} reviewCount={reviewCount} />
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
+                        {children}
+                    </div>
                 </div>
             </div>
         </div>

@@ -46,7 +46,7 @@ export default async function ProfileReviewsPage({ params }: PageProps) {
             )}
 
             {reviews.length === 0 ? (
-                <div className="card" style={{ padding: '60px 40px', textAlign: 'center', background: 'white' }}>
+                <div className="card" style={{ padding: '60px 40px', textAlign: 'center', background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px' }}>
                     <div style={{ fontSize: '3rem', marginBottom: '16px' }}>⭐</div>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '8px' }}>No reviews yet</h3>
                     <p style={{ color: 'var(--color-text-muted)', maxWidth: '300px', margin: '0 auto' }}>
@@ -55,7 +55,7 @@ export default async function ProfileReviewsPage({ params }: PageProps) {
                 </div>
             ) : (
                 reviews.map((review: any) => (
-                    <div key={review.id} className="card" style={{ padding: '24px' }}>
+                    <div key={review.id} className="card" style={{ padding: '24px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px' }}>
                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
                             <Link href={`/@${review.author.username}`} style={{ textDecoration: 'none' }}>
                                 <div 

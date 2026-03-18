@@ -161,7 +161,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', position: 'sticky', top: '24px' }}>
                 {/* Agents Mini-List (For Agencies) - Sidebar style */}
                 {user.type === 'agency' && agents.length > 0 && (
-                    <div className="card" style={{ padding: '24px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px' }}>
+                    <div className="card" style={{ padding: '24px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                             <h3 style={{ fontSize: '1.1rem', fontWeight: '800', color: '#1e293b' }}>Team Members</h3>
                             <Link href={`/@${user.username}/agents`} style={{ fontSize: '0.85rem', color: 'var(--color-primary)', fontWeight: '600', textDecoration: 'none' }}>See All</Link>
@@ -191,7 +191,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {/* Properties Feed */}
                 <div>
-                    <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '20px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px', padding: '20px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#1e293b' }}>Latest Listings</h3>
                         {user._count.listedProperties > 3 && (
                             <Link href={`/@${user.username}/properties`} style={{ padding: '8px 16px', background: '#f1f5f9', borderRadius: '8px', fontSize: '0.85rem', fontWeight: '600', color: '#475569', textDecoration: 'none' }}>
@@ -207,7 +207,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
                             ))}
                         </div>
                     ) : (
-                        <div className="card" style={{ padding: '40px', textAlign: 'center', color: '#64748b', background: 'white', borderRadius: '16px', border: '1px dashed #cbd5e1' }}>
+                        <div className="card" style={{ padding: '40px', textAlign: 'center', color: '#64748b', background: 'white', borderRadius: '24px', border: '1px dashed #cbd5e1' }}>
                             <div style={{ fontSize: '2rem', marginBottom: '16px' }}>🏠</div>
                             <p style={{ fontWeight: '500' }}>No active listings to show.</p>
                         </div>
@@ -217,12 +217,12 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
                 {/* Reviews Feed Style */}
                 {reviews.length > 0 && (
                     <div>
-                        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
+                        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px', padding: '20px', marginBottom: '24px' }}>
                             <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#1e293b' }}>Recent Activity & Reviews</h3>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             {reviews.map((review: any) => (
-                                <div key={review.id} className="card" style={{ padding: '24px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px' }}>
+                                <div key={review.id} className="card" style={{ padding: '24px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                                         <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#f1f5f9', overflow: 'hidden' }}>
                                             {review.author.profile_picture ? (

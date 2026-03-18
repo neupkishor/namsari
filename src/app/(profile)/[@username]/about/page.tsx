@@ -22,7 +22,7 @@ export default async function ProfileAboutPage({ params }: PageProps) {
     if (!user) return notFound();
 
     return (
-        <div className="card" style={{ padding: '32px' }}>
+        <div className="card" style={{ padding: '32px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px' }}>
             <h2 className="section-title" style={{ marginBottom: '24px' }}>About {user.name}</h2>
 
             <div style={{ fontSize: '1.05rem', lineHeight: '1.7', color: '#334155', marginBottom: '32px' }}>

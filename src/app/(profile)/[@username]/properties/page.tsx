@@ -73,7 +73,7 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
 
     if (enrichedProperties.length === 0) {
         return (
-            <div className="card" style={{ padding: '60px 40px', textAlign: 'center', background: 'white' }}>
+            <div className="card" style={{ padding: '60px 40px', textAlign: 'center', background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px' }}>
                 <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🏘️</div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '8px' }}>No active listings</h3>
                 <p style={{ color: 'var(--color-text-muted)', maxWidth: '300px', margin: '0 auto' }}>This user hasn't posted any properties for sale or rent yet.</p>

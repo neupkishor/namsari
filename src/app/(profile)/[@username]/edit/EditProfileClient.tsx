@@ -38,106 +38,262 @@ export default function EditProfileClient({ user }: { user: User }) {
     }
 
     return (
-        <div className="card" style={{ padding: '32px', maxWidth: '800px', margin: '0 auto' }}>
-            <h1 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '32px', color: 'var(--color-primary)' }}>Edit Profile</h1>
+        <>
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                .profile-edit-shell {
+                    max-width: 880px;
+                    margin: 0 auto;
+                    background: white;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 24px;
+                    overflow: hidden;
+                }
 
-            <div style={{ marginBottom: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <ProfileImageUpload
-                    userId={user.id}
-                    currentImage={user.profile_picture}
-                    userName={user.name || ''}
-                    isOwner={true}
-                />
-                <p style={{ marginTop: '16px', color: '#64748b', fontSize: '0.9rem' }}>Click the camera icon to update your photo</p>
+                .profile-edit-hero {
+                    padding: 32px;
+                    border-bottom: 1px solid #e2e8f0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 24px;
+                    flex-wrap: wrap;
+                }
+
+                .profile-edit-avatar-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 24px;
+                    flex-wrap: wrap;
+                }
+
+                .profile-edit-form {
+                    display: grid;
+                    gap: 28px;
+                    padding: 32px;
+                }
+
+                .profile-edit-section {
+                    display: grid;
+                    gap: 18px;
+                }
+
+                .profile-edit-section-title {
+                    font-size: 1.15rem;
+                    font-weight: 800;
+                    color: #1e293b;
+                    margin: 0;
+                }
+
+                .profile-edit-section-copy {
+                    font-size: 0.92rem;
+                    color: #64748b;
+                    margin: 0;
+                }
+
+                .profile-edit-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 20px;
+                }
+
+                .profile-edit-field {
+                    display: grid;
+                    gap: 8px;
+                }
+
+                .profile-edit-label {
+                    font-weight: 700;
+                    color: #1e293b;
+                    font-size: 0.95rem;
+                }
+
+                .profile-edit-input {
+                    width: 100%;
+                    padding: 14px 16px;
+                    border-radius: 14px;
+                    border: 1px solid #e2e8f0;
+                    background: #fff;
+                    color: #0f172a;
+                    font: inherit;
+                }
+
+                .profile-edit-input:focus {
+                    outline: none;
+                    border-color: #cbd5e1;
+                    box-shadow: 0 0 0 3px rgba(130, 0, 0, 0.08);
+                }
+
+                .profile-edit-note {
+                    font-size: 0.9rem;
+                    color: #64748b;
+                }
+
+                .profile-edit-alert {
+                    padding: 14px 16px;
+                    border-radius: 14px;
+                    font-weight: 600;
+                }
+
+                .profile-edit-actions {
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 12px;
+                    padding-top: 8px;
+                }
+
+                .profile-edit-button {
+                    padding: 12px 24px;
+                    border-radius: 14px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    font: inherit;
+                }
+
+                @media (max-width: 768px) {
+                    .profile-edit-hero,
+                    .profile-edit-form {
+                        padding: 24px;
+                    }
+
+                    .profile-edit-grid {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .profile-edit-actions {
+                        flex-direction: column-reverse;
+                    }
+
+                    .profile-edit-button {
+                        width: 100%;
+                    }
+                }
+            `}} />
+
+            <div className="profile-edit-shell">
+                <div className="profile-edit-hero">
+                    <div className="profile-edit-avatar-row">
+                        <div style={{ width: '128px', height: '128px', padding: '6px', borderRadius: '50%', background: 'white', border: '1px solid #e2e8f0' }}>
+                            <ProfileImageUpload
+                                userId={user.id}
+                                currentImage={user.profile_picture}
+                                userName={user.name || ''}
+                                isOwner={true}
+                            />
+                        </div>
+
+                        <div style={{ display: 'grid', gap: '8px' }}>
+                            <h1 style={{ fontSize: '2rem', fontWeight: '800', margin: 0, color: '#1e293b' }}>Edit Profile</h1>
+                            <p style={{ margin: 0, color: '#64748b', fontSize: '0.95rem' }}>
+                                Update your public profile details and account contact information.
+                            </p>
+                            <p className="profile-edit-note" style={{ margin: 0 }}>
+                                Click the camera icon on your photo to upload a new profile image.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <form action={handleSubmit} className="profile-edit-form">
+                    <section className="profile-edit-section">
+                        <div style={{ display: 'grid', gap: '6px' }}>
+                            <h2 className="profile-edit-section-title">Basic Information</h2>
+                            <p className="profile-edit-section-copy">These details appear on your public profile.</p>
+                        </div>
+
+                        <div className="profile-edit-field">
+                            <label className="profile-edit-label">Display Name</label>
+                            <input
+                                className="profile-edit-input"
+                                name="name"
+                                defaultValue={user.name || ''}
+                                required
+                            />
+                        </div>
+
+                        <div className="profile-edit-field">
+                            <label className="profile-edit-label">Bio / Description</label>
+                            <textarea
+                                className="profile-edit-input"
+                                name="bio"
+                                defaultValue={user.bio || ''}
+                                rows={5}
+                                style={{ resize: 'vertical', minHeight: '132px' }}
+                            />
+                        </div>
+
+                        <div className="profile-edit-grid">
+                            <div className="profile-edit-field">
+                                <label className="profile-edit-label">Email Address</label>
+                                <input
+                                    className="profile-edit-input"
+                                    name="email"
+                                    type="email"
+                                    defaultValue={user.email || ''}
+                                    required
+                                />
+                            </div>
+                            <div className="profile-edit-field">
+                                <label className="profile-edit-label">Phone Number</label>
+                                <input
+                                    className="profile-edit-input"
+                                    name="phone"
+                                    type="tel"
+                                    defaultValue={user.contact_number || ''}
+                                />
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="profile-edit-section" style={{ borderTop: '1px solid #e2e8f0', paddingTop: '28px' }}>
+                        <div style={{ display: 'grid', gap: '6px' }}>
+                            <h2 className="profile-edit-section-title">Security</h2>
+                            <p className="profile-edit-section-copy">Leave these blank if you do not want to change your password.</p>
+                        </div>
+
+                        <div className="profile-edit-grid">
+                            <div className="profile-edit-field">
+                                <label className="profile-edit-label">New Password</label>
+                                <input
+                                    className="profile-edit-input"
+                                    name="password"
+                                    type="password"
+                                />
+                            </div>
+                            <div className="profile-edit-field">
+                                <label className="profile-edit-label">Confirm New Password</label>
+                                <input
+                                    className="profile-edit-input"
+                                    name="confirmPassword"
+                                    type="password"
+                                />
+                            </div>
+                        </div>
+                    </section>
+
+                    {error && <div className="profile-edit-alert" style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}>{error}</div>}
+                    {success && <div className="profile-edit-alert" style={{ background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>{success}</div>}
+
+                    <div className="profile-edit-actions">
+                        <button
+                            type="button"
+                            className="profile-edit-button"
+                            onClick={() => router.back()}
+                            style={{ background: 'transparent', border: '1px solid #e2e8f0', color: '#475569' }}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            className="profile-edit-button"
+                            disabled={loading}
+                            style={{ background: 'var(--color-primary)', color: 'white', border: 'none', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
+                        >
+                            {loading ? 'Saving...' : 'Save Changes'}
+                        </button>
+                    </div>
+                </form>
             </div>
-
-            <form action={handleSubmit} style={{ display: 'grid', gap: '24px' }}>
-                <div style={{ display: 'grid', gap: '8px' }}>
-                    <label style={{ fontWeight: '600', color: '#1e293b' }}>Display Name</label>
-                    <input
-                        name="name"
-                        defaultValue={user.name || ''}
-                        required
-                        style={{ padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
-                    />
-                </div>
-
-                <div style={{ display: 'grid', gap: '8px' }}>
-                    <label style={{ fontWeight: '600', color: '#1e293b' }}>Bio / Description</label>
-                    <textarea
-                        name="bio"
-                        defaultValue={user.bio || ''}
-                        rows={4}
-                        style={{ padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%', fontFamily: 'inherit' }}
-                    />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                    <div style={{ display: 'grid', gap: '8px' }}>
-                        <label style={{ fontWeight: '600', color: '#1e293b' }}>Email Address</label>
-                        <input
-                            name="email"
-                            type="email"
-                            defaultValue={user.email || ''}
-                            required
-                            style={{ padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
-                        />
-                    </div>
-                    <div style={{ display: 'grid', gap: '8px' }}>
-                        <label style={{ fontWeight: '600', color: '#1e293b' }}>Phone Number</label>
-                        <input
-                            name="phone"
-                            type="tel"
-                            defaultValue={user.contact_number || ''}
-                            style={{ padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
-                        />
-                    </div>
-                </div>
-
-                <div style={{ marginTop: '16px', borderTop: '1px solid #e2e8f0', paddingTop: '24px' }}>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '16px', color: '#1e293b' }}>Change Password</h3>
-                    <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '16px' }}>Leave blank if you do not want to change your password.</p>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                        <div style={{ display: 'grid', gap: '8px' }}>
-                            <label style={{ fontWeight: '600', color: '#1e293b' }}>New Password</label>
-                            <input
-                                name="password"
-                                type="password"
-                                style={{ padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
-                            />
-                        </div>
-                        <div style={{ display: 'grid', gap: '8px' }}>
-                            <label style={{ fontWeight: '600', color: '#1e293b' }}>Confirm New Password</label>
-                            <input
-                                name="confirmPassword"
-                                type="password"
-                                style={{ padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%' }}
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                {error && <div style={{ padding: '12px', background: '#fef2f2', color: '#ef4444', borderRadius: '8px' }}>{error}</div>}
-                {success && <div style={{ padding: '12px', background: '#f0fdf4', color: '#16a34a', borderRadius: '8px' }}>{success}</div>}
-
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '16px' }}>
-                    <button
-                        type="button"
-                        onClick={() => router.back()}
-                        style={{ padding: '12px 24px', background: 'transparent', border: '1px solid #e2e8f0', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        style={{ padding: '12px 32px', background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}
-                    >
-                        {loading ? 'Saving...' : 'Save Changes'}
-                    </button>
-                </div>
-            </form>
-        </div>
+        </>
     );
 }
