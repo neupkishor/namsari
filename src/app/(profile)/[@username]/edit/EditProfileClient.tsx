@@ -2,39 +2,124 @@
 
 import { useState } from 'react';
 import { User } from '@prisma/client';
-import { updateProfile } from '@/actions/profile-client';
-import ProfileImageUpload from '@/app/(profile)/[@username]/ProfileImageUploadClient';
+import {
+    beginSensitiveProfileUpdate,
+    completeSensitiveProfileUpdate,
+    updateProfile
+} from '@/actions/profile-client';
 import { useRouter } from 'next/navigation';
 
+type SensitiveKind = 'email' | 'phone' | 'password';
+type SensitiveStep = 'verify' | 'edit';
+
+const sensitiveLabels: Record<SensitiveKind, string> = {
+    email: 'Email Address',
+    phone: 'Phone Number',
+    password: 'Password',
+};
+
 export default function EditProfileClient({ user }: { user: User }) {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [loadingBasic, setLoadingBasic] = useState(false);
+    const [basicError, setBasicError] = useState('');
+    const [basicSuccess, setBasicSuccess] = useState('');
+
+    const [activeKind, setActiveKind] = useState<SensitiveKind | null>(null);
+    const [sensitiveStep, setSensitiveStep] = useState<SensitiveStep>('verify');
+    const [sensitiveToken, setSensitiveToken] = useState('');
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newEmail, setNewEmail] = useState(user.email || '');
+    const [newPhone, setNewPhone] = useState(user.contact_number || '');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [sensitiveLoading, setSensitiveLoading] = useState(false);
+    const [sensitiveError, setSensitiveError] = useState('');
+    const [sensitiveSuccess, setSensitiveSuccess] = useState('');
+
     const router = useRouter();
 
-    async function handleSubmit(formData: FormData) {
-        setLoading(true);
-        setError('');
-        setSuccess('');
+    function resetSensitiveState() {
+        setActiveKind(null);
+        setSensitiveStep('verify');
+        setSensitiveToken('');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setSensitiveError('');
+    }
 
-        const password = formData.get('password') as string;
-        const confirmPassword = formData.get('confirmPassword') as string;
+    function openSensitiveSection(kind: SensitiveKind) {
+        setActiveKind(kind);
+        setSensitiveStep('verify');
+        setSensitiveToken('');
+        setCurrentPassword('');
+        setNewEmail(user.email || '');
+        setNewPhone(user.contact_number || '');
+        setNewPassword('');
+        setConfirmPassword('');
+        setSensitiveError('');
+        setSensitiveSuccess('');
+    }
 
-        if (password && password !== confirmPassword) {
-            setError('Passwords do not match');
-            setLoading(false);
-            return;
-        }
+    async function handleBasicSubmit(formData: FormData) {
+        setLoadingBasic(true);
+        setBasicError('');
+        setBasicSuccess('');
 
         const res = await updateProfile(user.id, formData);
 
         if (res.success) {
-            setSuccess('Profile updated successfully');
+            setBasicSuccess('Profile updated successfully');
             router.refresh();
         } else {
-            setError(res.message || 'Update failed');
+            setBasicError(res.message || 'Update failed');
         }
-        setLoading(false);
+
+        setLoadingBasic(false);
+    }
+
+    async function handleSensitiveVerify() {
+        if (!activeKind) return;
+
+        setSensitiveLoading(true);
+        setSensitiveError('');
+        setSensitiveSuccess('');
+
+        const res = await beginSensitiveProfileUpdate(user.id, activeKind, currentPassword);
+
+        if (res.success) {
+            setSensitiveToken(res.token || '');
+            setSensitiveStep('edit');
+            setCurrentPassword('');
+        } else {
+            setSensitiveError(res.message || 'Verification failed');
+        }
+
+        setSensitiveLoading(false);
+    }
+
+    async function handleSensitiveSave() {
+        if (!activeKind || !sensitiveToken) return;
+
+        setSensitiveLoading(true);
+        setSensitiveError('');
+        setSensitiveSuccess('');
+
+        const res = await completeSensitiveProfileUpdate(user.id, activeKind, sensitiveToken, {
+            email: newEmail,
+            phone: newPhone,
+            password: newPassword,
+            confirmPassword,
+        });
+
+        if (res.success) {
+            setSensitiveSuccess(`${sensitiveLabels[activeKind]} updated successfully`);
+            resetSensitiveState();
+            router.refresh();
+        } else {
+            setSensitiveError(res.message || 'Update failed');
+        }
+
+        setSensitiveLoading(false);
     }
 
     return (
@@ -53,18 +138,8 @@ export default function EditProfileClient({ user }: { user: User }) {
                 .profile-edit-hero {
                     padding: 32px;
                     border-bottom: 1px solid #e2e8f0;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 24px;
-                    flex-wrap: wrap;
-                }
-
-                .profile-edit-avatar-row {
-                    display: flex;
-                    align-items: center;
-                    gap: 24px;
-                    flex-wrap: wrap;
+                    display: grid;
+                    gap: 8px;
                 }
 
                 .profile-edit-form {
@@ -124,11 +199,6 @@ export default function EditProfileClient({ user }: { user: User }) {
                     box-shadow: 0 0 0 3px rgba(130, 0, 0, 0.08);
                 }
 
-                .profile-edit-note {
-                    font-size: 0.9rem;
-                    color: #64748b;
-                }
-
                 .profile-edit-alert {
                     padding: 14px 16px;
                     border-radius: 14px;
@@ -150,6 +220,80 @@ export default function EditProfileClient({ user }: { user: User }) {
                     font: inherit;
                 }
 
+                .profile-sensitive-list {
+                    display: grid;
+                    gap: 14px;
+                }
+
+                .profile-sensitive-chooser {
+                    display: grid;
+                    gap: 18px;
+                    padding: 22px;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 18px;
+                    background: white;
+                }
+
+                .profile-sensitive-row {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 16px;
+                    padding: 16px 18px;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 16px;
+                    background: #f8fafc;
+                }
+
+                .profile-sensitive-meta {
+                    display: grid;
+                    gap: 4px;
+                }
+
+                .profile-sensitive-kicker {
+                    font-size: 0.78rem;
+                    font-weight: 700;
+                    letter-spacing: 0.06em;
+                    text-transform: uppercase;
+                    color: #94a3b8;
+                }
+
+                .profile-sensitive-value {
+                    color: #334155;
+                    font-weight: 600;
+                    word-break: break-word;
+                }
+
+                .profile-sensitive-trigger {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 11px 16px;
+                    border-radius: 12px;
+                    border: 1px solid #e2e8f0;
+                    background: white;
+                    color: #475569;
+                    font-weight: 700;
+                    text-decoration: none;
+                    cursor: pointer;
+                    font: inherit;
+                }
+
+                .profile-sensitive-panel {
+                    display: grid;
+                    gap: 18px;
+                    padding: 22px;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 18px;
+                    background: white;
+                }
+
+                .profile-sensitive-panel-header {
+                    display: grid;
+                    gap: 6px;
+                    padding-bottom: 2px;
+                }
+
                 @media (max-width: 768px) {
                     .profile-edit-hero,
                     .profile-edit-form {
@@ -160,8 +304,10 @@ export default function EditProfileClient({ user }: { user: User }) {
                         grid-template-columns: 1fr;
                     }
 
-                    .profile-edit-actions {
-                        flex-direction: column-reverse;
+                    .profile-edit-actions,
+                    .profile-sensitive-row {
+                        flex-direction: column;
+                        align-items: stretch;
                     }
 
                     .profile-edit-button {
@@ -172,30 +318,14 @@ export default function EditProfileClient({ user }: { user: User }) {
 
             <div className="profile-edit-shell">
                 <div className="profile-edit-hero">
-                    <div className="profile-edit-avatar-row">
-                        <div style={{ width: '128px', height: '128px', padding: '6px', borderRadius: '50%', background: 'white', border: '1px solid #e2e8f0' }}>
-                            <ProfileImageUpload
-                                userId={user.id}
-                                currentImage={user.profile_picture}
-                                userName={user.name || ''}
-                                isOwner={true}
-                            />
-                        </div>
-
-                        <div style={{ display: 'grid', gap: '8px' }}>
-                            <h1 style={{ fontSize: '2rem', fontWeight: '800', margin: 0, color: '#1e293b' }}>Edit Profile</h1>
-                            <p style={{ margin: 0, color: '#64748b', fontSize: '0.95rem' }}>
-                                Update your public profile details and account contact information.
-                            </p>
-                            <p className="profile-edit-note" style={{ margin: 0 }}>
-                                Click the camera icon on your photo to upload a new profile image.
-                            </p>
-                        </div>
-                    </div>
+                    <h1 style={{ fontSize: '2rem', fontWeight: '800', margin: 0, color: '#1e293b' }}>Edit Profile</h1>
+                    <p style={{ margin: 0, color: '#64748b', fontSize: '0.95rem' }}>
+                        Update your public profile details here. Sensitive changes require your current password before the edit fields appear.
+                    </p>
                 </div>
 
-                <form action={handleSubmit} className="profile-edit-form">
-                    <section className="profile-edit-section">
+                <div className="profile-edit-form">
+                    <form action={handleBasicSubmit} className="profile-edit-section">
                         <div style={{ display: 'grid', gap: '6px' }}>
                             <h2 className="profile-edit-section-title">Basic Information</h2>
                             <p className="profile-edit-section-copy">These details appear on your public profile.</p>
@@ -222,77 +352,205 @@ export default function EditProfileClient({ user }: { user: User }) {
                             />
                         </div>
 
-                        <div className="profile-edit-grid">
-                            <div className="profile-edit-field">
-                                <label className="profile-edit-label">Email Address</label>
-                                <input
-                                    className="profile-edit-input"
-                                    name="email"
-                                    type="email"
-                                    defaultValue={user.email || ''}
-                                    required
-                                />
-                            </div>
-                            <div className="profile-edit-field">
-                                <label className="profile-edit-label">Phone Number</label>
-                                <input
-                                    className="profile-edit-input"
-                                    name="phone"
-                                    type="tel"
-                                    defaultValue={user.contact_number || ''}
-                                />
-                            </div>
+                        {basicError && <div className="profile-edit-alert" style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}>{basicError}</div>}
+                        {basicSuccess && <div className="profile-edit-alert" style={{ background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>{basicSuccess}</div>}
+
+                        <div className="profile-edit-actions">
+                            <button
+                                type="button"
+                                className="profile-edit-button"
+                                onClick={() => router.back()}
+                                style={{ background: 'transparent', border: '1px solid #e2e8f0', color: '#475569' }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="profile-edit-button"
+                                disabled={loadingBasic}
+                                style={{ background: 'var(--color-primary)', color: 'white', border: 'none', opacity: loadingBasic ? 0.7 : 1, cursor: loadingBasic ? 'not-allowed' : 'pointer' }}
+                            >
+                                {loadingBasic ? 'Saving...' : 'Save Basic Info'}
+                            </button>
                         </div>
-                    </section>
+                    </form>
 
                     <section className="profile-edit-section" style={{ borderTop: '1px solid #e2e8f0', paddingTop: '28px' }}>
                         <div style={{ display: 'grid', gap: '6px' }}>
-                            <h2 className="profile-edit-section-title">Security</h2>
-                            <p className="profile-edit-section-copy">Leave these blank if you do not want to change your password.</p>
+                            <h2 className="profile-edit-section-title">Sensitive Changes</h2>
+                            <p className="profile-edit-section-copy">Email, phone number, and password updates require current-password verification first.</p>
                         </div>
 
-                        <div className="profile-edit-grid">
-                            <div className="profile-edit-field">
-                                <label className="profile-edit-label">New Password</label>
-                                <input
-                                    className="profile-edit-input"
-                                    name="password"
-                                    type="password"
-                                />
+                        <div className="profile-sensitive-chooser">
+                            <div style={{ display: 'grid', gap: '4px' }}>
+                                <div className="profile-sensitive-kicker">Choose What To Update</div>
+                                <div className="profile-edit-section-copy">Start a secure flow for email, phone number, or password.</div>
                             </div>
-                            <div className="profile-edit-field">
-                                <label className="profile-edit-label">Confirm New Password</label>
-                                <input
-                                    className="profile-edit-input"
-                                    name="confirmPassword"
-                                    type="password"
-                                />
+
+                            <div className="profile-sensitive-list">
+                                <div className="profile-sensitive-row">
+                                    <div className="profile-sensitive-meta">
+                                        <div className="profile-sensitive-kicker">Email Address</div>
+                                        <div className="profile-sensitive-value">{user.email || 'No email added'}</div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="profile-sensitive-trigger"
+                                        onClick={() => openSensitiveSection('email')}
+                                    >
+                                        Change Email
+                                    </button>
+                                </div>
+
+                                <div className="profile-sensitive-row">
+                                    <div className="profile-sensitive-meta">
+                                        <div className="profile-sensitive-kicker">Phone Number</div>
+                                        <div className="profile-sensitive-value">{user.contact_number || 'No phone number added'}</div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="profile-sensitive-trigger"
+                                        onClick={() => openSensitiveSection('phone')}
+                                    >
+                                        Change Phone
+                                    </button>
+                                </div>
+
+                                <div className="profile-sensitive-row">
+                                    <div className="profile-sensitive-meta">
+                                        <div className="profile-sensitive-kicker">Password</div>
+                                        <div className="profile-sensitive-value">Use your current password to unlock a password change.</div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="profile-sensitive-trigger"
+                                        onClick={() => openSensitiveSection('password')}
+                                    >
+                                        Change Password
+                                    </button>
+                                </div>
                             </div>
                         </div>
+
+                        {!activeKind && sensitiveSuccess && (
+                            <div className="profile-edit-alert" style={{ background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>
+                                {sensitiveSuccess}
+                            </div>
+                        )}
+
+                        {activeKind && (
+                            <div className="profile-sensitive-panel">
+                                <div className="profile-sensitive-panel-header">
+                                    <div className="profile-sensitive-kicker">Secure Update Box</div>
+                                    <h3 className="profile-edit-section-title" style={{ fontSize: '1rem' }}>
+                                        Change {sensitiveLabels[activeKind]}
+                                    </h3>
+                                    <p className="profile-edit-section-copy">
+                                        {sensitiveStep === 'verify'
+                                            ? 'Enter your current password first. Once it is verified, the current-password field disappears and the update fields appear.'
+                                            : 'Your current password has been verified. Complete the change below and save it.'}
+                                    </p>
+                                </div>
+
+                                {sensitiveStep === 'verify' ? (
+                                    <div className="profile-edit-field">
+                                        <label className="profile-edit-label">Current Password</label>
+                                        <input
+                                            className="profile-edit-input"
+                                            type="password"
+                                            value={currentPassword}
+                                            onChange={(e) => setCurrentPassword(e.target.value)}
+                                        />
+                                    </div>
+                                ) : (
+                                    <>
+                                        {activeKind === 'email' && (
+                                            <div className="profile-edit-field">
+                                                <label className="profile-edit-label">New Email Address</label>
+                                                <input
+                                                    className="profile-edit-input"
+                                                    type="email"
+                                                    value={newEmail}
+                                                    onChange={(e) => setNewEmail(e.target.value)}
+                                                />
+                                            </div>
+                                        )}
+
+                                        {activeKind === 'phone' && (
+                                            <div className="profile-edit-field">
+                                                <label className="profile-edit-label">New Phone Number</label>
+                                                <input
+                                                    className="profile-edit-input"
+                                                    type="tel"
+                                                    value={newPhone}
+                                                    onChange={(e) => setNewPhone(e.target.value)}
+                                                />
+                                            </div>
+                                        )}
+
+                                        {activeKind === 'password' && (
+                                            <div className="profile-edit-grid">
+                                                <div className="profile-edit-field">
+                                                    <label className="profile-edit-label">New Password</label>
+                                                    <input
+                                                        className="profile-edit-input"
+                                                        type="password"
+                                                        value={newPassword}
+                                                        onChange={(e) => setNewPassword(e.target.value)}
+                                                    />
+                                                </div>
+                                                <div className="profile-edit-field">
+                                                    <label className="profile-edit-label">Confirm New Password</label>
+                                                    <input
+                                                        className="profile-edit-input"
+                                                        type="password"
+                                                        value={confirmPassword}
+                                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+
+                                {sensitiveError && <div className="profile-edit-alert" style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}>{sensitiveError}</div>}
+
+                                <div className="profile-edit-actions" style={{ paddingTop: 0 }}>
+                                    <button
+                                        type="button"
+                                        className="profile-edit-button"
+                                        onClick={resetSensitiveState}
+                                        style={{ background: 'transparent', border: '1px solid #e2e8f0', color: '#475569' }}
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    {sensitiveStep === 'verify' ? (
+                                        <button
+                                            type="button"
+                                            className="profile-edit-button"
+                                            onClick={handleSensitiveVerify}
+                                            disabled={sensitiveLoading}
+                                            style={{ background: 'var(--color-primary)', color: 'white', border: 'none', opacity: sensitiveLoading ? 0.7 : 1, cursor: sensitiveLoading ? 'not-allowed' : 'pointer' }}
+                                        >
+                                            {sensitiveLoading ? 'Verifying...' : 'Verify Password'}
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            className="profile-edit-button"
+                                            onClick={handleSensitiveSave}
+                                            disabled={sensitiveLoading}
+                                            style={{ background: 'var(--color-primary)', color: 'white', border: 'none', opacity: sensitiveLoading ? 0.7 : 1, cursor: sensitiveLoading ? 'not-allowed' : 'pointer' }}
+                                        >
+                                            {sensitiveLoading ? 'Saving...' : `Save ${sensitiveLabels[activeKind]}`}
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </section>
-
-                    {error && <div className="profile-edit-alert" style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}>{error}</div>}
-                    {success && <div className="profile-edit-alert" style={{ background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>{success}</div>}
-
-                    <div className="profile-edit-actions">
-                        <button
-                            type="button"
-                            className="profile-edit-button"
-                            onClick={() => router.back()}
-                            style={{ background: 'transparent', border: '1px solid #e2e8f0', color: '#475569' }}
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="profile-edit-button"
-                            disabled={loading}
-                            style={{ background: 'var(--color-primary)', color: 'white', border: 'none', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
-                        >
-                            {loading ? 'Saving...' : 'Save Changes'}
-                        </button>
-                    </div>
-                </form>
+                </div>
             </div>
         </>
     );
