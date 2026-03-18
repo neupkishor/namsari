@@ -129,23 +129,26 @@ export default function EditProfileClient({ user }: { user: User }) {
                 .profile-edit-shell {
                     max-width: 880px;
                     margin: 0 auto;
+                    display: grid;
+                    gap: 24px;
+                }
+
+                .profile-edit-card {
                     background: white;
                     border: 1px solid #e2e8f0;
                     border-radius: 24px;
-                    overflow: hidden;
+                    padding: 32px;
                 }
 
                 .profile-edit-hero {
                     padding: 32px;
-                    border-bottom: 1px solid #e2e8f0;
                     display: grid;
                     gap: 8px;
                 }
 
                 .profile-edit-form {
                     display: grid;
-                    gap: 28px;
-                    padding: 32px;
+                    gap: 24px;
                 }
 
                 .profile-edit-section {
@@ -222,16 +225,7 @@ export default function EditProfileClient({ user }: { user: User }) {
 
                 .profile-sensitive-list {
                     display: grid;
-                    gap: 14px;
-                }
-
-                .profile-sensitive-chooser {
-                    display: grid;
-                    gap: 18px;
-                    padding: 22px;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 18px;
-                    background: white;
+                    gap: 0;
                 }
 
                 .profile-sensitive-row {
@@ -239,10 +233,8 @@ export default function EditProfileClient({ user }: { user: User }) {
                     align-items: center;
                     justify-content: space-between;
                     gap: 16px;
-                    padding: 16px 18px;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 16px;
-                    background: #f8fafc;
+                    padding: 18px 0;
+                    border-bottom: 1px solid #e2e8f0;
                 }
 
                 .profile-sensitive-meta {
@@ -268,11 +260,10 @@ export default function EditProfileClient({ user }: { user: User }) {
                     display: inline-flex;
                     align-items: center;
                     justify-content: center;
-                    padding: 11px 16px;
-                    border-radius: 12px;
-                    border: 1px solid #e2e8f0;
-                    background: white;
-                    color: #475569;
+                    padding: 0;
+                    border: none;
+                    background: transparent;
+                    color: var(--color-primary-light);
                     font-weight: 700;
                     text-decoration: none;
                     cursor: pointer;
@@ -282,10 +273,6 @@ export default function EditProfileClient({ user }: { user: User }) {
                 .profile-sensitive-panel {
                     display: grid;
                     gap: 18px;
-                    padding: 22px;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 18px;
-                    background: white;
                 }
 
                 .profile-sensitive-panel-header {
@@ -295,8 +282,8 @@ export default function EditProfileClient({ user }: { user: User }) {
                 }
 
                 @media (max-width: 768px) {
-                    .profile-edit-hero,
-                    .profile-edit-form {
+                    .profile-edit-card,
+                    .profile-edit-hero {
                         padding: 24px;
                     }
 
@@ -317,15 +304,15 @@ export default function EditProfileClient({ user }: { user: User }) {
             `}} />
 
             <div className="profile-edit-shell">
-                <div className="profile-edit-hero">
+                <div className="profile-edit-card profile-edit-hero">
                     <h1 style={{ fontSize: '2rem', fontWeight: '800', margin: 0, color: '#1e293b' }}>Edit Profile</h1>
                     <p style={{ margin: 0, color: '#64748b', fontSize: '0.95rem' }}>
                         Update your public profile details here. Sensitive changes require your current password before the edit fields appear.
                     </p>
                 </div>
 
-                <div className="profile-edit-form">
-                    <form action={handleBasicSubmit} className="profile-edit-section">
+                <form action={handleBasicSubmit} className="profile-edit-card profile-edit-form">
+                    <div className="profile-edit-section">
                         <div style={{ display: 'grid', gap: '6px' }}>
                             <h2 className="profile-edit-section-title">Basic Information</h2>
                             <p className="profile-edit-section-copy">These details appear on your public profile.</p>
@@ -373,184 +360,177 @@ export default function EditProfileClient({ user }: { user: User }) {
                                 {loadingBasic ? 'Saving...' : 'Save Basic Info'}
                             </button>
                         </div>
-                    </form>
+                    </div>
+                </form>
 
-                    <section className="profile-edit-section" style={{ borderTop: '1px solid #e2e8f0', paddingTop: '28px' }}>
-                        <div style={{ display: 'grid', gap: '6px' }}>
-                            <h2 className="profile-edit-section-title">Sensitive Changes</h2>
-                            <p className="profile-edit-section-copy">Email, phone number, and password updates require current-password verification first.</p>
+                <section className="profile-edit-card profile-edit-section">
+                    <div style={{ display: 'grid', gap: '6px' }}>
+                        <h2 className="profile-edit-section-title">Sensitive Changes</h2>
+                        <p className="profile-edit-section-copy">Email, phone number, and password updates require current-password verification first.</p>
+                    </div>
+
+                    <div className="profile-sensitive-list">
+                        <div className="profile-sensitive-row">
+                            <div className="profile-sensitive-meta">
+                                <div className="profile-sensitive-kicker">Email Address</div>
+                                <div className="profile-sensitive-value">{user.email || 'No email added'}</div>
+                            </div>
+                            <button
+                                type="button"
+                                className="profile-sensitive-trigger"
+                                onClick={() => openSensitiveSection('email')}
+                            >
+                                Change Email
+                            </button>
                         </div>
 
-                        <div className="profile-sensitive-chooser">
-                            <div style={{ display: 'grid', gap: '4px' }}>
-                                <div className="profile-sensitive-kicker">Choose What To Update</div>
-                                <div className="profile-edit-section-copy">Start a secure flow for email, phone number, or password.</div>
+                        <div className="profile-sensitive-row">
+                            <div className="profile-sensitive-meta">
+                                <div className="profile-sensitive-kicker">Phone Number</div>
+                                <div className="profile-sensitive-value">{user.contact_number || 'No phone number added'}</div>
                             </div>
-
-                            <div className="profile-sensitive-list">
-                                <div className="profile-sensitive-row">
-                                    <div className="profile-sensitive-meta">
-                                        <div className="profile-sensitive-kicker">Email Address</div>
-                                        <div className="profile-sensitive-value">{user.email || 'No email added'}</div>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        className="profile-sensitive-trigger"
-                                        onClick={() => openSensitiveSection('email')}
-                                    >
-                                        Change Email
-                                    </button>
-                                </div>
-
-                                <div className="profile-sensitive-row">
-                                    <div className="profile-sensitive-meta">
-                                        <div className="profile-sensitive-kicker">Phone Number</div>
-                                        <div className="profile-sensitive-value">{user.contact_number || 'No phone number added'}</div>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        className="profile-sensitive-trigger"
-                                        onClick={() => openSensitiveSection('phone')}
-                                    >
-                                        Change Phone
-                                    </button>
-                                </div>
-
-                                <div className="profile-sensitive-row">
-                                    <div className="profile-sensitive-meta">
-                                        <div className="profile-sensitive-kicker">Password</div>
-                                        <div className="profile-sensitive-value">Use your current password to unlock a password change.</div>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        className="profile-sensitive-trigger"
-                                        onClick={() => openSensitiveSection('password')}
-                                    >
-                                        Change Password
-                                    </button>
-                                </div>
-                            </div>
+                            <button
+                                type="button"
+                                className="profile-sensitive-trigger"
+                                onClick={() => openSensitiveSection('phone')}
+                            >
+                                Change Phone
+                            </button>
                         </div>
 
-                        {!activeKind && sensitiveSuccess && (
-                            <div className="profile-edit-alert" style={{ background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>
-                                {sensitiveSuccess}
+                        <div className="profile-sensitive-row" style={{ borderBottom: 'none', paddingBottom: 0 }}>
+                            <div className="profile-sensitive-meta">
+                                <div className="profile-sensitive-kicker">Password</div>
+                                <div className="profile-sensitive-value">Use your current password to unlock a password change.</div>
                             </div>
-                        )}
+                            <button
+                                type="button"
+                                className="profile-sensitive-trigger"
+                                onClick={() => openSensitiveSection('password')}
+                            >
+                                Change Password
+                            </button>
+                        </div>
+                    </div>
 
-                        {activeKind && (
-                            <div className="profile-sensitive-panel">
-                                <div className="profile-sensitive-panel-header">
-                                    <div className="profile-sensitive-kicker">Secure Update Box</div>
-                                    <h3 className="profile-edit-section-title" style={{ fontSize: '1rem' }}>
-                                        Change {sensitiveLabels[activeKind]}
-                                    </h3>
-                                    <p className="profile-edit-section-copy">
-                                        {sensitiveStep === 'verify'
-                                            ? 'Enter your current password first. Once it is verified, the current-password field disappears and the update fields appear.'
-                                            : 'Your current password has been verified. Complete the change below and save it.'}
-                                    </p>
-                                </div>
+                    {!activeKind && sensitiveSuccess && (
+                        <div className="profile-edit-alert" style={{ background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>
+                            {sensitiveSuccess}
+                        </div>
+                    )}
+                </section>
 
-                                {sensitiveStep === 'verify' ? (
+                {activeKind && (
+                    <section className="profile-edit-card profile-sensitive-panel">
+                        <div className="profile-sensitive-panel-header">
+                            <div className="profile-sensitive-kicker">Sensitive Change</div>
+                            <h3 className="profile-edit-section-title" style={{ fontSize: '1rem' }}>
+                                Change {sensitiveLabels[activeKind]}
+                            </h3>
+                            <p className="profile-edit-section-copy">
+                                {sensitiveStep === 'verify'
+                                    ? 'Enter your current password first. Once it is verified, the current-password field disappears and the update fields appear.'
+                                    : 'Your current password has been verified. Complete the change below and save it.'}
+                            </p>
+                        </div>
+
+                        {sensitiveStep === 'verify' ? (
+                            <div className="profile-edit-field">
+                                <label className="profile-edit-label">Current Password</label>
+                                <input
+                                    className="profile-edit-input"
+                                    type="password"
+                                    value={currentPassword}
+                                    onChange={(e) => setCurrentPassword(e.target.value)}
+                                />
+                            </div>
+                        ) : (
+                            <>
+                                {activeKind === 'email' && (
                                     <div className="profile-edit-field">
-                                        <label className="profile-edit-label">Current Password</label>
+                                        <label className="profile-edit-label">New Email Address</label>
                                         <input
                                             className="profile-edit-input"
-                                            type="password"
-                                            value={currentPassword}
-                                            onChange={(e) => setCurrentPassword(e.target.value)}
+                                            type="email"
+                                            value={newEmail}
+                                            onChange={(e) => setNewEmail(e.target.value)}
                                         />
                                     </div>
-                                ) : (
-                                    <>
-                                        {activeKind === 'email' && (
-                                            <div className="profile-edit-field">
-                                                <label className="profile-edit-label">New Email Address</label>
-                                                <input
-                                                    className="profile-edit-input"
-                                                    type="email"
-                                                    value={newEmail}
-                                                    onChange={(e) => setNewEmail(e.target.value)}
-                                                />
-                                            </div>
-                                        )}
-
-                                        {activeKind === 'phone' && (
-                                            <div className="profile-edit-field">
-                                                <label className="profile-edit-label">New Phone Number</label>
-                                                <input
-                                                    className="profile-edit-input"
-                                                    type="tel"
-                                                    value={newPhone}
-                                                    onChange={(e) => setNewPhone(e.target.value)}
-                                                />
-                                            </div>
-                                        )}
-
-                                        {activeKind === 'password' && (
-                                            <div className="profile-edit-grid">
-                                                <div className="profile-edit-field">
-                                                    <label className="profile-edit-label">New Password</label>
-                                                    <input
-                                                        className="profile-edit-input"
-                                                        type="password"
-                                                        value={newPassword}
-                                                        onChange={(e) => setNewPassword(e.target.value)}
-                                                    />
-                                                </div>
-                                                <div className="profile-edit-field">
-                                                    <label className="profile-edit-label">Confirm New Password</label>
-                                                    <input
-                                                        className="profile-edit-input"
-                                                        type="password"
-                                                        value={confirmPassword}
-                                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                                    />
-                                                </div>
-                                            </div>
-                                        )}
-                                    </>
                                 )}
 
-                                {sensitiveError && <div className="profile-edit-alert" style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}>{sensitiveError}</div>}
+                                {activeKind === 'phone' && (
+                                    <div className="profile-edit-field">
+                                        <label className="profile-edit-label">New Phone Number</label>
+                                        <input
+                                            className="profile-edit-input"
+                                            type="tel"
+                                            value={newPhone}
+                                            onChange={(e) => setNewPhone(e.target.value)}
+                                        />
+                                    </div>
+                                )}
 
-                                <div className="profile-edit-actions" style={{ paddingTop: 0 }}>
-                                    <button
-                                        type="button"
-                                        className="profile-edit-button"
-                                        onClick={resetSensitiveState}
-                                        style={{ background: 'transparent', border: '1px solid #e2e8f0', color: '#475569' }}
-                                    >
-                                        Cancel
-                                    </button>
-
-                                    {sensitiveStep === 'verify' ? (
-                                        <button
-                                            type="button"
-                                            className="profile-edit-button"
-                                            onClick={handleSensitiveVerify}
-                                            disabled={sensitiveLoading}
-                                            style={{ background: 'var(--color-primary)', color: 'white', border: 'none', opacity: sensitiveLoading ? 0.7 : 1, cursor: sensitiveLoading ? 'not-allowed' : 'pointer' }}
-                                        >
-                                            {sensitiveLoading ? 'Verifying...' : 'Verify Password'}
-                                        </button>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            className="profile-edit-button"
-                                            onClick={handleSensitiveSave}
-                                            disabled={sensitiveLoading}
-                                            style={{ background: 'var(--color-primary)', color: 'white', border: 'none', opacity: sensitiveLoading ? 0.7 : 1, cursor: sensitiveLoading ? 'not-allowed' : 'pointer' }}
-                                        >
-                                            {sensitiveLoading ? 'Saving...' : `Save ${sensitiveLabels[activeKind]}`}
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
+                                {activeKind === 'password' && (
+                                    <div className="profile-edit-grid">
+                                        <div className="profile-edit-field">
+                                            <label className="profile-edit-label">New Password</label>
+                                            <input
+                                                className="profile-edit-input"
+                                                type="password"
+                                                value={newPassword}
+                                                onChange={(e) => setNewPassword(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="profile-edit-field">
+                                            <label className="profile-edit-label">Confirm New Password</label>
+                                            <input
+                                                className="profile-edit-input"
+                                                type="password"
+                                                value={confirmPassword}
+                                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </>
                         )}
+
+                        {sensitiveError && <div className="profile-edit-alert" style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}>{sensitiveError}</div>}
+
+                        <div className="profile-edit-actions" style={{ paddingTop: 0 }}>
+                            <button
+                                type="button"
+                                className="profile-edit-button"
+                                onClick={resetSensitiveState}
+                                style={{ background: 'transparent', border: '1px solid #e2e8f0', color: '#475569' }}
+                            >
+                                Cancel
+                            </button>
+
+                            {sensitiveStep === 'verify' ? (
+                                <button
+                                    type="button"
+                                    className="profile-edit-button"
+                                    onClick={handleSensitiveVerify}
+                                    disabled={sensitiveLoading}
+                                    style={{ background: 'var(--color-primary)', color: 'white', border: 'none', opacity: sensitiveLoading ? 0.7 : 1, cursor: sensitiveLoading ? 'not-allowed' : 'pointer' }}
+                                >
+                                    {sensitiveLoading ? 'Verifying...' : 'Verify Password'}
+                                </button>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className="profile-edit-button"
+                                    onClick={handleSensitiveSave}
+                                    disabled={sensitiveLoading}
+                                    style={{ background: 'var(--color-primary)', color: 'white', border: 'none', opacity: sensitiveLoading ? 0.7 : 1, cursor: sensitiveLoading ? 'not-allowed' : 'pointer' }}
+                                >
+                                    {sensitiveLoading ? 'Saving...' : `Save ${sensitiveLabels[activeKind]}`}
+                                </button>
+                            )}
+                        </div>
                     </section>
-                </div>
+                )}
             </div>
         </>
     );
