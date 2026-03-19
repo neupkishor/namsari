@@ -144,6 +144,14 @@ export function BottomNavigation({ user }: { user?: any }) {
         setPressedExploreHref(null);
     };
 
+    const preventContextMenu = (event: React.MouseEvent<HTMLElement>) => {
+        event.preventDefault();
+    };
+
+    const preventDragStart = (event: React.DragEvent<HTMLElement>) => {
+        event.preventDefault();
+    };
+
     const beginExploreHold = (href: string) => {
         if (!isExplorePage) return;
         clearExploreHold();
@@ -194,7 +202,9 @@ export function BottomNavigation({ user }: { user?: any }) {
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] animate-in fade-in duration-300">
                     <div 
                         ref={menuRef} 
-                        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] max-h-[85vh] overflow-y-auto px-6 pt-10 pb-24 shadow-2xl animate-in slide-in-from-bottom-full duration-500 ease-out"
+                        onContextMenu={preventContextMenu}
+                        onDragStart={preventDragStart}
+                        className="bottom-nav-guard absolute bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] max-h-[85vh] overflow-y-auto px-6 pt-10 pb-24 shadow-2xl animate-in slide-in-from-bottom-full duration-500 ease-out"
                     >
                         {/* Pull Bar */}
                         <div className="absolute top-4 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-slate-200 rounded-full" />
@@ -215,13 +225,15 @@ export function BottomNavigation({ user }: { user?: any }) {
                                                     key={idx} 
                                                     href={item.href} 
                                                     onClick={() => setShowMobileMenu(false)} 
-                                                    className={`flex items-center gap-4 px-5 py-4 rounded-2xl font-bold text-[15px] transition-all no-underline ${
+                                                    onContextMenu={preventContextMenu}
+                                                    onDragStart={preventDragStart}
+                                                className={`bottom-nav-guard flex items-center gap-4 px-5 py-4 rounded-2xl font-bold text-[15px] transition-all no-underline ${
                                                         active 
                                                             ? 'bg-blue-50 text-blue-600 shadow-sm ring-1 ring-blue-100' 
                                                             : 'text-slate-600 hover:bg-slate-50 active:scale-95'
                                                     }`}
                                                 >
-                                                    <span className="text-xl filter grayscale-[0.5] group-hover:grayscale-0">{item.icon}</span>
+                                                    <span className="text-xl">{item.icon}</span>
                                                     <span>{item.label}</span>
                                                 </Link>
                                             );
@@ -238,7 +250,9 @@ export function BottomNavigation({ user }: { user?: any }) {
                                             logoutAction();
                                             setShowMobileMenu(false);
                                         }}
-                                        className="flex items-center gap-4 px-5 py-4 rounded-2xl text-[15px] text-red-500 font-bold hover:bg-red-50 active:scale-95 w-full text-left transition-all"
+                                        onContextMenu={preventContextMenu}
+                                        onDragStart={preventDragStart}
+                                        className="bottom-nav-guard flex items-center gap-4 px-5 py-4 rounded-2xl text-[15px] text-red-500 font-bold hover:bg-red-50 active:scale-95 w-full text-left transition-all"
                                     >
                                         <span className="text-xl">🚪</span>
                                         <span>Logout</span>
@@ -261,9 +275,13 @@ export function BottomNavigation({ user }: { user?: any }) {
             )}
 
             {/* Bottom App Bar */}
-            <nav className={`fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] h-[76px] bg-white/80 backdrop-blur-2xl border border-white/40 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.18)] rounded-[2.5rem] z-[1001] flex items-center justify-between px-6 lg:hidden ring-1 ring-black/5 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+            <nav
+                onContextMenu={preventContextMenu}
+                onDragStart={preventDragStart}
+                className={`bottom-nav-guard fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] h-[76px] bg-white/80 backdrop-blur-2xl border border-white/40 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.18)] rounded-[2.5rem] z-[1001] flex items-center justify-between px-6 lg:hidden ring-1 ring-black/5 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] ${
                 isVisible ? 'translate-y-0 opacity-100' : 'translate-y-[150%] opacity-0 pointer-events-none'
-            }`}>
+            }`}
+            >
                 {items.map((item, idx) => {
                     const isExploreAction = isExplorePage && item.href === '/explore';
                     const isExploreItem = item.href === '/explore';
@@ -292,14 +310,18 @@ export function BottomNavigation({ user }: { user?: any }) {
                             <Link 
                                 key={idx} 
                                 href={itemHref}
-                                className="relative -top-8 flex flex-col items-center justify-center no-underline group"
+                                onContextMenu={preventContextMenu}
+                                onDragStart={preventDragStart}
+                                className="bottom-nav-guard relative -top-8 flex flex-col items-center justify-center no-underline group"
                             >
                                 <div className={`w-16 h-16 rounded-[2rem] flex items-center justify-center text-2xl shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:-translate-y-1 group-active:scale-95 ${
                                     active 
                                         ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-blue-200/50' 
                                         : 'bg-gradient-to-br from-slate-800 to-slate-900 text-white shadow-slate-300/50'
                                 }`}>
-                                    <span key={`${item.label}-${itemIcon}`} className="footer-icon-swap transform group-hover:rotate-12 transition-transform duration-500">{itemIcon}</span>
+                                    <span key={`${item.label}-${itemIcon}`} className="footer-icon-swap transform group-hover:rotate-12 transition-transform duration-500">
+                                        {itemIcon}
+                                    </span>
                                 </div>
                                 <div className="absolute -bottom-6 flex flex-col items-center">
                                     <span className={`text-[11px] font-black uppercase tracking-widest transition-colors duration-300 ${
@@ -342,14 +364,16 @@ export function BottomNavigation({ user }: { user?: any }) {
                             onTouchCancel={() => {
                                 if (isExploreAction) clearExploreHold();
                             }}
-                            className="relative flex flex-col items-center justify-center gap-1.5 min-w-[56px] h-full transition-all duration-300 active:scale-90 group"
+                            onContextMenu={preventContextMenu}
+                            onDragStart={preventDragStart}
+                            className="bottom-nav-guard relative flex flex-col items-center justify-center gap-1.5 min-w-[56px] h-full transition-all duration-300 active:scale-90 group"
                         >
-                            <div className={`text-2xl transition-all duration-500 ease-out ${
+                            <div className={`transition-all duration-500 ease-out ${
                                 active 
                                     ? 'scale-110 -translate-y-0.5' 
                                     : 'opacity-40 grayscale group-hover:opacity-70 group-hover:grayscale-0 group-hover:-translate-y-0.5'
                             }`}>
-                                <span key={`${item.label}-${itemIcon}`} className="footer-icon-swap inline-flex">
+                                <span key={`${item.label}-${itemIcon}`} className="footer-icon-swap inline-flex text-[22px]">
                                     {itemIcon}
                                 </span>
                             </div>
@@ -385,6 +409,13 @@ export function BottomNavigation({ user }: { user?: any }) {
 
                 .footer-icon-swap {
                     animation: footerIconSwap 260ms ease;
+                }
+
+                .bottom-nav-guard {
+                    user-select: none;
+                    -webkit-user-select: none;
+                    -webkit-touch-callout: none;
+                    -webkit-tap-highlight-color: transparent;
                 }
 
                 @keyframes footerHoldProgress {

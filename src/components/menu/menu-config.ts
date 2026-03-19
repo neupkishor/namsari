@@ -1,5 +1,3 @@
-import { ReactNode } from 'react';
-
 // Menu Items Configuration
 
 export interface MenuItem {

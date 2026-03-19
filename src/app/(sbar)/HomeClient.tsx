@@ -2,55 +2,157 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { QuickActionsCard } from '@/components/cards/QuickActionsCard';
-import { PopularCategories } from '@/components/cards/PopularCategories';
 import { FeaturedProjects } from '@/components/cards/FeaturedProjects';
 import { TrendingSearches } from '@/components/cards/TrendingSearches';
 import { FeaturedCollectionsFeedItem } from '@/components/cards/FeaturedCollections';
 import { AdvertisementCard, AdvertisementCarousel } from '@/components/cards/AdvertisementCard';
 import { BottomNavigation } from '@/components/menu/BottomNavigation';
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
+import { formatNPR } from '@/lib/formatters';
+
+const FEATURED_FALLBACK_IMAGES = [
+    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1600585152915-d208bec867a1?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80',
+];
+
+function getPropertyImageUrls(property: any): string[] {
+    return (property.images || [])
+        .map((image: any) => typeof image === 'string' ? image : image?.url)
+        .filter(Boolean);
+}
+
+function getPropertyLocationLabel(property: any): string {
+    const location = property.location;
+    if (!location) return 'Location unavailable';
+
+    if (typeof location === 'string') return location;
+
+    return [
+        location.area,
+        location.cityVillage,
+        location.city,
+        location.district,
+    ].filter(Boolean).slice(0, 2).join(', ') || 'Location unavailable';
+}
+
+function getPropertyFactBadges(property: any): string[] {
+    const features = property.features;
+    if (!features) return [];
+
+    const badges: string[] = [];
+
+    if (features.bedrooms) badges.push(`${features.bedrooms} bed`);
+    if (features.bathrooms) badges.push(`${features.bathrooms} bath`);
+    if (features.builtUpArea) {
+        badges.push(`${features.builtUpArea} ${features.builtUpAreaUnit || 'sq.ft.'}`);
+    }
+
+    return badges.slice(0, 3);
+}
+
+function resolveFeaturedCards(properties: any[]) {
+    const usedImages = new Set<string>();
+
+    return properties.slice(0, 5).map((property, index) => {
+        const imageOptions = getPropertyImageUrls(property);
+        const imageUrl =
+            imageOptions.find((url) => !usedImages.has(url)) ||
+            imageOptions[index % Math.max(imageOptions.length, 1)] ||
+            FEATURED_FALLBACK_IMAGES[index % FEATURED_FALLBACK_IMAGES.length];
+
+        if (imageUrl) {
+            usedImages.add(imageUrl);
+        }
+
+        return {
+            ...property,
+            _displayImage: imageUrl,
+        };
+    });
+}
 
 function FeaturedSmallCard({ property }: { property: any }) {
-    const images = property.images || [];
-    const mainImage = images.length > 0
-        ? (typeof images[0] === 'string' ? images[0] : images[0].url)
-        : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80';
-    
     const slug = property.slug || property.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const propertyUrl = `/properties/${slug}-${property.id}`;
+    const factBadges = getPropertyFactBadges(property);
+    const typeLabel = property.types?.[0]?.name || 'Property';
+    const priceLabel = formatNPR(property.pricing?.price || property.price);
     
     return (
-        <Link href={propertyUrl} className="group block bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300">
-            <div className="aspect-square overflow-hidden relative">
+        <Link href={propertyUrl} className="group block h-full overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-soft)]">
+            <div className="aspect-[4/3] overflow-hidden relative border-b border-slate-200">
                 <img 
-                    src={mainImage} 
+                    src={property._displayImage} 
                     alt={property.title} 
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                    <div className="text-white font-bold text-xs truncate">
-                        रु {property.pricing?.price?.toLocaleString() || property.price?.toLocaleString()}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
+                <div className="absolute left-4 right-4 top-4 flex items-start justify-between gap-3">
+                    <span className="inline-flex rounded-full border border-white/20 bg-white/92 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-700 backdrop-blur">
+                        {typeLabel}
+                    </span>
+                    <span className="inline-flex rounded-full border border-white/15 bg-slate-950/55 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur">
+                        Featured
+                    </span>
+                </div>
+                <div className="absolute bottom-4 left-4 right-4">
+                    <div className="inline-flex rounded-full border border-white/15 bg-slate-950/70 px-3.5 py-2 text-sm font-semibold text-white shadow-lg backdrop-blur">
+                        {priceLabel}
                     </div>
                 </div>
             </div>
-            <div className="p-3">
-                <h4 className="text-slate-900 font-bold text-xs line-clamp-1 group-hover:text-blue-600 transition-colors">
-                    {property.title}
-                </h4>
-                <div className="flex items-center gap-1 mt-1">
-                    <span className="text-blue-600 font-bold text-[10px]">View Details</span>
+            <div className="flex h-[184px] flex-col gap-3 p-4">
+                <div className="space-y-1.5">
+                    <h4 className="text-[15px] font-bold leading-tight text-slate-900 line-clamp-2 group-hover:text-[color:var(--color-primary)] transition-colors">
+                        {property.title}
+                    </h4>
+                    <div className="flex items-center gap-2 text-[12px] text-slate-500">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        <span className="truncate">{getPropertyLocationLabel(property)}</span>
+                    </div>
+                </div>
+
+                {factBadges.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                        {factBadges.map((fact) => (
+                            <span key={fact} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600">
+                                {fact}
+                            </span>
+                        ))}
+                    </div>
+                )}
+
+                <div className="mt-auto flex items-center justify-between text-[12px] font-semibold">
+                    <span className="text-slate-400">
+                        {property.listedBy?.name || 'Verified listing'}
+                    </span>
+                    <span className="text-[color:var(--color-primary)] transition-transform duration-200 group-hover:translate-x-0.5">
+                        View details
+                    </span>
                 </div>
             </div>
         </Link>
     );
 }
 
-import { PropertyGrid } from '@/components/ui/PropertyGrid';
+type HomeClientProps = {
+    user: any;
+    featuredCollections?: any[];
+    trendingSearches?: string[];
+    featuredProperties?: any[];
+    featuredAgencies?: any[];
+    advertisements?: any[];
+    categories?: any[];
+};
 
-export default function HomeClient({ user, featuredCollections, trendingSearches, featuredProperties = [], featuredAgencies = [], advertisements = [], categories = [] }: { user: any, featuredCollections?: any[], trendingSearches?: string[], featuredProperties?: any[], featuredAgencies?: any[], advertisements?: any[], categories?: any[] }) {
-    const router = useRouter();
+export default function HomeClient({ user, featuredCollections, trendingSearches, featuredProperties = [], advertisements = [] }: HomeClientProps) {
     const [isLoading, setIsLoading] = useState(true);
 
     const [properties, setProperties] = useState<any[]>([]);
@@ -58,12 +160,14 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
     const [hasMore, setHasMore] = useState(true);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
 
+    const featuredCards = resolveFeaturedCards(featuredProperties);
+
     // Derived ads data - all active ads can appear in both carousel and feed
     const activeAds = advertisements.filter((ad: any) => ad.status === 'active').map((ad: any) => ({
         ...ad,
         posted_by: ad.posted_by || ad.title // Ensure posted_by is available for the carousel UI
     }));
-    
+
     const carouselAds = activeAds;
     const feedAds = activeAds;
 
@@ -107,7 +211,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
     }, []);
 
     return (
-        <div className="bg-[#F8FAFC] min-h-screen">
+        <div className="min-h-screen bg-[#f4f7fb]">
             {/* Check if the page is loading content */}
             {isLoading ? (
                 <FeedSkeleton hasCarouselAds={carouselAds.length > 0} />
@@ -115,39 +219,44 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                 <div className="w-full">
                     {/* Advertisement Carousel - Full Width at Top */}
                     {carouselAds.length > 0 && (
-                        <div className="w-full mb-8">
+                        <div className="w-full mb-6">
                             <AdvertisementCarousel ads={carouselAds} />
                         </div>
                     )}
 
-                    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-10 px-4 sm:px-6 lg:px-7">
                         {/* Featured Properties Section (eSewa Style) */}
-                        {featuredProperties && featuredProperties.length > 0 && (
-                            <section className="w-full mb-16">
-                                <div className="flex items-center justify-between mb-6 px-2">
-                                    <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-                                        Featured Properties
-                                    </h2>
-                                    <Link href="/explore" className="text-blue-600 text-sm font-bold hover:underline">
+                        {featuredCards.length > 0 && (
+                            <section className="w-full rounded-[32px] border border-slate-200/80 bg-white px-5 py-6 shadow-[var(--shadow-card)] sm:px-6 lg:px-7">
+                                <div className="mb-6 flex items-center justify-between gap-4">
+                                    <div className="space-y-1">
+                                        <h2 className="text-xl font-bold tracking-tight text-slate-900">
+                                            Featured Properties
+                                        </h2>
+                                        <p className="text-sm text-slate-500">
+                                            Curated listings with complete details and verified media.
+                                        </p>
+                                    </div>
+                                    <Link href="/explore" className="inline-flex rounded-full border border-[color:var(--color-primary)]/10 bg-[color:var(--color-primary)]/5 px-4 py-2 text-sm font-semibold text-[color:var(--color-primary)] transition-colors hover:bg-[color:var(--color-primary)]/10">
                                         View more
                                     </Link>
                                 </div>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                                    {featuredProperties.slice(0, 5).map((prop: any) => (
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                                    {featuredCards.slice(0, 4).map((prop: any) => (
                                         <FeaturedSmallCard key={prop.id} property={prop} />
                                     ))}
                                 </div>
                             </section>
                         )}
 
-                        <div className="w-full mt-12">
+                        <div className="w-full">
                             {/* Feed Content Area - Full Width */}
                             <div className="flex flex-col gap-10">
                                 <QuickActionsCard user={user} />
                                 
                                 <div className="space-y-10">
                                     {/* Sub-header for the feed */}
-                                    <div className="flex items-center gap-4 px-2">
+                                    <div className="flex items-center gap-4 px-1">
                                         <h3 className="text-xl font-black text-text-main tracking-tight flex items-center gap-3">
                                             <span className="w-1.5 h-8 bg-primary rounded-full" />
                                             Market Activity
@@ -155,70 +264,72 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                         <div className="h-px flex-1 bg-border/60" />
                                     </div>
 
-                                    <div className="flex flex-col gap-4">
-                                        {(() => {
-                                            const feedItems: any[] = [];
-                                            let propertyIndex = 0;
-                                            let insertionCount = 0;
+                                    <div className="rounded-[32px] border border-slate-200/80 bg-white px-5 py-3 shadow-[var(--shadow-card)] sm:px-6">
+                                        <div className="flex flex-col gap-4">
+                                            {(() => {
+                                                const feedItems: any[] = [];
+                                                let propertyIndex = 0;
+                                                let insertionCount = 0;
 
-                                            const availableCardTypes = ['featured_collections', 'trending_searches', 'featured_projects'];
-                                            const validCardTypes = availableCardTypes.filter(type => {
-                                                if (type === 'featured_collections') return featuredCollections && featuredCollections.length > 0;
-                                                if (type === 'trending_searches') return trendingSearches && trendingSearches.length > 0;
-                                                if (type === 'featured_projects') return featuredProperties && featuredProperties.length > 0;
-                                                return false;
-                                            });
+                                                const availableCardTypes = ['featured_collections', 'trending_searches', 'featured_projects'];
+                                                const validCardTypes = availableCardTypes.filter(type => {
+                                                    if (type === 'featured_collections') return featuredCollections && featuredCollections.length > 0;
+                                                    if (type === 'trending_searches') return trendingSearches && trendingSearches.length > 0;
+                                                    if (type === 'featured_projects') return featuredProperties && featuredProperties.length > 0;
+                                                    return false;
+                                                });
 
-                                            const addAd = (seedIndex: number) => {
-                                                if (feedAds.length === 0) return;
-                                                const adIndex = seedIndex % feedAds.length;
-                                                feedItems.push({ type: 'ad', data: feedAds[adIndex] });
-                                            };
+                                                const addAd = (seedIndex: number) => {
+                                                    if (feedAds.length === 0) return;
+                                                    const adIndex = seedIndex % feedAds.length;
+                                                    feedItems.push({ type: 'ad', data: feedAds[adIndex] });
+                                                };
 
-                                            while (propertyIndex < properties.length) {
-                                                const chunkCount = Math.min(4, properties.length - propertyIndex);
-                                                for (let i = 0; i < chunkCount; i++) {
-                                                    feedItems.push({ type: 'single', data: properties[propertyIndex++] });
-                                                }
-
-                                                if (chunkCount > 0) {
-                                                    addAd(insertionCount);
-                                                    if (validCardTypes.length > 0) {
-                                                        const cardType = validCardTypes[insertionCount % validCardTypes.length];
-                                                        feedItems.push({ type: cardType });
+                                                while (propertyIndex < properties.length) {
+                                                    const chunkCount = Math.min(4, properties.length - propertyIndex);
+                                                    for (let i = 0; i < chunkCount; i++) {
+                                                        feedItems.push({ type: 'single', data: properties[propertyIndex++] });
                                                     }
-                                                    insertionCount++;
+
+                                                    if (chunkCount > 0) {
+                                                        addAd(insertionCount);
+                                                        if (validCardTypes.length > 0) {
+                                                            const cardType = validCardTypes[insertionCount % validCardTypes.length];
+                                                            feedItems.push({ type: cardType });
+                                                        }
+                                                        insertionCount++;
+                                                    }
                                                 }
-                                            }
 
-                                            return feedItems.map((item, idx) => {
-                                                let component = null;
+                                                return feedItems.map((item, idx) => {
+                                                    let component = null;
 
-                                                if (item.type === 'single') {
-                                                    const isTrigger = properties.indexOf(item.data) === properties.length - 5;
-                                                    component = (
-                                                        <PropertyPost
-                                                            property={item.data}
-                                                            onVisible={isTrigger ? () => fetchProperties(false) : undefined}
-                                                        />
+                                                    if (item.type === 'single') {
+                                                        const isTrigger = properties.indexOf(item.data) === properties.length - 5;
+                                                        component = (
+                                                            <PropertyPost
+                                                                property={item.data}
+                                                                onVisible={isTrigger ? () => fetchProperties(false) : undefined}
+                                                            />
+                                                        );
+                                                    } else if (item.type === 'ad') {
+                                                        component = <AdvertisementCard ad={item.data} />;
+                                                    } else if (item.type === 'featured_collections') {
+                                                        component = <FeaturedCollectionsFeedItem collections={featuredCollections || []} />;
+                                                    } else if (item.type === 'trending_searches') {
+                                                        component = <TrendingSearches searches={trendingSearches || []} />;
+                                                    } else if (item.type === 'featured_projects') {
+                                                        component = <FeaturedProjects properties={featuredProperties || []} />;
+                                                    }
+
+                                                    return (
+                                                        <div key={`${item.type}-${idx}`} className={`w-full animate-in fade-in slide-in-from-bottom-4 duration-700`}>
+                                                            {component}
+                                                        </div>
                                                     );
-                                                } else if (item.type === 'ad') {
-                                                    component = <AdvertisementCard ad={item.data} />;
-                                                } else if (item.type === 'featured_collections') {
-                                                    component = <FeaturedCollectionsFeedItem collections={featuredCollections || []} />;
-                                                } else if (item.type === 'trending_searches') {
-                                                    component = <TrendingSearches searches={trendingSearches || []} />;
-                                                } else if (item.type === 'featured_projects') {
-                                                    component = <FeaturedProjects properties={featuredProperties || []} />;
-                                                }
-
-                                                return (
-                                                    <div key={`${item.type}-${idx}`} className={`w-full animate-in fade-in slide-in-from-bottom-4 duration-700`}>
-                                                        {component}
-                                                    </div>
-                                                );
-                                            });
-                                        })()}
+                                                });
+                                            })()}
+                                        </div>
                                     </div>
 
                                     {isFetchingMore && (
@@ -238,7 +349,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted opacity-40"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                                             </div>
                                             <p className="text-text-muted text-[15px] font-black tracking-tight">
-                                                You've reached the end of the registry.
+                                                You&apos;ve reached the end of the registry.
                                             </p>
                                             <p className="text-text-muted/60 text-[12px] font-medium mt-1">
                                                 Check back later for new opportunities.
@@ -328,5 +439,3 @@ function FeedSkeleton({ hasCarouselAds = true }: { hasCarouselAds?: boolean }) {
         </div>
     );
 }
-
-

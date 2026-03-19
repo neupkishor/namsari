@@ -26,13 +26,13 @@ export default function HomepageLayout({ children }: { children: React.ReactNode
     }, []);
 
     return (
-        <div className="flex flex-col lg:flex-row gap-8 items-start min-h-[calc(100vh-var(--header-height))] max-w-[var(--container-max)] mx-auto mt-[var(--header-height)] px-4 lg:px-6 w-full relative bg-surface">
+        <div className="flex flex-col lg:flex-row gap-6 items-start min-h-[calc(100vh-var(--header-height))] max-w-[var(--container-max)] mx-auto mt-[var(--header-height)] px-4 lg:px-5 xl:px-6 w-full relative bg-surface">
             <div className="hidden lg:block w-[var(--sidebar-width)] flex-shrink-0">
                 <div
                     className="fixed z-30 h-[calc(100vh-var(--header-height))] min-h-0 w-[var(--sidebar-width)]"
                     style={{
                         top: 'var(--header-height)',
-                        left: 'max(1.5rem, calc((100vw - var(--container-max)) / 2 + 1.5rem))',
+                        left: 'max(1.25rem, calc((100vw - var(--container-max)) / 2 + 1.25rem))',
                     }}
                 >
                     <Sidebar user={user} loading={loading} />
