@@ -276,6 +276,34 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         padding: 24px 16px;
                     }
                 }
+
+                /* Recommended Properties Section */
+                .recommended-properties-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+                    gap: 28px;
+                }
+
+                @media (max-width: 1024px) {
+                    .recommended-properties-grid {
+                        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                        gap: 24px;
+                    }
+                }
+
+                @media (max-width: 768px) {
+                    .recommended-properties-grid {
+                        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                        gap: 20px;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .recommended-properties-grid {
+                        grid-template-columns: 1fr;
+                        gap: 16px;
+                    }
+                }
             `}} />
 
             <div className="property-page-container">
@@ -507,12 +535,8 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
                 {/* Recommended Properties */}
                 <div style={{ marginTop: '80px', borderTop: '1px solid #e5e7eb', paddingTop: '60px' }}>
-                    <h2 className="section-title" style={{ marginBottom: '32px', fontSize: '1.75rem' }}>Recommended Properties</h2>
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                        gap: '32px'
-                    }}>
+                    <h2 className="section-title" style={{ marginBottom: '40px', fontSize: '2rem', fontWeight: '900', color: '#1a1a1a' }}>Recommended Properties</h2>
+                    <div className="recommended-properties-grid">
                         {recommendedProperties.map((p) => (
                             <PropertyCard key={p.id} property={{
                                 id: p.id,
