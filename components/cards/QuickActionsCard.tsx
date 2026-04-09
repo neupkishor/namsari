@@ -51,33 +51,33 @@ export const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ user }) => {
     ];
 
     return (
-        <section className="w-full py-10 px-4 sm:px-6 lg:px-8 bg-slate-50/50 rounded-[2.5rem] border border-slate-200/60 overflow-hidden relative">
+        <section className="w-full py-6 px-3 sm:px-5 lg:px-6 bg-slate-50/60 rounded-[1.75rem] border border-slate-200/70 overflow-hidden relative">
             {/* Background Decorative Elements */}
-            <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute top-0 right-0 -mt-20 -mr-20 w-52 h-52 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-52 h-52 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="relative z-10 max-w-7xl mx-auto">
+            <div className="relative z-10 max-w-6xl mx-auto">
                 {/* Header Section */}
-                <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                    <div className="space-y-3">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-600/10 border border-blue-600/20 text-blue-700 text-[9px] font-bold tracking-widest uppercase w-fit">
+                <div className="mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+                    <div className="space-y-2">
+                        <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-blue-600/10 border border-blue-600/20 text-blue-700 text-[9px] font-bold tracking-widest uppercase w-fit">
                             <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
                             Marketplace Dashboard
                         </div>
-                        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight leading-none">
+                        <h2 className="text-2xl sm:text-[1.65rem] font-extrabold text-slate-900 tracking-tight leading-tight">
                             Welcome back, <span className="text-blue-600 italic">{user?.name?.split(' ')[0] || 'User'}</span>
                         </h2>
                     </div>
-                    <p className="text-slate-500 text-sm font-medium max-w-md hidden sm:block">
+                    <p className="text-slate-500 text-xs sm:text-sm font-medium max-w-md">
                         Manage your real estate portfolio with absolute precision and market-leading insights.
                     </p>
                 </div>
                 
                 {/* Carousel Wrapper */}
-                <div className="w-full overflow-x-auto pb-6 -mx-4 px-4 scrollbar-hide snap-x snap-mandatory">
-                    <div className="flex gap-4 md:gap-6 w-max">
+                <div className="w-full overflow-x-auto pb-3 -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide snap-x snap-mandatory">
+                    <div className="flex gap-3 md:gap-4 w-max">
                         {actions.map((action, idx) => (
-                            <div key={idx} className="w-[85vw] sm:w-[320px] md:w-[380px] snap-center">
+                            <div key={idx} className="w-[84vw] sm:w-[280px] md:w-[300px] snap-center">
                                 <ActionCard {...action} />
                             </div>
                         ))}
@@ -113,24 +113,24 @@ const ActionCard: React.FC<ActionCardProps> = ({ title, subtitle, description, i
 
     return (
         <Link href={href} className="group block h-full">
-            <div className={`h-full bg-white border border-slate-200 rounded-[2rem] p-6 flex flex-col transition-all duration-500 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 relative overflow-hidden`}>
-                <div className={`w-12 h-12 rounded-2xl ${bgMap[accentColor]} flex items-center justify-center mb-5 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 ${colorMap[accentColor].split(' ').pop()}`}>
+            <div className={`h-full bg-white border border-slate-200 rounded-3xl p-5 flex flex-col transition-all duration-400 hover:shadow-lg hover:shadow-slate-200/50 hover:-translate-y-0.5 relative overflow-hidden`}>
+                <div className={`w-10 h-10 rounded-xl ${bgMap[accentColor]} flex items-center justify-center mb-4 transition-all duration-400 group-hover:scale-105 ${colorMap[accentColor].split(' ').pop()}`}>
                     {icon}
                 </div>
                 
-                <div className="space-y-2 mb-6">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+                <div className="space-y-2 mb-4">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.16em]">
                         {subtitle}
                     </span>
-                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors duration-300">
+                    <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors duration-300 leading-tight">
                         {title}
                     </h3>
-                    <p className="text-slate-500 text-xs leading-relaxed line-clamp-2">
+                    <p className="text-slate-500 text-[12px] leading-relaxed line-clamp-2">
                         {description}
                     </p>
                 </div>
                 
-                <div className="mt-auto pt-4 flex items-center gap-2 text-[10px] font-bold text-slate-900 uppercase tracking-widest">
+                <div className="mt-auto pt-3 flex items-center gap-2 text-[10px] font-bold text-slate-900 uppercase tracking-[0.14em]">
                     <span className="relative overflow-hidden group-hover:pr-6 transition-all duration-300">
                         {ctaText}
                         <svg className="absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">

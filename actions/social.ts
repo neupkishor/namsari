@@ -117,7 +117,7 @@ export async function trackShare(propertyId: number, platform: string = 'clipboa
     
     // I will create a separate server action that calls logActivity but also captures headers.
     // Or I can update logActivity to capture headers if called from a Server Action context.
-    // But logActivity is in @/lib/activity.ts, it might not have access to headers() if called from background jobs.
+    // But logActivity is in ./lib/activity.ts, it might not have access to headers() if called from background jobs.
     // But here we are in a Server Action.
     
     await logActivity({
