@@ -606,9 +606,88 @@ type HomeClientProps = {
     featuredAgencies?: any[];
     advertisements?: any[];
     categories?: any[];
+    exploreCategoryStats?: {
+        forSale: {
+            house: number;
+            land: number;
+            building: number;
+        };
+        forRent: {
+            flat: number;
+            house: number;
+            apartment: number;
+            totalRent: number;
+        };
+        requirements: {
+            total: number;
+        };
+    };
 };
 
-export default function HomeClient({ user, featuredCollections, trendingSearches, featuredProperties = [], advertisements = [] }: HomeClientProps) {
+function ExploreCategoriesSection({
+    stats,
+}: {
+    stats: NonNullable<HomeClientProps['exploreCategoryStats']>;
+}) {
+    const saleItems = [
+        { label: 'House', count: stats.forSale.house },
+        { label: 'Land', count: stats.forSale.land },
+        { label: 'Building', count: stats.forSale.building },
+    ];
+
+    const rentItems = [
+        { label: 'Flat', count: stats.forRent.flat },
+        { label: 'House', count: stats.forRent.house },
+        { label: 'Apartment', count: stats.forRent.apartment },
+        { label: 'Rent', count: stats.forRent.totalRent },
+    ];
+
+    return (
+        <section className="w-full">
+            <div className="rounded-[24px] border border-slate-200/80 bg-white p-3 shadow-[var(--shadow-card)] sm:rounded-[28px] sm:p-5">
+                <div className="mb-4 sm:mb-6">
+                    <h2 className="text-lg font-black tracking-tight text-slate-900 sm:text-xl">Explore by categories</h2>
+                </div>
+
+                <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3 sm:p-4">
+                        <h3 className="mb-3 text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">For Sale</h3>
+                        <div className="grid grid-cols-3 gap-2">
+                            {saleItems.map((item) => (
+                                <Link key={item.label} href={`/explore?type=feed&rawQuery=${encodeURIComponent(item.label.toLowerCase())}`} className="rounded-xl border border-slate-200 bg-white px-2 py-2 text-center transition-colors duration-200 hover:border-[color:var(--color-primary)]/35">
+                                    <div className="text-[11px] font-bold text-slate-600">{item.label}</div>
+                                    <div className="mt-1 text-sm font-black text-[color:var(--color-primary)]">{item.count}</div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3 sm:p-4">
+                        <h3 className="mb-3 text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">For Rent</h3>
+                        <div className="grid grid-cols-2 gap-2">
+                            {rentItems.map((item) => (
+                                <Link key={item.label} href={`/explore?type=feed&rawQuery=${encodeURIComponent(item.label.toLowerCase())}`} className="rounded-xl border border-slate-200 bg-white px-2 py-2 text-center transition-colors duration-200 hover:border-[color:var(--color-primary)]/35">
+                                    <div className="text-[11px] font-bold text-slate-600">{item.label}</div>
+                                    <div className="mt-1 text-sm font-black text-[color:var(--color-primary)]">{item.count}</div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3 sm:p-4">
+                        <h3 className="mb-3 text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">Requirements</h3>
+                        <Link href="/requirements" className="flex h-full min-h-[104px] flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 text-center transition-colors duration-200 hover:border-[color:var(--color-primary)]/35">
+                            <div className="text-[12px] font-bold text-slate-600">Total requirements</div>
+                            <div className="mt-1 text-2xl font-black text-[color:var(--color-primary)]">{stats.requirements.total}</div>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+export default function HomeClient({ user, featuredCollections, trendingSearches, featuredProperties = [], advertisements = [], exploreCategoryStats }: HomeClientProps) {
     const [isLoading, setIsLoading] = useState(true);
 
     const [properties, setProperties] = useState<any[]>([]);
@@ -675,6 +754,12 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                 <div className="w-full">
                     <div className="mx-auto w-full max-w-[1400px] px-2 pt-3 sm:px-6 lg:px-8">
                         <HomeSearchHero />
+
+                        {exploreCategoryStats && (
+                            <div className="mt-4 sm:mt-6">
+                                <ExploreCategoriesSection stats={exploreCategoryStats} />
+                            </div>
+                        )}
                     </div>
 
                     {/* Advertisement Carousel - Full Width at Top */}

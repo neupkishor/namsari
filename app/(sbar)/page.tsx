@@ -4,6 +4,7 @@ import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { getActiveAdvertisements } from '@/actions/advertisements';
 import { getPropertyTypeCounts } from '@/actions/settings';
+import { getCachedListingStats } from '@/actions/listing-stats';
 
 export default async function HomePage() {
     const session = await getSession();
@@ -20,7 +21,7 @@ export default async function HomePage() {
         }
     }
 
-    const [featuredCollections, trendingSearches, featuredProperties, featuredAgencies, advertisements, propertyTypes] = await Promise.all([
+    const [featuredCollections, trendingSearches, featuredProperties, featuredAgencies, advertisements, propertyTypes, cachedListingStats] = await Promise.all([
         prisma.collection.findMany({
             where: { is_public: true },
             take: 6,
@@ -61,8 +62,11 @@ export default async function HomePage() {
             }
         }),
         getActiveAdvertisements(),
-        getPropertyTypeCounts()
+        getPropertyTypeCounts(),
+        getCachedListingStats()
     ]);
+
+    const exploreCategoryStats = cachedListingStats.stats;
 
     const categories = propertyTypes.map(pt => ({
         id: String(pt.id),
@@ -79,5 +83,6 @@ export default async function HomePage() {
         featuredAgencies={featuredAgencies}
         advertisements={advertisements}
         categories={categories}
+        exploreCategoryStats={exploreCategoryStats}
     />;
 }
