@@ -7,9 +7,11 @@ interface PropertyPostProps {
   onRefresh?: () => void;
   onVisible?: () => void;
   className?: string;
+  isFirstInSet?: boolean;
+  isLastInSet?: boolean;
 }
 
-export function PropertyPost({ property, onVisible, className }: PropertyPostProps) {
+export function PropertyPost({ property, onVisible, className, isFirstInSet = false, isLastInSet = false }: PropertyPostProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -74,12 +76,12 @@ export function PropertyPost({ property, onVisible, className }: PropertyPostPro
   return (
     <div 
       ref={containerRef} 
-      className={`bg-white border-b border-slate-100 last:border-0 group/card ${className || ''}`}
+      className={`bg-white border-b border-slate-200 last:border-0 group/card ${isFirstInSet ? 'rounded-t-[28px]' : ''} ${isLastInSet ? 'rounded-b-[28px]' : ''} ${className || ''}`}
     >
       <div className="flex w-full gap-4 p-4 items-stretch">
         {/* Left: Image Section */}
-        <div className="w-[120px] sm:w-[180px] flex-shrink-0">
-          <Link href={propertyUrl} className="relative block h-full min-h-[180px] sm:min-h-[210px] overflow-hidden rounded-lg">
+        <div className="w-[120px] sm:w-[180px] flex-shrink-0 flex flex-col gap-2">
+          <Link href={propertyUrl} className={`relative block min-h-[140px] sm:min-h-[170px] flex-1 overflow-hidden rounded-xl ${isFirstInSet ? 'rounded-tl-[24px]' : ''}`}>
             <img
               src={activeImage}
               alt={property.title}
@@ -90,6 +92,38 @@ export function PropertyPost({ property, onVisible, className }: PropertyPostPro
               {property.types?.[0]?.name || 'Property'}
             </div>
           </Link>
+
+          {images.length > 1 && (
+            <div className="flex gap-1 overflow-hidden">
+              {images.slice(0, 4).map((img: any, idx: number) => {
+                const url = typeof img === 'string' ? img : img.url;
+                const isActive = activeImage === url;
+                return (
+                  <button
+                    key={idx}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setActiveImage(url);
+                    }}
+                    title={`View image ${idx + 1}`}
+                    aria-label={`View image ${idx + 1}`}
+                    className={`relative h-6 sm:h-7 flex-1 overflow-hidden border transition-all ${
+                      idx === 0 && isLastInSet ? 'rounded-bl-[20px]' : 'rounded-md'
+                    } ${
+                      isActive ? 'border-blue-500' : 'border-slate-200 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
+                    {idx === 3 && images.length > 4 && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-[8px] font-bold">
+                        +{images.length - 4}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Right: Content Section */}

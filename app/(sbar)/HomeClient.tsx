@@ -289,6 +289,14 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                     }
                                                 }
 
+                                                const firstPropertyIndex = feedItems.findIndex((entry) => entry.type === 'single');
+                                                const lastPropertyIndex = (() => {
+                                                    for (let i = feedItems.length - 1; i >= 0; i--) {
+                                                        if (feedItems[i].type === 'single') return i;
+                                                    }
+                                                    return -1;
+                                                })();
+
                                                 return feedItems.map((item, idx) => {
                                                     let component = null;
 
@@ -298,6 +306,8 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                             <PropertyPost
                                                                 property={item.data}
                                                                 onVisible={isTrigger ? () => fetchProperties(false) : undefined}
+                                                                isFirstInSet={idx === firstPropertyIndex}
+                                                                isLastInSet={idx === lastPropertyIndex}
                                                             />
                                                         );
                                                     } else if (item.type === 'ad') {
