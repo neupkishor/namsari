@@ -76,7 +76,7 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
   return (
     <div 
       ref={containerRef} 
-      className={`bg-white border-b border-slate-200 last:border-0 group/card transition-all duration-300 hover:border-[color:var(--color-primary)]/45 hover:ring-1 hover:ring-inset hover:ring-[color:var(--color-primary)]/30 ${isFirstInSet ? 'rounded-t-[28px]' : ''} ${isLastInSet ? 'rounded-b-[28px]' : ''} ${className || ''}`}
+      className={`bg-white border-b border-slate-200 last:border-0 group/card transition-all duration-300 hover:border-b-transparent hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)]/40 ${isFirstInSet ? 'rounded-t-[28px]' : ''} ${isLastInSet ? 'rounded-b-[28px]' : ''} ${className || ''}`}
     >
       <div className="flex w-full gap-4 p-4 items-stretch">
         {/* Left: Image Section */}
