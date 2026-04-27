@@ -2,19 +2,9 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 type Step = 'root' | 'property' | 'requirement';
-
-const OPTIONS = {
-    property: [
-        { emoji: '💰', label: 'To Sale', href: '/sell?purpose=sale' },
-        { emoji: '🔑', label: 'To Give on Rent', href: '/sell?purpose=rent' },
-    ],
-    requirement: [
-        { emoji: '🏗️', label: 'To Buy', href: '/requirements/new?purpose=sale' },
-        { emoji: '🏡', label: 'To Take on Rent', href: '/requirements/new?purpose=rent' },
-    ],
-};
 
 function OptionCard({ emoji, label, href }: { emoji: string; label: string; href: string }) {
     return (
@@ -28,9 +18,22 @@ function OptionCard({ emoji, label, href }: { emoji: string; label: string; href
     );
 }
 
-// Mobile: step-by-step
 function MobilePost() {
-    const [step, setStep] = useState<Step>('root');
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const typeParam = searchParams.get('type');
+
+    const initialStep: Step =
+        typeParam === 'property' ? 'property' :
+        typeParam === 'requirement' ? 'requirement' :
+        'root';
+
+    const [step, setStep] = useState<Step>(initialStep);
+
+    const goToStep = (s: Step) => {
+        router.replace(s === 'root' ? '/post' : `/post?type=${s === 'property' ? 'property' : 'requirement'}`, { scroll: false });
+        setStep(s);
+    };
 
     return (
         <div className="lg:hidden space-y-6 pt-2">
@@ -42,14 +45,14 @@ function MobilePost() {
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <button
-                            onClick={() => setStep('property')}
+                            onClick={() => goToStep('property')}
                             className="flex flex-col gap-3 rounded-[20px] border border-[color:var(--color-primary)]/12 bg-white p-5 text-left transition-all hover:border-[color:var(--color-primary)]/35 hover:shadow-sm"
                         >
                             <span className="text-3xl">🏠</span>
                             <span className="text-[14px] font-bold text-slate-900">Post Property</span>
                         </button>
                         <button
-                            onClick={() => setStep('requirement')}
+                            onClick={() => goToStep('requirement')}
                             className="flex flex-col gap-3 rounded-[20px] border border-[color:var(--color-primary)]/12 bg-white p-5 text-left transition-all hover:border-[color:var(--color-primary)]/35 hover:shadow-sm"
                         >
                             <span className="text-3xl">🔍</span>
@@ -59,27 +62,42 @@ function MobilePost() {
                 </div>
             )}
 
-            {(step === 'property' || step === 'requirement') && (
+            {step === 'property' && (
                 <div className="space-y-4">
                     <div className="flex items-center gap-3">
-                        <button onClick={() => setStep('root')} className="text-slate-400 hover:text-slate-700">
+                        <button onClick={() => goToStep('root')} className="text-slate-400 hover:text-slate-700">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                 <polyline points="15 18 9 12 15 6" />
                             </svg>
                         </button>
                         <div className="space-y-0.5">
-                            <h1 className="text-xl font-bold tracking-tight text-slate-900">
-                                {step === 'property' ? 'Post Property' : 'Post Requirement'}
-                            </h1>
-                            <p className="text-sm text-slate-500">
-                                {step === 'property' ? 'What are you listing it for?' : 'What are you looking for?'}
-                            </p>
+                            <h1 className="text-xl font-bold tracking-tight text-slate-900">Post Property</h1>
+                            <p className="text-sm text-slate-500">What are you listing it for?</p>
                         </div>
                     </div>
                     <div className="flex flex-col gap-3">
-                        {OPTIONS[step].map(opt => (
-                            <OptionCard key={opt.href} {...opt} />
-                        ))}
+                        <OptionCard emoji="💰" label="To Sale" href="/sell?purpose=sale" />
+                        <OptionCard emoji="🔑" label="To Give on Rent" href="/sell?purpose=rent" />
+                    </div>
+                </div>
+            )}
+
+            {step === 'requirement' && (
+                <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                        <button onClick={() => goToStep('root')} className="text-slate-400 hover:text-slate-700">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="15 18 9 12 15 6" />
+                            </svg>
+                        </button>
+                        <div className="space-y-0.5">
+                            <h1 className="text-xl font-bold tracking-tight text-slate-900">Post Requirement</h1>
+                            <p className="text-sm text-slate-500">What are you looking for?</p>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                        <OptionCard emoji="🏗️" label="To Buy" href="/requirements?purpose=sale" />
+                        <OptionCard emoji="🏡" label="To Take on Rent" href="/requirements?purpose=rent" />
                     </div>
                 </div>
             )}
@@ -87,7 +105,6 @@ function MobilePost() {
     );
 }
 
-// Desktop: all options visible at once
 function DesktopPost() {
     return (
         <div className="hidden lg:block space-y-8">
@@ -95,19 +112,16 @@ function DesktopPost() {
                 <h1 className="text-xl font-bold tracking-tight text-slate-900">Post Property or Requirement</h1>
                 <p className="text-sm text-slate-500">List your property for sale or rent, or post what you&apos;re looking for.</p>
             </div>
-
             <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-3">
                     <div className="px-1 text-[11px] font-black uppercase tracking-[0.28em] text-slate-400">Post Property</div>
-                    {OPTIONS.property.map(opt => (
-                        <OptionCard key={opt.href} {...opt} />
-                    ))}
+                    <OptionCard emoji="💰" label="To Sale" href="/sell?purpose=sale" />
+                    <OptionCard emoji="🔑" label="To Give on Rent" href="/sell?purpose=rent" />
                 </div>
                 <div className="space-y-3">
                     <div className="px-1 text-[11px] font-black uppercase tracking-[0.28em] text-slate-400">Post Requirement</div>
-                    {OPTIONS.requirement.map(opt => (
-                        <OptionCard key={opt.href} {...opt} />
-                    ))}
+                    <OptionCard emoji="🏗️" label="To Buy" href="/requirements?purpose=sale" />
+                    <OptionCard emoji="🏡" label="To Take on Rent" href="/requirements?purpose=rent" />
                 </div>
             </div>
         </div>

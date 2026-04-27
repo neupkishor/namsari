@@ -16,10 +16,14 @@ const RequirementMap = dynamic(() => import('./RequirementMap'), {
     loading: () => <div style={{ height: '400px', background: '#f1f5f9', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Map...</div>
 });
 
-export default function RequirementsClient({ currentUser }: { currentUser: any }) {
+export default function RequirementsClient({ currentUser, initialPurpose }: { currentUser: any, initialPurpose?: string }) {
     const [mode, setMode] = useState<'simple' | 'detailed'>('simple');
     const [propertyTypes, setPropertyTypes] = useState<string[]>(['house']);
-    const [purposes, setPurposes] = useState<string[]>(['buy']);
+    const [purposes, setPurposes] = useState<string[]>(
+        initialPurpose === 'rent' ? ['rent'] :
+        initialPurpose === 'sale' ? ['buy'] :
+        ['buy']
+    );
     const [natures, setNatures] = useState<string[]>(['residential']);
     const [district, setDistrict] = useState('');
     const [city, setCity] = useState('');

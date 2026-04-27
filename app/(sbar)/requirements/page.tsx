@@ -8,9 +8,10 @@ export const metadata = {
     description: 'Post your property requirements and find your dream home in Nepal.',
 };
 
-export default async function RequirementsPage() {
+export default async function RequirementsPage({ searchParams }: { searchParams: Promise<{ purpose?: string }> }) {
+    const { purpose } = await searchParams;
     const session = await getSession();
     const user = session ? await prisma.user.findUnique({ where: { id: Number(session.id) } }) : null;
 
-    return <RequirementsClient currentUser={user} />;
+    return <RequirementsClient currentUser={user} initialPurpose={purpose} />;
 }

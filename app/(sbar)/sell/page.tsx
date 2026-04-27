@@ -4,7 +4,8 @@ import { getSession } from '@/lib/auth';
 import SellClient from './SellClient';
 import { LoginPromptCard } from '@/components/cards/LoginPromptCard';
 
-export default async function SellPage() {
+export default async function SellPage({ searchParams }: { searchParams: Promise<{ purpose?: string }> }) {
+    const { purpose } = await searchParams;
     const session = await getSession();
     if (!session || !session.id) {
         return (
@@ -33,6 +34,7 @@ export default async function SellPage() {
                 phone: u.kyc?.phone || u.contact_number || ''
             }))}
             currentUserId={userId}
+            initialPurpose={purpose}
         />
     );
 }

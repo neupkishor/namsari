@@ -10,9 +10,9 @@ import { PropertyInformation } from './components/PropertyInformation';
 
 import { Header } from '@/components/menu/Header';
 
-export default function SellClient({ users, currentUserId, currentUser }: { users: any[], currentUserId: number, currentUser?: any }) {
+export default function SellClient({ users, currentUserId, currentUser, initialPurpose }: { users: any[], currentUserId: number, currentUser?: any, initialPurpose?: string }) {
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-    const [selectedPurposes, setSelectedPurposes] = useState<string[]>([]);
+    const [selectedPurposes, setSelectedPurposes] = useState<string[]>(initialPurpose === 'sale' || initialPurpose === 'rent' ? [initialPurpose] : []);
     const [selectedNatures, setSelectedNatures] = useState<string[]>([]);
 
     const [pricingType, setPricingType] = useState('flat');
