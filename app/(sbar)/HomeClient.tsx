@@ -252,8 +252,8 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                         description="Real-time stream of premium listings, sponsored placements, and curated discovery signals."
                                     />
 
-                                    <div className="rounded-[28px] border border-slate-200/80 bg-white shadow-[var(--shadow-card)] overflow-hidden">
-                                        <div className="flex flex-col">
+                                    <div className="flex flex-col gap-6">
+                                        <div className="flex flex-col gap-6">
                                             {(() => {
                                                 const feedItems: any[] = [];
                                                 let propertyIndex = 0;
@@ -275,8 +275,14 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
 
                                                 while (propertyIndex < properties.length) {
                                                     const chunkCount = Math.min(4, properties.length - propertyIndex);
+                                                    const propertySet: any[] = [];
+
                                                     for (let i = 0; i < chunkCount; i++) {
-                                                        feedItems.push({ type: 'single', data: properties[propertyIndex++] });
+                                                        propertySet.push(properties[propertyIndex++]);
+                                                    }
+
+                                                    if (propertySet.length > 0) {
+                                                        feedItems.push({ type: 'property_set', data: propertySet });
                                                     }
 
                                                     if (chunkCount > 0) {
@@ -289,28 +295,34 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                     }
                                                 }
 
-                                                const firstPropertyIndex = feedItems.findIndex((entry) => entry.type === 'single');
-                                                const lastPropertyIndex = (() => {
-                                                    for (let i = feedItems.length - 1; i >= 0; i--) {
-                                                        if (feedItems[i].type === 'single') return i;
-                                                    }
-                                                    return -1;
-                                                })();
+                                                const triggerPropertyId = properties.length >= 5 ? properties[properties.length - 5]?.id : undefined;
 
                                                 return feedItems.map((item, idx) => {
                                                     let component = null;
-                                                    const nextItem = feedItems[idx + 1];
-                                                    const showPropertySeparator = item.type === 'single' && nextItem?.type === 'single';
 
-                                                    if (item.type === 'single') {
-                                                        const isTrigger = properties.indexOf(item.data) === properties.length - 5;
+                                                    if (item.type === 'property_set') {
                                                         component = (
-                                                            <PropertyPost
-                                                                property={item.data}
-                                                                onVisible={isTrigger ? () => fetchProperties(false) : undefined}
-                                                                isFirstInSet={idx === firstPropertyIndex}
-                                                                isLastInSet={idx === lastPropertyIndex}
-                                                            />
+                                                            <div className="rounded-[28px] border border-slate-200/80 bg-white shadow-[var(--shadow-card)] overflow-hidden">
+                                                                {item.data.map((property: any, propertyIndexInSet: number) => {
+                                                                    const isTrigger = property.id === triggerPropertyId;
+                                                                    const isFirstInSet = propertyIndexInSet === 0;
+                                                                    const isLastInSet = propertyIndexInSet === item.data.length - 1;
+
+                                                                    return (
+                                                                        <div key={property.id || `${idx}-${propertyIndexInSet}`}>
+                                                                            <PropertyPost
+                                                                                property={property}
+                                                                                onVisible={isTrigger ? () => fetchProperties(false) : undefined}
+                                                                                isFirstInSet={isFirstInSet}
+                                                                                isLastInSet={isLastInSet}
+                                                                            />
+                                                                            {!isLastInSet && (
+                                                                                <div className="mx-4 border-t border-slate-200/90" aria-hidden="true" />
+                                                                            )}
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
                                                         );
                                                     } else if (item.type === 'ad') {
                                                         component = <AdvertisementCard ad={item.data} />;
@@ -325,9 +337,6 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                     return (
                                                         <div key={`${item.type}-${idx}`} className={`w-full animate-in fade-in slide-in-from-bottom-4 duration-700`}>
                                                             {component}
-                                                            {showPropertySeparator && (
-                                                                <div className="mx-4 border-t border-slate-200/90" aria-hidden="true" />
-                                                            )}
                                                         </div>
                                                     );
                                                 });
