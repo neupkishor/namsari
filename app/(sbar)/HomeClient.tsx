@@ -620,67 +620,58 @@ type HomeClientProps = {
         };
         requirements: {
             total: number;
+            rental: number;
+            purchase: number;
         };
     };
 };
+
+function StatCard({ emoji, label, count, href }: { emoji: string; label: string; count: number; href: string }) {
+    return (
+        <Link
+            href={href}
+            className="flex items-center gap-3 rounded-[18px] border border-[color:var(--color-primary)]/12 bg-white px-3 py-3 transition-all duration-200 hover:border-[color:var(--color-primary)]/35 hover:shadow-sm sm:px-4 w-[calc(50%-4px)] sm:w-[calc(25%-6px)]"
+        >
+            <span className="text-xl leading-none">{emoji}</span>
+            <div className="flex-1 min-w-0">
+                <div className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-500 truncate">{label}</div>
+                <div className="text-[15px] font-black text-[color:var(--color-primary)] mt-0.5">{count}</div>
+            </div>
+        </Link>
+    );
+}
 
 function ExploreCategoriesSection({
     stats,
 }: {
     stats: NonNullable<HomeClientProps['exploreCategoryStats']>;
 }) {
-    const saleItems = [
-        { label: 'House', count: stats.forSale.house },
-        { label: 'Land', count: stats.forSale.land },
-        { label: 'Building', count: stats.forSale.building },
-    ];
-
-    const rentItems = [
-        { label: 'Flat', count: stats.forRent.flat },
-        { label: 'House', count: stats.forRent.house },
-        { label: 'Apartment', count: stats.forRent.apartment },
-        { label: 'Rent', count: stats.forRent.totalRent },
-    ];
-
     return (
-        <section className="w-full">
-            <div className="rounded-[24px] border border-slate-200/80 bg-white p-3 shadow-[var(--shadow-card)] sm:rounded-[28px] sm:p-5">
-                <div className="mb-4 sm:mb-6">
-                    <h2 className="text-lg font-black tracking-tight text-slate-900 sm:text-xl">Explore by categories</h2>
+        <section className="w-full space-y-4">
+            <div className="space-y-2">
+                <div className="px-1 text-[11px] font-black uppercase tracking-[0.28em] text-slate-400">For Sale</div>
+                <div className="flex flex-wrap gap-2">
+                    <StatCard emoji="🏠" label="House" count={stats.forSale.house} href="/explore?type=feed&purposes=sale&types=house" />
+                    <StatCard emoji="🌿" label="Land" count={stats.forSale.land} href="/explore?type=feed&purposes=sale&types=land" />
+                    <StatCard emoji="🏢" label="Building" count={stats.forSale.building} href="/explore?type=feed&purposes=sale&types=building" />
                 </div>
+            </div>
 
-                <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3 sm:p-4">
-                        <h3 className="mb-3 text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">For Sale</h3>
-                        <div className="grid grid-cols-3 gap-2">
-                            {saleItems.map((item) => (
-                                <Link key={item.label} href={`/explore?type=feed&rawQuery=${encodeURIComponent(item.label.toLowerCase())}`} className="rounded-xl border border-slate-200 bg-white px-2 py-2 text-center transition-colors duration-200 hover:border-[color:var(--color-primary)]/35">
-                                    <div className="text-[11px] font-bold text-slate-600">{item.label}</div>
-                                    <div className="mt-1 text-sm font-black text-[color:var(--color-primary)]">{item.count}</div>
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
+            <div className="space-y-2">
+                <div className="px-1 text-[11px] font-black uppercase tracking-[0.28em] text-slate-400">For Rent</div>
+                <div className="flex flex-wrap gap-2">
+                    <StatCard emoji="🛋️" label="Flat" count={stats.forRent.flat} href="/explore?type=feed&purposes=rent&types=flat" />
+                    <StatCard emoji="🏡" label="House" count={stats.forRent.house} href="/explore?type=feed&purposes=rent&types=house" />
+                    <StatCard emoji="🏙️" label="Apartment" count={stats.forRent.apartment} href="/explore?type=feed&purposes=rent&types=apartment" />
+                    <StatCard emoji="🔑" label="All Rent" count={stats.forRent.totalRent} href="/explore?type=feed&purposes=rent" />
+                </div>
+            </div>
 
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3 sm:p-4">
-                        <h3 className="mb-3 text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">For Rent</h3>
-                        <div className="grid grid-cols-2 gap-2">
-                            {rentItems.map((item) => (
-                                <Link key={item.label} href={`/explore?type=feed&rawQuery=${encodeURIComponent(item.label.toLowerCase())}`} className="rounded-xl border border-slate-200 bg-white px-2 py-2 text-center transition-colors duration-200 hover:border-[color:var(--color-primary)]/35">
-                                    <div className="text-[11px] font-bold text-slate-600">{item.label}</div>
-                                    <div className="mt-1 text-sm font-black text-[color:var(--color-primary)]">{item.count}</div>
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3 sm:p-4">
-                        <h3 className="mb-3 text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">Requirements</h3>
-                        <Link href="/requirements" className="flex h-full min-h-[104px] flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 text-center transition-colors duration-200 hover:border-[color:var(--color-primary)]/35">
-                            <div className="text-[12px] font-bold text-slate-600">Total requirements</div>
-                            <div className="mt-1 text-2xl font-black text-[color:var(--color-primary)]">{stats.requirements.total}</div>
-                        </Link>
-                    </div>
+            <div className="space-y-2">
+                <div className="px-1 text-[11px] font-black uppercase tracking-[0.28em] text-slate-400">Requirements</div>
+                <div className="flex flex-wrap gap-2">
+                    <StatCard emoji="🏘️" label="Rental" count={stats.requirements.rental} href="/requirements?purpose=rent" />
+                    <StatCard emoji="💼" label="Purchase" count={stats.requirements.purchase} href="/requirements?purpose=sale" />
                 </div>
             </div>
         </section>

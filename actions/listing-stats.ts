@@ -25,6 +25,8 @@ export interface ListingStats {
     };
     requirements: {
         total: number;
+        rental: number;
+        purchase: number;
     };
 }
 
@@ -54,6 +56,8 @@ const EMPTY_LISTING_STATS: ListingStats = {
     },
     requirements: {
         total: 0,
+        rental: 0,
+        purchase: 0,
     },
 };
 
@@ -99,6 +103,8 @@ export async function computeListingStats(): Promise<ListingStats> {
         flatRent,
         totalRent,
         totalRequirements,
+        rentalRequirements,
+        purchaseRequirements,
     ] = await Promise.all([
         countPropertyByTypeAndPurpose('house', 'sale'),
         countPropertyByTypeAndPurpose('house', 'rent'),
@@ -121,6 +127,8 @@ export async function computeListingStats(): Promise<ListingStats> {
             },
         }),
         prisma.requirement.count({ where: { status: 'active' } }),
+        prisma.requirement.count({ where: { status: 'active', purposes: { contains: 'rent' } } }),
+        prisma.requirement.count({ where: { status: 'active', purposes: { contains: 'sale' } } }),
     ]);
 
     return {
@@ -144,6 +152,8 @@ export async function computeListingStats(): Promise<ListingStats> {
         },
         requirements: {
             total: totalRequirements,
+            rental: rentalRequirements,
+            purchase: purchaseRequirements,
         },
     };
 }
