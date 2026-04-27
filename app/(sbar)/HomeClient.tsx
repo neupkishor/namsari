@@ -145,6 +145,9 @@ function FeaturedSmallCard({ property }: { property: any }) {
 
 type HomeSearchPanel = 'price' | 'location' | 'size' | 'listedBy' | null;
 type ListedByType = 'developer' | 'agent' | 'agency' | 'owner' | 'bank';
+type AreaPriceUnit = 'peraana' | 'persqm';
+
+const AANA_TO_SQM = 31.796;
 
 const HOME_LOCATION_OPTIONS = [
     'Kathmandu',
@@ -180,6 +183,25 @@ function formatHeroMoney(value: string) {
     return formatNPR(parsed);
 }
 
+function convertAreaPriceToModified(unit: AreaPriceUnit, minPrice?: string, maxPrice?: string) {
+    const rawMin = minPrice && minPrice !== '' ? Number(minPrice) : null;
+    const rawMax = maxPrice && maxPrice !== '' ? Number(maxPrice) : null;
+
+    if (unit === 'peraana') {
+        return {
+            modifiedUnit: 'persqm',
+            modifiedMinPrice: rawMin !== null && Number.isFinite(rawMin) ? String(rawMin / AANA_TO_SQM) : '',
+            modifiedMaxPrice: rawMax !== null && Number.isFinite(rawMax) ? String(rawMax / AANA_TO_SQM) : '',
+        };
+    }
+
+    return {
+        modifiedUnit: 'persqm',
+        modifiedMinPrice: rawMin !== null && Number.isFinite(rawMin) ? String(rawMin) : '',
+        modifiedMaxPrice: rawMax !== null && Number.isFinite(rawMax) ? String(rawMax) : '',
+    };
+}
+
 function HomeSearchHero() {
     const router = useRouter();
     const [query, setQuery] = useState('');
@@ -188,6 +210,7 @@ function HomeSearchHero() {
     const [isPanelVisible, setIsPanelVisible] = useState(false);
     const [priceMin, setPriceMin] = useState('');
     const [priceMax, setPriceMax] = useState('');
+    const [areaPriceUnit, setAreaPriceUnit] = useState<AreaPriceUnit>('peraana');
     const [selectedListedBy, setSelectedListedBy] = useState<ListedByType | null>(null);
     const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
     const [sizeMin, setSizeMin] = useState('');
@@ -225,7 +248,7 @@ function HomeSearchHero() {
     }, [activePanel]);
 
     const currentPriceLabel = priceMin || priceMax
-        ? `${priceMin ? formatHeroMoney(priceMin) : 'Any'}${priceMin && priceMax ? ' - ' : ' '} ${priceMax ? formatHeroMoney(priceMax) : 'Any'}`.replace(/\s+/g, ' ').trim()
+        ? `${priceMin ? formatHeroMoney(priceMin) : 'Any'} - ${priceMax ? formatHeroMoney(priceMax) : 'Any'} (${areaPriceUnit === 'peraana' ? 'per aana' : 'per m²'})`
         : 'Any budget';
 
     const currentLocationLabel = selectedLocations.length > 0
@@ -242,11 +265,19 @@ function HomeSearchHero() {
 
     const submitSearch = () => {
         const params = new URLSearchParams();
+        const modified = convertAreaPriceToModified(areaPriceUnit, priceMin, priceMax);
 
-        if (query.trim()) params.set('q', query.trim());
+        if (query.trim()) params.set('rawQuery', query.trim());
+        params.set('type', 'feed');
         if (selectedListedBy) params.set('listedBy', selectedListedBy);
-        if (priceMin) params.set('priceMin', priceMin);
-        if (priceMax) params.set('priceMax', priceMax);
+        if (priceMin || priceMax) {
+            params.set('rawUnit', areaPriceUnit);
+            if (priceMin) params.set('rawMinPrice', priceMin);
+            if (priceMax) params.set('rawMaxPrice', priceMax);
+            params.set('modifiedUnit', modified.modifiedUnit);
+            if (modified.modifiedMinPrice) params.set('modifiedMinPrice', modified.modifiedMinPrice);
+            if (modified.modifiedMaxPrice) params.set('modifiedMaxPrice', modified.modifiedMaxPrice);
+        }
         if (selectedLocations.length > 0) params.set('locations', selectedLocations.join(','));
         if (sizeMin) params.set('sizeMin', sizeMin);
         if (sizeMax) params.set('sizeMax', sizeMax);
@@ -268,10 +299,10 @@ function HomeSearchHero() {
             return (
                 <div className="space-y-4">
                     <div>
-                        <h3 className="text-[15px] font-black text-slate-900">Adjust price range</h3>
-                        <p className="text-[13px] text-slate-500">Set a budget range before searching.</p>
+                        <h3 className="text-[15px] font-black text-slate-900">Adjust area-based price range</h3>
+                        <p className="text-[13px] text-slate-500">Raw values are preserved in URL, modified values are used for matching.</p>
                     </div>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto]">
                         <label className="space-y-2 text-[13px] font-bold text-slate-600">
                             Minimum price
                             <input
@@ -293,6 +324,17 @@ function HomeSearchHero() {
                                 placeholder="Any"
                                 className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
                             />
+                        </label>
+                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
+                            Unit
+                            <select
+                                value={areaPriceUnit}
+                                onChange={(e) => setAreaPriceUnit(e.target.value as AreaPriceUnit)}
+                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
+                            >
+                                <option value="peraana">per aana</option>
+                                <option value="persqm">per m²</option>
+                            </select>
                         </label>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -461,7 +503,6 @@ function HomeSearchHero() {
         <section className="text-slate-900 py-2 sm:py-10">
             <div className="space-y-3 sm:space-y-6">
                 <div className="max-w-4xl space-y-2 sm:space-y-3">
-                    <p className="text-[10px] font-black uppercase tracking-[0.28em] text-[color:var(--color-primary)]/80 sm:text-[11px] sm:tracking-[0.35em]">Namsari</p>
                     <h1 className="text-xl font-black leading-[1.08] sm:text-4xl lg:text-5xl">
                         Find the property of your choice.
                     </h1>
@@ -471,8 +512,8 @@ function HomeSearchHero() {
                 </div>
 
                 <div className="space-y-2.5 sm:space-y-4">
-                    <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_auto] sm:gap-3">
-                        <div className="flex items-center gap-2.5 rounded-[18px] bg-white px-2.5 py-2.5 text-slate-900 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:gap-3 sm:rounded-[24px] sm:px-4 sm:py-4">
+                    <div className="grid gap-2 sm:gap-3">
+                        <div className="flex items-center gap-2.5 rounded-[18px] border border-[color:var(--color-primary)]/25 bg-white px-2.5 py-2.5 text-slate-900 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:gap-3 sm:rounded-[24px] sm:px-4 sm:py-4">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-[color:var(--color-primary)] sm:h-[22px] sm:w-[22px]">
                                 <circle cx="11" cy="11" r="8" />
                                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -488,15 +529,19 @@ function HomeSearchHero() {
                                 placeholder="Search by property, area, landmark, or developer"
                                 className="w-full bg-transparent text-[14px] font-semibold text-slate-900 outline-none placeholder:text-slate-400 sm:text-[15px]"
                             />
+                            <button
+                                type="button"
+                                onClick={submitSearch}
+                                title="Search properties"
+                                aria-label="Search properties"
+                                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-white shadow-[0_12px_24px_rgba(10,107,255,0.28)] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.98] sm:h-10 sm:w-10"
+                            >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                </svg>
+                            </button>
                         </div>
-
-                        <button
-                            type="button"
-                            onClick={submitSearch}
-                            className="rounded-[18px] bg-[color:var(--color-primary)] px-4 py-2.5 text-[14px] font-black text-white shadow-[0_18px_40px_rgba(10,107,255,0.24)] transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99] sm:rounded-[24px] sm:px-6 sm:py-4 sm:text-[15px]"
-                        >
-                            Search
-                        </button>
                     </div>
 
                     <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2 sm:gap-3 lg:grid-cols-4">

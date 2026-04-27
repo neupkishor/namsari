@@ -13,6 +13,53 @@ const MapComponent = dynamic(() => import('./MapComponent'), {
     loading: () => <div className="w-full h-full bg-surface animate-pulse rounded-3xl border border-border"></div>
 });
 
+const AANA_TO_SQM = 31.796;
+
+function toNumberOrNull(value: string | null): number | null {
+    if (value === null || value === '') return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+}
+
+function normalizeAreaToSqm(area: number | null | undefined, unit?: string): number | null {
+    if (area === null || area === undefined || Number.isNaN(Number(area))) return null;
+
+    const numericArea = Number(area);
+    const normalizedUnit = (unit || '').toLowerCase().trim();
+
+    if (!normalizedUnit || normalizedUnit === 'm2' || normalizedUnit === 'm²' || normalizedUnit.includes('meter')) {
+        return numericArea;
+    }
+
+    if (normalizedUnit.includes('sqft') || normalizedUnit.includes('sq.ft')) {
+        return numericArea / 10.7639;
+    }
+
+    if (normalizedUnit.includes('aana')) {
+        return numericArea * AANA_TO_SQM;
+    }
+
+    return numericArea;
+}
+
+function convertRawAreaPriceParamsToModified(rawUnit: string, rawMinPrice: number | null, rawMaxPrice: number | null) {
+    const normalizedUnit = rawUnit.toLowerCase().trim();
+
+    if (normalizedUnit === 'peraana' || normalizedUnit === 'perana' || normalizedUnit === 'per_aana') {
+        return {
+            modifiedUnit: 'persqm',
+            modifiedMinPrice: rawMinPrice === null ? null : rawMinPrice / AANA_TO_SQM,
+            modifiedMaxPrice: rawMaxPrice === null ? null : rawMaxPrice / AANA_TO_SQM,
+        };
+    }
+
+    return {
+        modifiedUnit: 'persqm',
+        modifiedMinPrice: rawMinPrice,
+        modifiedMaxPrice: rawMaxPrice,
+    };
+}
+
 export default function ExploreClient({ initialUser, initialQuery = '', initialShowMap = false }: { initialUser: any, initialQuery?: string, initialShowMap?: boolean }) {
     const router = useRouter();
     const pathname = usePathname();
@@ -30,6 +77,8 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
     const [skip, setSkip] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
+
+    const rawQueryParam = (searchParams.get('rawQuery') || searchParams.get('q') || '').trim();
 
     const fetchProperties = async (loadMore = false) => {
         try {
@@ -88,6 +137,10 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
     }, [initialShowMap]);
 
     useEffect(() => {
+        setSearchQuery(rawQueryParam);
+    }, [rawQueryParam]);
+
+    useEffect(() => {
         const handleHoldFeedback = (event: Event) => {
             const customEvent = event as CustomEvent<{ active?: boolean }>;
             setSearchHoldFeedback(Boolean(customEvent.detail?.active));
@@ -100,26 +153,56 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
     }, []);
 
     useEffect(() => {
-        document.cookie = `explore_view=${showMap ? 'map' : 'list'}; path=/; max-age=31536000; samesite=lax`;
+        document.cookie = `explore_view=${showMap ? 'map' : 'feed'}; path=/; max-age=31536000; samesite=lax`;
     }, [showMap]);
 
     useEffect(() => {
         const params = new URLSearchParams(searchParams?.toString() || '');
-        const currentView = params.get('view');
+        const currentType = params.get('type') || (params.get('view') === 'map' ? 'map' : params.get('view') === 'list' ? 'feed' : '');
 
-        if (initialShowMap && currentView !== 'map') {
-            params.set('view', 'map');
+        if (params.has('view')) {
+            params.delete('view');
+            if (!params.get('type') && currentType) {
+                params.set('type', currentType);
+            }
             const nextUrl = `${pathname}?${params.toString()}`;
             router.replace(nextUrl, { scroll: false });
             return;
         }
 
-        if (!initialShowMap && currentView === 'map') {
-            params.delete('view');
-            const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+        if (initialShowMap && currentType !== 'map') {
+            params.set('type', 'map');
+            const nextUrl = `${pathname}?${params.toString()}`;
+            router.replace(nextUrl, { scroll: false });
+            return;
+        }
+
+        if (!initialShowMap && currentType === 'map') {
+            params.set('type', 'feed');
+            const nextUrl = `${pathname}?${params.toString()}`;
             router.replace(nextUrl, { scroll: false });
         }
     }, [initialShowMap, pathname, router, searchParams]);
+
+    const applyRawQueryToUrl = () => {
+        const params = new URLSearchParams(searchParams?.toString() || '');
+        const trimmedQuery = searchQuery.trim();
+
+        if (trimmedQuery) {
+            params.set('rawQuery', trimmedQuery);
+            import('@/actions/search').then(mod => mod.recordSearch(trimmedQuery)).catch(() => null);
+        } else {
+            params.delete('rawQuery');
+        }
+
+        params.delete('q');
+        if (!params.get('type')) {
+            params.set('type', showMap ? 'map' : 'feed');
+        }
+
+        const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+        router.replace(nextUrl, { scroll: false });
+    };
 
     // Refetch when map bounds change
     useEffect(() => {
@@ -134,11 +217,8 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
         setShowMap(nextShowMap);
 
         const params = new URLSearchParams(searchParams?.toString() || '');
-        if (nextShowMap) {
-            params.set('view', 'map');
-        } else {
-            params.delete('view');
-        }
+        params.set('type', nextShowMap ? 'map' : 'feed');
+        params.delete('view');
 
         const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
         router.replace(nextUrl, { scroll: false });
@@ -165,14 +245,24 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
 
     const listedByFilter = (searchParams.get('listedBy') || '').toLowerCase().trim();
 
-    const priceMinParam = searchParams.get('priceMin');
-    const priceMaxParam = searchParams.get('priceMax');
+    const rawUnitParam = (searchParams.get('rawUnit') || '').toLowerCase().trim();
+    const rawMinPrice = toNumberOrNull(searchParams.get('rawMinPrice'));
+    const rawMaxPrice = toNumberOrNull(searchParams.get('rawMaxPrice'));
+    const modifiedUnitParam = (searchParams.get('modifiedUnit') || '').toLowerCase().trim();
+    const explicitModifiedMinPrice = toNumberOrNull(searchParams.get('modifiedMinPrice'));
+    const explicitModifiedMaxPrice = toNumberOrNull(searchParams.get('modifiedMaxPrice'));
+
+    const derivedModified = convertRawAreaPriceParamsToModified(rawUnitParam, rawMinPrice, rawMaxPrice);
+
+    const effectiveModifiedUnit = modifiedUnitParam || derivedModified.modifiedUnit;
+    const effectiveModifiedMinPrice = explicitModifiedMinPrice ?? derivedModified.modifiedMinPrice;
+    const effectiveModifiedMaxPrice = explicitModifiedMaxPrice ?? derivedModified.modifiedMaxPrice;
+    const hasAreaPriceFilter = effectiveModifiedMinPrice !== null || effectiveModifiedMaxPrice !== null;
+
     const sizeMinParam = searchParams.get('sizeMin');
     const sizeMaxParam = searchParams.get('sizeMax');
     const sizeUnitParam = (searchParams.get('sizeUnit') || '').toLowerCase();
 
-    const priceMin = priceMinParam !== null && priceMinParam !== '' ? Number(priceMinParam) : null;
-    const priceMax = priceMaxParam !== null && priceMaxParam !== '' ? Number(priceMaxParam) : null;
     const sizeMin = sizeMinParam !== null && sizeMinParam !== '' ? Number(sizeMinParam) : null;
     const sizeMax = sizeMaxParam !== null && sizeMaxParam !== '' ? Number(sizeMaxParam) : null;
 
@@ -212,6 +302,10 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
         const query = searchQuery.toLowerCase();
         const locationLabel = getLocationLabel(p).toLowerCase();
         const propertyPrice = Number(p.pricing?.price || p.price || NaN);
+        const propertyAreaSqm = normalizeAreaToSqm(p.features?.builtUpArea, p.features?.builtUpAreaUnit);
+        const propertyPerSqmPrice = Number.isFinite(propertyPrice) && propertyAreaSqm && propertyAreaSqm > 0
+            ? propertyPrice / propertyAreaSqm
+            : null;
         const propertyArea = normalizeArea(p.features?.builtUpArea, p.features?.builtUpAreaUnit);
         const sellerType = (p.listedBy?.type || '').toLowerCase();
 
@@ -224,8 +318,12 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
 
         const matchesListedBy = !listedByFilter || sellerType === listedByFilter;
 
-        const matchesPrice = (priceMin === null || !Number.isFinite(propertyPrice) || propertyPrice >= priceMin) &&
-            (priceMax === null || !Number.isFinite(propertyPrice) || propertyPrice <= priceMax);
+        const matchesPrice = !hasAreaPriceFilter || (
+            effectiveModifiedUnit === 'persqm' &&
+            propertyPerSqmPrice !== null &&
+            (effectiveModifiedMinPrice === null || propertyPerSqmPrice >= effectiveModifiedMinPrice) &&
+            (effectiveModifiedMaxPrice === null || propertyPerSqmPrice <= effectiveModifiedMaxPrice)
+        );
 
         const matchesSize = (sizeMin === null || propertyArea === null || propertyArea >= sizeMin) &&
             (sizeMax === null || propertyArea === null || propertyArea <= sizeMax);
@@ -272,12 +370,12 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
-                                    import('@/actions/search').then(mod => mod.recordSearch(searchQuery));
+                                    applyRawQueryToUrl();
                                 }
                             }}
                             className="w-full pl-6 pr-12 py-3.5 rounded-full border border-border text-[15px] font-medium outline-none transition-all duration-300 shadow-sm hover:shadow-md focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
-                        <button title="Search properties" aria-label="Search properties" className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-white rounded-full w-9 h-9 flex items-center justify-center cursor-pointer transition-transform active:scale-90 hover:bg-primary-light shadow-lg shadow-primary/20">
+                        <button title="Search properties" aria-label="Search properties" onClick={applyRawQueryToUrl} className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-white rounded-full w-9 h-9 flex items-center justify-center cursor-pointer transition-transform active:scale-90 hover:bg-primary-light shadow-lg shadow-primary/20">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
