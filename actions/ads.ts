@@ -236,6 +236,17 @@ export async function updateAdDetails(id: number, data: { title?: string, link?:
 
 // --- Analytics ---
 
+function isReadonlyDatabaseError(error: unknown): boolean {
+    if (!(error instanceof Error)) return false;
+
+    const message = error.message.toLowerCase();
+    return (
+        message.includes('attempt to write a readonly database') ||
+        message.includes('readonly database') ||
+        message.includes('extended_code: 1032')
+    );
+}
+
 export async function trackImpression(adId: number, sessionId?: string) {
     const session = await getSession();
     const viewerId = session ? parseInt(session.id) : undefined;
@@ -243,50 +254,68 @@ export async function trackImpression(adId: number, sessionId?: string) {
     const headersList = await headers();
     const userAgent = headersList.get('user-agent') || 'unknown';
 
-    await prisma.adImpression.create({
-        data: {
-            adId,
-            viewerId,
-            sessionId,
-            userAgent,
-            // Simple device detection could be done here or passed from client
-            device: userAgent ? (userAgent.match(/mobile/i) ? 'mobile' : 'desktop') : 'unknown'
+    try {
+        await prisma.adImpression.create({
+            data: {
+                adId,
+                viewerId,
+                sessionId,
+                userAgent,
+                // Simple device detection could be done here or passed from client
+                device: userAgent ? (userAgent.match(/mobile/i) ? 'mobile' : 'desktop') : 'unknown'
+            }
+        });
+        
+        // Increment aggregate counter
+        await prisma.advertisement.update({
+            where: { id: adId },
+            data: { views: { increment: 1 } }
+        });
+    } catch (error) {
+        if (isReadonlyDatabaseError(error)) {
+            console.warn('Skipping ad impression analytics write because database is read-only.');
+            return;
         }
-    });
-    
-    // Increment aggregate counter
-    await prisma.advertisement.update({
-        where: { id: adId },
-        data: { views: { increment: 1 } }
-    });
+
+        throw error;
+    }
 }
 
 export async function trackClick(adId: number, sessionId?: string) {
     const session = await getSession();
     const viewerId = session ? parseInt(session.id) : undefined;
 
-    await prisma.adClick.create({
-        data: {
-            adId,
-            viewerId,
-            sessionId
+    try {
+        await prisma.adClick.create({
+            data: {
+                adId,
+                viewerId,
+                sessionId
+            }
+        });
+
+        await prisma.advertisement.update({
+            where: { id: adId },
+            data: { clicks: { increment: 1 } }
+        });
+
+        // Log to main ActivityLog as well
+        // account_id (permanent) is viewerId if logged in
+        // temp_account_id is sessionId if not logged in (or if both exist, we pass both to let logActivity handle it)
+        await logActivity({
+            activity_type: 'ad_click',
+            description: `Ad #${adId} clicked`,
+            account_id: viewerId,
+            temp_account_id: sessionId
+        });
+    } catch (error) {
+        if (isReadonlyDatabaseError(error)) {
+            console.warn('Skipping ad click analytics write because database is read-only.');
+            return;
         }
-    });
 
-    await prisma.advertisement.update({
-        where: { id: adId },
-        data: { clicks: { increment: 1 } }
-    });
-
-    // Log to main ActivityLog as well
-    // account_id (permanent) is viewerId if logged in
-    // temp_account_id is sessionId if not logged in (or if both exist, we pass both to let logActivity handle it)
-    await logActivity({
-        activity_type: 'ad_click',
-        description: `Ad #${adId} clicked`,
-        account_id: viewerId,
-        temp_account_id: sessionId
-    });
+        throw error;
+    }
 }
 
 export async function getAdAnalytics(adId: number, days: number = 30) {

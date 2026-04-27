@@ -299,6 +299,8 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
 
                                                 return feedItems.map((item, idx) => {
                                                     let component = null;
+                                                    const nextItem = feedItems[idx + 1];
+                                                    const showPropertySeparator = item.type === 'single' && nextItem?.type === 'single';
 
                                                     if (item.type === 'single') {
                                                         const isTrigger = properties.indexOf(item.data) === properties.length - 5;
@@ -323,6 +325,9 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                     return (
                                                         <div key={`${item.type}-${idx}`} className={`w-full animate-in fade-in slide-in-from-bottom-4 duration-700`}>
                                                             {component}
+                                                            {showPropertySeparator && (
+                                                                <div className="mx-4 border-t border-slate-200/90" aria-hidden="true" />
+                                                            )}
                                                         </div>
                                                     );
                                                 });
