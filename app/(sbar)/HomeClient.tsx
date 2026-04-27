@@ -263,6 +263,200 @@ function HomeSearchHero() {
         ));
     };
 
+    const renderPanelContent = (panel: Exclude<HomeSearchPanel, null>) => {
+        if (panel === 'price') {
+            return (
+                <div className="space-y-4">
+                    <div>
+                        <h3 className="text-[15px] font-black text-slate-900">Adjust price range</h3>
+                        <p className="text-[13px] text-slate-500">Set a budget range before searching.</p>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
+                            Minimum price
+                            <input
+                                type="number"
+                                min="0"
+                                value={priceMin}
+                                onChange={(e) => setPriceMin(e.target.value)}
+                                placeholder="0"
+                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
+                            />
+                        </label>
+                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
+                            Maximum price
+                            <input
+                                type="number"
+                                min="0"
+                                value={priceMax}
+                                onChange={(e) => setPriceMax(e.target.value)}
+                                placeholder="Any"
+                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
+                            />
+                        </label>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {HOME_PRICE_PRESETS.map((preset) => (
+                            <button
+                                key={preset.label}
+                                type="button"
+                                onClick={() => {
+                                    setPriceMin(preset.min);
+                                    setPriceMax(preset.max);
+                                }}
+                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[13px] font-bold text-slate-700 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                            >
+                                {preset.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        if (panel === 'location') {
+            return (
+                <div className="space-y-4">
+                    <div>
+                        <h3 className="text-[15px] font-black text-slate-900">Select one or more locations</h3>
+                        <p className="text-[13px] text-slate-500">Choose the areas you want to search in.</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {selectedLocations.length > 0 && (
+                            <button
+                                type="button"
+                                onClick={() => setSelectedLocations([])}
+                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[13px] font-bold text-slate-600 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                            >
+                                Clear all
+                            </button>
+                        )}
+                        {selectedLocations.map((location) => (
+                            <span key={location} className="rounded-full bg-[color:var(--color-primary)]/10 px-4 py-2 text-[13px] font-bold text-[color:var(--color-primary)]">
+                                {location}
+                            </span>
+                        ))}
+                    </div>
+                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                        {HOME_LOCATION_OPTIONS.map((location) => {
+                            const isSelected = selectedLocations.includes(location);
+
+                            return (
+                                <button
+                                    key={location}
+                                    type="button"
+                                    onClick={() => toggleLocation(location)}
+                                    className={`flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-[13px] font-bold transition-all duration-200 ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/6 text-[color:var(--color-primary)]' : 'border-[color:var(--color-primary)]/12 bg-white text-slate-700 hover:border-[color:var(--color-primary)]/35'}`}
+                                >
+                                    <span>{location}</span>
+                                    <span className={`h-5 w-5 rounded-full border ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]' : 'border-slate-300 bg-white'}`} />
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        }
+
+        if (panel === 'size') {
+            return (
+                <div className="space-y-4">
+                    <div>
+                        <h3 className="text-[15px] font-black text-slate-900">Set area range</h3>
+                        <p className="text-[13px] text-slate-500">Filter by built-up area from one value to another.</p>
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto]">
+                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
+                            Minimum area
+                            <input
+                                type="number"
+                                min="0"
+                                value={sizeMin}
+                                onChange={(e) => setSizeMin(e.target.value)}
+                                placeholder="0"
+                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
+                            />
+                        </label>
+                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
+                            Maximum area
+                            <input
+                                type="number"
+                                min="0"
+                                value={sizeMax}
+                                onChange={(e) => setSizeMax(e.target.value)}
+                                placeholder="Any"
+                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
+                            />
+                        </label>
+                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
+                            Unit
+                            <select
+                                value={sizeUnit}
+                                onChange={(e) => setSizeUnit(e.target.value as 'm2' | 'sqft')}
+                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
+                            >
+                                <option value="m2">m²</option>
+                                <option value="sqft">sq.ft.</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {HOME_SIZE_PRESETS.map((preset) => (
+                            <button
+                                key={preset.label}
+                                type="button"
+                                onClick={() => {
+                                    setSizeMin(preset.min);
+                                    setSizeMax(preset.max);
+                                }}
+                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[13px] font-bold text-slate-700 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                            >
+                                {preset.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <div className="space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                    <div>
+                        <h3 className="text-[15px] font-black text-slate-900">Listed by</h3>
+                        <p className="text-[13px] text-slate-500">Choose the seller type you want to see.</p>
+                    </div>
+                    {selectedListedBy && (
+                        <button
+                            type="button"
+                            onClick={() => setSelectedListedBy(null)}
+                            className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[12px] font-bold text-slate-600 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                        >
+                            Clear
+                        </button>
+                    )}
+                </div>
+
+                <div className="flex flex-wrap gap-2.5">
+                    {HOME_LISTED_BY_OPTIONS.map((option) => {
+                        const isSelected = selectedListedBy === option;
+
+                        return (
+                            <button
+                                key={option}
+                                type="button"
+                                onClick={() => setSelectedListedBy(isSelected ? null : option)}
+                                className={`rounded-full border px-4 py-2.5 text-[13px] font-bold capitalize transition-all duration-200 ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white shadow-[0_14px_30px_rgba(10,107,255,0.18)]' : 'border-[color:var(--color-primary)]/12 bg-white text-slate-700 hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]'}`}
+                            >
+                                {option}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <section className="relative overflow-hidden rounded-[36px] bg-[radial-gradient(circle_at_top_right,rgba(10,107,255,0.10),transparent_34%),linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] px-5 py-6 text-slate-900 shadow-[0_28px_80px_rgba(15,23,42,0.08)] sm:px-8 sm:py-10">
             <div className="absolute -top-16 right-0 h-56 w-56 rounded-full bg-[color:var(--color-primary)]/10 blur-3xl" />
@@ -314,211 +508,36 @@ function HomeSearchHero() {
                             ['size', 'Size', currentSizeLabel],
                             ['listedBy', 'Listed by', currentListedByLabel],
                         ] as Array<[Exclude<HomeSearchPanel, null>, string, string]>).map(([key, label, value]) => (
-                            <button
-                                key={label}
-                                type="button"
-                                onClick={() => setActivePanel(activePanel === key ? null : key)}
-                                className={`flex items-center justify-between rounded-[22px] border px-5 py-4 text-left transition-all duration-200 ${activePanel === key ? 'border-[color:var(--color-primary)]/35 bg-white text-slate-900 shadow-[0_16px_40px_rgba(15,23,42,0.08)]' : 'border-[color:var(--color-primary)]/12 bg-white/80 text-slate-800 hover:border-[color:var(--color-primary)]/25 hover:bg-white'}`}
-                            >
-                                <div className="space-y-1">
-                                    <div className="text-[11px] font-black uppercase tracking-[0.28em] text-slate-500">{label}</div>
-                                    <div className="text-[14px] font-bold">{value}</div>
-                                </div>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 transition-transform duration-200 ${activePanel === key ? 'rotate-180' : ''}`}>
-                                    <polyline points="6 9 12 15 18 9" />
-                                </svg>
-                            </button>
+                            <React.Fragment key={label}>
+                                <button
+                                    type="button"
+                                    onClick={() => setActivePanel(activePanel === key ? null : key)}
+                                    className={`flex items-center justify-between rounded-[22px] border px-5 py-4 text-left transition-all duration-200 ${activePanel === key ? 'border-[color:var(--color-primary)]/35 bg-white text-slate-900 shadow-[0_16px_40px_rgba(15,23,42,0.08)]' : 'border-[color:var(--color-primary)]/12 bg-white/80 text-slate-800 hover:border-[color:var(--color-primary)]/25 hover:bg-white'}`}
+                                >
+                                    <div className="space-y-1">
+                                        <div className="text-[11px] font-black uppercase tracking-[0.28em] text-slate-500">{label}</div>
+                                        <div className="text-[14px] font-bold">{value}</div>
+                                    </div>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 transition-transform duration-200 ${activePanel === key ? 'rotate-180' : ''}`}>
+                                        <polyline points="6 9 12 15 18 9" />
+                                    </svg>
+                                </button>
+
+                                {renderedPanel === key && (
+                                    <div className={`md:hidden overflow-hidden rounded-[28px] border border-[color:var(--color-primary)]/12 bg-white/96 text-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.08)] transition-all duration-200 ease-out ${isPanelVisible ? 'max-h-[42rem] opacity-100 translate-y-0 p-4' : 'max-h-0 opacity-0 -translate-y-2 p-0'}`}>
+                                        <div className={`transition-all duration-200 ease-out ${isPanelVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+                                            {renderPanelContent(key)}
+                                        </div>
+                                    </div>
+                                )}
+                            </React.Fragment>
                         ))}
                     </div>
 
                     {renderedPanel && (
-                        <div className={`overflow-hidden rounded-[28px] border border-[color:var(--color-primary)]/12 bg-white/96 text-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.08)] transition-all duration-200 ease-out ${isPanelVisible ? 'max-h-[42rem] opacity-100 translate-y-0 p-4 sm:p-5' : 'max-h-0 opacity-0 -translate-y-2 p-0'}`}>
+                        <div className={`hidden md:block overflow-hidden rounded-[28px] border border-[color:var(--color-primary)]/12 bg-white/96 text-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.08)] transition-all duration-200 ease-out ${isPanelVisible ? 'max-h-[42rem] opacity-100 translate-y-0 p-4 sm:p-5' : 'max-h-0 opacity-0 -translate-y-2 p-0'}`}>
                             <div className={`transition-all duration-200 ease-out ${isPanelVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
-                            {renderedPanel === 'price' && (
-                                <div className="space-y-4">
-                                    <div>
-                                        <h3 className="text-[15px] font-black text-slate-900">Adjust price range</h3>
-                                        <p className="text-[13px] text-slate-500">Set a budget range before searching.</p>
-                                    </div>
-                                    <div className="grid gap-4 sm:grid-cols-2">
-                                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
-                                            Minimum price
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                value={priceMin}
-                                                onChange={(e) => setPriceMin(e.target.value)}
-                                                placeholder="0"
-                                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
-                                            />
-                                        </label>
-                                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
-                                            Maximum price
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                value={priceMax}
-                                                onChange={(e) => setPriceMax(e.target.value)}
-                                                placeholder="Any"
-                                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
-                                            />
-                                        </label>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {HOME_PRICE_PRESETS.map((preset) => (
-                                            <button
-                                                key={preset.label}
-                                                type="button"
-                                                onClick={() => {
-                                                    setPriceMin(preset.min);
-                                                    setPriceMax(preset.max);
-                                                }}
-                                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[13px] font-bold text-slate-700 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
-                                            >
-                                                {preset.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {renderedPanel === 'location' && (
-                                <div className="space-y-4">
-                                    <div>
-                                        <h3 className="text-[15px] font-black text-slate-900">Select one or more locations</h3>
-                                        <p className="text-[13px] text-slate-500">Choose the areas you want to search in.</p>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {selectedLocations.length > 0 && (
-                                            <button
-                                                type="button"
-                                                onClick={() => setSelectedLocations([])}
-                                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[13px] font-bold text-slate-600 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
-                                            >
-                                                Clear all
-                                            </button>
-                                        )}
-                                        {selectedLocations.map((location) => (
-                                            <span key={location} className="rounded-full bg-[color:var(--color-primary)]/10 px-4 py-2 text-[13px] font-bold text-[color:var(--color-primary)]">
-                                                {location}
-                                            </span>
-                                        ))}
-                                    </div>
-                                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                                        {HOME_LOCATION_OPTIONS.map((location) => {
-                                            const isSelected = selectedLocations.includes(location);
-
-                                            return (
-                                                <button
-                                                    key={location}
-                                                    type="button"
-                                                    onClick={() => toggleLocation(location)}
-                                                    className={`flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-[13px] font-bold transition-all duration-200 ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/6 text-[color:var(--color-primary)]' : 'border-[color:var(--color-primary)]/12 bg-white text-slate-700 hover:border-[color:var(--color-primary)]/35'}`}
-                                                >
-                                                    <span>{location}</span>
-                                                    <span className={`h-5 w-5 rounded-full border ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]' : 'border-slate-300 bg-white'}`} />
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )}
-
-                            {renderedPanel === 'size' && (
-                                <div className="space-y-4">
-                                    <div>
-                                        <h3 className="text-[15px] font-black text-slate-900">Set area range</h3>
-                                        <p className="text-[13px] text-slate-500">Filter by built-up area from one value to another.</p>
-                                    </div>
-                                    <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto]">
-                                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
-                                            Minimum area
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                value={sizeMin}
-                                                onChange={(e) => setSizeMin(e.target.value)}
-                                                placeholder="0"
-                                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
-                                            />
-                                        </label>
-                                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
-                                            Maximum area
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                value={sizeMax}
-                                                onChange={(e) => setSizeMax(e.target.value)}
-                                                placeholder="Any"
-                                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
-                                            />
-                                        </label>
-                                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
-                                            Unit
-                                            <select
-                                                value={sizeUnit}
-                                                onChange={(e) => setSizeUnit(e.target.value as 'm2' | 'sqft')}
-                                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
-                                            >
-                                                <option value="m2">m²</option>
-                                                <option value="sqft">sq.ft.</option>
-                                            </select>
-                                        </label>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {HOME_SIZE_PRESETS.map((preset) => (
-                                            <button
-                                                key={preset.label}
-                                                type="button"
-                                                onClick={() => {
-                                                    setSizeMin(preset.min);
-                                                    setSizeMax(preset.max);
-                                                }}
-                                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[13px] font-bold text-slate-700 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
-                                            >
-                                                {preset.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {renderedPanel === 'listedBy' && (
-                                <div className="space-y-4">
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div>
-                                            <h3 className="text-[15px] font-black text-slate-900">Listed by</h3>
-                                            <p className="text-[13px] text-slate-500">Choose the seller type you want to see.</p>
-                                        </div>
-                                        {selectedListedBy && (
-                                            <button
-                                                type="button"
-                                                onClick={() => setSelectedListedBy(null)}
-                                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[12px] font-bold text-slate-600 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
-                                            >
-                                                Clear
-                                            </button>
-                                        )}
-                                    </div>
-
-                                    <div className="flex flex-wrap gap-2.5">
-                                        {HOME_LISTED_BY_OPTIONS.map((option) => {
-                                            const isSelected = selectedListedBy === option;
-
-                                            return (
-                                                <button
-                                                    key={option}
-                                                    type="button"
-                                                    onClick={() => setSelectedListedBy(isSelected ? null : option)}
-                                                    className={`rounded-full border px-4 py-2.5 text-[13px] font-bold capitalize transition-all duration-200 ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white shadow-[0_14px_30px_rgba(10,107,255,0.18)]' : 'border-[color:var(--color-primary)]/12 bg-white text-slate-700 hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]'}`}
-                                                >
-                                                    {option}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )}
+                                {renderPanelContent(renderedPanel)}
                             </div>
                         </div>
                     )}
