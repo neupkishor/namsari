@@ -158,12 +158,79 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
         setMapBounds(bounds);
     };
 
+    const selectedLocations = (searchParams.get('locations') || '')
+        .split(',')
+        .map((location) => location.trim())
+        .filter(Boolean);
+
+    const listedByFilter = (searchParams.get('listedBy') || '').toLowerCase().trim();
+
+    const priceMinParam = searchParams.get('priceMin');
+    const priceMaxParam = searchParams.get('priceMax');
+    const sizeMinParam = searchParams.get('sizeMin');
+    const sizeMaxParam = searchParams.get('sizeMax');
+    const sizeUnitParam = (searchParams.get('sizeUnit') || '').toLowerCase();
+
+    const priceMin = priceMinParam !== null && priceMinParam !== '' ? Number(priceMinParam) : null;
+    const priceMax = priceMaxParam !== null && priceMaxParam !== '' ? Number(priceMaxParam) : null;
+    const sizeMin = sizeMinParam !== null && sizeMinParam !== '' ? Number(sizeMinParam) : null;
+    const sizeMax = sizeMaxParam !== null && sizeMaxParam !== '' ? Number(sizeMaxParam) : null;
+
+    const normalizeArea = (area: number | null | undefined, unit?: string) => {
+        if (area === null || area === undefined || Number.isNaN(Number(area))) return null;
+
+        const numericArea = Number(area);
+        const normalizedUnit = (unit || '').toLowerCase();
+
+        if (sizeUnitParam === 'sqft') {
+            if (normalizedUnit.includes('m')) {
+                return numericArea * 10.7639;
+            }
+            return numericArea;
+        }
+
+        if (sizeUnitParam === 'm2' || sizeUnitParam === 'm²' || !sizeUnitParam) {
+            if (normalizedUnit.includes('sqft')) {
+                return numericArea / 10.7639;
+            }
+            return numericArea;
+        }
+
+        return numericArea;
+    };
+
+    const getLocationLabel = (property: any) => {
+        if (!property.location) return '';
+        if (typeof property.location === 'string') return property.location;
+
+        return [property.location.area, property.location.cityVillage, property.location.city, property.location.district]
+            .filter(Boolean)
+            .join(', ');
+    };
+
     const filteredProperties = properties.filter(p => {
         const query = searchQuery.toLowerCase();
-        return (p.title?.toLowerCase().includes(query) ||
+        const locationLabel = getLocationLabel(p).toLowerCase();
+        const propertyPrice = Number(p.pricing?.price || p.price || NaN);
+        const propertyArea = normalizeArea(p.features?.builtUpArea, p.features?.builtUpAreaUnit);
+        const sellerType = (p.listedBy?.type || '').toLowerCase();
+
+        const matchesQuery = (p.title?.toLowerCase().includes(query) ||
             p.location?.toLowerCase().includes(query) ||
             p.price?.toString().toLowerCase().includes(query) ||
             p.property_types?.some((t: string) => t.toLowerCase().includes(query)));
+
+        const matchesLocation = selectedLocations.length === 0 || selectedLocations.some((location) => locationLabel.includes(location.toLowerCase()));
+
+        const matchesListedBy = !listedByFilter || sellerType === listedByFilter;
+
+        const matchesPrice = (priceMin === null || !Number.isFinite(propertyPrice) || propertyPrice >= priceMin) &&
+            (priceMax === null || !Number.isFinite(propertyPrice) || propertyPrice <= priceMax);
+
+        const matchesSize = (sizeMin === null || propertyArea === null || propertyArea >= sizeMin) &&
+            (sizeMax === null || propertyArea === null || propertyArea <= sizeMax);
+
+        return matchesQuery && matchesLocation && matchesListedBy && matchesPrice && matchesSize;
     });
 
     const mapProperties = filteredProperties.filter(p => {
@@ -210,7 +277,7 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
                             }}
                             className="w-full pl-6 pr-12 py-3.5 rounded-full border border-border text-[15px] font-medium outline-none transition-all duration-300 shadow-sm hover:shadow-md focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
-                        <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-white rounded-full w-9 h-9 flex items-center justify-center cursor-pointer transition-transform active:scale-90 hover:bg-primary-light shadow-lg shadow-primary/20">
+                        <button title="Search properties" aria-label="Search properties" className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-white rounded-full w-9 h-9 flex items-center justify-center cursor-pointer transition-transform active:scale-90 hover:bg-primary-light shadow-lg shadow-primary/20">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>

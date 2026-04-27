@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { FeaturedProjects } from '@/components/cards/FeaturedProjects';
 import { TrendingSearches } from '@/components/cards/TrendingSearches';
 import { FeaturedCollectionsFeedItem } from '@/components/cards/FeaturedCollections';
@@ -142,6 +143,391 @@ function FeaturedSmallCard({ property }: { property: any }) {
     );
 }
 
+type HomeSearchPanel = 'price' | 'location' | 'size' | 'listedBy' | null;
+type ListedByType = 'developer' | 'agent' | 'agency' | 'owner' | 'bank';
+
+const HOME_LOCATION_OPTIONS = [
+    'Kathmandu',
+    'Lalitpur',
+    'Bhaktapur',
+    'Pokhara',
+    'Bharatpur',
+    'Butwal',
+    'Biratnagar',
+    'Dharan',
+];
+
+const HOME_PRICE_PRESETS = [
+    { label: 'Any budget', min: '', max: '' },
+    { label: 'Under Rs. 50L', min: '0', max: '5000000' },
+    { label: 'Rs. 50L - 1 Cr', min: '5000000', max: '10000000' },
+    { label: 'Above Rs. 1 Cr', min: '10000000', max: '' },
+];
+
+const HOME_SIZE_PRESETS = [
+    { label: 'Any size', min: '', max: '' },
+    { label: 'Under 500 m²', min: '0', max: '500' },
+    { label: '500 - 2,000 m²', min: '500', max: '2000' },
+    { label: 'Above 2,000 m²', min: '2000', max: '' },
+];
+
+const HOME_LISTED_BY_OPTIONS: ListedByType[] = ['developer', 'agent', 'agency', 'owner', 'bank'];
+
+function formatHeroMoney(value: string) {
+    if (!value) return '';
+    const parsed = Number(value);
+    if (Number.isNaN(parsed)) return '';
+    return formatNPR(parsed);
+}
+
+function HomeSearchHero() {
+    const router = useRouter();
+    const [query, setQuery] = useState('');
+    const [activePanel, setActivePanel] = useState<HomeSearchPanel>(null);
+    const [renderedPanel, setRenderedPanel] = useState<HomeSearchPanel>(null);
+    const [isPanelVisible, setIsPanelVisible] = useState(false);
+    const [priceMin, setPriceMin] = useState('');
+    const [priceMax, setPriceMax] = useState('');
+    const [selectedListedBy, setSelectedListedBy] = useState<ListedByType | null>(null);
+    const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+    const [sizeMin, setSizeMin] = useState('');
+    const [sizeMax, setSizeMax] = useState('');
+    const [sizeUnit, setSizeUnit] = useState<'m2' | 'sqft'>('m2');
+    const panelCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        if (panelCloseTimer.current) {
+            clearTimeout(panelCloseTimer.current);
+            panelCloseTimer.current = null;
+        }
+
+        if (activePanel) {
+            setRenderedPanel(activePanel);
+            setIsPanelVisible(false);
+
+            const openTimer = setTimeout(() => {
+                setIsPanelVisible(true);
+            }, 20);
+
+            return () => clearTimeout(openTimer);
+        }
+
+        setIsPanelVisible(false);
+        panelCloseTimer.current = setTimeout(() => {
+            setRenderedPanel(null);
+        }, 220);
+
+        return () => {
+            if (panelCloseTimer.current) {
+                clearTimeout(panelCloseTimer.current);
+            }
+        };
+    }, [activePanel]);
+
+    const currentPriceLabel = priceMin || priceMax
+        ? `${priceMin ? formatHeroMoney(priceMin) : 'Any'}${priceMin && priceMax ? ' - ' : ' '} ${priceMax ? formatHeroMoney(priceMax) : 'Any'}`.replace(/\s+/g, ' ').trim()
+        : 'Any budget';
+
+    const currentLocationLabel = selectedLocations.length > 0
+        ? `${selectedLocations.length} selected`
+        : 'Any location';
+
+    const currentSizeLabel = sizeMin || sizeMax
+        ? `${sizeMin || 'Any'} - ${sizeMax || 'Any'} ${sizeUnit === 'm2' ? 'm²' : 'sq.ft.'}`
+        : 'Any size';
+
+    const currentListedByLabel = selectedListedBy
+        ? `${selectedListedBy.charAt(0).toUpperCase()}${selectedListedBy.slice(1)}`
+        : 'Any seller';
+
+    const submitSearch = () => {
+        const params = new URLSearchParams();
+
+        if (query.trim()) params.set('q', query.trim());
+        if (selectedListedBy) params.set('listedBy', selectedListedBy);
+        if (priceMin) params.set('priceMin', priceMin);
+        if (priceMax) params.set('priceMax', priceMax);
+        if (selectedLocations.length > 0) params.set('locations', selectedLocations.join(','));
+        if (sizeMin) params.set('sizeMin', sizeMin);
+        if (sizeMax) params.set('sizeMax', sizeMax);
+        if (sizeUnit) params.set('sizeUnit', sizeUnit);
+
+        router.push(`/explore${params.toString() ? `?${params.toString()}` : ''}`);
+    };
+
+    const toggleLocation = (location: string) => {
+        setSelectedLocations((prev) => (
+            prev.includes(location)
+                ? prev.filter((item) => item !== location)
+                : [...prev, location]
+        ));
+    };
+
+    return (
+        <section className="relative overflow-hidden rounded-[36px] bg-[radial-gradient(circle_at_top_right,rgba(10,107,255,0.10),transparent_34%),linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] px-5 py-6 text-slate-900 shadow-[0_28px_80px_rgba(15,23,42,0.08)] sm:px-8 sm:py-10">
+            <div className="absolute -top-16 right-0 h-56 w-56 rounded-full bg-[color:var(--color-primary)]/10 blur-3xl" />
+            <div className="absolute -bottom-20 left-0 h-64 w-64 rounded-full bg-[color:var(--color-primary)]/8 blur-3xl" />
+            <div className="relative z-10 space-y-6">
+                <div className="max-w-4xl space-y-3">
+                    <p className="text-[11px] font-black uppercase tracking-[0.35em] text-[color:var(--color-primary)]/80">Namsari</p>
+                    <h1 className="text-2xl font-black leading-[1.05] sm:text-4xl lg:text-5xl">
+                        Find the property of your choice.
+                    </h1>
+                    <p className="max-w-3xl text-base font-medium text-slate-600 sm:text-xl">
+                        The #1 property portal of Nepal.
+                    </p>
+                </div>
+
+                <div className="space-y-4">
+                    <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
+                        <div className="flex items-center gap-3 rounded-[24px] bg-white px-4 py-4 text-slate-900 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-[color:var(--color-primary)]">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                            <input
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        submitSearch();
+                                    }
+                                }}
+                                placeholder="Search by property, area, landmark, or developer"
+                                className="w-full bg-transparent text-[15px] font-semibold text-slate-900 outline-none placeholder:text-slate-400"
+                            />
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={submitSearch}
+                            className="rounded-[24px] bg-[color:var(--color-primary)] px-6 py-4 text-[15px] font-black text-white shadow-[0_18px_40px_rgba(10,107,255,0.24)] transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99]"
+                        >
+                            Search
+                        </button>
+                    </div>
+
+                    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+                        {([
+                            ['price', 'Price', currentPriceLabel],
+                            ['location', 'Location', currentLocationLabel],
+                            ['size', 'Size', currentSizeLabel],
+                            ['listedBy', 'Listed by', currentListedByLabel],
+                        ] as Array<[Exclude<HomeSearchPanel, null>, string, string]>).map(([key, label, value]) => (
+                            <button
+                                key={label}
+                                type="button"
+                                onClick={() => setActivePanel(activePanel === key ? null : key)}
+                                className={`flex items-center justify-between rounded-[22px] border px-5 py-4 text-left transition-all duration-200 ${activePanel === key ? 'border-[color:var(--color-primary)]/35 bg-white text-slate-900 shadow-[0_16px_40px_rgba(15,23,42,0.08)]' : 'border-[color:var(--color-primary)]/12 bg-white/80 text-slate-800 hover:border-[color:var(--color-primary)]/25 hover:bg-white'}`}
+                            >
+                                <div className="space-y-1">
+                                    <div className="text-[11px] font-black uppercase tracking-[0.28em] text-slate-500">{label}</div>
+                                    <div className="text-[14px] font-bold">{value}</div>
+                                </div>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 transition-transform duration-200 ${activePanel === key ? 'rotate-180' : ''}`}>
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                            </button>
+                        ))}
+                    </div>
+
+                    {renderedPanel && (
+                        <div className={`overflow-hidden rounded-[28px] border border-[color:var(--color-primary)]/12 bg-white/96 text-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.08)] transition-all duration-200 ease-out ${isPanelVisible ? 'max-h-[42rem] opacity-100 translate-y-0 p-4 sm:p-5' : 'max-h-0 opacity-0 -translate-y-2 p-0'}`}>
+                            <div className={`transition-all duration-200 ease-out ${isPanelVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+                            {renderedPanel === 'price' && (
+                                <div className="space-y-4">
+                                    <div>
+                                        <h3 className="text-[15px] font-black text-slate-900">Adjust price range</h3>
+                                        <p className="text-[13px] text-slate-500">Set a budget range before searching.</p>
+                                    </div>
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
+                                            Minimum price
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={priceMin}
+                                                onChange={(e) => setPriceMin(e.target.value)}
+                                                placeholder="0"
+                                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
+                                            />
+                                        </label>
+                                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
+                                            Maximum price
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={priceMax}
+                                                onChange={(e) => setPriceMax(e.target.value)}
+                                                placeholder="Any"
+                                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
+                                            />
+                                        </label>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {HOME_PRICE_PRESETS.map((preset) => (
+                                            <button
+                                                key={preset.label}
+                                                type="button"
+                                                onClick={() => {
+                                                    setPriceMin(preset.min);
+                                                    setPriceMax(preset.max);
+                                                }}
+                                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[13px] font-bold text-slate-700 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                                            >
+                                                {preset.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {renderedPanel === 'location' && (
+                                <div className="space-y-4">
+                                    <div>
+                                        <h3 className="text-[15px] font-black text-slate-900">Select one or more locations</h3>
+                                        <p className="text-[13px] text-slate-500">Choose the areas you want to search in.</p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedLocations.length > 0 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setSelectedLocations([])}
+                                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[13px] font-bold text-slate-600 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                                            >
+                                                Clear all
+                                            </button>
+                                        )}
+                                        {selectedLocations.map((location) => (
+                                            <span key={location} className="rounded-full bg-[color:var(--color-primary)]/10 px-4 py-2 text-[13px] font-bold text-[color:var(--color-primary)]">
+                                                {location}
+                                            </span>
+                                        ))}
+                                    </div>
+                                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                                        {HOME_LOCATION_OPTIONS.map((location) => {
+                                            const isSelected = selectedLocations.includes(location);
+
+                                            return (
+                                                <button
+                                                    key={location}
+                                                    type="button"
+                                                    onClick={() => toggleLocation(location)}
+                                                    className={`flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-[13px] font-bold transition-all duration-200 ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/6 text-[color:var(--color-primary)]' : 'border-[color:var(--color-primary)]/12 bg-white text-slate-700 hover:border-[color:var(--color-primary)]/35'}`}
+                                                >
+                                                    <span>{location}</span>
+                                                    <span className={`h-5 w-5 rounded-full border ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]' : 'border-slate-300 bg-white'}`} />
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {renderedPanel === 'size' && (
+                                <div className="space-y-4">
+                                    <div>
+                                        <h3 className="text-[15px] font-black text-slate-900">Set area range</h3>
+                                        <p className="text-[13px] text-slate-500">Filter by built-up area from one value to another.</p>
+                                    </div>
+                                    <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto]">
+                                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
+                                            Minimum area
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={sizeMin}
+                                                onChange={(e) => setSizeMin(e.target.value)}
+                                                placeholder="0"
+                                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
+                                            />
+                                        </label>
+                                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
+                                            Maximum area
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={sizeMax}
+                                                onChange={(e) => setSizeMax(e.target.value)}
+                                                placeholder="Any"
+                                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
+                                            />
+                                        </label>
+                                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
+                                            Unit
+                                            <select
+                                                value={sizeUnit}
+                                                onChange={(e) => setSizeUnit(e.target.value as 'm2' | 'sqft')}
+                                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
+                                            >
+                                                <option value="m2">m²</option>
+                                                <option value="sqft">sq.ft.</option>
+                                            </select>
+                                        </label>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {HOME_SIZE_PRESETS.map((preset) => (
+                                            <button
+                                                key={preset.label}
+                                                type="button"
+                                                onClick={() => {
+                                                    setSizeMin(preset.min);
+                                                    setSizeMax(preset.max);
+                                                }}
+                                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[13px] font-bold text-slate-700 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                                            >
+                                                {preset.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {renderedPanel === 'listedBy' && (
+                                <div className="space-y-4">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div>
+                                            <h3 className="text-[15px] font-black text-slate-900">Listed by</h3>
+                                            <p className="text-[13px] text-slate-500">Choose the seller type you want to see.</p>
+                                        </div>
+                                        {selectedListedBy && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setSelectedListedBy(null)}
+                                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[12px] font-bold text-slate-600 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                                            >
+                                                Clear
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-2.5">
+                                        {HOME_LISTED_BY_OPTIONS.map((option) => {
+                                            const isSelected = selectedListedBy === option;
+
+                                            return (
+                                                <button
+                                                    key={option}
+                                                    type="button"
+                                                    onClick={() => setSelectedListedBy(isSelected ? null : option)}
+                                                    className={`rounded-full border px-4 py-2.5 text-[13px] font-bold capitalize transition-all duration-200 ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white shadow-[0_14px_30px_rgba(10,107,255,0.18)]' : 'border-[color:var(--color-primary)]/12 bg-white text-slate-700 hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]'}`}
+                                                >
+                                                    {option}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </section>
+    );
+}
+
 type HomeClientProps = {
     user: any;
     featuredCollections?: any[];
@@ -217,14 +603,18 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                 <FeedSkeleton hasCarouselAds={carouselAds.length > 0} />
             ) : (
                 <div className="w-full">
+                    <div className="mx-auto w-full max-w-[1400px] px-4 pt-6 sm:px-6 lg:px-8">
+                        <HomeSearchHero />
+                    </div>
+
                     {/* Advertisement Carousel - Full Width at Top */}
                     {carouselAds.length > 0 && (
-                        <div className="w-full mb-8">
+                        <div className="w-full mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 mt-6 mb-8">
                             <AdvertisementCarousel ads={carouselAds} />
                         </div>
                     )}
 
-                    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-10">
+                    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-10 px-4 sm:px-6 lg:px-8">
                         {/* Featured Properties Section (eSewa Style) */}
                         {featuredCards.length > 0 && (
                             <section className="w-full">
@@ -386,6 +776,10 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
 function FeedSkeleton({ hasCarouselAds = true }: { hasCarouselAds?: boolean }) {
     return (
         <div className="w-full flex flex-col">
+            <div className="mx-auto w-full max-w-[1400px] px-4 pt-6 sm:px-6 lg:px-8">
+                <div className="h-[320px] rounded-[36px] bg-surface animate-pulse mb-6" />
+            </div>
+
             {/* Carousel Skeleton - Full Width */}
             {hasCarouselAds && (
                 <div className="h-[400px] w-full bg-surface animate-pulse mb-8"></div>
