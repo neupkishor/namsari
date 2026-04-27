@@ -178,7 +178,7 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
 export const bottomNavItems = (user: any): MenuItem[] => [
     { label: 'Home', icon: '🏠', href: '/' },
     { label: 'Explore', icon: '🧭', href: '/explore' },
-    { label: 'Post', icon: '➕', href: '/sell' },
+    { label: 'Post', icon: '➕', href: '/post' },
     { label: 'Saved', icon: '❤️', href: user ? `/@${user.username}/saved` : '/auth/login' },
     { label: 'Menu', icon: '☰', href: '#menu' }
 ];

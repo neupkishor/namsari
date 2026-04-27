@@ -626,6 +626,39 @@ type HomeClientProps = {
     };
 };
 
+function PostPropertySection() {
+    return (
+        <section className="w-full">
+            <div className="mb-5 space-y-1">
+                <h2 className="text-xl font-bold tracking-tight text-slate-900">Post Property or Requirement</h2>
+                <p className="text-sm text-slate-500">List your property for sale or rent, or post what you&apos;re looking for.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+                <Link
+                    href="/sell"
+                    className="group flex flex-col gap-4 rounded-[22px] border border-[color:var(--color-primary)]/12 bg-white p-5 transition-all duration-200 hover:border-[color:var(--color-primary)]/35 hover:shadow-sm"
+                >
+                    <div className="text-3xl">🏠</div>
+                    <div>
+                        <div className="text-[15px] font-bold text-slate-900">Post Property</div>
+                        <div className="mt-1 text-[13px] text-slate-500">To sale &middot; To give on rent</div>
+                    </div>
+                </Link>
+                <Link
+                    href="/requirements/new"
+                    className="group flex flex-col gap-4 rounded-[22px] border border-[color:var(--color-primary)]/12 bg-white p-5 transition-all duration-200 hover:border-[color:var(--color-primary)]/35 hover:shadow-sm"
+                >
+                    <div className="text-3xl">🔍</div>
+                    <div>
+                        <div className="text-[15px] font-bold text-slate-900">Post Requirement</div>
+                        <div className="mt-1 text-[13px] text-slate-500">To buy &middot; To take on rent</div>
+                    </div>
+                </Link>
+            </div>
+        </section>
+    );
+}
+
 function StatCard({ emoji, label, count, href }: { emoji: string; label: string; count: number; href: string }) {
     return (
         <Link
@@ -648,6 +681,10 @@ function ExploreCategoriesSection({
 }) {
     return (
         <section className="w-full space-y-4">
+            <div className="mb-5 space-y-1">
+                <h2 className="text-xl font-bold tracking-tight text-slate-900">Explore by category</h2>
+                <p className="text-sm text-slate-500">Browse properties by type and purpose.</p>
+            </div>
             <div className="space-y-2">
                 <div className="px-1 text-[11px] font-black uppercase tracking-[0.28em] text-slate-400">For Sale</div>
                 <div className="flex flex-wrap gap-2">
@@ -743,24 +780,30 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                 <FeedSkeleton hasCarouselAds={carouselAds.length > 0} />
             ) : (
                 <div className="w-full">
-                    <div className="mx-auto w-full max-w-[1400px] px-2 pt-3 sm:px-6 lg:px-8">
+                    <div className="mx-auto w-full max-w-[1400px] px-2 pt-3 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
                         <HomeSearchHero />
 
                         {exploreCategoryStats && (
-                            <div className="mt-4 sm:mt-6">
-                                <ExploreCategoriesSection stats={exploreCategoryStats} />
-                            </div>
+                            <ExploreCategoriesSection stats={exploreCategoryStats} />
                         )}
+
+                        <div className="hidden lg:block">
+                            <PostPropertySection />
+                        </div>
                     </div>
 
                     {/* Advertisement Carousel - Full Width at Top */}
                     {carouselAds.length > 0 && (
-                        <div className="w-full mx-auto max-w-[1400px] px-2 sm:px-6 lg:px-8 mt-5 mb-8">
+                        <div className="w-full mx-auto max-w-[1400px] px-2 sm:px-6 lg:px-8 mt-8 sm:mt-12">
+                            <div className="mb-5 space-y-1">
+                                <h2 className="text-xl font-bold tracking-tight text-slate-900">Sponsored Deals</h2>
+                                <p className="text-sm text-slate-500">Promoted listings from verified partners and agencies.</p>
+                            </div>
                             <AdvertisementCarousel ads={carouselAds} />
                         </div>
                     )}
 
-                    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-10 px-2 sm:px-6 lg:px-8">
+                    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8 sm:gap-12 px-2 sm:px-6 lg:px-8 mt-8 sm:mt-12">
                         {/* Featured Properties Section (eSewa Style) */}
                         {featuredCards.length > 0 && (
                             <section className="w-full">
