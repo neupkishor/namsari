@@ -458,24 +458,22 @@ function HomeSearchHero() {
     };
 
     return (
-        <section className="relative overflow-hidden rounded-[36px] bg-[radial-gradient(circle_at_top_right,rgba(10,107,255,0.10),transparent_34%),linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] px-3 py-4 text-slate-900 shadow-[0_28px_80px_rgba(15,23,42,0.08)] sm:px-8 sm:py-10">
-            <div className="absolute -top-16 right-0 h-56 w-56 rounded-full bg-[color:var(--color-primary)]/10 blur-3xl" />
-            <div className="absolute -bottom-20 left-0 h-64 w-64 rounded-full bg-[color:var(--color-primary)]/8 blur-3xl" />
-            <div className="relative z-10 space-y-4 sm:space-y-6">
-                <div className="max-w-4xl space-y-3">
-                    <p className="text-[11px] font-black uppercase tracking-[0.35em] text-[color:var(--color-primary)]/80">Namsari</p>
-                    <h1 className="text-2xl font-black leading-[1.05] sm:text-4xl lg:text-5xl">
+        <section className="text-slate-900 py-2 sm:py-10">
+            <div className="space-y-3 sm:space-y-6">
+                <div className="max-w-4xl space-y-2 sm:space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-[0.28em] text-[color:var(--color-primary)]/80 sm:text-[11px] sm:tracking-[0.35em]">Namsari</p>
+                    <h1 className="text-xl font-black leading-[1.08] sm:text-4xl lg:text-5xl">
                         Find the property of your choice.
                     </h1>
-                    <p className="max-w-3xl text-base font-medium text-slate-600 sm:text-xl">
+                    <p className="max-w-3xl text-sm font-medium text-slate-600 sm:text-xl">
                         The #1 property portal of Nepal.
                     </p>
                 </div>
 
-                <div className="space-y-3 sm:space-y-4">
-                    <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
-                        <div className="flex items-center gap-3 rounded-[24px] bg-white px-3 py-3.5 text-slate-900 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:px-4 sm:py-4">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-[color:var(--color-primary)]">
+                <div className="space-y-2.5 sm:space-y-4">
+                    <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_auto] sm:gap-3">
+                        <div className="flex items-center gap-2.5 rounded-[18px] bg-white px-2.5 py-2.5 text-slate-900 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:gap-3 sm:rounded-[24px] sm:px-4 sm:py-4">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-[color:var(--color-primary)] sm:h-[22px] sm:w-[22px]">
                                 <circle cx="11" cy="11" r="8" />
                                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
                             </svg>
@@ -488,20 +486,20 @@ function HomeSearchHero() {
                                     }
                                 }}
                                 placeholder="Search by property, area, landmark, or developer"
-                                className="w-full bg-transparent text-[15px] font-semibold text-slate-900 outline-none placeholder:text-slate-400"
+                                className="w-full bg-transparent text-[14px] font-semibold text-slate-900 outline-none placeholder:text-slate-400 sm:text-[15px]"
                             />
                         </div>
 
                         <button
                             type="button"
                             onClick={submitSearch}
-                            className="rounded-[24px] bg-[color:var(--color-primary)] px-5 py-3.5 text-[15px] font-black text-white shadow-[0_18px_40px_rgba(10,107,255,0.24)] transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99] sm:px-6 sm:py-4"
+                            className="rounded-[18px] bg-[color:var(--color-primary)] px-4 py-2.5 text-[14px] font-black text-white shadow-[0_18px_40px_rgba(10,107,255,0.24)] transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99] sm:rounded-[24px] sm:px-6 sm:py-4 sm:text-[15px]"
                         >
                             Search
                         </button>
                     </div>
 
-                    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2 sm:gap-3 lg:grid-cols-4">
                         {([
                             ['price', 'Price', currentPriceLabel],
                             ['location', 'Location', currentLocationLabel],
@@ -512,7 +510,7 @@ function HomeSearchHero() {
                                 <button
                                     type="button"
                                     onClick={() => setActivePanel(activePanel === key ? null : key)}
-                                    className={`flex items-center justify-between rounded-[22px] border px-4 py-3.5 text-left transition-all duration-200 sm:px-5 sm:py-4 ${activePanel === key ? 'border-[color:var(--color-primary)]/35 bg-white text-slate-900 shadow-[0_16px_40px_rgba(15,23,42,0.08)]' : 'border-[color:var(--color-primary)]/12 bg-white/80 text-slate-800 hover:border-[color:var(--color-primary)]/25 hover:bg-white'}`}
+                                    className={`flex items-center justify-between rounded-[18px] border px-3 py-3 text-left transition-all duration-200 sm:rounded-[22px] sm:px-5 sm:py-4 ${activePanel === key ? 'border-[color:var(--color-primary)]/35 bg-white text-slate-900 shadow-[0_16px_40px_rgba(15,23,42,0.08)]' : 'border-[color:var(--color-primary)]/12 bg-white/80 text-slate-800 hover:border-[color:var(--color-primary)]/25 hover:bg-white'}`}
                                 >
                                     <div className="space-y-1">
                                         <div className="text-[11px] font-black uppercase tracking-[0.28em] text-slate-500">{label}</div>
@@ -524,7 +522,7 @@ function HomeSearchHero() {
                                 </button>
 
                                 {renderedPanel === key && (
-                                    <div className={`md:hidden overflow-hidden rounded-[28px] border border-[color:var(--color-primary)]/12 bg-white/96 text-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.08)] transition-all duration-200 ease-out ${isPanelVisible ? 'max-h-[42rem] opacity-100 translate-y-0 p-4' : 'max-h-0 opacity-0 -translate-y-2 p-0'}`}>
+                                    <div className={`min-[420px]:hidden md:hidden overflow-hidden rounded-[20px] border border-[color:var(--color-primary)]/12 bg-white/96 text-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.08)] transition-all duration-200 ease-out sm:rounded-[28px] ${isPanelVisible ? 'max-h-[42rem] opacity-100 translate-y-0 p-3 sm:p-4' : 'max-h-0 opacity-0 -translate-y-2 p-0'}`}>
                                         <div className={`transition-all duration-200 ease-out ${isPanelVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
                                             {renderPanelContent(key)}
                                         </div>
@@ -533,6 +531,14 @@ function HomeSearchHero() {
                             </React.Fragment>
                         ))}
                     </div>
+
+                    {renderedPanel && (
+                        <div className={`hidden min-[420px]:block md:hidden w-full overflow-hidden rounded-[28px] border border-[color:var(--color-primary)]/12 bg-white/96 text-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.08)] transition-all duration-200 ease-out ${isPanelVisible ? 'max-h-[42rem] opacity-100 translate-y-0 p-4' : 'max-h-0 opacity-0 -translate-y-2 p-0'}`}>
+                            <div className={`transition-all duration-200 ease-out ${isPanelVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+                                {renderPanelContent(renderedPanel)}
+                            </div>
+                        </div>
+                    )}
 
                     {renderedPanel && (
                         <div className={`hidden md:block overflow-hidden rounded-[28px] border border-[color:var(--color-primary)]/12 bg-white/96 text-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.08)] transition-all duration-200 ease-out ${isPanelVisible ? 'max-h-[42rem] opacity-100 translate-y-0 p-4 sm:p-5' : 'max-h-0 opacity-0 -translate-y-2 p-0'}`}>
