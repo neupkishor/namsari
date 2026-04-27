@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { QuickActionsCard } from '@/components/cards/QuickActionsCard';
 import { FeaturedProjects } from '@/components/cards/FeaturedProjects';
 import { TrendingSearches } from '@/components/cards/TrendingSearches';
 import { FeaturedCollectionsFeedItem } from '@/components/cards/FeaturedCollections';
 import { AdvertisementCard, AdvertisementCarousel } from '@/components/cards/AdvertisementCard';
 import { BottomNavigation } from '@/components/menu/BottomNavigation';
+import { SectionTitleFeed } from '@/components/sections/SectionTitleFeed';
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
 import { formatNPR } from '@/lib/formatters';
 
@@ -83,7 +83,7 @@ function FeaturedSmallCard({ property }: { property: any }) {
     const priceLabel = formatNPR(property.pricing?.price || property.price);
     
     return (
-        <Link href={propertyUrl} className="group block h-full overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-soft)]">
+        <Link href={propertyUrl} className="group block h-full overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[var(--shadow-card)] transition-colors duration-300 hover:border-[color:var(--color-primary)]/40 hover:ring-1 hover:ring-[color:var(--color-primary)]/20">
             <div className="aspect-[4/3] overflow-hidden relative border-b border-slate-200">
                 <img 
                     src={property._displayImage} 
@@ -107,7 +107,7 @@ function FeaturedSmallCard({ property }: { property: any }) {
             </div>
             <div className="flex h-[184px] flex-col gap-3 p-4">
                 <div className="space-y-1.5">
-                    <h4 className="text-[15px] font-bold leading-tight text-slate-900 line-clamp-2 group-hover:text-[color:var(--color-primary)] transition-colors">
+                    <h4 className="text-[15px] font-bold leading-tight text-slate-900 line-clamp-2 group-hover:text-[color:var(--color-primary)] transition-colors duration-300">
                         {property.title}
                     </h4>
                     <div className="flex items-center gap-2 text-[12px] text-slate-500">
@@ -211,7 +211,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
     }, []);
 
     return (
-        <div className="min-h-screen bg-[#f4f7fb]">
+        <div className="min-h-screen bg-white">
             {/* Check if the page is loading content */}
             {isLoading ? (
                 <FeedSkeleton hasCarouselAds={carouselAds.length > 0} />
@@ -219,28 +219,21 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                 <div className="w-full">
                     {/* Advertisement Carousel - Full Width at Top */}
                     {carouselAds.length > 0 && (
-                        <div className="w-full mb-6">
+                        <div className="w-full mb-8">
                             <AdvertisementCarousel ads={carouselAds} />
                         </div>
                     )}
 
-                    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-10 px-4 sm:px-6 lg:px-7">
+                    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-10">
                         {/* Featured Properties Section (eSewa Style) */}
                         {featuredCards.length > 0 && (
-                            <section className="w-full rounded-[32px] border border-slate-200/80 bg-white px-5 py-6 shadow-[var(--shadow-card)] sm:px-6 lg:px-7">
-                                <div className="mb-6 flex items-center justify-between gap-4">
-                                    <div className="space-y-1">
-                                        <h2 className="text-xl font-bold tracking-tight text-slate-900">
-                                            Featured Properties
-                                        </h2>
-                                        <p className="text-sm text-slate-500">
-                                            Curated listings with complete details and verified media.
-                                        </p>
-                                    </div>
-                                    <Link href="/explore" className="inline-flex rounded-full border border-[color:var(--color-primary)]/10 bg-[color:var(--color-primary)]/5 px-4 py-2 text-sm font-semibold text-[color:var(--color-primary)] transition-colors hover:bg-[color:var(--color-primary)]/10">
-                                        View more
-                                    </Link>
-                                </div>
+                            <section className="w-full">
+                                <SectionTitleFeed
+                                    title="Featured Properties"
+                                    description="Curated listings with complete details and verified media."
+                                    ctaText="View more"
+                                    ctaHref="/explore"
+                                />
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                                     {featuredCards.slice(0, 4).map((prop: any) => (
                                         <FeaturedSmallCard key={prop.id} property={prop} />
@@ -252,20 +245,15 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                         <div className="w-full">
                             {/* Feed Content Area - Full Width */}
                             <div className="flex flex-col gap-10">
-                                <QuickActionsCard user={user} />
-                                
-                                <div className="space-y-10">
+                                <div className="space-y-6">
                                     {/* Sub-header for the feed */}
-                                    <div className="flex items-center gap-4 px-1">
-                                        <h3 className="text-xl font-black text-text-main tracking-tight flex items-center gap-3">
-                                            <span className="w-1.5 h-8 bg-primary rounded-full" />
-                                            Market Activity
-                                        </h3>
-                                        <div className="h-px flex-1 bg-border/60" />
-                                    </div>
+                                    <SectionTitleFeed
+                                        title="Market Activity"
+                                        description="Real-time stream of premium listings, sponsored placements, and curated discovery signals."
+                                    />
 
-                                    <div className="rounded-[32px] border border-slate-200/80 bg-white px-5 py-3 shadow-[var(--shadow-card)] sm:px-6">
-                                        <div className="flex flex-col gap-4">
+                                    <div className="rounded-[28px] border border-slate-200/80 bg-white shadow-[var(--shadow-card)] overflow-hidden">
+                                        <div className="flex flex-col">
                                             {(() => {
                                                 const feedItems: any[] = [];
                                                 let propertyIndex = 0;
@@ -392,9 +380,6 @@ function FeedSkeleton({ hasCarouselAds = true }: { hasCarouselAds?: boolean }) {
 
                 {/* Feed Area Skeleton */}
                 <div className="w-full mt-12 flex flex-col gap-10">
-                    {/* QuickActionsCard Skeleton */}
-                    <div className="w-full h-32 bg-surface animate-pulse rounded-2xl"></div>
-
                     {/* Property Feed Skeleton */}
                     <div className="w-full flex flex-col">
                         {[1, 2, 3].map(i => (

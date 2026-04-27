@@ -51,14 +51,14 @@ export const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ user }) => {
     ];
 
     return (
-        <section className="w-full py-6 px-3 sm:px-5 lg:px-6 bg-slate-50/60 rounded-[1.75rem] border border-slate-200/70 overflow-hidden relative">
+        <section className="w-full overflow-hidden relative">
             {/* Background Decorative Elements */}
             <div className="absolute top-0 right-0 -mt-20 -mr-20 w-52 h-52 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-52 h-52 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="relative z-10 max-w-6xl mx-auto">
+            <div className="relative z-10">
                 {/* Header Section */}
-                <div className="mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+                <div className="mb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
                     <div className="space-y-2">
                         <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-blue-600/10 border border-blue-600/20 text-blue-700 text-[9px] font-bold tracking-widest uppercase w-fit">
                             <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
@@ -74,7 +74,7 @@ export const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ user }) => {
                 </div>
                 
                 {/* Carousel Wrapper */}
-                <div className="w-full overflow-x-auto pb-3 -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide snap-x snap-mandatory">
+                <div className="w-full overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
                     <div className="flex gap-3 md:gap-4 w-max">
                         {actions.map((action, idx) => (
                             <div key={idx} className="w-[84vw] sm:w-[280px] md:w-[300px] snap-center">

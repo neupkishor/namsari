@@ -74,12 +74,12 @@ export function PropertyPost({ property, onVisible, className }: PropertyPostPro
   return (
     <div 
       ref={containerRef} 
-      className={`bg-white border-b border-slate-100 last:border-0 py-4 group/card ${className || ''}`}
+      className={`bg-white border-b border-slate-100 last:border-0 group/card ${className || ''}`}
     >
-      <div className="flex gap-4 w-full">
+      <div className="flex w-full gap-4 p-4 items-stretch">
         {/* Left: Image Section */}
-        <div className="flex flex-col w-[120px] sm:w-[160px] flex-shrink-0">
-          <Link href={propertyUrl} className="relative aspect-square overflow-hidden rounded-lg">
+        <div className="w-[120px] sm:w-[180px] flex-shrink-0">
+          <Link href={propertyUrl} className="relative block h-full min-h-[180px] sm:min-h-[210px] overflow-hidden rounded-lg">
             <img
               src={activeImage}
               alt={property.title}
@@ -90,35 +90,6 @@ export function PropertyPost({ property, onVisible, className }: PropertyPostPro
               {property.types?.[0]?.name || 'Property'}
             </div>
           </Link>
-
-          {/* Thumbnails Row below the square image */}
-          {images.length > 1 && (
-            <div className="flex gap-1 mt-2 overflow-x-auto scrollbar-hide pb-1">
-              {images.slice(0, 4).map((img: any, idx: number) => {
-                const url = typeof img === 'string' ? img : img.url;
-                const isActive = activeImage === url;
-                return (
-                  <button
-                    key={idx}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setActiveImage(url);
-                    }}
-                    className={`relative w-7 h-7 sm:w-8 sm:h-8 rounded-md overflow-hidden border transition-all flex-shrink-0 ${
-                      isActive ? 'border-blue-500 scale-95' : 'border-transparent opacity-60 hover:opacity-100'
-                    }`}
-                  >
-                    <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
-                    {idx === 3 && images.length > 4 && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-[8px] font-bold">
-                        +{images.length - 4}
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
         </div>
 
         {/* Right: Content Section */}
@@ -141,6 +112,8 @@ export function PropertyPost({ property, onVisible, className }: PropertyPostPro
               <button 
                 onClick={(e) => e.preventDefault()}
                 className="text-slate-400 hover:text-slate-600 p-1 -mr-1"
+                title="More options"
+                aria-label="More options"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
               </button>
