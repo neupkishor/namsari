@@ -49,7 +49,7 @@ export const AdvertisementCard = ({ ad, className }: { ad: Ad, className?: strin
     };
 
     const content = (
-        <div ref={cardRef} className={`w-full overflow-hidden relative rounded-2xl border border-border bg-surface shadow-sm hover:shadow-lg transition-all duration-500 group ${className || ''}`}>
+        <div ref={cardRef} className={`w-full overflow-hidden relative rounded-[28px] bg-surface shadow-sm ring-0 ring-transparent hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] hover:shadow-lg transition-all duration-300 group ${className || ''}`}>
             <div className="relative w-full pt-[44.44%] sm:pt-[40%] md:pt-[35%] lg:pt-[30%] overflow-hidden">
                 <div className="absolute inset-0 w-full h-full">
                     <img
@@ -138,7 +138,7 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
     if (ads.length === 0) return null;
 
     return (
-        <div ref={containerRef} className="w-full rounded-2xl overflow-hidden relative bg-surface shadow-2xl border border-border group/carousel">
+        <div ref={containerRef} className="w-full rounded-[28px] overflow-hidden relative bg-surface shadow-2xl ring-0 ring-transparent hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] transition-all duration-300 group/carousel">
             <div className="relative w-full pt-[44.44%] sm:pt-[40%] md:pt-[35%] lg:pt-[30%] overflow-hidden">
                 {ads.map((ad, idx) => {
                     const adUrl = ad.link || ad.takes_to;
@@ -197,6 +197,8 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
                                 e.preventDefault();
                                 handleManualNav(prevSlide);
                             }}
+                            title="Previous ad"
+                            aria-label="Previous ad"
                             className="bg-white/90 hover:bg-white text-primary border border-white/50 rounded-2xl w-11 h-11 flex items-center justify-center cursor-pointer backdrop-blur-md transition-all active:scale-90 shadow-2xl group/btn"
                         >
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover/btn:-translate-x-0.5 transition-transform"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -208,6 +210,8 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
                                 e.preventDefault();
                                 handleManualNav(nextSlide);
                             }}
+                            title="Next ad"
+                            aria-label="Next ad"
                             className="bg-white/90 hover:bg-white text-primary border border-white/50 rounded-2xl w-11 h-11 flex items-center justify-center cursor-pointer backdrop-blur-md transition-all active:scale-90 shadow-2xl group/btn"
                         >
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover/btn:translate-x-0.5 transition-transform"><polyline points="9 18 15 12 9 6"></polyline></svg>
