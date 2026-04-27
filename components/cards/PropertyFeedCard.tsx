@@ -76,7 +76,7 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
   return (
     <div 
       ref={containerRef} 
-      className={`bg-white border-b border-slate-200 last:border-0 group/card ${isFirstInSet ? 'rounded-t-[28px]' : ''} ${isLastInSet ? 'rounded-b-[28px]' : ''} ${className || ''}`}
+      className={`bg-white border-b border-slate-200 last:border-0 group/card transition-all duration-300 hover:border-[color:var(--color-primary)]/45 hover:ring-1 hover:ring-inset hover:ring-[color:var(--color-primary)]/30 ${isFirstInSet ? 'rounded-t-[28px]' : ''} ${isLastInSet ? 'rounded-b-[28px]' : ''} ${className || ''}`}
     >
       <div className="flex w-full gap-4 p-4 items-stretch">
         {/* Left: Image Section */}
@@ -110,7 +110,7 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
                     className={`relative h-6 sm:h-7 flex-1 overflow-hidden border transition-all ${
                       idx === 0 && isLastInSet ? 'rounded-bl-[20px]' : 'rounded-md'
                     } ${
-                      isActive ? 'border-blue-500' : 'border-slate-200 opacity-70 hover:opacity-100'
+                      isActive ? 'border-[color:var(--color-primary)]' : 'border-slate-200 opacity-70 hover:opacity-100'
                     }`}
                   >
                     <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
@@ -131,7 +131,7 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
           <Link href={propertyUrl} className="flex flex-col no-underline">
             {/* Seller Name and Count at Top */}
             <div className="flex items-center gap-1.5 text-slate-500 text-[11px] sm:text-[12px] mb-1 font-medium">
-              <span className="hover:text-blue-600 cursor-pointer transition-colors truncate">
+              <span className="hover:text-[color:var(--color-primary)] cursor-pointer transition-colors truncate">
                 {property.listedBy?.name || 'Rental Ramro GharJagga Group'}
               </span>
               <span className="text-slate-300">•</span>
@@ -140,7 +140,7 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
 
             {/* Title and Menu */}
             <div className="flex items-start justify-between gap-2">
-              <h3 className="text-[15px] sm:text-lg font-bold text-slate-900 line-clamp-1 leading-tight tracking-tight group-hover/card:text-blue-600 transition-colors">
+              <h3 className="text-[15px] sm:text-lg font-bold text-slate-900 line-clamp-1 leading-tight tracking-tight group-hover/card:text-[color:var(--color-primary)] transition-colors">
                 {property.title}
               </h3>
               <button 
@@ -186,7 +186,7 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
               </button>
               <button 
                 onClick={(e) => e.preventDefault()}
-                className="text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-1"
+                className="text-slate-600 hover:text-[color:var(--color-primary)] transition-colors flex items-center gap-1"
                 title="Comment"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
@@ -205,7 +205,7 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
                 e.preventDefault();
                 // Share logic
               }}
-              className="text-slate-600 hover:text-blue-600 transition-colors"
+              className="text-slate-600 hover:text-[color:var(--color-primary)] transition-colors"
               title="Share"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
