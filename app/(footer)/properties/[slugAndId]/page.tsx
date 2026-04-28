@@ -168,7 +168,8 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 /* Features Divider */
                 .feature-row {
                     display: flex;
-                    gap: 24px;
+                    flex-wrap: wrap;
+                    gap: 16px 24px;
                     padding: 24px 0;
                     margin: 32px 0;
                 }
@@ -253,13 +254,13 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     .gallery-grid {
                         display: flex;
                         overflow-x: auto;
-                        height: 300px;
+                        height: 260px;
                         scroll-snap-type: x mandatory;
                         border-radius: 0;
-                        margin: -24px -24px 24px -24px;
+                        margin: -24px -16px 24px -16px;
                         gap: 0;
                     }
-                    .gallery-main, .gallery-side {
+                    .gallery-main {
                         min-width: 100%;
                         scroll-snap-align: center;
                     }
@@ -270,10 +271,29 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         border-radius: 0;
                     }
                     .prop-title {
-                        font-size: 1.75rem;
+                        font-size: 1.5rem;
+                    }
+                    .prop-location {
+                        font-size: 1rem;
+                    }
+                    .section-title {
+                        font-size: 1.2rem;
                     }
                     .property-page-container {
                         padding: 24px 16px;
+                    }
+                    .feature-item {
+                        font-size: 0.9rem;
+                    }
+                    .amenities-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 12px;
+                    }
+                    .agent-card {
+                        padding: 16px;
+                    }
+                    .price-display {
+                        font-size: 1.4rem;
                     }
                 }
 
@@ -422,7 +442,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         {property.amenities && property.amenities.length > 0 && (
                             <div style={{ marginBottom: '40px' }}>
                                 <h2 className="section-title">Nearby Amenities</h2>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))', gap: '16px' }}>
                                     {property.amenities.map((amenity: any) => (
                                         <div key={amenity.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
