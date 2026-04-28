@@ -418,6 +418,10 @@ model SystemSettings {
   show_share_button       Boolean  @default(true)
   show_comment_button     Boolean  @default(true)
   show_contact_agent      Boolean  @default(true)
+  show_featured_properties  Boolean  @default(true)
+  show_sponsored_deals      Boolean  @default(true)
+  show_property_collection  Boolean  @default(true)
+  show_explore_categories   Boolean  @default(true)
   updated_at              DateTime @updatedAt
 }
 

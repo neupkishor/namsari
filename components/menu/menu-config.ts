@@ -132,6 +132,7 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
         groups.push({
             title: 'System',
             items: [
+                { label: 'Site', icon: '🌐', href: '/manage/site' },
                 { label: 'About', icon: 'ℹ️', href: '/manage/about' },
                 { label: 'Careers', icon: '💼', href: '/manage/careers' },
                 { label: 'Support', icon: '🔧', href: '/manage/support' },
