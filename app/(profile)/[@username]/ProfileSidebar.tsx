@@ -2,10 +2,10 @@
 
 import { usePathname } from 'next/navigation';
 import { User } from '@prisma/client';
-
 import Link from 'next/link';
+import { logoutAction } from '@/actions/auth';
 
-export default function ProfileSidebar({ user, listingsCount, rating = 0, reviewCount = 0 }: { user: User, listingsCount: number, rating?: number, reviewCount?: number }) {
+export default function ProfileSidebar({ user, listingsCount, rating = 0, reviewCount = 0, isOwner = false }: { user: User, listingsCount: number, rating?: number, reviewCount?: number, isOwner?: boolean }) {
     const pathname = usePathname();
 
     const isHiddenOnMobile = pathname?.endsWith('/saved') || pathname?.endsWith('/reviews');
@@ -198,6 +198,31 @@ export default function ProfileSidebar({ user, listingsCount, rating = 0, review
                             Write a Review
                         </Link>
                     </div>
+                )}
+
+                {isOwner && (
+                    <form action={logoutAction}>
+                        <button
+                            type="submit"
+                            style={{
+                                width: '100%',
+                                padding: '12px 16px',
+                                background: 'white',
+                                border: '1px solid #fecaca',
+                                borderRadius: '12px',
+                                color: '#ef4444',
+                                fontWeight: '700',
+                                fontSize: '0.9rem',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px',
+                            }}
+                        >
+                            <span>🚪</span> Log Out
+                        </button>
+                    </form>
                 )}
             </aside>
         </>

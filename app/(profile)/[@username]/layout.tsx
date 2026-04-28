@@ -56,7 +56,7 @@ export default async function ProfileLayout({ children, params }: LayoutProps) {
 
                 <div className="grid gap-6 py-6 lg:grid-cols-[320px_minmax(0,1fr)]">
                     {/* Persistent Sidebar */}
-                    <ProfileSidebar user={user} listingsCount={listingsCount} rating={averageRating} reviewCount={reviewCount} />
+                    <ProfileSidebar user={user} listingsCount={listingsCount} rating={averageRating} reviewCount={reviewCount} isOwner={isOwner} />
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
                         {children}

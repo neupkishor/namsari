@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { registerAction } from '@/actions/auth';
 import { Input } from '@/components/ui';
@@ -34,7 +34,6 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
 export default function RegisterClient() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [accountType, setAccountType] = useState('user');
 
     return (
         <main style={{ backgroundColor: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -50,35 +49,13 @@ export default function RegisterClient() {
                     </div>
 
                     <form action={registerAction} className="card" style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-                            {['user', 'agency', 'bank'].map((type) => (
-                                <button
-                                    key={type}
-                                    type="button"
-                                    onClick={() => setAccountType(type)}
-                                    style={{
-                                        flex: 1,
-                                        padding: '10px',
-                                        borderRadius: '8px',
-                                        border: `1px solid ${accountType === type ? 'var(--color-primary)' : '#e2e8f0'}`,
-                                        background: accountType === type ? '#fef2f2' : 'white',
-                                        color: accountType === type ? 'var(--color-primary)' : '#64748b',
-                                        fontWeight: '600',
-                                        textTransform: 'capitalize',
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    {type}
-                                </button>
-                            ))}
-                        </div>
-                        <input type="hidden" name="account_type" value={accountType} />
+                        <input type="hidden" name="account_type" value="user" />
 
                         <Input
-                            label={accountType === 'agency' ? "Agency Name" : accountType === 'bank' ? "Bank Name" : "Full Name"}
+                            label="Full Name"
                             name="name"
                             type="text"
-                            placeholder={accountType === 'agency' ? "Enter agency name" : accountType === 'bank' ? "Enter bank name" : "Enter your name"}
+                            placeholder="Enter your name"
                             required
                             value={name}
                             onChange={(e) => setName(e.target.value)}
@@ -94,15 +71,13 @@ export default function RegisterClient() {
                             onChange={(e) => setEmail(e.target.value)}
                         />
 
-                        {accountType === 'user' && (
-                            <Input
-                                label="Password"
-                                name="password"
-                                type="password"
-                                placeholder="Create a password"
-                                required
-                            />
-                        )}
+                        <Input
+                            label="Password"
+                            name="password"
+                            type="password"
+                            placeholder="Create a password"
+                            required
+                        />
 
                         <Input
                             label="Contact Number"
