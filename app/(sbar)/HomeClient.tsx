@@ -942,7 +942,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
 
                                                     if (item.type === 'property_set') {
                                                         component = (
-                                                            <div className="rounded-[28px] border border-slate-200/80 bg-white shadow-[var(--shadow-card)] overflow-hidden">
+                                                            <div className="rounded-[28px] border border-slate-200 bg-white shadow-[var(--shadow-card)]">
                                                                 {item.data.map((property: any, propertyIndexInSet: number) => {
                                                                     const isTrigger = property.id === triggerPropertyId;
                                                                     const isFirstInSet = propertyIndexInSet === 0;
@@ -957,7 +957,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                                 isLastInSet={isLastInSet}
                                                                             />
                                                                             {!isLastInSet && (
-                                                                                <div className="mx-4 border-t border-slate-200/90" aria-hidden="true" />
+                                                                                <div className="mx-4 border-t border-slate-100" aria-hidden="true" />
                                                                             )}
                                                                         </div>
                                                                     );
