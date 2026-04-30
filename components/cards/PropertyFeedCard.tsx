@@ -84,7 +84,18 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
 
         {/* Left: Images */}
         <div className="w-[110px] sm:w-[160px] flex-shrink-0 flex flex-col gap-1.5">
-          <Link href={propertyUrl} className="relative block overflow-hidden rounded-xl" style={{ aspectRatio: '4/3' }}>
+          <Link
+            href={propertyUrl}
+            className="relative block overflow-hidden"
+            style={{
+              aspectRatio: '4/3',
+              borderRadius: isFirstInSet
+                ? '20px 12px 12px 12px'
+                : isLastInSet
+                ? '12px 12px 12px 12px'
+                : '4px',
+            }}
+          >
             {activeImage ? (
               <img src={activeImage} alt={property.title} className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105" />
             ) : (
@@ -97,13 +108,15 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
               {images.slice(0, 4).map((img: any, idx: number) => {
                 const url = typeof img === 'string' ? img : img.url;
                 const isActive = activeImage === url;
+                // Last card in set: first thumbnail gets a larger bottom-left corner
+                const thumbRadius = isLastInSet && idx === 0 ? '4px 4px 4px 16px' : '4px';
                 return (
                   <button
                     key={idx}
                     onClick={(e) => { e.preventDefault(); setActiveImage(url); }}
                     aria-label={`View image ${idx + 1}`}
-                    className={`relative flex-1 overflow-hidden rounded transition-all ${isActive ? 'ring-1 ring-[color:var(--color-primary)]' : 'opacity-60 hover:opacity-100'}`}
-                    style={{ height: '22px' }}
+                    className={`relative flex-1 overflow-hidden transition-all ${isActive ? 'ring-1 ring-[color:var(--color-primary)]' : 'opacity-60 hover:opacity-100'}`}
+                    style={{ height: '22px', borderRadius: thumbRadius }}
                   >
                     <img src={url} alt="" className="w-full h-full object-cover" />
                     {idx === 3 && images.length > 4 && (
