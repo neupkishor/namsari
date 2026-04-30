@@ -173,7 +173,14 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-[12px] text-slate-600 font-medium truncate">
-                {agentName}{propCount ? ` • ${propCount} Prop...` : ''}
+                <a
+                  href={`/@${property.listedBy?.username || ''}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="hover:text-[color:var(--color-primary)] transition-colors"
+                >
+                  {agentName}
+                </a>
+                {propCount ? ` • ${propCount} Prop...` : ''}
               </span>
               {contactNumber && (
                 <>
