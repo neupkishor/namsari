@@ -8,6 +8,8 @@ const SECTIONS = [
     { key: 'show_sponsored_deals', label: 'Sponsored Deals', description: 'Display advertisement and sponsored content.' },
     { key: 'show_property_collection', label: 'Property Collection', description: 'Curated property collections on the homepage.' },
     { key: 'show_explore_categories', label: 'Explore by Categories', description: 'Browse properties by type/category.' },
+    { key: 'show_hero_carousel_ad', label: 'Hero Carousel Ad', description: 'Full-width sponsored carousel at the top of the feed.' },
+    { key: 'show_feed_ad', label: 'Feed Ad', description: 'Sponsored cards inserted between property listings.' },
 ] as const;
 
 type SettingsKeys = typeof SECTIONS[number]['key'];
@@ -18,6 +20,8 @@ export default function SiteClient({ settings }: { settings: Record<string, any>
         show_sponsored_deals: settings.show_sponsored_deals,
         show_property_collection: settings.show_property_collection,
         show_explore_categories: settings.show_explore_categories,
+        show_hero_carousel_ad: settings.show_hero_carousel_ad ?? true,
+        show_feed_ad: settings.show_feed_ad ?? true,
     });
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);

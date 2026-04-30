@@ -422,6 +422,8 @@ model SystemSettings {
   show_sponsored_deals      Boolean  @default(true)
   show_property_collection  Boolean  @default(true)
   show_explore_categories   Boolean  @default(true)
+  show_hero_carousel_ad     Boolean  @default(true)
+  show_feed_ad              Boolean  @default(true)
   updated_at              DateTime @updatedAt
 }
 

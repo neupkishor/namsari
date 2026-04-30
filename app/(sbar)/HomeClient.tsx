@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { FeaturedProjects } from '@/components/cards/FeaturedProjects';
 import { TrendingSearches } from '@/components/cards/TrendingSearches';
 import { FeaturedCollectionsFeedItem } from '@/components/cards/FeaturedCollections';
-import { AdvertisementCard, AdvertisementCarousel } from '@/components/cards/AdvertisementCard';
+import { HeroCarouselAd, FeedAd } from '@/components/cards/AdvertisementCard';
 import { BottomNavigation } from '@/components/menu/BottomNavigation';
 import { SectionTitleFeed } from '@/components/sections/SectionTitleFeed';
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
@@ -598,6 +598,15 @@ function HomeSearchHero() {
     );
 }
 
+type SiteSettings = {
+    show_featured_properties: boolean;
+    show_sponsored_deals: boolean;
+    show_property_collection: boolean;
+    show_explore_categories: boolean;
+    show_hero_carousel_ad: boolean;
+    show_feed_ad: boolean;
+};
+
 type HomeClientProps = {
     user: any;
     featuredCollections?: any[];
@@ -606,6 +615,7 @@ type HomeClientProps = {
     featuredAgencies?: any[];
     advertisements?: any[];
     categories?: any[];
+    siteSettings?: SiteSettings | null;
     exploreCategoryStats?: {
         forSale: {
             house: number;
@@ -715,7 +725,7 @@ function ExploreCategoriesSection({
     );
 }
 
-export default function HomeClient({ user, featuredCollections, trendingSearches, featuredProperties = [], advertisements = [], exploreCategoryStats }: HomeClientProps) {
+export default function HomeClient({ user, featuredCollections, trendingSearches, featuredProperties = [], advertisements = [], exploreCategoryStats, siteSettings }: HomeClientProps) {
     const [isLoading, setIsLoading] = useState(true);
 
     const [properties, setProperties] = useState<any[]>([]);
@@ -783,7 +793,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                     <div className="mx-auto w-full max-w-[1400px] px-2 pt-3 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
                         <HomeSearchHero />
 
-                        {exploreCategoryStats && (
+                        {exploreCategoryStats && siteSettings?.show_explore_categories !== false && (
                             <ExploreCategoriesSection stats={exploreCategoryStats} />
                         )}
 
@@ -792,20 +802,20 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                         </div>
                     </div>
 
-                    {/* Advertisement Carousel - Full Width at Top */}
-                    {carouselAds.length > 0 && (
+                    {/* Hero Carousel Ad */}
+                    {siteSettings?.show_hero_carousel_ad !== false && carouselAds.length > 0 && (
                         <div className="w-full mx-auto max-w-[1400px] px-2 sm:px-6 lg:px-8 mt-8 sm:mt-12">
                             <div className="mb-5 space-y-1">
                                 <h2 className="text-xl font-bold tracking-tight text-slate-900">Sponsored Deals</h2>
                                 <p className="text-sm text-slate-500">Promoted listings from verified partners and agencies.</p>
                             </div>
-                            <AdvertisementCarousel ads={carouselAds} />
+                            <HeroCarouselAd ads={carouselAds} />
                         </div>
                     )}
 
                     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8 sm:gap-12 px-2 sm:px-6 lg:px-8 mt-8 sm:mt-12">
                         {/* Featured Properties Section (eSewa Style) */}
-                        {featuredCards.length > 0 && (
+                        {siteSettings?.show_featured_properties !== false && featuredCards.length > 0 && (
                             <section className="w-full">
                                 <SectionTitleFeed
                                     title="Featured Properties"
@@ -840,9 +850,9 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
 
                                                 const availableCardTypes = ['featured_collections', 'trending_searches', 'featured_projects'];
                                                 const validCardTypes = availableCardTypes.filter(type => {
-                                                    if (type === 'featured_collections') return featuredCollections && featuredCollections.length > 0;
+                                                    if (type === 'featured_collections') return siteSettings?.show_property_collection !== false && featuredCollections && featuredCollections.length > 0;
                                                     if (type === 'trending_searches') return trendingSearches && trendingSearches.length > 0;
-                                                    if (type === 'featured_projects') return featuredProperties && featuredProperties.length > 0;
+                                                    if (type === 'featured_projects') return siteSettings?.show_featured_properties !== false && featuredProperties && featuredProperties.length > 0;
                                                     return false;
                                                 });
 
@@ -904,7 +914,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                             </div>
                                                         );
                                                     } else if (item.type === 'ad') {
-                                                        component = <AdvertisementCard ad={item.data} />;
+                                                        component = siteSettings?.show_feed_ad !== false ? <FeedAd ad={item.data} /> : null;
                                                     } else if (item.type === 'featured_collections') {
                                                         component = <FeaturedCollectionsFeedItem collections={featuredCollections || []} />;
                                                     } else if (item.type === 'trending_searches') {

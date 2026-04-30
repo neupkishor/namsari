@@ -13,16 +13,16 @@ interface Ad {
     isSponsoredRel?: boolean;
 }
 
-export const AdvertisementCard = ({ ad, className }: { ad: Ad, className?: string }) => {
+// ─── Feed Ad ────────────────────────────────────────────────────────────────
+
+export const FeedAd = ({ ad, className }: { ad: Ad; className?: string }) => {
     const [hasViewed, setHasViewed] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
 
     const destinationUrl = ad.link || ad.takes_to;
-    const relAttributes = [
-        "noopener", 
-        "noreferrer", 
-        ad.isSponsoredRel ? "sponsored" : ""
-    ].filter(Boolean).join(" ");
+    const relAttributes = ['noopener', 'noreferrer', ad.isSponsoredRel ? 'sponsored' : '']
+        .filter(Boolean)
+        .join(' ');
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -35,11 +35,7 @@ export const AdvertisementCard = ({ ad, className }: { ad: Ad, className?: strin
             },
             { threshold: 0.5 }
         );
-
-        if (cardRef.current) {
-            observer.observe(cardRef.current);
-        }
-
+        if (cardRef.current) observer.observe(cardRef.current);
         return () => observer.disconnect();
     }, [ad.id, hasViewed]);
 
@@ -49,7 +45,10 @@ export const AdvertisementCard = ({ ad, className }: { ad: Ad, className?: strin
     };
 
     const content = (
-        <div ref={cardRef} className={`w-full overflow-hidden relative rounded-[28px] bg-surface shadow-sm ring-0 ring-transparent hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] hover:shadow-lg transition-all duration-300 group ${className || ''}`}>
+        <div
+            ref={cardRef}
+            className={`w-full overflow-hidden relative rounded-[28px] bg-surface shadow-sm ring-0 ring-transparent hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] hover:shadow-lg transition-all duration-300 group ${className || ''}`}
+        >
             <div className="relative w-full pt-[44.44%] sm:pt-[40%] md:pt-[35%] lg:pt-[30%] overflow-hidden">
                 <div className="absolute inset-0 w-full h-full">
                     <img
@@ -61,7 +60,6 @@ export const AdvertisementCard = ({ ad, className }: { ad: Ad, className?: strin
                         Sponsored {ad.posted_by ? `by ${ad.posted_by}` : ''}
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10 opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-                    
                     <div className="absolute bottom-4 left-6 right-6 flex items-end justify-between z-20 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
                         <div className="bg-white/95 backdrop-blur-sm text-primary text-[11px] px-4 py-2 rounded-2xl font-black shadow-2xl border border-primary/10 tracking-widest uppercase">
                             Learn More
@@ -73,12 +71,18 @@ export const AdvertisementCard = ({ ad, className }: { ad: Ad, className?: strin
     );
 
     if (destinationUrl) {
-        return <Link href={destinationUrl} target="_blank" rel={relAttributes} className="block" onClick={handleAdClick}>{content}</Link>;
+        return (
+            <Link href={destinationUrl} target="_blank" rel={relAttributes} className="block" onClick={handleAdClick}>
+                {content}
+            </Link>
+        );
     }
     return content;
 };
 
-export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
+// ─── Hero Carousel Ad ────────────────────────────────────────────────────────
+
+export const HeroCarouselAd = ({ ads }: { ads: Ad[] }) => {
     const [activeIndex, setActiveIndex] = useState(0);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -86,16 +90,10 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
 
     useEffect(() => {
         const observer = new IntersectionObserver(
-            (entries) => {
-                setIsInView(entries[0].isIntersecting);
-            },
+            (entries) => setIsInView(entries[0].isIntersecting),
             { threshold: 0.5 }
         );
-
-        if (containerRef.current) {
-            observer.observe(containerRef.current);
-        }
-
+        if (containerRef.current) observer.observe(containerRef.current);
         return () => observer.disconnect();
     }, []);
 
@@ -106,28 +104,19 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
         }
     }, [activeIndex, isInView, ads]);
 
-    const nextSlide = () => {
-        setActiveIndex((prev) => (prev + 1) % ads.length);
-    };
-
-    const prevSlide = () => {
-        setActiveIndex((prev) => (prev - 1 + ads.length) % ads.length);
-    };
+    const nextSlide = () => setActiveIndex((prev) => (prev + 1) % ads.length);
+    const prevSlide = () => setActiveIndex((prev) => (prev - 1 + ads.length) % ads.length);
 
     useEffect(() => {
         if (ads.length <= 1) return;
         timeoutRef.current = setInterval(nextSlide, 5000);
-        return () => {
-            if (timeoutRef.current) clearInterval(timeoutRef.current);
-        };
+        return () => { if (timeoutRef.current) clearInterval(timeoutRef.current); };
     }, [ads.length]);
 
     const handleManualNav = (action: () => void) => {
         if (timeoutRef.current) clearInterval(timeoutRef.current);
         action();
-        if (ads.length > 1) {
-            timeoutRef.current = setInterval(nextSlide, 5000);
-        }
+        if (ads.length > 1) timeoutRef.current = setInterval(nextSlide, 5000);
     };
 
     const handleAdClick = (adId: number) => {
@@ -138,23 +127,28 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
     if (ads.length === 0) return null;
 
     return (
-        <div ref={containerRef} className="w-full rounded-[28px] overflow-hidden relative bg-surface shadow-2xl ring-0 ring-transparent hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] transition-all duration-300 group/carousel">
+        <div
+            ref={containerRef}
+            className="w-full rounded-[28px] overflow-hidden relative bg-surface shadow-2xl ring-0 ring-transparent hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] transition-all duration-300 group/carousel"
+        >
             <div className="relative w-full pt-[44.44%] sm:pt-[40%] md:pt-[35%] lg:pt-[30%] overflow-hidden">
                 {ads.map((ad, idx) => {
                     const adUrl = ad.link || ad.takes_to;
-                    const adRel = ["noopener", "noreferrer", ad.isSponsoredRel ? "sponsored" : ""].filter(Boolean).join(" ");
-                    
+                    const adRel = ['noopener', 'noreferrer', ad.isSponsoredRel ? 'sponsored' : ''].filter(Boolean).join(' ');
+
                     return (
                         <div
                             key={`${ad.id}-${idx}`}
                             className={`absolute inset-0 w-full h-full transition-all duration-1000 ease-in-out transform ${
-                                idx === activeIndex ? 'opacity-100 z-10 scale-100 pointer-events-auto' : 'opacity-0 z-0 scale-105 pointer-events-none'
+                                idx === activeIndex
+                                    ? 'opacity-100 z-10 scale-100 pointer-events-auto'
+                                    : 'opacity-0 z-0 scale-105 pointer-events-none'
                             }`}
                         >
-                            <Link 
+                            <Link
                                 href={adUrl || '#'}
-                                target={adUrl ? "_blank" : undefined}
-                                rel={adUrl ? adRel : undefined} 
+                                target={adUrl ? '_blank' : undefined}
+                                rel={adUrl ? adRel : undefined}
                                 className={`block w-full h-full relative overflow-hidden ${adUrl ? 'cursor-pointer' : 'cursor-default'}`}
                                 onClick={() => handleAdClick(ad.id)}
                             >
@@ -179,10 +173,7 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
                         {ads.map((_, idx) => (
                             <button
                                 key={idx}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    handleManualNav(() => setActiveIndex(idx));
-                                }}
+                                onClick={(e) => { e.preventDefault(); handleManualNav(() => setActiveIndex(idx)); }}
                                 className={`h-1.5 rounded-full transition-all duration-700 shadow-xl ${
                                     idx === activeIndex ? 'bg-white w-10 ring-4 ring-white/20' : 'bg-white/40 w-3 hover:bg-white/60'
                                 }`}
@@ -193,28 +184,22 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
 
                     <div className="absolute inset-y-0 left-6 flex items-center z-30 opacity-0 group-hover/carousel:opacity-100 transition-all duration-500 translate-x-[-10px] group-hover/carousel:translate-x-0">
                         <button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handleManualNav(prevSlide);
-                            }}
+                            onClick={(e) => { e.preventDefault(); handleManualNav(prevSlide); }}
                             title="Previous ad"
                             aria-label="Previous ad"
                             className="bg-white/90 hover:bg-white text-primary border border-white/50 rounded-2xl w-11 h-11 flex items-center justify-center cursor-pointer backdrop-blur-md transition-all active:scale-90 shadow-2xl group/btn"
                         >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover/btn:-translate-x-0.5 transition-transform"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover/btn:-translate-x-0.5 transition-transform"><polyline points="15 18 9 12 15 6" /></svg>
                         </button>
                     </div>
                     <div className="absolute inset-y-0 right-6 flex items-center z-30 opacity-0 group-hover/carousel:opacity-100 transition-all duration-500 translate-x-[10px] group-hover/carousel:translate-x-0">
                         <button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handleManualNav(nextSlide);
-                            }}
+                            onClick={(e) => { e.preventDefault(); handleManualNav(nextSlide); }}
                             title="Next ad"
                             aria-label="Next ad"
                             className="bg-white/90 hover:bg-white text-primary border border-white/50 rounded-2xl w-11 h-11 flex items-center justify-center cursor-pointer backdrop-blur-md transition-all active:scale-90 shadow-2xl group/btn"
                         >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover/btn:translate-x-0.5 transition-transform"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover/btn:translate-x-0.5 transition-transform"><polyline points="9 18 15 12 9 6" /></svg>
                         </button>
                     </div>
                 </>
@@ -222,3 +207,7 @@ export const AdvertisementCarousel = ({ ads }: { ads: Ad[] }) => {
         </div>
     );
 };
+
+// ─── Legacy aliases (keep existing imports working) ──────────────────────────
+export const AdvertisementCard = FeedAd;
+export const AdvertisementCarousel = HeroCarouselAd;

@@ -64,6 +64,8 @@ export async function updateSiteSettings(data: {
     show_sponsored_deals: boolean;
     show_property_collection: boolean;
     show_explore_categories: boolean;
+    show_hero_carousel_ad: boolean;
+    show_feed_ad: boolean;
 }) {
     await requireAdmin();
     await prisma.systemSettings.upsert({

@@ -3,7 +3,7 @@ import HomeClient from './HomeClient';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { getActiveAdvertisements } from '@/actions/advertisements';
-import { getPropertyTypeCounts } from '@/actions/settings';
+import { getPropertyTypeCounts, getSiteSettings } from '@/actions/settings';
 import { getCachedListingStats } from '@/actions/listing-stats';
 
 export default async function HomePage() {
@@ -21,7 +21,7 @@ export default async function HomePage() {
         }
     }
 
-    const [featuredCollections, trendingSearches, featuredProperties, featuredAgencies, advertisements, propertyTypes, cachedListingStats] = await Promise.all([
+    const [featuredCollections, trendingSearches, featuredProperties, featuredAgencies, advertisements, propertyTypes, cachedListingStats, siteSettings] = await Promise.all([
         prisma.collection.findMany({
             where: { is_public: true },
             take: 6,
@@ -63,7 +63,8 @@ export default async function HomePage() {
         }),
         getActiveAdvertisements(),
         getPropertyTypeCounts(),
-        getCachedListingStats()
+        getCachedListingStats(),
+        getSiteSettings()
     ]);
 
     const exploreCategoryStats = cachedListingStats.stats;
@@ -84,5 +85,6 @@ export default async function HomePage() {
         advertisements={advertisements}
         categories={categories}
         exploreCategoryStats={exploreCategoryStats}
+        siteSettings={siteSettings}
     />;
 }
