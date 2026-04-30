@@ -32,7 +32,11 @@ export async function GET(request: Request) {
         const dbProperties = await prisma.property.findMany({
             where,
             include: {
-                listedBy: true,
+                listedBy: {
+                    include: {
+                        _count: { select: { listedProperties: true } }
+                    }
+                },
                 location: true,
                 pricing: true,
                 images: true,
