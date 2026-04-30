@@ -637,33 +637,84 @@ type HomeClientProps = {
 };
 
 function PostPropertySection() {
+    const [expanded, setExpanded] = useState<string | null>(null);
+
+    const cards = [
+        {
+            key: 'property',
+            title: 'Post Property',
+            icon: '🏠',
+            actions: [
+                { label: 'Sell your Property', href: '/sell?purpose=sale' },
+                { label: 'Give on rent', href: '/sell?purpose=rent' },
+            ],
+        },
+        {
+            key: 'requirement',
+            title: 'Post Requirement',
+            icon: '🔍',
+            actions: [
+                { label: 'Looking to buy', href: '/requirements/new?purpose=sale' },
+                { label: 'Looking to rent', href: '/requirements/new?purpose=rent' },
+            ],
+        },
+    ];
+
     return (
         <section className="w-full">
             <div className="mb-5 space-y-1">
                 <h2 className="text-xl font-bold tracking-tight text-slate-900">Post Property or Requirement</h2>
                 <p className="text-sm text-slate-500">List your property for sale or rent, or post what you&apos;re looking for.</p>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-                <Link
-                    href="/sell"
-                    className="group flex flex-col gap-4 rounded-[22px] border border-[color:var(--color-primary)]/12 bg-white p-5 transition-all duration-200 hover:border-[color:var(--color-primary)]/35 hover:shadow-sm"
-                >
-                    <div className="text-3xl">🏠</div>
-                    <div>
-                        <div className="text-[15px] font-bold text-slate-900">Post Property</div>
-                        <div className="mt-1 text-[13px] text-slate-500">To sale &middot; To give on rent</div>
-                    </div>
-                </Link>
-                <Link
-                    href="/requirements/new"
-                    className="group flex flex-col gap-4 rounded-[22px] border border-[color:var(--color-primary)]/12 bg-white p-5 transition-all duration-200 hover:border-[color:var(--color-primary)]/35 hover:shadow-sm"
-                >
-                    <div className="text-3xl">🔍</div>
-                    <div>
-                        <div className="text-[15px] font-bold text-slate-900">Post Requirement</div>
-                        <div className="mt-1 text-[13px] text-slate-500">To buy &middot; To take on rent</div>
-                    </div>
-                </Link>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {cards.map((card) => {
+                    const isExpanded = expanded === card.key;
+                    return (
+                        <div
+                            key={card.key}
+                            className="flex items-center justify-between gap-4 rounded-[22px] border border-[color:var(--color-primary)]/12 bg-white px-5 py-4 transition-all duration-200 hover:border-[color:var(--color-primary)]/30"
+                        >
+                            <div className="flex flex-col gap-2.5">
+                                <div className="text-[15px] font-bold text-slate-900">{card.title}</div>
+                                {/* Desktop: always show buttons */}
+                                <div className="hidden sm:flex flex-wrap gap-2">
+                                    {card.actions.map((action) => (
+                                        <Link
+                                            key={action.href}
+                                            href={action.href}
+                                            className="rounded-full bg-slate-100 px-3.5 py-1.5 text-[13px] font-semibold text-slate-700 transition-colors hover:bg-[color:var(--color-primary)]/10 hover:text-[color:var(--color-primary)]"
+                                        >
+                                            {action.label}
+                                        </Link>
+                                    ))}
+                                </div>
+                                {/* Mobile: show buttons only after tap */}
+                                <div className="flex sm:hidden flex-wrap gap-2">
+                                    {isExpanded ? (
+                                        card.actions.map((action) => (
+                                            <Link
+                                                key={action.href}
+                                                href={action.href}
+                                                className="rounded-full bg-slate-100 px-3.5 py-1.5 text-[13px] font-semibold text-slate-700 transition-colors hover:bg-[color:var(--color-primary)]/10 hover:text-[color:var(--color-primary)]"
+                                            >
+                                                {action.label}
+                                            </Link>
+                                        ))
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() => setExpanded(card.key)}
+                                            className="rounded-full bg-slate-100 px-3.5 py-1.5 text-[13px] font-semibold text-slate-500"
+                                        >
+                                            Tap to select
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                            <span className="text-3xl shrink-0">{card.icon}</span>
+                        </div>
+                    );
+                })}
             </div>
         </section>
     );
@@ -797,7 +848,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                             <ExploreCategoriesSection stats={exploreCategoryStats} />
                         )}
 
-                        <div className="hidden lg:block">
+                        <div>
                             <PostPropertySection />
                         </div>
                     </div>
