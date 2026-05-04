@@ -46,14 +46,13 @@ export function FloatingActionButton() {
     return (
         <Link
             href="/post"
-            className={`fixed bottom-6 right-6 w-16 h-16 rounded-full bg-[color:var(--color-primary)] text-white shadow-2xl flex items-center justify-center no-underline transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] hover:scale-110 hover:-translate-y-1 active:scale-95 lg:hidden z-[1001] group ${
+            aria-label="Create post"
+            className={`fixed bottom-6 right-6 h-12 rounded-lg bg-[color:var(--color-primary)] text-white shadow-2xl flex items-center gap-3 no-underline transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] hover:scale-105 hover:-translate-y-1 active:scale-95 lg:hidden z-[1001] px-4 ${
                 isVisible ? 'translate-y-0 opacity-100' : 'translate-y-[150%] opacity-0 pointer-events-none'
             }`}
         >
-            <div className="flex flex-col items-center justify-center gap-0.5">
-                <span className="text-2xl text-white transform group-hover:rotate-12 transition-transform duration-500">➕</span>
-                <span className="text-[9px] font-bold text-white uppercase tracking-tight">Post</span>
-            </div>
+            <span className="text-lg font-bold text-white leading-none">+</span>
+            <span className="text-sm font-semibold text-white">Post</span>
         </Link>
     );
 }
