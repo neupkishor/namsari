@@ -78,22 +78,21 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
     return `${months}mo`;
   })();
 
+  const mainImageRadiusClass = isFirstInSet
+    ? 'rounded-[20px_12px_12px_12px]'
+    : isLastInSet
+    ? 'rounded-[12px_12px_12px_12px]'
+    : 'rounded-[4px]';
+
   return (
     <div ref={containerRef} className={`group/card bg-white transition-all duration-200 relative hover:z-10 hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] overflow-hidden ${isFirstInSet ? 'rounded-t-[28px]' : ''} ${isLastInSet ? 'rounded-b-[28px]' : ''} ${(!isFirstInSet && !isLastInSet) ? 'rounded-none' : ''} ${className || ''}`}>
       <div className="flex w-full gap-3 sm:gap-4 p-3 sm:p-4 items-stretch">
 
         {/* Left: Images */}
-        <div className="w-[110px] sm:w-[160px] flex-shrink-0 flex flex-col gap-1.5">
+        <div className="w-[110px] sm:w-[160px] h-full min-h-0 flex-shrink-0 flex flex-col gap-1.5">
           <Link
             href={propertyUrl}
-            className="relative block overflow-hidden flex-grow"
-            style={{
-              borderRadius: isFirstInSet
-                ? '20px 12px 12px 12px'
-                : isLastInSet
-                ? '12px 12px 12px 12px'
-                : '4px',
-            }}
+            className={`relative block overflow-hidden flex-1 min-h-0 ${mainImageRadiusClass}`}
           >
             {activeImage ? (
               <img src={activeImage} alt={property.title} className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105" />
@@ -103,19 +102,18 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
           </Link>
 
           {images.length > 1 && (
-            <div className="flex gap-1">
+            <div className="flex h-8 sm:h-auto gap-1">
               {images.slice(0, 4).map((img: any, idx: number) => {
                 const url = typeof img === 'string' ? img : img.url;
                 const isActive = activeImage === url;
                 // Last card in set: first thumbnail gets a larger bottom-left corner
-                const thumbRadius = isLastInSet && idx === 0 ? '4px 4px 4px 16px' : '4px';
+                const thumbRadiusClass = isLastInSet && idx === 0 ? 'rounded-[4px_4px_4px_16px]' : 'rounded-[4px]';
                 return (
                   <button
                     key={idx}
                     onClick={(e) => { e.preventDefault(); setActiveImage(url); }}
                     aria-label={`View image ${idx + 1}`}
-                    className={`relative flex-1 overflow-hidden transition-all ${isActive ? 'ring-1 ring-[color:var(--color-primary)]' : 'opacity-60 hover:opacity-100'}`}
-                    style={{ aspectRatio: '1/1', borderRadius: thumbRadius }}
+                    className={`relative flex-1 h-full overflow-hidden transition-all sm:aspect-square ${thumbRadiusClass} ${isActive ? 'ring-1 ring-[color:var(--color-primary)]' : 'opacity-60 hover:opacity-100'}`}
                   >
                     <img src={url} alt="" className="w-full h-full object-cover" />
                     {idx === 3 && images.length > 4 && (
@@ -166,7 +164,7 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
           </Link>
 
           {/* Divider */}
-          <div className="border-t border-slate-100 my-0" />
+          <div className="border-t border-slate-100 my-2" />
 
           {/* Footer: agent + actions + share */}
           <div className="flex items-center justify-between gap-2">

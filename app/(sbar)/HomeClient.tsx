@@ -957,7 +957,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                                 isLastInSet={isLastInSet}
                                                                             />
                                                                             {!isLastInSet && (
-                                                                                <div className="mx-4 border-t border-slate-100" aria-hidden="true" />
+                                                                                <div className="mx-4 my-2 border-t border-slate-100" aria-hidden="true" />
                                                                             )}
                                                                         </div>
                                                                     );
