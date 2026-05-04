@@ -139,7 +139,7 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
             </h3>
 
             {/* Description */}
-            <p className="text-[12px] sm:text-[13px] text-slate-500 leading-relaxed line-clamp-2 mb-2">
+            <p className="text-[12px] sm:text-[13px] text-slate-500 leading-relaxed line-clamp-1 sm:line-clamp-2 mb-2">
               {property.remarks || 'This property offers a perfect blend of luxury and comfort, situated in a prime location with easy access to all essential amenities.'}
             </p>
 
