@@ -743,7 +743,7 @@ function ExploreCategoriesSection({
     return (
         <section className="w-full space-y-4">
             <div className="mb-5 space-y-1">
-                <h2 className="text-xl font-bold tracking-tight text-slate-900">Explore by category</h2>
+                <h2 className="text-xl font-bold tracking-tight text-slate-900">Available Listings</h2>
                 <p className="text-sm text-slate-500">Browse properties by type and purpose.</p>
             </div>
             <div className="space-y-2">
@@ -888,7 +888,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                 <div className="space-y-6">
                                     {/* Sub-header for the feed */}
                                     <SectionTitleFeed
-                                        title="Market Activity"
+                                        title="Latest Property/Requirements"
                                         description="Real-time stream of premium listings, sponsored placements, and curated discovery signals."
                                     />
 
