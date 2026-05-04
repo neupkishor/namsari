@@ -102,7 +102,7 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
           </Link>
 
           {images.length > 1 && (
-            <div className="flex h-8 sm:h-auto gap-1">
+            <div className="flex h-[30px] max-h-[30px] sm:h-auto gap-1">
               {images.slice(0, 4).map((img: any, idx: number) => {
                 const url = typeof img === 'string' ? img : img.url;
                 const isActive = activeImage === url;
@@ -131,7 +131,7 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
           <Link href={propertyUrl} className="flex-1 flex flex-col no-underline min-w-0">
 
             {/* Title */}
-            <h3 className="text-[14px] sm:text-[15px] font-bold text-slate-900 leading-snug line-clamp-2 group-hover/card:text-[color:var(--color-primary)] transition-colors mb-1">
+            <h3 className="text-[14px] sm:text-[15px] font-semibold text-slate-900 leading-snug line-clamp-1 group-hover/card:text-[color:var(--color-primary)] transition-colors mb-1">
               {property.title}
             </h3>
 
@@ -143,7 +143,7 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
             {/* Price row + time */}
             <div className="flex items-baseline justify-between gap-2 mb-0.5">
               <div className="flex items-baseline gap-2 flex-wrap">
-                <span className="text-[15px] sm:text-[16px] font-bold text-slate-900">{formattedPrice} {pricingUnit}.</span>
+                <span className="text-[15px] font-bold text-slate-900">{formattedPrice} {pricingUnit}.</span>
                 {contactNumber && (
                   <a
                     href={waLink}
