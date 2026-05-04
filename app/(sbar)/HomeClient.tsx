@@ -7,7 +7,6 @@ import { FeaturedProjects } from '@/components/cards/FeaturedProjects';
 import { TrendingSearches } from '@/components/cards/TrendingSearches';
 import { FeaturedCollectionsFeedItem } from '@/components/cards/FeaturedCollections';
 import { HeroCarouselAd, FeedAd } from '@/components/cards/AdvertisementCard';
-import { BottomNavigation } from '@/components/menu/BottomNavigation';
 import { SectionTitleFeed } from '@/components/sections/SectionTitleFeed';
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
 import { formatNPR } from '@/lib/formatters';
@@ -1016,10 +1015,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                 </div>
             )}
 
-            {/* Mobile Bottom Navigation */}
-            <div className="lg:hidden">
-                <BottomNavigation user={user} />
-            </div>
+
         </div>
     );
 }

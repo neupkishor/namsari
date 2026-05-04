@@ -80,15 +80,14 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
 
   return (
     <div ref={containerRef} className={`group/card bg-white transition-all duration-200 relative hover:z-10 hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] overflow-hidden ${isFirstInSet ? 'rounded-t-[28px]' : ''} ${isLastInSet ? 'rounded-b-[28px]' : ''} ${(!isFirstInSet && !isLastInSet) ? 'rounded-none' : ''} ${className || ''}`}>
-      <div className="flex w-full gap-3 sm:gap-4 p-3 sm:p-4">
+      <div className="flex w-full gap-3 sm:gap-4 p-3 sm:p-4 items-stretch">
 
         {/* Left: Images */}
         <div className="w-[110px] sm:w-[160px] flex-shrink-0 flex flex-col gap-1.5">
           <Link
             href={propertyUrl}
-            className="relative block overflow-hidden"
+            className="relative block overflow-hidden flex-grow"
             style={{
-              aspectRatio: '4/3',
               borderRadius: isFirstInSet
                 ? '20px 12px 12px 12px'
                 : isLastInSet
@@ -116,7 +115,7 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
                     onClick={(e) => { e.preventDefault(); setActiveImage(url); }}
                     aria-label={`View image ${idx + 1}`}
                     className={`relative flex-1 overflow-hidden transition-all ${isActive ? 'ring-1 ring-[color:var(--color-primary)]' : 'opacity-60 hover:opacity-100'}`}
-                    style={{ height: '22px', borderRadius: thumbRadius }}
+                    style={{ aspectRatio: '1/1', borderRadius: thumbRadius }}
                   >
                     <img src={url} alt="" className="w-full h-full object-cover" />
                     {idx === 3 && images.length > 4 && (
@@ -163,11 +162,11 @@ export function PropertyPost({ property, onVisible, className, isFirstInSet = fa
             </div>
 
             {/* Location */}
-            <div className="text-[12px] text-slate-500 mb-2">{locationStr}</div>
+            <div className="text-[12px] text-slate-500 mb-0">{locationStr}</div>
           </Link>
 
           {/* Divider */}
-          <div className="border-t border-slate-100 my-2" />
+          <div className="border-t border-slate-100 my-0" />
 
           {/* Footer: agent + actions + share */}
           <div className="flex items-center justify-between gap-2">

@@ -3,7 +3,7 @@ import { Outfit } from "next/font/google";
 import "@/app/globals.css";
 import Providers from "@/app/providers";
 import { Header } from '@/components/menu/Header';
-import { BottomNavigation } from '@/components/menu/BottomNavigation';
+import { FloatingActionButton } from '@/components/menu/FloatingActionButton';
 import { getCurrentUser } from '@/actions/auth';
 
 const outfit = Outfit({
@@ -32,9 +32,7 @@ export default async function RootLayout({
             <Tracker />
             <Header user={user} />
             {children}
-            <div className="mobile-only">
-                <BottomNavigation user={user} />
-            </div>
+            <FloatingActionButton />
         </Providers>
       </body>
     </html>
