@@ -578,8 +578,16 @@ function HomeSearchHero() {
                                         key={val}
                                         type="button"
                                         onClick={togglePurpose}
-                                        className={`rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-all duration-200 ${isActive ? 'bg-[color:var(--color-primary)] border-[color:var(--color-primary)] text-white shadow-[0_3px_10px_rgba(10,107,255,0.22)]' : 'border-slate-200 bg-white text-slate-500 hover:border-[color:var(--color-primary)]/40 hover:text-slate-700'}`}
+                                        className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-all duration-200 ${isActive ? 'bg-[color:var(--color-primary)] border-[color:var(--color-primary)] text-white shadow-[0_3px_10px_rgba(10,107,255,0.22)]' : 'border-slate-200 bg-white text-slate-500 hover:border-[color:var(--color-primary)]/40 hover:text-slate-700'}`}
                                     >
+                                        {isActive && purposes.size > 1 && (
+                                            <span className="inline-flex h-[20px] w-[20px] shrink-0 items-center justify-center rounded-full border border-white/60">
+                                                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                                </svg>
+                                            </span>
+                                        )}
                                         {lbl}
                                     </button>
                                 );
