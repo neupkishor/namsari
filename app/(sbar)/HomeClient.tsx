@@ -159,11 +159,20 @@ const HOME_LOCATION_OPTIONS = [
     'Dharan',
 ];
 
-const HOME_PRICE_PRESETS = [
+const HOME_PRICE_PRESETS_SALE = [
     { label: 'Any budget', min: '', max: '' },
-    { label: 'Under Rs. 50L', min: '0', max: '5000000' },
-    { label: 'Rs. 50L - 1 Cr', min: '5000000', max: '10000000' },
-    { label: 'Above Rs. 1 Cr', min: '10000000', max: '' },
+    { label: 'Under 50 Lakh', min: '0', max: '5000000' },
+    { label: '50L – 1 Crore', min: '5000000', max: '10000000' },
+    { label: '1 – 3 Crore', min: '10000000', max: '30000000' },
+    { label: 'Above 3 Crore', min: '30000000', max: '' },
+];
+
+const HOME_PRICE_PRESETS_RENT = [
+    { label: 'Any budget', min: '', max: '' },
+    { label: 'Under 20k', min: '0', max: '20000' },
+    { label: '20k – 40k', min: '20000', max: '40000' },
+    { label: '40k – 60k', min: '40000', max: '60000' },
+    { label: 'Above 60k', min: '60000', max: '' },
 ];
 
 const HOME_SIZE_PRESETS = [
@@ -232,6 +241,7 @@ function convertAreaPriceToModified(unit: AreaPriceUnit, minPrice?: string, maxP
 function HomeSearchHero() {
     const router = useRouter();
     const [query, setQuery] = useState('');
+    const [purposes, setPurposes] = useState<Set<'sale' | 'rent'>>(new Set(['sale']));
     const [activePanel, setActivePanel] = useState<HomeSearchPanel>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [priceMin, setPriceMin] = useState('');
@@ -262,7 +272,7 @@ function HomeSearchHero() {
     }, [activePanel]);
 
     const currentPriceLabel = priceMin || priceMax
-        ? `${priceMin ? formatDevanagariComma(priceMin) : 'Any'} - ${priceMax ? formatDevanagariComma(priceMax) : 'Any'} (${areaPriceUnit === 'peraana' ? 'per aana' : 'per m²'})`
+        ? `${priceMin ? formatDevanagariComma(priceMin) : 'Any'} - ${priceMax ? formatDevanagariComma(priceMax) : 'Any'}${(purposes.has('rent') && !purposes.has('sale')) ? '/mo' : ` (${areaPriceUnit === 'peraana' ? 'per aana' : 'per m²'})`}`
         : 'Any budget';
 
     const currentLocationLabel = selectedLocations.length > 0
@@ -277,12 +287,15 @@ function HomeSearchHero() {
         ? `${selectedListedBy.charAt(0).toUpperCase()}${selectedListedBy.slice(1)}`
         : 'Any seller';
 
+    const HOME_PRICE_PRESETS = purposes.has('rent') && !purposes.has('sale') ? HOME_PRICE_PRESETS_RENT : HOME_PRICE_PRESETS_SALE;
+
     const submitSearch = () => {
         const params = new URLSearchParams();
         const modified = convertAreaPriceToModified(areaPriceUnit, priceMin, priceMax);
 
         if (query.trim()) params.set('rawQuery', query.trim());
         params.set('type', 'feed');
+        params.set('purposes', Array.from(purposes).join(','));
         if (selectedListedBy) params.set('listedBy', selectedListedBy);
         if (priceMin || priceMax) {
             params.set('rawUnit', areaPriceUnit);
@@ -365,21 +378,23 @@ function HomeSearchHero() {
                             </button>
                         ))}
                     </div>
-                    <div className="space-y-2">
-                        <div className="text-[13px] font-bold text-slate-600">Unit</div>
-                        <div className="flex gap-2">
-                            {([['peraana', 'per aana'], ['persqm', 'per m²']] as [AreaPriceUnit, string][]).map(([val, lbl]) => (
-                                <button
-                                    key={val}
-                                    type="button"
-                                    onClick={() => setAreaPriceUnit(val)}
-                                    className={`rounded-full border px-4 py-2.5 text-[13px] font-semibold transition-all duration-150 ${areaPriceUnit === val ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white shadow-[0_6px_16px_rgba(10,107,255,0.2)]' : 'border-slate-200 bg-white text-slate-700 hover:border-[color:var(--color-primary)]/40'}`}
-                                >
-                                    {lbl}
-                                </button>
-                            ))}
+                    {(purposes.has('sale') || purposes.size === 0) && (
+                        <div className="space-y-2">
+                            <div className="text-[13px] font-bold text-slate-600">Unit</div>
+                            <div className="flex gap-2">
+                                {([['peraana', 'per aana'], ['persqm', 'per m²']] as [AreaPriceUnit, string][]).map(([val, lbl]) => (
+                                    <button
+                                        key={val}
+                                        type="button"
+                                        onClick={() => setAreaPriceUnit(val)}
+                                        className={`rounded-full border px-4 py-2.5 text-[13px] font-semibold transition-all duration-150 ${areaPriceUnit === val ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white shadow-[0_6px_16px_rgba(10,107,255,0.2)]' : 'border-slate-200 bg-white text-slate-700 hover:border-[color:var(--color-primary)]/40'}`}
+                                    >
+                                        {lbl}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             );
         }
@@ -540,8 +555,48 @@ function HomeSearchHero() {
                 </div>
 
                 <div className="space-y-2.5 sm:space-y-4">
-                    <div className="grid gap-2 sm:gap-3">
-                        <div className="flex items-center gap-2.5 rounded-[18px] border border-[color:var(--color-primary)]/25 bg-white px-2.5 py-2.5 text-slate-900 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:gap-3 sm:rounded-[24px] sm:px-4 sm:py-4">
+                    {/* Purpose toggle + search bar — merged as one unit */}
+                    <div>
+                        {/* Purpose tabs — flush to search bar top */}
+                        <div className="flex">
+                            {([['sale', 'For Sale'], ['rent', 'For Rent']] as ['sale' | 'rent', string][]).map(([val, lbl], i) => {
+                                const isActive = purposes.has(val);
+                                const togglePurpose = () => {
+                                    setPurposes(prev => {
+                                        const next = new Set(prev);
+                                        if (next.has(val)) {
+                                            if (next.size > 1) next.delete(val);
+                                        } else {
+                                            next.add(val);
+                                        }
+                                        return next;
+                                    });
+                                    setPriceMin(''); setPriceMax('');
+                                };
+                                return (
+                                    <button
+                                        key={val}
+                                        type="button"
+                                        onClick={togglePurpose}
+                                        className={`relative px-5 py-2.5 text-[13px] font-bold transition-all duration-200 border border-b-0
+                                            ${i === 0 ? 'rounded-tl-[18px] sm:rounded-tl-[22px]' : ''}
+                                            ${i === 1 ? 'rounded-tr-[18px] sm:rounded-tr-[22px] -ml-px' : ''}
+                                            ${isActive
+                                                ? 'bg-white border-[color:var(--color-primary)]/25 text-[color:var(--color-primary)] z-10'
+                                                : 'bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-100'
+                                            }`}
+                                    >
+                                        {lbl}
+                                        {isActive && (
+                                            <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-white" />
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Search bar — top-left corner square to connect with tabs */}
+                        <div className="flex items-center gap-2.5 rounded-b-[18px] rounded-tr-[18px] border border-[color:var(--color-primary)]/25 bg-white px-2.5 py-2.5 text-slate-900 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:gap-3 sm:rounded-b-[22px] sm:rounded-tr-[22px] sm:px-4 sm:py-4">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-[color:var(--color-primary)] sm:h-[22px] sm:w-[22px]">
                                 <circle cx="11" cy="11" r="8" />
                                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -549,11 +604,7 @@ function HomeSearchHero() {
                             <input
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        submitSearch();
-                                    }
-                                }}
+                                onKeyDown={(e) => { if (e.key === 'Enter') submitSearch(); }}
                                 placeholder="Search by property, area, landmark, or developer"
                                 className="w-full bg-transparent text-[14px] font-semibold text-slate-900 outline-none placeholder:text-slate-400 sm:text-[15px]"
                             />
