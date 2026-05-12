@@ -9,6 +9,51 @@ interface PropertyPostProps {
   isLastInSet?: boolean;
 }
 
+// Phone icon (outline)
+function PhoneIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+    </svg>
+  );
+}
+
+// WhatsApp icon (brand green)
+function WhatsAppIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z" />
+    </svg>
+  );
+}
+
+// Share icon
+function ShareIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+    </svg>
+  );
+}
+
+function formatTimeAgo(date: string | Date | null | undefined): string {
+  if (!date) return '';
+  const now = new Date();
+  const then = new Date(date);
+  const diffMs = now.getTime() - then.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return '1d';
+  if (diffDays < 30) return `${diffDays}d`;
+  const diffMonths = Math.floor(diffDays / 30);
+  if (diffMonths < 12) return `${diffMonths}mo`;
+  return `${Math.floor(diffMonths / 12)}y`;
+}
+
 export function PropertyPost({
   property,
   onVisible,
@@ -93,31 +138,49 @@ export function PropertyPost({
       ? property.location
       : locationParts.join(', ') || 'Kathmandu';
 
+  const agentName = property.listedBy?.name || 'Agent';
+  const agentPropertyCount = property.listedBy?._count?.listedProperties;
+  const agentPhone = property.listedBy?.phone;
+  const agentWhatsapp = property.listedBy?.whatsapp || property.listedBy?.phone;
+  const timeAgo = formatTimeAgo(property.created_on || property.createdAt);
+
+  // Image corner radius: top-left of first card gets large rounding
   const mainImageRadiusClass = isFirstInSet
-    ? 'rounded-[20px_12px_12px_12px]'
+    ? 'rounded-[16px_8px_8px_8px]'
     : isLastInSet
-    ? 'rounded-[12px]'
-    : 'rounded-[4px]';
+    ? 'rounded-[8px]'
+    : 'rounded-[6px]';
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (navigator.share) {
+      navigator.share({ title: property.title, url: window.location.origin + propertyUrl });
+    } else {
+      navigator.clipboard?.writeText(window.location.origin + propertyUrl);
+    }
+  };
 
   return (
     <div
       ref={containerRef}
-      className={`group/card bg-white transition-all duration-200 relative hover:z-10 hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] overflow-hidden
+      className={`group/card bg-white relative hover:z-10 overflow-hidden
+        transition-[box-shadow] duration-300
+        hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)]
       ${isFirstInSet ? 'rounded-t-[28px]' : ''}
       ${isLastInSet ? 'rounded-b-[28px]' : ''}
       ${(!isFirstInSet && !isLastInSet) ? 'rounded-none' : ''}
+      ${!isLastInSet ? 'border-b border-b-slate-100' : ''}
       ${className || ''}`}
     >
-      {/* 🔥 FIXED CARD HEIGHT (adjust as needed) */}
-      <div className="flex w-full gap-3 sm:gap-4 p-3 sm:p-4 items-stretch h-[150px] sm:h-[170px]">
+      <div className="flex w-full gap-3 sm:gap-4 px-3 sm:px-4 pt-3 sm:pt-4 pb-0 items-stretch">
 
         {/* LEFT: IMAGE STACK */}
-        <div className="w-[110px] sm:w-[160px] h-full flex flex-col gap-1.5">
+        <div className="w-[110px] sm:w-[155px] flex-shrink-0 flex flex-col gap-1.5 pb-3 sm:pb-4">
 
-          {/* MAIN IMAGE (dynamic height) */}
+          {/* MAIN IMAGE */}
           <Link
             href={propertyUrl}
-            className={`relative overflow-hidden flex-1 min-h-0 ${mainImageRadiusClass}`}
+            className={`relative overflow-hidden block flex-1 min-h-[90px] sm:min-h-[110px] ${mainImageRadiusClass}`}
           >
             {activeImage ? (
               <img
@@ -126,39 +189,33 @@ export function PropertyPost({
                 className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105"
               />
             ) : (
-              <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300 text-xs">
+              <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300 text-xs min-h-[90px]">
                 No image
               </div>
             )}
           </Link>
 
-          {/* THUMBNAILS (fixed height) */}
+          {/* THUMBNAILS */}
           {images.length > 1 && (
-            <div className="flex gap-1 h-8 flex-shrink-0">
+            <div className="flex gap-1 h-7 flex-shrink-0">
               {images.slice(0, 4).map((img: any, idx: number) => {
-                const url =
-                  typeof img === 'string' ? img : img.url;
+                const url = typeof img === 'string' ? img : img.url;
                 const isActive = activeImage === url;
-
                 return (
                   <button
                     key={idx}
+                    aria-label={`View image ${idx + 1}`}
                     onClick={(e) => {
                       e.preventDefault();
                       setActiveImage(url);
                     }}
                     className={`flex-1 h-full overflow-hidden rounded-[4px]
-                      ${
-                        isActive
-                          ? 'ring-1 ring-[color:var(--color-primary)]'
-                          : 'opacity-60 hover:opacity-100'
+                      ${isActive
+                        ? 'ring-1 ring-[color:var(--color-primary)]'
+                        : 'opacity-60 hover:opacity-100'
                       }`}
                   >
-                    <img
-                      src={url}
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={url} alt="" className="w-full h-full object-cover" />
                   </button>
                 );
               })}
@@ -167,35 +224,109 @@ export function PropertyPost({
         </div>
 
         {/* RIGHT: CONTENT */}
-        <div className="flex-1 min-w-0 flex flex-col justify-between">
-          <Link
-            href={propertyUrl}
-            className="flex flex-col gap-1 min-w-0"
-          >
-            <h3 className="text-[14px] sm:text-[15px] font-semibold text-slate-900 line-clamp-1 group-hover/card:text-[color:var(--color-primary)]">
+        <div className="flex-1 min-w-0 flex flex-col pb-0">
+
+          {/* TOP SECTION: title, description, price+offer, location */}
+          <Link href={propertyUrl} className="flex flex-col gap-0.5 min-w-0 pt-1 pb-2 flex-1">
+            {/* Title */}
+            <h3 className="text-[13px] sm:text-[14px] font-semibold text-slate-900 line-clamp-2 leading-snug group-hover/card:text-[color:var(--color-primary)] transition-colors">
               {property.title}
             </h3>
 
-            <p className="text-[12px] text-slate-500 line-clamp-1">
-              {property.remarks || 'Prime location property.'}
+            {/* Description / remarks */}
+            <p className="text-[11px] sm:text-[12px] text-slate-400 line-clamp-2 mt-0.5 leading-relaxed">
+              {property.remarks || 'This property offers a perfect blend of luxury and comfort, situated in a prime location with easy access to all essential amenities.'}
             </p>
 
-            <div className="flex items-baseline justify-between">
-              <span className="text-[15px] font-bold text-slate-900">
-                {formattedPrice} {pricingUnit}
+            {/* Price + Make Offer */}
+            <div className="flex items-baseline gap-3 mt-2">
+              <span className="text-[14px] sm:text-[15px] font-bold text-slate-900">
+                {formattedPrice} {pricingUnit}.
+              </span>
+              <span
+                className="text-[12px] sm:text-[13px] font-semibold text-[color:var(--color-primary)] hover:underline cursor-pointer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  // Make offer action — can be wired to a modal
+                }}
+              >
+                Make Offer
               </span>
             </div>
 
-            <div className="text-[12px] text-slate-500">
+            {/* Location */}
+            <div className="text-[11px] sm:text-[12px] text-slate-500 mt-0.5">
               {locationStr}
             </div>
           </Link>
 
-          <div className="border-t border-slate-100 my-1" />
+          {/* SEPARATOR */}
+          <div className="border-t border-slate-100" />
 
-          <div className="text-[12px] text-slate-600 truncate">
-            {property.listedBy?.name || 'Agent'}
+          {/* BOTTOM ROW: agent info + call/whatsapp | timestamp + share */}
+          <div className="flex items-center justify-between py-2 gap-2">
+            {/* Left: agent name · property count · call · whatsapp */}
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-[11px] sm:text-[12px] text-slate-600 font-medium truncate max-w-[90px] sm:max-w-[130px]">
+                {agentName}
+              </span>
+              {agentPropertyCount != null && (
+                <>
+                  <span className="text-slate-300 text-[10px]">•</span>
+                  <span className="text-[11px] text-slate-400 whitespace-nowrap">
+                    {agentPropertyCount} Prop...
+                  </span>
+                </>
+              )}
+              {/* Call button */}
+              {agentPhone ? (
+                <a
+                  href={`tel:${agentPhone}`}
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label="Call agent"
+                  className="flex items-center justify-center w-7 h-7 rounded-full text-slate-500 hover:text-[color:var(--color-primary)] hover:bg-slate-100 transition-colors flex-shrink-0"
+                >
+                  <PhoneIcon />
+                </a>
+              ) : (
+                <span className="flex items-center justify-center w-7 h-7 rounded-full text-slate-400 flex-shrink-0">
+                  <PhoneIcon />
+                </span>
+              )}
+              {/* WhatsApp button */}
+              {agentWhatsapp ? (
+                <a
+                  href={`https://wa.me/${agentWhatsapp.replace(/\D/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label="WhatsApp agent"
+                  className="flex items-center justify-center w-7 h-7 rounded-full text-[#25D366] hover:bg-green-50 transition-colors flex-shrink-0"
+                >
+                  <WhatsAppIcon />
+                </a>
+              ) : (
+                <span className="flex items-center justify-center w-7 h-7 rounded-full text-[#25D366] flex-shrink-0">
+                  <WhatsAppIcon />
+                </span>
+              )}
+            </div>
+
+            {/* Right: timestamp + share */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {timeAgo && (
+                <span className="text-[11px] text-slate-400 font-medium">{timeAgo}</span>
+              )}
+              <button
+                onClick={handleShare}
+                aria-label="Share property"
+                className="flex items-center justify-center w-7 h-7 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                <ShareIcon />
+              </button>
+            </div>
           </div>
+
         </div>
       </div>
     </div>

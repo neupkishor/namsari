@@ -942,24 +942,20 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
 
                                                     if (item.type === 'property_set') {
                                                         component = (
-                                                            <div className="rounded-[28px] border border-slate-200 bg-white shadow-[var(--shadow-card)]">
+                                                            <div className="rounded-[28px] border border-slate-200 bg-white shadow-[var(--shadow-card)] overflow-hidden">
                                                                 {item.data.map((property: any, propertyIndexInSet: number) => {
                                                                     const isTrigger = property.id === triggerPropertyId;
                                                                     const isFirstInSet = propertyIndexInSet === 0;
                                                                     const isLastInSet = propertyIndexInSet === item.data.length - 1;
 
                                                                     return (
-                                                                        <div key={property.id || `${idx}-${propertyIndexInSet}`}>
-                                                                            <PropertyPost
-                                                                                property={property}
-                                                                                onVisible={isTrigger ? () => fetchProperties(false) : undefined}
-                                                                                isFirstInSet={isFirstInSet}
-                                                                                isLastInSet={isLastInSet}
-                                                                            />
-                                                                            {!isLastInSet && (
-                                                                                <div className="mx-4 my-2 border-t border-slate-100" aria-hidden="true" />
-                                                                            )}
-                                                                        </div>
+                                                                        <PropertyPost
+                                                                            key={property.id || `${idx}-${propertyIndexInSet}`}
+                                                                            property={property}
+                                                                            onVisible={isTrigger ? () => fetchProperties(false) : undefined}
+                                                                            isFirstInSet={isFirstInSet}
+                                                                            isLastInSet={isLastInSet}
+                                                                        />
                                                                     );
                                                                 })}
                                                             </div>
