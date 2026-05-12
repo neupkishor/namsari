@@ -247,7 +247,14 @@ export function PropertyPost({
                 className="text-[12px] sm:text-[13px] font-semibold text-[color:var(--color-primary)] hover:underline cursor-pointer"
                 onClick={(e) => {
                   e.preventDefault();
-                  // Make offer action — can be wired to a modal
+                  e.stopPropagation();
+                  const fullUrl = typeof window !== 'undefined' ? window.location.origin + propertyUrl : propertyUrl;
+                  const msg = `${fullUrl}\nI'm interested in ${property.title}. I am offering this property ${formattedPrice} ${pricingUnit}.`;
+                  const phone = agentWhatsapp || agentPhone;
+                  const waUrl = phone
+                    ? `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`
+                    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+                  window.open(waUrl, '_blank', 'noopener,noreferrer');
                 }}
               >
                 Make Offer
@@ -297,7 +304,12 @@ export function PropertyPost({
               {agentWhatsapp ? (
                 <button
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); window.open(`https://wa.me/${agentWhatsapp.replace(/\D/g, '')}`, '_blank', 'noopener,noreferrer'); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const fullUrl = typeof window !== 'undefined' ? window.location.origin + propertyUrl : propertyUrl;
+                    const msg = `${fullUrl}\nI'm interested in this property.`;
+                    window.open(`https://wa.me/${agentWhatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+                  }}
                   aria-label="WhatsApp agent"
                   className="flex items-center justify-center p-2 rounded-lg text-[#25D366] hover:text-[#1aab52] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
                 >
