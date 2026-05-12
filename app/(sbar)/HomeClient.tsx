@@ -554,12 +554,12 @@ function HomeSearchHero() {
                     </p>
                 </div>
 
-                <div className="space-y-2.5 sm:space-y-4">
-                    {/* Purpose toggle + search bar — merged as one unit */}
-                    <div>
-                        {/* Purpose tabs — flush to search bar top */}
-                        <div className="flex">
-                            {([['sale', 'For Sale'], ['rent', 'For Rent']] as ['sale' | 'rent', string][]).map(([val, lbl], i) => {
+                <div className="space-y-1.5">
+                    {/* Purpose pills + search bar — container shrinks to pill width on top, full width search below */}
+                    <div className="w-full">
+                        {/* Purpose pills — inline so container only spans pill content */}
+                        <div className="inline-flex items-center gap-2 rounded-t-[14px] border border-b-0 border-[color:var(--color-primary)]/25 bg-white px-3 pt-2.5 pb-2.5 sm:rounded-t-[18px] sm:px-4">
+                            {([['sale', 'For Sale'], ['rent', 'For Rent']] as ['sale' | 'rent', string][]).map(([val, lbl]) => {
                                 const isActive = purposes.has(val);
                                 const togglePurpose = () => {
                                     setPurposes(prev => {
@@ -578,25 +578,16 @@ function HomeSearchHero() {
                                         key={val}
                                         type="button"
                                         onClick={togglePurpose}
-                                        className={`relative px-5 py-2.5 text-[13px] font-bold transition-all duration-200 border border-b-0
-                                            ${i === 0 ? 'rounded-tl-[18px] sm:rounded-tl-[22px]' : ''}
-                                            ${i === 1 ? 'rounded-tr-[18px] sm:rounded-tr-[22px] -ml-px' : ''}
-                                            ${isActive
-                                                ? 'bg-white border-[color:var(--color-primary)]/25 text-[color:var(--color-primary)] z-10'
-                                                : 'bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-100'
-                                            }`}
+                                        className={`rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-all duration-200 ${isActive ? 'bg-[color:var(--color-primary)] border-[color:var(--color-primary)] text-white shadow-[0_3px_10px_rgba(10,107,255,0.22)]' : 'border-slate-200 bg-white text-slate-500 hover:border-[color:var(--color-primary)]/40 hover:text-slate-700'}`}
                                     >
                                         {lbl}
-                                        {isActive && (
-                                            <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-white" />
-                                        )}
                                     </button>
                                 );
                             })}
                         </div>
 
-                        {/* Search bar — top-left corner square to connect with tabs */}
-                        <div className="flex items-center gap-2.5 rounded-b-[18px] rounded-tr-[18px] border border-[color:var(--color-primary)]/25 bg-white px-2.5 py-2.5 text-slate-900 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:gap-3 sm:rounded-b-[22px] sm:rounded-tr-[22px] sm:px-4 sm:py-4">
+                        {/* Search bar — full width, top-left square to sit flush under pill bar */}
+                        <div className="flex items-center gap-2.5 rounded-b-[18px] rounded-tr-[18px] border border-[color:var(--color-primary)]/25 bg-white px-3 py-2.5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:gap-3 sm:rounded-b-[24px] sm:rounded-tr-[24px] sm:px-4 sm:py-3">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-[color:var(--color-primary)] sm:h-[22px] sm:w-[22px]">
                                 <circle cx="11" cy="11" r="8" />
                                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -624,7 +615,7 @@ function HomeSearchHero() {
                     </div>
 
                     {/* Compact filter pills */}
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 pt-1">
                         {([
                             ['price', 'Price', currentPriceLabel],
                             ['location', 'Location', currentLocationLabel],
