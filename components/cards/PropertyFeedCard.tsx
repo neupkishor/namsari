@@ -301,22 +301,22 @@ export function PropertyPost({
                 <a
                   href={agentProfileUrl}
                   onClick={(e) => e.stopPropagation()}
-                  className="text-[11px] sm:text-[12px] text-slate-600 font-medium truncate max-w-[90px] sm:max-w-[130px] hover:text-[color:var(--color-primary)] hover:underline transition-colors"
+                  className="text-[12px] text-slate-500 font-medium truncate max-w-[90px] sm:max-w-[130px] hover:text-[color:var(--color-primary)] hover:underline transition-colors"
                 >
                   {agentName}
                 </a>
               ) : (
-                <span className="text-[11px] sm:text-[12px] text-slate-600 font-medium truncate max-w-[90px] sm:max-w-[130px]">
+                <span className="text-[12px] text-slate-500 font-medium truncate max-w-[90px] sm:max-w-[130px]">
                   {agentName}
                 </span>
               )}
               {agentPropertyCount != null && agentUsername && (
                 <>
-                  <span className="text-slate-300 text-[10px]">•</span>
+                  <span className="text-slate-400 text-[12px] font-medium">•</span>
                   <a
                     href={`/@${agentUsername}/properties`}
                     onClick={(e) => e.stopPropagation()}
-                    className="text-[11px] text-slate-400 shrink-0 hover:text-[color:var(--color-primary)] hover:underline transition-colors"
+                    className="text-[12px] text-slate-500 font-medium shrink-0 hover:text-[color:var(--color-primary)] hover:underline transition-colors"
                   >
                     <span className="hidden sm:inline">{agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}</span>
                     <span className="sm:hidden">{agentPropertyCount}</span>
@@ -325,8 +325,8 @@ export function PropertyPost({
               )}
               {agentPropertyCount != null && !agentUsername && (
                 <>
-                  <span className="text-slate-300 text-[10px]">•</span>
-                  <span className="text-[11px] text-slate-400 shrink-0">
+                  <span className="text-slate-400 text-[12px] font-medium">•</span>
+                  <span className="text-[12px] text-slate-500 font-medium shrink-0">
                     <span className="hidden sm:inline">{agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}</span>
                     <span className="sm:hidden">{agentPropertyCount}</span>
                   </span>
