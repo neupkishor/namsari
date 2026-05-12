@@ -935,9 +935,46 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                     }
                                                 }
 
+                                                // Merge consecutive property_sets that have no visible
+                                                // content between them (ads disabled = null render,
+                                                // or simply nothing in between).
+                                                const isVisibleItem = (item: any) => {
+                                                    if (item.type === 'ad') return siteSettings?.show_feed_ad !== false && feedAds.length > 0;
+                                                    return true;
+                                                };
+
+                                                const mergedItems: any[] = [];
+                                                for (let i = 0; i < feedItems.length; i++) {
+                                                    const item = feedItems[i];
+                                                    if (item.type !== 'property_set') {
+                                                        mergedItems.push(item);
+                                                        continue;
+                                                    }
+                                                    // Accumulate this set and any following sets that
+                                                    // have no visible non-property items between them.
+                                                    const merged = { type: 'property_set', data: [...item.data] };
+                                                    while (i + 1 < feedItems.length) {
+                                                        // Peek ahead: skip invisible items, stop at visible non-property items
+                                                        let j = i + 1;
+                                                        let hasVisibleGap = false;
+                                                        while (j < feedItems.length && feedItems[j].type !== 'property_set') {
+                                                            if (isVisibleItem(feedItems[j])) {
+                                                                hasVisibleGap = true;
+                                                                break;
+                                                            }
+                                                            j++;
+                                                        }
+                                                        if (hasVisibleGap || j >= feedItems.length || feedItems[j].type !== 'property_set') break;
+                                                        // No visible gap — absorb the next property_set
+                                                        merged.data.push(...feedItems[j].data);
+                                                        i = j;
+                                                    }
+                                                    mergedItems.push(merged);
+                                                }
+
                                                 const triggerPropertyId = properties.length >= 5 ? properties[properties.length - 5]?.id : undefined;
 
-                                                return feedItems.map((item, idx) => {
+                                                return mergedItems.map((item, idx) => {
                                                     let component = null;
 
                                                     if (item.type === 'property_set') {
