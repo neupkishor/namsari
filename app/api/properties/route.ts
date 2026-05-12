@@ -100,7 +100,13 @@ export async function GET(request: Request) {
                 author_name: authorUser ? authorUser.name : 'Unknown',
                 author_avatar: (authorUser as any)?.profile_picture || ((authorUser as any)?.name || 'U')[0],
                 author_phone: (authorUser as any)?.contact_number || null,
-                timestamp
+                timestamp,
+                // Ensure listedBy has phone so feed cards can build WhatsApp/tel links
+                listedBy: authorUser ? {
+                    ...authorUser,
+                    phone: (authorUser as any).contact_number || null,
+                    whatsapp: (authorUser as any).contact_number || null,
+                } : null,
             };
         });
 

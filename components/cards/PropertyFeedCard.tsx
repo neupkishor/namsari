@@ -54,6 +54,37 @@ function formatTimeAgo(date: string | Date | null | undefined): string {
   return `${Math.floor(diffMonths / 12)}y`;
 }
 
+function MakeOfferLink({ propertyUrl, title, price, phone }: {
+  propertyUrl: string;
+  title: string;
+  price: string;
+  phone: string | null | undefined;
+}) {
+  const [href, setHref] = React.useState<string>('#');
+
+  useEffect(() => {
+    const fullUrl = window.location.origin + propertyUrl;
+    const msg = `${fullUrl}\nI'm interested in ${title}. I am offering this property ${price}.`;
+    const cleaned = phone ? phone.replace(/\D/g, '') : '';
+    setHref(
+      cleaned
+        ? `https://wa.me/${cleaned}?text=${encodeURIComponent(msg)}`
+        : `https://wa.me/?text=${encodeURIComponent(msg)}`
+    );
+  }, [propertyUrl, title, price, phone]);
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-[12px] sm:text-[13px] font-semibold text-[color:var(--color-primary)] hover:underline"
+    >
+      Make Offer
+    </a>
+  );
+}
+
 export function PropertyPost({
   property,
   onVisible,
@@ -227,45 +258,35 @@ export function PropertyPost({
         <div className="flex-1 min-w-0 flex flex-col pb-0">
 
           {/* TOP SECTION: title, description, price+offer, location */}
-          <Link href={propertyUrl} className="flex flex-col gap-0.5 min-w-0 pt-1 pb-2 flex-1">
-            {/* Title */}
-            <h3 className="text-[13px] sm:text-[14px] font-semibold text-slate-900 line-clamp-2 leading-snug group-hover/card:text-[color:var(--color-primary)] transition-colors">
-              {property.title}
-            </h3>
+          <div className="flex flex-col gap-0.5 min-w-0 pt-1 pb-2 flex-1">
+            {/* Title + description — clickable */}
+            <Link href={propertyUrl} className="flex flex-col gap-0.5 min-w-0">
+              <h3 className="text-[13px] sm:text-[14px] font-semibold text-slate-900 line-clamp-2 leading-snug group-hover/card:text-[color:var(--color-primary)] transition-colors">
+                {property.title}
+              </h3>
+              <p className="text-[11px] sm:text-[12px] text-slate-400 line-clamp-2 mt-0.5 leading-relaxed">
+                {property.remarks || 'This property offers a perfect blend of luxury and comfort, situated in a prime location with easy access to all essential amenities.'}
+              </p>
+            </Link>
 
-            {/* Description / remarks */}
-            <p className="text-[11px] sm:text-[12px] text-slate-400 line-clamp-2 mt-0.5 leading-relaxed">
-              {property.remarks || 'This property offers a perfect blend of luxury and comfort, situated in a prime location with easy access to all essential amenities.'}
-            </p>
-
-            {/* Price + Make Offer */}
+            {/* Price + Make Offer — NOT inside Link */}
             <div className="flex items-baseline gap-3 mt-2">
               <span className="text-[14px] sm:text-[15px] font-bold text-slate-900">
                 {formattedPrice} {pricingUnit}.
               </span>
-              <span
-                className="text-[12px] sm:text-[13px] font-semibold text-[color:var(--color-primary)] hover:underline cursor-pointer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  const fullUrl = typeof window !== 'undefined' ? window.location.origin + propertyUrl : propertyUrl;
-                  const msg = `${fullUrl}\nI'm interested in ${property.title}. I am offering this property ${formattedPrice} ${pricingUnit}.`;
-                  const phone = agentWhatsapp || agentPhone;
-                  const waUrl = phone
-                    ? `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`
-                    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
-                  window.open(waUrl, '_blank', 'noopener,noreferrer');
-                }}
-              >
-                Make Offer
-              </span>
+              <MakeOfferLink
+                propertyUrl={propertyUrl}
+                title={property.title}
+                price={`${formattedPrice} ${pricingUnit}`}
+                phone={agentWhatsapp || agentPhone}
+              />
             </div>
 
-            {/* Location */}
-            <div className="text-[11px] sm:text-[12px] text-slate-500 mt-0.5">
+            {/* Location — clickable */}
+            <Link href={propertyUrl} className="text-[11px] sm:text-[12px] text-slate-500 mt-0.5">
               {locationStr}
-            </div>
-          </Link>
+            </Link>
+          </div>
 
           {/* SEPARATOR */}
           <div className="border-t border-slate-100" />
@@ -287,14 +308,13 @@ export function PropertyPost({
               )}
               {/* Call button */}
               {agentPhone ? (
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); window.location.href = `tel:${agentPhone}`; }}
+                <a
+                  href={`tel:${agentPhone}`}
                   aria-label="Call agent"
                   className="flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
                 >
                   <PhoneIcon />
-                </button>
+                </a>
               ) : (
                 <span className="flex items-center justify-center p-2 rounded-lg text-slate-400 flex-shrink-0">
                   <PhoneIcon />
@@ -302,19 +322,15 @@ export function PropertyPost({
               )}
               {/* WhatsApp button */}
               {agentWhatsapp ? (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const fullUrl = typeof window !== 'undefined' ? window.location.origin + propertyUrl : propertyUrl;
-                    const msg = `${fullUrl}\nI'm interested in this property.`;
-                    window.open(`https://wa.me/${agentWhatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
-                  }}
+                <a
+                  href={`https://wa.me/${agentWhatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`${typeof window !== 'undefined' ? window.location.origin : ''}${propertyUrl}\nI'm interested in this "${property.title}"`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label="WhatsApp agent"
                   className="flex items-center justify-center p-2 rounded-lg text-[#25D366] hover:text-[#1aab52] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
                 >
                   <WhatsAppIcon />
-                </button>
+                </a>
               ) : (
                 <span className="flex items-center justify-center p-2 rounded-lg text-[#25D366] flex-shrink-0">
                   <WhatsAppIcon />
