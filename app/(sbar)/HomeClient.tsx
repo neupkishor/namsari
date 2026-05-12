@@ -802,57 +802,78 @@ function PostPropertySection() {
     );
 }
 
-function StatCard({ emoji, label, count, href }: { emoji: string; label: string; count: number; href: string }) {
-    return (
-        <Link
-            href={href}
-            className="flex items-center gap-3 rounded-[18px] border border-[color:var(--color-primary)]/12 bg-white px-3 py-3 transition-all duration-200 hover:border-[color:var(--color-primary)]/35 hover:shadow-sm sm:px-4 w-[calc(50%-4px)] sm:w-[calc(25%-6px)]"
-        >
-            <span className="text-xl leading-none">{emoji}</span>
-            <div className="flex-1 min-w-0">
-                <div className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-500 truncate">{label}</div>
-                <div className="text-[15px] font-black text-[color:var(--color-primary)] mt-0.5">{count}</div>
-            </div>
-        </Link>
-    );
-}
-
 function ExploreCategoriesSection({
     stats,
 }: {
     stats: NonNullable<HomeClientProps['exploreCategoryStats']>;
 }) {
+    const groups = [
+        {
+            label: 'For Sale',
+            href: '/explore?type=feed&purposes=sale',
+            items: [
+                { emoji: '🏠', label: 'House', count: stats.forSale.house, href: '/explore?type=feed&purposes=sale&types=house' },
+                { emoji: '🌿', label: 'Land', count: stats.forSale.land, href: '/explore?type=feed&purposes=sale&types=land' },
+                { emoji: '🏢', label: 'Building', count: stats.forSale.building, href: '/explore?type=feed&purposes=sale&types=building' },
+            ],
+        },
+        {
+            label: 'For Rent',
+            href: '/explore?type=feed&purposes=rent',
+            items: [
+                { emoji: '🛋️', label: 'Flat', count: stats.forRent.flat, href: '/explore?type=feed&purposes=rent&types=flat' },
+                { emoji: '🏡', label: 'House', count: stats.forRent.house, href: '/explore?type=feed&purposes=rent&types=house' },
+                { emoji: '🏙️', label: 'Apartment', count: stats.forRent.apartment, href: '/explore?type=feed&purposes=rent&types=apartment' },
+                { emoji: '🔑', label: 'All Rent', count: stats.forRent.totalRent, href: '/explore?type=feed&purposes=rent' },
+            ],
+        },
+        {
+            label: 'Requirements',
+            href: '/requirements',
+            items: [
+                { emoji: '🏘️', label: 'Rental', count: stats.requirements.rental, href: '/requirements?purpose=rent' },
+                { emoji: '💼', label: 'Purchase', count: stats.requirements.purchase, href: '/requirements?purpose=sale' },
+            ],
+        },
+    ];
+
     return (
-        <section className="w-full space-y-4">
-            <div className="mb-5 space-y-1">
-                <h2 className="text-xl font-bold tracking-tight text-slate-900">Available Listings</h2>
-                <p className="text-sm text-slate-500">Browse properties by type and purpose.</p>
+        <section className="w-full">
+            <div className="mb-4 space-y-0.5">
+                <h2 className="text-lg font-bold text-slate-900">Browse by category</h2>
+                <p className="text-sm text-slate-400">Find what you're looking for.</p>
             </div>
-            <div className="space-y-2">
-                <div className="px-1 text-[11px] font-black uppercase tracking-[0.28em] text-slate-400">For Sale</div>
-                <div className="flex flex-wrap gap-2">
-                    <StatCard emoji="🏠" label="House" count={stats.forSale.house} href="/explore?type=feed&purposes=sale&types=house" />
-                    <StatCard emoji="🌿" label="Land" count={stats.forSale.land} href="/explore?type=feed&purposes=sale&types=land" />
-                    <StatCard emoji="🏢" label="Building" count={stats.forSale.building} href="/explore?type=feed&purposes=sale&types=building" />
-                </div>
-            </div>
-
-            <div className="space-y-2">
-                <div className="px-1 text-[11px] font-black uppercase tracking-[0.28em] text-slate-400">For Rent</div>
-                <div className="flex flex-wrap gap-2">
-                    <StatCard emoji="🛋️" label="Flat" count={stats.forRent.flat} href="/explore?type=feed&purposes=rent&types=flat" />
-                    <StatCard emoji="🏡" label="House" count={stats.forRent.house} href="/explore?type=feed&purposes=rent&types=house" />
-                    <StatCard emoji="🏙️" label="Apartment" count={stats.forRent.apartment} href="/explore?type=feed&purposes=rent&types=apartment" />
-                    <StatCard emoji="🔑" label="All Rent" count={stats.forRent.totalRent} href="/explore?type=feed&purposes=rent" />
-                </div>
-            </div>
-
-            <div className="space-y-2">
-                <div className="px-1 text-[11px] font-black uppercase tracking-[0.28em] text-slate-400">Requirements</div>
-                <div className="flex flex-wrap gap-2">
-                    <StatCard emoji="🏘️" label="Rental" count={stats.requirements.rental} href="/requirements?purpose=rent" />
-                    <StatCard emoji="💼" label="Purchase" count={stats.requirements.purchase} href="/requirements?purpose=sale" />
-                </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+                {groups.map((group) => (
+                    <div key={group.label} className="rounded-[28px] border border-slate-300 bg-white overflow-hidden shadow-[var(--shadow-card)]">
+                        {/* Group header */}
+                        <Link
+                            href={group.href}
+                            className="flex items-center justify-between px-4 py-3 border-b border-b-slate-300 hover:bg-slate-50 transition-colors"
+                        >
+                            <span className="text-[14px] font-bold text-slate-800">{group.label}</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-300">
+                                <polyline points="9 18 15 12 9 6" />
+                            </svg>
+                        </Link>
+                        {/* Items */}
+                        <div className="divide-y divide-slate-300">
+                            {group.items.map((item) => (
+                                <Link
+                                    key={item.label}
+                                    href={item.href}
+                                    className="flex items-center justify-between px-4 py-2.5 transition-[box-shadow,background-color] duration-300 hover:bg-slate-50 hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] group"
+                                >
+                                    <div className="flex items-center gap-2.5">
+                                        <span className="text-base leading-none">{item.emoji}</span>
+                                        <span className="text-[13px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors">{item.label}</span>
+                                    </div>
+                                    <span className="text-[13px] font-bold text-[color:var(--color-primary)]">{item.count}</span>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                ))}
             </div>
         </section>
     );
