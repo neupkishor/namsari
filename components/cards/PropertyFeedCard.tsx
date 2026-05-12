@@ -202,7 +202,7 @@ export function PropertyPost({
       ${isFirstInSet ? 'rounded-t-[28px]' : ''}
       ${isLastInSet ? 'rounded-b-[28px]' : ''}
       ${(!isFirstInSet && !isLastInSet) ? 'rounded-none' : ''}
-      ${!isLastInSet ? 'border-b border-b-slate-100 hover:border-b-transparent' : ''}
+      ${!isLastInSet ? 'border-b border-b-slate-300 hover:border-b-transparent' : ''}
       ${className || ''}`}
     >
       <div className="flex w-full gap-3 sm:gap-4 px-3 sm:px-4 pt-3 sm:pt-4 pb-0 items-stretch">

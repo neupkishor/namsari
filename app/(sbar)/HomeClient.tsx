@@ -951,7 +951,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
 
                                                     if (item.type === 'property_set') {
                                                         component = (
-                                                            <div className="rounded-[28px] border border-slate-200 bg-white shadow-[var(--shadow-card)] overflow-hidden">
+                                                            <div className="rounded-[28px] border border-slate-300 bg-white shadow-[var(--shadow-card)] overflow-hidden">
                                                                 {item.data.map((property: any, propertyIndexInSet: number) => {
                                                                     const isTrigger = property.id === triggerPropertyId;
                                                                     const isFirstInSet = propertyIndexInSet === 0;
