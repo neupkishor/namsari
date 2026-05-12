@@ -543,13 +543,13 @@ function HomeSearchHero() {
     };
 
     return (
-        <section className="text-slate-900 py-2 sm:py-10">
-            <div className="space-y-3 sm:space-y-6">
-                <div className="max-w-4xl space-y-2 sm:space-y-3">
-                    <h1 className="text-xl font-black leading-[1.08] sm:text-4xl lg:text-5xl">
+        <section className="text-slate-900 py-0 sm:py-2">
+            <div className="space-y-3 sm:space-y-5">
+                <div className="max-w-4xl space-y-1 sm:space-y-2">
+                    <h1 className="text-lg font-bold leading-snug sm:text-3xl lg:text-4xl">
                         Find the property of your choice.
                     </h1>
-                    <p className="max-w-3xl text-sm font-medium text-slate-600 sm:text-xl">
+                    <p className="max-w-3xl text-sm font-normal text-slate-500 sm:text-base">
                         The #1 property portal of Nepal.
                     </p>
                 </div>
