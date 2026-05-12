@@ -234,15 +234,20 @@ export function PropertyPost({
               {images.slice(0, 4).map((img: any, idx: number) => {
                 const url = typeof img === 'string' ? img : img.url;
                 const isActive = activeImage === url;
+                const isFirstThumb = idx === 0;
+                const thumbRadiusClass = isLastInSet && isFirstThumb
+                  ? 'rounded-[4px_4px_4px_16px]'
+                  : 'rounded-[4px]';
                 return (
                   <button
                     key={idx}
+                    type="button"
                     aria-label={`View image ${idx + 1}`}
                     onClick={(e) => {
                       e.preventDefault();
                       setActiveImage(url);
                     }}
-                    className={`flex-1 h-full overflow-hidden rounded-[4px]
+                    className={`flex-1 h-full overflow-hidden ${thumbRadiusClass}
                       ${isActive
                         ? 'ring-1 ring-[color:var(--color-primary)]'
                         : 'opacity-60 hover:opacity-100'
