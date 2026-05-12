@@ -280,33 +280,31 @@ export function PropertyPost({
               )}
               {/* Call button */}
               {agentPhone ? (
-                <a
-                  href={`tel:${agentPhone}`}
-                  onClick={(e) => e.stopPropagation()}
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); window.location.href = `tel:${agentPhone}`; }}
                   aria-label="Call agent"
-                  className="flex items-center justify-center w-7 h-7 rounded-full text-slate-500 hover:text-[color:var(--color-primary)] hover:bg-slate-100 transition-colors flex-shrink-0"
+                  className="flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
                 >
                   <PhoneIcon />
-                </a>
+                </button>
               ) : (
-                <span className="flex items-center justify-center w-7 h-7 rounded-full text-slate-400 flex-shrink-0">
+                <span className="flex items-center justify-center p-2 rounded-lg text-slate-400 flex-shrink-0">
                   <PhoneIcon />
                 </span>
               )}
               {/* WhatsApp button */}
               {agentWhatsapp ? (
-                <a
-                  href={`https://wa.me/${agentWhatsapp.replace(/\D/g, '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); window.open(`https://wa.me/${agentWhatsapp.replace(/\D/g, '')}`, '_blank', 'noopener,noreferrer'); }}
                   aria-label="WhatsApp agent"
-                  className="flex items-center justify-center w-7 h-7 rounded-full text-[#25D366] hover:bg-green-50 transition-colors flex-shrink-0"
+                  className="flex items-center justify-center p-2 rounded-lg text-[#25D366] hover:text-[#1aab52] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
                 >
                   <WhatsAppIcon />
-                </a>
+                </button>
               ) : (
-                <span className="flex items-center justify-center w-7 h-7 rounded-full text-[#25D366] flex-shrink-0">
+                <span className="flex items-center justify-center p-2 rounded-lg text-[#25D366] flex-shrink-0">
                   <WhatsAppIcon />
                 </span>
               )}
@@ -318,9 +316,10 @@ export function PropertyPost({
                 <span className="text-[11px] text-slate-400 font-medium">{timeAgo}</span>
               )}
               <button
+                type="button"
                 onClick={handleShare}
                 aria-label="Share property"
-                className="flex items-center justify-center w-7 h-7 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                className="flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/10 transition-colors"
               >
                 <ShareIcon />
               </button>
