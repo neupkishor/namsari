@@ -170,6 +170,8 @@ export function PropertyPost({
       : locationParts.join(', ') || 'Kathmandu';
 
   const agentName = property.listedBy?.name || 'Agent';
+  const agentUsername = property.listedBy?.username || null;
+  const agentProfileUrl = agentUsername ? `/@${agentUsername}` : null;
   const agentPropertyCount = property.listedBy?._count?.listedProperties;
   const agentPhone = property.listedBy?.phone;
   const agentWhatsapp = property.listedBy?.whatsapp || property.listedBy?.phone;
@@ -195,12 +197,12 @@ export function PropertyPost({
     <div
       ref={containerRef}
       className={`group/card bg-white relative hover:z-10 overflow-hidden
-        transition-[box-shadow] duration-300
+        transition-[box-shadow,border-color] duration-300
         hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)]
       ${isFirstInSet ? 'rounded-t-[28px]' : ''}
       ${isLastInSet ? 'rounded-b-[28px]' : ''}
       ${(!isFirstInSet && !isLastInSet) ? 'rounded-none' : ''}
-      ${!isLastInSet ? 'border-b border-b-slate-100' : ''}
+      ${!isLastInSet ? 'border-b border-b-slate-100 hover:border-b-transparent' : ''}
       ${className || ''}`}
     >
       <div className="flex w-full gap-3 sm:gap-4 px-3 sm:px-4 pt-3 sm:pt-4 pb-0 items-stretch">
@@ -295,9 +297,19 @@ export function PropertyPost({
           <div className="flex items-center justify-between py-2 gap-2">
             {/* Left: agent name · property count · call · whatsapp */}
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-[11px] sm:text-[12px] text-slate-600 font-medium truncate max-w-[90px] sm:max-w-[130px]">
-                {agentName}
-              </span>
+              {agentProfileUrl ? (
+                <a
+                  href={agentProfileUrl}
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-[11px] sm:text-[12px] text-slate-600 font-medium truncate max-w-[90px] sm:max-w-[130px] hover:text-[color:var(--color-primary)] hover:underline transition-colors"
+                >
+                  {agentName}
+                </a>
+              ) : (
+                <span className="text-[11px] sm:text-[12px] text-slate-600 font-medium truncate max-w-[90px] sm:max-w-[130px]">
+                  {agentName}
+                </span>
+              )}
               {agentPropertyCount != null && (
                 <>
                   <span className="text-slate-300 text-[10px]">•</span>
