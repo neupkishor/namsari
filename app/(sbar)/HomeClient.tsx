@@ -182,6 +182,33 @@ function formatHeroMoney(value: string) {
     return formatNPR(parsed);
 }
 
+/** Nepali/Indian number system comma formatting: 1,00,00,000 */
+function formatDevanagariComma(value: string): string {
+    const digits = value.replace(/\D/g, '');
+    if (!digits) return '';
+    // Last 3 digits, then groups of 2
+    if (digits.length <= 3) return digits;
+    const last3 = digits.slice(-3);
+    const rest = digits.slice(0, -3);
+    const grouped = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ',');
+    return `${grouped},${last3}`;
+}
+
+/** Convert a raw number string to Nepali word form (crore / lakh / thousand) */
+function toNepaliWords(value: string): string {
+    const n = Number(value.replace(/\D/g, ''));
+    if (!n || Number.isNaN(n)) return '';
+    const crore = 1_00_00_000;
+    const lakh = 1_00_000;
+    const thousand = 1_000;
+    const parts: string[] = [];
+    let rem = n;
+    if (rem >= crore) { parts.push(`${Math.floor(rem / crore)} Crore`); rem %= crore; }
+    if (rem >= lakh)  { parts.push(`${Math.floor(rem / lakh)} Lakh`);   rem %= lakh; }
+    if (rem >= thousand && parts.length === 0) { parts.push(`${Math.floor(rem / thousand)} Thousand`); rem %= thousand; }
+    return parts.join(' ');
+}
+
 function convertAreaPriceToModified(unit: AreaPriceUnit, minPrice?: string, maxPrice?: string) {
     const rawMin = minPrice && minPrice !== '' ? Number(minPrice) : null;
     const rawMax = maxPrice && maxPrice !== '' ? Number(maxPrice) : null;
@@ -288,9 +315,9 @@ function HomeSearchHero() {
                         <h3 className="text-[15px] font-black text-slate-900">Adjust area-based price range</h3>
                         <p className="text-[13px] text-slate-500">Raw values are preserved in URL, modified values are used for matching.</p>
                     </div>
-                    <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto]">
-                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
-                            Minimum price
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-1">
+                            <label className="text-[13px] font-bold text-slate-600">Minimum price</label>
                             <input
                                 type="number"
                                 min="0"
@@ -299,9 +326,15 @@ function HomeSearchHero() {
                                 placeholder="0"
                                 className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
                             />
-                        </label>
-                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
-                            Maximum price
+                            {priceMin && (
+                                <div className="flex items-center gap-1.5 px-1 text-[12px] text-slate-400">
+                                    <span className="font-medium text-slate-500">{formatDevanagariComma(priceMin)}</span>
+                                    {toNepaliWords(priceMin) && <><span>·</span><span>{toNepaliWords(priceMin)}</span></>}
+                                </div>
+                            )}
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-[13px] font-bold text-slate-600">Maximum price</label>
                             <input
                                 type="number"
                                 min="0"
@@ -310,18 +343,13 @@ function HomeSearchHero() {
                                 placeholder="Any"
                                 className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
                             />
-                        </label>
-                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
-                            Unit
-                            <select
-                                value={areaPriceUnit}
-                                onChange={(e) => setAreaPriceUnit(e.target.value as AreaPriceUnit)}
-                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
-                            >
-                                <option value="peraana">per aana</option>
-                                <option value="persqm">per m²</option>
-                            </select>
-                        </label>
+                            {priceMax && (
+                                <div className="flex items-center gap-1.5 px-1 text-[12px] text-slate-400">
+                                    <span className="font-medium text-slate-500">{formatDevanagariComma(priceMax)}</span>
+                                    {toNepaliWords(priceMax) && <><span>·</span><span>{toNepaliWords(priceMax)}</span></>}
+                                </div>
+                            )}
+                        </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
                         {HOME_PRICE_PRESETS.map((preset) => (
@@ -337,6 +365,21 @@ function HomeSearchHero() {
                                 {preset.label}
                             </button>
                         ))}
+                    </div>
+                    <div className="space-y-2">
+                        <div className="text-[13px] font-bold text-slate-600">Unit</div>
+                        <div className="flex gap-2">
+                            {([['peraana', 'per aana'], ['persqm', 'per m²']] as [AreaPriceUnit, string][]).map(([val, lbl]) => (
+                                <button
+                                    key={val}
+                                    type="button"
+                                    onClick={() => setAreaPriceUnit(val)}
+                                    className={`rounded-full border px-4 py-2.5 text-[13px] font-semibold transition-all duration-150 ${areaPriceUnit === val ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white shadow-[0_6px_16px_rgba(10,107,255,0.2)]' : 'border-slate-200 bg-white text-slate-700 hover:border-[color:var(--color-primary)]/40'}`}
+                                >
+                                    {lbl}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
             );
