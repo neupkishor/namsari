@@ -310,7 +310,20 @@ export function PropertyPost({
                   {agentName}
                 </span>
               )}
-              {agentPropertyCount != null && (
+              {agentPropertyCount != null && agentUsername && (
+                <>
+                  <span className="text-slate-300 text-[10px]">•</span>
+                  <a
+                    href={`/@${agentUsername}/properties`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-[11px] text-slate-400 shrink-0 hover:text-[color:var(--color-primary)] hover:underline transition-colors"
+                  >
+                    <span className="hidden sm:inline">{agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}</span>
+                    <span className="sm:hidden">{agentPropertyCount}</span>
+                  </a>
+                </>
+              )}
+              {agentPropertyCount != null && !agentUsername && (
                 <>
                   <span className="text-slate-300 text-[10px]">•</span>
                   <span className="text-[11px] text-slate-400 shrink-0">
