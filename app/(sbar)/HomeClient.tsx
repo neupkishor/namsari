@@ -186,7 +186,6 @@ function formatHeroMoney(value: string) {
 function formatDevanagariComma(value: string): string {
     const digits = value.replace(/\D/g, '');
     if (!digits) return '';
-    // Last 3 digits, then groups of 2
     if (digits.length <= 3) return digits;
     const last3 = digits.slice(-3);
     const rest = digits.slice(0, -3);
@@ -194,7 +193,7 @@ function formatDevanagariComma(value: string): string {
     return `${grouped},${last3}`;
 }
 
-/** Convert a raw number string to Nepali word form (crore / lakh / thousand) */
+/** Convert a raw number string to Nepali word form using Devanagari terms */
 function toNepaliWords(value: string): string {
     const n = Number(value.replace(/\D/g, ''));
     if (!n || Number.isNaN(n)) return '';
@@ -203,9 +202,11 @@ function toNepaliWords(value: string): string {
     const thousand = 1_000;
     const parts: string[] = [];
     let rem = n;
-    if (rem >= crore) { parts.push(`${Math.floor(rem / crore)} Crore`); rem %= crore; }
-    if (rem >= lakh)  { parts.push(`${Math.floor(rem / lakh)} Lakh`);   rem %= lakh; }
-    if (rem >= thousand && parts.length === 0) { parts.push(`${Math.floor(rem / thousand)} Thousand`); rem %= thousand; }
+    if (rem >= crore)    { parts.push(`${Math.floor(rem / crore)} Crore`);    rem %= crore; }
+    if (rem >= lakh)     { parts.push(`${Math.floor(rem / lakh)} Lakh`);      rem %= lakh; }
+    if (rem >= thousand) { parts.push(`${Math.floor(rem / thousand)} Thousand`); rem %= thousand; }
+    // 100–999: just show the number as-is, no "hundred" label
+    if (parts.length === 0 && n > 0) return String(n);
     return parts.join(' ');
 }
 
@@ -261,7 +262,7 @@ function HomeSearchHero() {
     }, [activePanel]);
 
     const currentPriceLabel = priceMin || priceMax
-        ? `${priceMin ? formatHeroMoney(priceMin) : 'Any'} - ${priceMax ? formatHeroMoney(priceMax) : 'Any'} (${areaPriceUnit === 'peraana' ? 'per aana' : 'per m²'})`
+        ? `${priceMin ? formatDevanagariComma(priceMin) : 'Any'} - ${priceMax ? formatDevanagariComma(priceMax) : 'Any'} (${areaPriceUnit === 'peraana' ? 'per aana' : 'per m²'})`
         : 'Any budget';
 
     const currentLocationLabel = selectedLocations.length > 0
@@ -327,9 +328,8 @@ function HomeSearchHero() {
                                 className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
                             />
                             {priceMin && (
-                                <div className="flex items-center gap-1.5 px-1 text-[12px] text-slate-400">
-                                    <span className="font-medium text-slate-500">{formatDevanagariComma(priceMin)}</span>
-                                    {toNepaliWords(priceMin) && <><span>·</span><span>{toNepaliWords(priceMin)}</span></>}
+                                <div className="px-1 text-[12px] text-slate-400">
+                                    {toNepaliWords(priceMin)}
                                 </div>
                             )}
                         </div>
@@ -344,9 +344,8 @@ function HomeSearchHero() {
                                 className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
                             />
                             {priceMax && (
-                                <div className="flex items-center gap-1.5 px-1 text-[12px] text-slate-400">
-                                    <span className="font-medium text-slate-500">{formatDevanagariComma(priceMax)}</span>
-                                    {toNepaliWords(priceMax) && <><span>·</span><span>{toNepaliWords(priceMax)}</span></>}
+                                <div className="px-1 text-[12px] text-slate-400">
+                                    {toNepaliWords(priceMax)}
                                 </div>
                             )}
                         </div>
