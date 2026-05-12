@@ -313,8 +313,9 @@ export function PropertyPost({
               {agentPropertyCount != null && (
                 <>
                   <span className="text-slate-300 text-[10px]">•</span>
-                  <span className="text-[11px] text-slate-400 whitespace-nowrap">
-                    {agentPropertyCount} Prop...
+                  <span className="text-[11px] text-slate-400 shrink-0">
+                    <span className="hidden sm:inline">{agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}</span>
+                    <span className="sm:hidden">{agentPropertyCount}</span>
                   </span>
                 </>
               )}
