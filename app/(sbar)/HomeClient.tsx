@@ -205,8 +205,7 @@ function HomeSearchHero() {
     const router = useRouter();
     const [query, setQuery] = useState('');
     const [activePanel, setActivePanel] = useState<HomeSearchPanel>(null);
-    const [renderedPanel, setRenderedPanel] = useState<HomeSearchPanel>(null);
-    const [isPanelVisible, setIsPanelVisible] = useState(false);
+    const [isModalVisible, setIsModalVisible] = useState(false);
     const [priceMin, setPriceMin] = useState('');
     const [priceMax, setPriceMax] = useState('');
     const [areaPriceUnit, setAreaPriceUnit] = useState<AreaPriceUnit>('peraana');
@@ -215,35 +214,23 @@ function HomeSearchHero() {
     const [sizeMin, setSizeMin] = useState('');
     const [sizeMax, setSizeMax] = useState('');
     const [sizeUnit, setSizeUnit] = useState<'m2' | 'sqft'>('m2');
-    const panelCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+    const openModal = (panel: Exclude<HomeSearchPanel, null>) => {
+        setActivePanel(panel);
+        requestAnimationFrame(() => setIsModalVisible(true));
+    };
+
+    const closeModal = () => {
+        setIsModalVisible(false);
+        setTimeout(() => setActivePanel(null), 220);
+    };
+
+    // Close on Escape key
     useEffect(() => {
-        if (panelCloseTimer.current) {
-            clearTimeout(panelCloseTimer.current);
-            panelCloseTimer.current = null;
-        }
-
-        if (activePanel) {
-            setRenderedPanel(activePanel);
-            setIsPanelVisible(false);
-
-            const openTimer = setTimeout(() => {
-                setIsPanelVisible(true);
-            }, 20);
-
-            return () => clearTimeout(openTimer);
-        }
-
-        setIsPanelVisible(false);
-        panelCloseTimer.current = setTimeout(() => {
-            setRenderedPanel(null);
-        }, 220);
-
-        return () => {
-            if (panelCloseTimer.current) {
-                clearTimeout(panelCloseTimer.current);
-            }
-        };
+        if (!activePanel) return;
+        const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') closeModal(); };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
     }, [activePanel]);
 
     const currentPriceLabel = priceMin || priceMax
@@ -543,56 +530,95 @@ function HomeSearchHero() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2 sm:gap-3 lg:grid-cols-4">
+                    {/* Compact filter pills */}
+                    <div className="flex flex-wrap gap-2">
                         {([
                             ['price', 'Price', currentPriceLabel],
                             ['location', 'Location', currentLocationLabel],
                             ['size', 'Size', currentSizeLabel],
                             ['listedBy', 'Listed by', currentListedByLabel],
-                        ] as Array<[Exclude<HomeSearchPanel, null>, string, string]>).map(([key, label, value]) => (
-                            <React.Fragment key={label}>
+                        ] as Array<[Exclude<HomeSearchPanel, null>, string, string]>).map(([key, label, value]) => {
+                            const isActive = activePanel === key;
+                            const hasValue = value !== 'Any budget' && value !== 'Any location' && value !== 'Any size' && value !== 'Any seller';
+                            return (
                                 <button
+                                    key={key}
                                     type="button"
-                                    onClick={() => setActivePanel(activePanel === key ? null : key)}
-                                    className={`flex items-center justify-between rounded-[18px] border px-3 py-3 text-left transition-all duration-200 sm:rounded-[22px] sm:px-5 sm:py-4 ${activePanel === key ? 'border-[color:var(--color-primary)]/35 bg-white text-slate-900 shadow-[0_16px_40px_rgba(15,23,42,0.08)]' : 'border-[color:var(--color-primary)]/12 bg-white/80 text-slate-800 hover:border-[color:var(--color-primary)]/25 hover:bg-white'}`}
+                                    onClick={() => openModal(key)}
+                                    className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-left text-[13px] font-semibold transition-all duration-150 ${hasValue ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/6 text-[color:var(--color-primary)]' : 'border-slate-200 bg-white text-slate-700 hover:border-[color:var(--color-primary)]/40 hover:text-slate-900'}`}
                                 >
-                                    <div className="space-y-1">
-                                        <div className="text-[11px] font-black uppercase tracking-[0.28em] text-slate-500">{label}</div>
-                                        <div className="text-[14px] font-bold">{value}</div>
-                                    </div>
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 transition-transform duration-200 ${activePanel === key ? 'rotate-180' : ''}`}>
+                                    <span className="text-[13px] font-medium text-slate-500">{label}:</span>
+                                    <span className="truncate max-w-[120px]">{value}</span>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-50">
                                         <polyline points="6 9 12 15 18 9" />
                                     </svg>
                                 </button>
-
-                                {renderedPanel === key && (
-                                    <div className={`min-[420px]:hidden md:hidden overflow-hidden rounded-[20px] border border-[color:var(--color-primary)]/12 bg-white/96 text-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.08)] transition-all duration-200 ease-out sm:rounded-[28px] ${isPanelVisible ? 'max-h-[42rem] opacity-100 translate-y-0 p-3 sm:p-4' : 'max-h-0 opacity-0 -translate-y-2 p-0'}`}>
-                                        <div className={`transition-all duration-200 ease-out ${isPanelVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
-                                            {renderPanelContent(key)}
-                                        </div>
-                                    </div>
-                                )}
-                            </React.Fragment>
-                        ))}
+                            );
+                        })}
                     </div>
-
-                    {renderedPanel && (
-                        <div className={`hidden min-[420px]:block md:hidden w-full overflow-hidden rounded-[28px] border border-[color:var(--color-primary)]/12 bg-white/96 text-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.08)] transition-all duration-200 ease-out ${isPanelVisible ? 'max-h-[42rem] opacity-100 translate-y-0 p-4' : 'max-h-0 opacity-0 -translate-y-2 p-0'}`}>
-                            <div className={`transition-all duration-200 ease-out ${isPanelVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
-                                {renderPanelContent(renderedPanel)}
-                            </div>
-                        </div>
-                    )}
-
-                    {renderedPanel && (
-                        <div className={`hidden md:block overflow-hidden rounded-[28px] border border-[color:var(--color-primary)]/12 bg-white/96 text-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.08)] transition-all duration-200 ease-out ${isPanelVisible ? 'max-h-[42rem] opacity-100 translate-y-0 p-4 sm:p-5' : 'max-h-0 opacity-0 -translate-y-2 p-0'}`}>
-                            <div className={`transition-all duration-200 ease-out ${isPanelVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
-                                {renderPanelContent(renderedPanel)}
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
+
+            {/* Filter modal */}
+            {activePanel && (
+                <div
+                    className={`fixed inset-0 z-50 flex items-end sm:items-center justify-center transition-all duration-200 ${isModalVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                    onClick={closeModal}
+                >
+                    {/* Backdrop */}
+                    <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px]" />
+
+                    {/* Modal panel */}
+                    <div
+                        className={`relative z-10 w-full max-w-lg mx-4 mb-4 sm:mb-0 rounded-[28px] border border-[color:var(--color-primary)]/12 bg-white text-slate-900 shadow-[0_32px_80px_rgba(15,23,42,0.18)] transition-all duration-200 ease-out ${isModalVisible ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-4 scale-[0.97] opacity-0'}`}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Modal header */}
+                        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+                            <span className="text-[15px] font-black text-slate-900">
+                                {activePanel === 'price' && 'Price'}
+                                {activePanel === 'location' && 'Location'}
+                                {activePanel === 'size' && 'Size'}
+                                {activePanel === 'listedBy' && 'Listed by'}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={closeModal}
+                                aria-label="Close"
+                                className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-700"
+                            >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        {/* Modal content */}
+                        <div className="p-5">
+                            {renderPanelContent(activePanel)}
+                        </div>
+
+                        {/* Modal footer */}
+                        <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-4">
+                            <button
+                                type="button"
+                                onClick={closeModal}
+                                className="rounded-full border border-slate-200 bg-white px-5 py-2.5 text-[13px] font-bold text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-800"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={closeModal}
+                                className="rounded-full bg-[color:var(--color-primary)] px-5 py-2.5 text-[13px] font-bold text-white shadow-[0_8px_20px_rgba(10,107,255,0.22)] transition-all hover:opacity-90"
+                            >
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }
