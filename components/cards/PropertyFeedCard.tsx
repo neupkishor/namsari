@@ -80,7 +80,8 @@ function MakeOfferLink({ propertyUrl, title, price, phone }: {
       rel="noopener noreferrer"
       className="text-[12px] sm:text-[13px] font-semibold text-[color:var(--color-primary)] hover:underline"
     >
-      Make Offer
+      <span className="sm:hidden">Offer</span>
+      <span className="hidden sm:inline">Make Offer</span>
     </a>
   );
 }
@@ -140,14 +141,23 @@ export function PropertyPost({
 
   const formatNepaliPrice = (amt: number) => {
     if (!amt) return 'Price on Request';
-    const crore = Math.floor(amt / 10000000);
-    const lakh = Math.floor((amt % 10000000) / 100000);
-    const parts: string[] = [];
-    if (crore > 0) parts.push(`${crore} Crore`);
-    if (lakh > 0) parts.push(`${lakh} Lakhs`);
-    return parts.length > 0
-      ? parts.join(' ')
-      : `Rs. ${amt.toLocaleString()}`;
+    const crore = 10000000;
+    const lakh = 100000;
+    const thousand = 1000;
+    if (amt >= crore) {
+      const cr = Math.floor(amt / crore);
+      const l = Math.floor((amt % crore) / lakh);
+      return l > 0 ? `${cr}Cr ${l}L` : `${cr}Cr`;
+    }
+    if (amt >= lakh) {
+      const l = Math.floor(amt / lakh);
+      const k = Math.floor((amt % lakh) / thousand);
+      return k > 0 ? `${l}L ${k}K` : `${l}L`;
+    }
+    if (amt >= thousand) {
+      return `${Math.floor(amt / thousand)}K`;
+    }
+    return `Rs. ${amt.toLocaleString()}`;
   };
 
   const formattedPrice =
@@ -271,14 +281,14 @@ export function PropertyPost({
               <h3 className="text-[13px] sm:text-[14px] font-semibold text-slate-900 line-clamp-2 leading-snug group-hover/card:text-[color:var(--color-primary)] transition-colors">
                 {property.title}
               </h3>
-              <p className="text-[11px] sm:text-[12px] text-slate-400 line-clamp-2 mt-0.5 leading-relaxed">
+              <p className="text-[11px] sm:text-[12px] text-slate-400 line-clamp-1 sm:line-clamp-2 mt-0.5 leading-relaxed">
                 {property.remarks || 'This property offers a perfect blend of luxury and comfort, situated in a prime location with easy access to all essential amenities.'}
               </p>
             </Link>
 
             {/* Price + Make Offer — NOT inside Link */}
-            <div className="flex items-baseline gap-3 mt-2">
-              <span className="text-[14px] sm:text-[15px] font-bold text-slate-900">
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 mt-2">
+              <span className="text-[14px] sm:text-[15px] font-bold text-slate-900 whitespace-nowrap">
                 {formattedPrice} {pricingUnit}.
               </span>
               <MakeOfferLink
