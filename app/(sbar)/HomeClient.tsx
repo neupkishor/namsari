@@ -855,13 +855,13 @@ function ExploreCategoriesSection({
                 {groups.map((group) => (
                     <div key={group.label}>
                         {/* Group label */}
-                        <div className="flex items-center justify-between mb-3">
-                            <span className="text-[12px] font-semibold uppercase tracking-widest text-slate-400">{group.label}</span>
+                        <div className="flex items-center mb-3">
                             <Link
                                 href={group.href}
-                                className="text-[12px] font-medium text-[color:var(--color-primary)] hover:underline underline-offset-2 transition-colors"
+                                className="inline-flex items-center gap-1 text-[13px] font-semibold text-slate-700 hover:text-[color:var(--color-primary)] transition-colors"
                             >
-                                View all
+                                {group.label}
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
                             </Link>
                         </div>
                         {/* Pill chips */}
