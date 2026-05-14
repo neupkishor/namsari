@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -424,6 +424,7 @@ model SystemSettings {
   show_explore_categories   Boolean  @default(true)
   show_hero_carousel_ad     Boolean  @default(true)
   show_feed_ad              Boolean  @default(true)
+  homepage_config         String?  // JSON: HomepageSection[]
   updated_at              DateTime @updatedAt
 }
 

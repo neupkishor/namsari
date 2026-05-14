@@ -847,36 +847,34 @@ function ExploreCategoriesSection({
 
     return (
         <section className="w-full">
-            <div className="mb-4 space-y-0.5">
+            <div className="mb-5 space-y-0.5">
                 <h2 className="text-lg font-bold text-slate-900">Browse by category</h2>
                 <p className="text-sm text-slate-400">Find what you're looking for.</p>
             </div>
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="flex flex-col gap-5">
                 {groups.map((group) => (
-                    <div key={group.label} className="rounded-[28px] border border-slate-300 bg-white overflow-hidden shadow-[var(--shadow-card)]">
-                        {/* Group header */}
-                        <Link
-                            href={group.href}
-                            className="flex items-center justify-between px-4 py-3 border-b border-b-slate-300 hover:bg-slate-50 transition-colors"
-                        >
-                            <span className="text-[14px] font-bold text-slate-800">{group.label}</span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-300">
-                                <polyline points="9 18 15 12 9 6" />
-                            </svg>
-                        </Link>
-                        {/* Items */}
-                        <div className="divide-y divide-slate-300">
+                    <div key={group.label}>
+                        {/* Group label */}
+                        <div className="flex items-center justify-between mb-3">
+                            <span className="text-[12px] font-semibold uppercase tracking-widest text-slate-400">{group.label}</span>
+                            <Link
+                                href={group.href}
+                                className="text-[12px] font-medium text-[color:var(--color-primary)] hover:underline underline-offset-2 transition-colors"
+                            >
+                                View all
+                            </Link>
+                        </div>
+                        {/* Pill chips */}
+                        <div className="flex flex-wrap gap-2">
                             {group.items.map((item) => (
                                 <Link
                                     key={item.label}
                                     href={item.href}
-                                    className="flex items-center justify-between px-4 py-2.5 transition-[box-shadow,background-color] duration-300 hover:bg-slate-50 hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] group"
+                                    className="group inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 shadow-sm transition-all duration-200 hover:border-[color:var(--color-primary)]/40 hover:shadow-md hover:-translate-y-px"
                                 >
-                                    <div className="flex items-center gap-2.5">
-                                        <span className="text-base leading-none">{item.emoji}</span>
-                                        <span className="text-[13px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors">{item.label}</span>
-                                    </div>
-                                    <span className="text-[13px] font-bold text-[color:var(--color-primary)]">{item.count}</span>
+                                    <span className="text-sm leading-none">{item.emoji}</span>
+                                    <span className="text-[13px] font-medium text-slate-700 group-hover:text-slate-900 transition-colors">{item.label}</span>
+                                    <span className="ml-0.5 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500 group-hover:bg-[color:var(--color-primary)]/10 group-hover:text-[color:var(--color-primary)] transition-colors">{item.count}</span>
                                 </Link>
                             ))}
                         </div>
