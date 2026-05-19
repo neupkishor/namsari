@@ -377,8 +377,8 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         overflow-x: auto;
                         height: 260px;
                         scroll-snap-type: x mandatory;
-                        border-radius: 0;
-                        margin: -24px -16px 24px -16px;
+                        border-radius: 12px;
+                        margin: 0 0 24px 0;
                         gap: 0;
                     }
                     .gallery-main {
