@@ -150,6 +150,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     grid-template-columns: 2fr 1fr;
                     gap: 64px;
                     align-items: start;
+                    position: relative;
                 }
                 
                 /* Typography */
@@ -190,9 +191,16 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 }
 
                 /* Agent Card */
-                .agent-card {
+                .sidebar-sticky {
                     position: sticky;
-                    top: 100px;
+                    top: calc(var(--header-height, 72px) + 24px);
+                    align-self: start;
+                    height: fit-content;
+                    max-height: calc(100vh - var(--header-height, 72px) - 40px);
+                    overflow: auto;
+                    scrollbar-width: thin;
+                }
+                .agent-card {
                     border: 1px solid #e5e7eb;
                     border-radius: 16px;
                     padding: 24px;
@@ -253,8 +261,10 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     .gallery-grid {
                         height: 400px;
                     }
-                    .agent-card {
+                    .sidebar-sticky {
                         position: static;
+                    }
+                    .agent-card {
                         margin-top: 40px;
                     }
                 }
@@ -484,7 +494,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     </div>
 
                     {/* Sidebar */}
-                    <div>
+                    <div className="sidebar-sticky">
                         <div className="agent-card">
                             <div className="price-display">
                                 {formattedPrice}
