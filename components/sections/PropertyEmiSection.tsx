@@ -9,9 +9,27 @@ type PropertyEmiSectionProps = {
 
 const CHART_COLORS = ['#3b82f6', '#c7d2fe'];
 
+function formatAmountInLakhSystem(value: number) {
+    const n = Math.floor(Math.max(0, value || 0));
+    if (n === 0) return '0';
+
+    const crore = Math.floor(n / 10000000);
+    const lakh = Math.floor((n % 10000000) / 100000);
+    const hajar = Math.floor((n % 100000) / 1000);
+    const remainder = n % 1000;
+
+    const parts: string[] = [];
+    if (crore > 0) parts.push(`${crore} Crore`);
+    if (lakh > 0) parts.push(`${lakh} Lakhs`);
+    if (hajar > 0) parts.push(`${hajar} Hajar`);
+    if (remainder > 0) parts.push(`${remainder}`);
+
+    return parts.join(' ');
+}
+
 export function PropertyEmiSection({ totalPrice }: PropertyEmiSectionProps) {
     const normalizedTotalPrice = Number.isFinite(totalPrice) && totalPrice > 0 ? totalPrice : 0;
-    const defaultDownPayment = Math.round(normalizedTotalPrice * 0.2);
+    const defaultDownPayment = Math.round(normalizedTotalPrice * 0.4);
     const [downPayment, setDownPayment] = useState(defaultDownPayment);
     const [rate, setRate] = useState(10);
     const [termYears, setTermYears] = useState(10);
@@ -55,14 +73,9 @@ export function PropertyEmiSection({ totalPrice }: PropertyEmiSectionProps) {
         };
     }, [loanAmount, rate, termYears]);
 
-    const formatCurrency = (value: number) =>
-        new Intl.NumberFormat('en-NP', {
-            style: 'currency',
-            currency: 'NPR',
-            maximumFractionDigits: 0
-        })
-            .format(value || 0)
-            .replace('NPR', 'Rs.');
+    const formatCurrency = (value: number) => {
+        return `Rs. ${formatAmountInLakhSystem(value)}`;
+    };
 
     return (
         <section
@@ -111,13 +124,13 @@ export function PropertyEmiSection({ totalPrice }: PropertyEmiSectionProps) {
 
                     <div style={{ marginTop: '18px', borderTop: '1px solid #e5e7eb', paddingTop: '14px', color: '#475569' }}>
                         <div style={{ marginBottom: '10px' }}>
-                            <strong style={{ color: '#1f2937' }}>{formatCurrency(loanAmount)}</strong> Loan Amount
+                            <strong style={{ color: '#1f2937' }}>Loan Amount:</strong> {formatCurrency(loanAmount)}
                         </div>
                         <div style={{ marginBottom: '10px' }}>
-                            <strong style={{ color: '#1f2937' }}>{formatCurrency(totalInterest)}</strong> Total Interest Payable
+                            <strong style={{ color: '#1f2937' }}>Total Interest Payable:</strong> {formatCurrency(totalInterest)}
                         </div>
                         <div>
-                            <strong style={{ color: '#1f2937' }}>{formatCurrency(totalPayment)}</strong> Total Payment
+                            <strong style={{ color: '#1f2937' }}>Total Payment:</strong> {formatCurrency(totalPayment)}
                         </div>
                     </div>
                 </div>
