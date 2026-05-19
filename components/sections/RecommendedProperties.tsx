@@ -38,8 +38,8 @@ export function RecommendedProperties({ properties }: RecommendedPropertiesProps
             <AutoScrollCarousel
                 gap="16px"
                 desktopItemCount={4}
-                tabletItemCount={2}
-                mobileItemCount={1}
+                tabletItemCount={2.5}
+                mobileItemCount={1.5}
                 padding="0 4px 8px"
             >
                 {properties.map((p) => (

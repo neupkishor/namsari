@@ -832,10 +832,10 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
                 <section style={{ marginTop: '56px' }}>
                     <div style={{ marginBottom: '14px' }}>
-                        <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0f172a', marginBottom: '8px', lineHeight: 1.2 }}>
+                        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '6px', lineHeight: 1.2 }}>
                             Property Collection
                         </h2>
-                        <p style={{ margin: 0, fontSize: '1rem', color: '#64748b' }}>
+                        <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b' }}>
                             Could not find property for your needs? Find by your category.
                         </p>
                     </div>
