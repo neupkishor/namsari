@@ -105,6 +105,48 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         where: { listedById: property.listedById }
     });
     const contactNumber = property.listedBy?.contact_number || '';
+    const formatNumberValue = (value?: number | null) => {
+        if (value === null || value === undefined) return '-';
+        return Number.isInteger(value) ? String(value) : String(value);
+    };
+    const builtUpUnit = property.features?.builtUpAreaUnit || 'sqft';
+    const builtUpValue = formatNumberValue(property.features?.builtUpArea);
+    const overviewItems = [
+        { icon: '🛏️', value: formatNumberValue(property.features?.bedrooms), label: 'Bedrooms' },
+        { icon: '🚿', value: formatNumberValue(property.features?.bathrooms), label: 'Bathrooms' },
+        { icon: '📐', value: builtUpValue, label: builtUpUnit },
+        { icon: '🏗️', value: String(new Date(property.created_on).getFullYear()), label: 'Year' },
+        { icon: '🛣️', value: property.roadSize || '-', label: 'Road Access' },
+        { icon: '🧭', value: property.facingDirection || '-', label: 'Facing' },
+        { icon: '🏢', value: formatNumberValue(property.features?.totalFloors), label: 'Floors' },
+        { icon: '🪑', value: property.features?.furnishing || '-', label: 'Furnish Status' }
+    ];
+
+    const amenityMainFeatures: { icon: string; label: string; detail?: string }[] = [];
+    if (property.features?.parkingAvailable) amenityMainFeatures.push({ icon: '🚗', label: 'Parking' });
+    if (property.features?.elevator) amenityMainFeatures.push({ icon: '🛗', label: 'Elevator' });
+    if (property.features?.security) amenityMainFeatures.push({ icon: '🛡️', label: 'Security' });
+    if (property.features?.waterSupply) amenityMainFeatures.push({ icon: '💧', label: 'Water Supply' });
+    if (property.features?.electricity) amenityMainFeatures.push({ icon: '⚡', label: 'Electricity' });
+    if (property.roadType) amenityMainFeatures.push({ icon: '🛤️', label: 'Road Type', detail: property.roadType });
+    if (property.roadSize) amenityMainFeatures.push({ icon: '📏', label: 'Road Size', detail: property.roadSize });
+    if (amenityMainFeatures.length === 0) {
+        amenityMainFeatures.push(
+            { icon: '💧', label: 'Water Supply' },
+            { icon: '⚡', label: 'Electricity' },
+            { icon: '🗑️', label: 'Drainage' }
+        );
+    }
+
+    const roomAmenities: { icon: string; label: string; detail?: string }[] = [];
+    if ((property.features?.bedrooms || 0) > 0) roomAmenities.push({ icon: '🛏️', label: 'Bedroom', detail: String(property.features?.bedrooms) });
+    if ((property.features?.bathrooms || 0) > 0) roomAmenities.push({ icon: '🛁', label: 'Bathroom', detail: String(property.features?.bathrooms) });
+    if ((property.features?.kitchens || 0) > 0) roomAmenities.push({ icon: '🍳', label: 'Kitchen', detail: String(property.features?.kitchens) });
+    if ((property.features?.livingRooms || 0) > 0) roomAmenities.push({ icon: '🛋️', label: 'Living Room', detail: String(property.features?.livingRooms) });
+
+    const furnishedAmenities: { icon: string; label: string; detail?: string }[] = property.features?.furnishing
+        ? [{ icon: '🪑', label: 'Furnished', detail: property.features.furnishing }]
+        : [];
 
     return (
         <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', paddingBottom: '100px', paddingTop: 'var(--header-height, 72px)' }}>
@@ -183,20 +225,85 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     margin-bottom: 20px;
                 }
                 
-                /* Features Divider */
-                .feature-row {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 16px 24px;
-                    padding: 24px 0;
-                    margin: 32px 0;
+                /* Overview */
+                .overview-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                    gap: 14px;
+                    margin-top: 18px;
                 }
-                .feature-item {
+                .overview-card {
+                    border: 1px solid #e5e7eb;
+                    border-radius: 14px;
+                    background: #fbfbfc;
+                    padding: 16px 14px;
+                    min-height: 116px;
                     display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    gap: 6px;
+                }
+                .overview-icon {
+                    font-size: 1.25rem;
+                    line-height: 1;
+                }
+                .overview-value {
+                    font-size: 0.95rem;
+                    font-weight: 700;
+                    color: #1f2937;
+                    line-height: 1.2;
+                }
+                .overview-label {
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                    color: #64748b;
+                    line-height: 1.2;
+                }
+
+                /* Amenities */
+                .amenity-group {
+                    margin-bottom: 20px;
+                }
+                .amenity-group-title {
+                    font-size: 0.85rem;
+                    letter-spacing: 0.08em;
+                    text-transform: uppercase;
+                    font-weight: 700;
+                    color: #475569;
+                    margin-bottom: 10px;
+                }
+                .amenity-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                    gap: 12px;
+                }
+                .amenity-tile {
+                    border: 1px solid #e5e7eb;
+                    background: #fafafa;
+                    border-radius: 12px;
+                    padding: 16px 12px;
+                    min-height: 106px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
                     align-items: center;
                     gap: 8px;
-                    font-size: 1rem;
-                    color: #374151;
+                    text-align: center;
+                }
+                .amenity-icon {
+                    font-size: 1.45rem;
+                    line-height: 1;
+                }
+                .amenity-name {
+                    font-size: 0.95rem;
+                    font-weight: 700;
+                    color: #1f2937;
+                    line-height: 1.2;
+                }
+                .amenity-detail {
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                    color: #64748b;
                 }
 
                 /* Agent Card */
@@ -253,14 +360,6 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     background-color: #f9fafb;
                 }
 
-                /* Amenities Grid */
-                .amenities-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-                    gap: 16px;
-                    margin-bottom: 40px;
-                }
-
                 /* Responsive */
                 @media (max-width: 1024px) {
                     .content-split {
@@ -309,10 +408,10 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     .property-page-container {
                         padding: 24px 16px;
                     }
-                    .feature-item {
-                        font-size: 0.9rem;
+                    .overview-grid {
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
                     }
-                    .amenities-grid {
+                    .amenity-grid {
                         grid-template-columns: repeat(2, 1fr);
                         gap: 12px;
                     }
@@ -377,28 +476,63 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                             <h1 className="prop-title">{property.title}</h1>
                             <div className="prop-location">📍 {locationStr}</div>
 
-                            <div className="feature-row">
-                                <div className="feature-item">
-                                    <span>🛏️</span>
-                                    <strong>{property.features?.bedrooms || '-'}</strong>
-                                    <span>Bedrooms</span>
-                                </div>
-                                <div className="feature-item">
-                                    <span>🚿</span>
-                                    <strong>{property.features?.bathrooms || '-'}</strong>
-                                    <span>Bathrooms</span>
-                                </div>
-                                <div className="feature-item">
-                                    <span>📐</span>
-                                    <strong>{property.features?.builtUpArea || '-'}</strong>
-                                    <span>{property.features?.builtUpAreaUnit || 'sqft'}</span>
-                                </div>
-                                <div className="feature-item">
-                                    <span>🏗️</span>
-                                    <strong>{new Date(property.created_on).getFullYear()}</strong>
-                                    <span>Year</span>
+                            <h2 className="section-title" style={{ marginBottom: '12px' }}>Overview</h2>
+                            <div className="overview-grid">
+                                {overviewItems.map((item) => (
+                                    <div key={`${item.label}-${item.value}`} className="overview-card">
+                                        <span className="overview-icon">{item.icon}</span>
+                                        <div className="overview-value">{item.value}</div>
+                                        <div className="overview-label">{item.label}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div style={{ marginBottom: '40px' }}>
+                            <h2 className="section-title">Amenities</h2>
+
+                            <div className="amenity-group">
+                                <div className="amenity-group-title">Main Features</div>
+                                <div className="amenity-grid">
+                                    {amenityMainFeatures.map((item) => (
+                                        <div key={`${item.label}-${item.detail || ''}`} className="amenity-tile">
+                                            <span className="amenity-icon">{item.icon}</span>
+                                            <div className="amenity-name">{item.label}</div>
+                                            {item.detail ? <div className="amenity-detail">{item.detail}</div> : null}
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
+
+                            {roomAmenities.length > 0 && (
+                                <div className="amenity-group">
+                                    <div className="amenity-group-title">Rooms</div>
+                                    <div className="amenity-grid">
+                                        {roomAmenities.map((item) => (
+                                            <div key={`${item.label}-${item.detail || ''}`} className="amenity-tile">
+                                                <span className="amenity-icon">{item.icon}</span>
+                                                <div className="amenity-name">{item.label}</div>
+                                                {item.detail ? <div className="amenity-detail">{item.detail}</div> : null}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {furnishedAmenities.length > 0 && (
+                                <div className="amenity-group" style={{ marginBottom: 0 }}>
+                                    <div className="amenity-group-title">Furnished</div>
+                                    <div className="amenity-grid">
+                                        {furnishedAmenities.map((item) => (
+                                            <div key={`${item.label}-${item.detail || ''}`} className="amenity-tile">
+                                                <span className="amenity-icon">{item.icon}</span>
+                                                <div className="amenity-name">{item.label}</div>
+                                                {item.detail ? <div className="amenity-detail">{item.detail}</div> : null}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div style={{ marginBottom: '40px' }}>
@@ -439,26 +573,6 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                             <p style={{ lineHeight: '1.8', fontSize: '1.05rem', color: '#4b5563' }}>
                                 {property.remarks || 'This property offers a perfect blend of luxury and comfort, situated in a prime location with easy access to all essential amenities.'}
                             </p>
-                        </div>
-
-
-
-                        <div style={{ marginBottom: '40px' }}>
-                            <h2 className="section-title">What this place offers</h2>
-                            <div className="amenities-grid">
-                                {property.features?.parkingAvailable && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#374151' }}>🚗 Parking Available</div>
-                                )}
-                                {property.roadSize && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#374151' }}>🛣️ {property.roadSize} Road</div>
-                                )}
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#374151' }}>🧭 {property.facingDirection || 'Any'} Facing</div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#374151' }}>🏢 {property.features?.totalFloors} Floors</div>
-                                {/* Add more static or dynamic amenities */}
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#374151' }}>💧 Water Supply</div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#374151' }}>⚡ Electricity</div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#374151' }}>🗑️ Drainage</div>
-                            </div>
                         </div>
 
                         {property.amenities && property.amenities.length > 0 && (
