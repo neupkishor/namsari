@@ -76,6 +76,15 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         : 'Unspecified';
     const priceValue = property.pricing?.price || 0;
     const formattedPrice = new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(priceValue).replace('NPR', 'Rs.');
+    const categorySuggestions = Array.from(
+        new Set([
+            ...(property.types?.map((t) => t.name).filter(Boolean) || []),
+            'House',
+            'Land',
+            'Apartment',
+            'Office Space'
+        ])
+    ).slice(0, 8);
 
     // Fetch recommended properties
     const recommendedProperties = await prisma.property.findMany({
@@ -579,6 +588,40 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         images: p.images.map((img) => img.url)
                     }))}
                 />
+
+                <section style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid #eceff3' }}>
+                    <div style={{ marginBottom: '14px' }}>
+                        <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0f172a', marginBottom: '8px', lineHeight: 1.2 }}>
+                            Property Collection
+                        </h2>
+                        <p style={{ margin: 0, fontSize: '1rem', color: '#64748b' }}>
+                            Could not find property for your needs? Find by your category.
+                        </p>
+                    </div>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                        {categorySuggestions.map((category) => (
+                            <Link
+                                key={category}
+                                href={`/explore?q=${encodeURIComponent(category)}`}
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    padding: '10px 14px',
+                                    borderRadius: '999px',
+                                    border: '1px solid #e2e8f0',
+                                    background: '#fff',
+                                    color: '#1e293b',
+                                    fontSize: '0.9rem',
+                                    fontWeight: 700,
+                                    textDecoration: 'none'
+                                }}
+                            >
+                                {category}
+                            </Link>
+                        ))}
+                    </div>
+                </section>
             </div>
         </main>
     );
