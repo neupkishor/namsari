@@ -562,7 +562,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         id: p.id,
                         title: p.title,
                         slug: p.slug || undefined,
-                        price: new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(p.pricing?.price || 0).replace('NPR', 'Rs.'),
+                        price: p.pricing?.price ?? 0,
                         location: p.location ? `${p.location.area}, ${p.location.district}` : 'Unspecified',
                         specs: `${p.features?.bedrooms || 0} beds • ${p.features?.bathrooms || 0} baths`,
                         images: p.images.map((img) => img.url)

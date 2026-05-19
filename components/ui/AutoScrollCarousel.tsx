@@ -23,6 +23,24 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
 }) => {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [isHovering, setIsHovering] = useState(false);
+    const [viewportWidth, setViewportWidth] = useState(1200);
+
+    useEffect(() => {
+        const updateViewport = () => setViewportWidth(window.innerWidth);
+        updateViewport();
+        window.addEventListener('resize', updateViewport);
+        return () => window.removeEventListener('resize', updateViewport);
+    }, []);
+
+    const activeItemCount = viewportWidth >= 1024
+        ? desktopItemCount
+        : viewportWidth >= 640
+            ? tabletItemCount
+            : mobileItemCount;
+    const hasResponsiveItemCount = Boolean(activeItemCount && activeItemCount > 0);
+    const resolvedItemWidth = hasResponsiveItemCount
+        ? `calc((100% - ${(activeItemCount! - 1)} * ${gap}) / ${activeItemCount})`
+        : itemWidth;
     
     useEffect(() => {
         if (isHovering) return;
@@ -97,38 +115,15 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
                 .auto-scroll-carousel::-webkit-scrollbar {
                     display: none;
                 }
-                ${desktopItemCount ? `
-                @media (min-width: 1024px) {
-                    .carousel-item {
-                        flex: 0 0 calc((100% - ${(desktopItemCount - 1)} * ${gap}) / ${desktopItemCount}) !important;
-                        max-width: calc((100% - ${(desktopItemCount - 1)} * ${gap}) / ${desktopItemCount}) !important;
-                    }
-                }
-                ` : ''}
-                ${tabletItemCount ? `
-                @media (min-width: 640px) and (max-width: 1023px) {
-                    .carousel-item {
-                        flex: 0 0 calc((100% - ${(tabletItemCount - 1)} * ${gap}) / ${tabletItemCount}) !important;
-                        max-width: calc((100% - ${(tabletItemCount - 1)} * ${gap}) / ${tabletItemCount}) !important;
-                    }
-                }
-                ` : ''}
-                ${mobileItemCount ? `
-                @media (max-width: 639px) {
-                    .carousel-item {
-                        flex: 0 0 calc((100% - ${(mobileItemCount - 1)} * ${gap}) / ${mobileItemCount}) !important;
-                        max-width: calc((100% - ${(mobileItemCount - 1)} * ${gap}) / ${mobileItemCount}) !important;
-                    }
-                }
-                ` : ''}
             `}</style>
             {React.Children.map(children, (child) => {
-                const useInlineBasis = itemWidth && itemWidth !== 'auto';
+                const useInlineBasis = resolvedItemWidth && resolvedItemWidth !== 'auto';
                 return (
                     <div
                         className="carousel-item"
                         style={{
-                            flex: useInlineBasis ? `0 0 ${itemWidth}` : undefined,
+                            flex: useInlineBasis ? `0 0 ${resolvedItemWidth}` : undefined,
+                            maxWidth: useInlineBasis ? resolvedItemWidth : undefined,
                             scrollSnapAlign: 'start',
                             minWidth: 0,
                             padding: '8px 6px',

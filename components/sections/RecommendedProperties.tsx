@@ -10,7 +10,7 @@ interface RecommendedProperty {
     id: number;
     title: string;
     slug?: string | null;
-    price: string;
+    price: number | string;
     location: string;
     specs: string;
     images: string[];

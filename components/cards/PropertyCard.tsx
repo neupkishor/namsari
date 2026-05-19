@@ -9,7 +9,7 @@ interface PropertyCardProps {
         id: number | string;
         title: string;
         slug?: string;
-        price: string;
+        price: number | string;
         location: string;
         specs?: string;
         images?: string[];
