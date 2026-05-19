@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PropertyMap from './PropertyMap';
+import PropertyImageCarousel from './PropertyImageCarousel';
 import { Header } from '@/components/menu/Header';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
@@ -185,6 +186,9 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 }
                 .gallery-item:hover {
                     transform: scale(1.05);
+                }
+                .mobile-property-carousel {
+                    display: none;
                 }
                 
                 /* Layout Split */
@@ -373,13 +377,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 }
                 @media (max-width: 640px) {
                     .gallery-grid {
-                        display: flex;
-                        overflow-x: auto;
-                        height: 260px;
-                        scroll-snap-type: x mandatory;
-                        border-radius: 12px;
-                        margin: 0 0 24px 0;
-                        gap: 0;
+                        display: none;
                     }
                     .gallery-main {
                         min-width: 100%;
@@ -415,6 +413,73 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     }
                     .price-display {
                         font-size: 1.4rem;
+                    }
+                    .mobile-property-carousel {
+                        display: block;
+                        position: relative;
+                        height: 260px;
+                        border-radius: 12px;
+                        overflow: hidden;
+                        margin-bottom: 24px;
+                    }
+                    .mobile-property-carousel-track {
+                        height: 100%;
+                        display: flex;
+                        overflow-x: auto;
+                        scroll-snap-type: x mandatory;
+                        scrollbar-width: none;
+                        -ms-overflow-style: none;
+                    }
+                    .mobile-property-carousel-track::-webkit-scrollbar {
+                        display: none;
+                    }
+                    .mobile-property-carousel-slide {
+                        min-width: 100%;
+                        height: 100%;
+                        scroll-snap-align: start;
+                    }
+                    .mobile-property-carousel-image {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        display: block;
+                    }
+                    .mobile-property-carousel-top {
+                        position: absolute;
+                        top: 10px;
+                        left: 10px;
+                        right: 10px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 8px;
+                        pointer-events: none;
+                    }
+                    .mobile-property-carousel-count {
+                        background: rgba(15, 23, 42, 0.62);
+                        color: #fff;
+                        font-size: 0.75rem;
+                        font-weight: 700;
+                        border-radius: 999px;
+                        padding: 4px 10px;
+                    }
+                    .mobile-property-carousel-dots {
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        background: rgba(15, 23, 42, 0.45);
+                        border-radius: 999px;
+                        padding: 5px 9px;
+                    }
+                    .mobile-property-carousel-dot {
+                        width: 6px;
+                        height: 6px;
+                        border-radius: 999px;
+                        background: rgba(255, 255, 255, 0.55);
+                    }
+                    .mobile-property-carousel-dot.active {
+                        background: #ffffff;
+                        width: 14px;
                     }
                     .sidebar-sticky {
                         display: none;
@@ -507,6 +572,8 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
             <div className="property-page-container">
                 {/* Header Info (Mobile Only - usually good to have title first on mobile, but preserving consistent DOM) */}
+
+                <PropertyImageCarousel images={images} galleryHref={`/properties/${slugAndId}/gallery`} />
 
                 {/* Image Gallery */}
                 {/* Image Gallery */}
