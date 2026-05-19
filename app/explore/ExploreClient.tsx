@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { Header } from '@/components/menu/Header';
 import { PropertyCard } from '@/components/cards/PropertyCard';
+import { PropertyPost } from '@/components/cards/PropertyFeedCard';
 
 // Dynamically import map to avoid SSR issues
 const MapComponent = dynamic(() => import('./MapComponent'), {
@@ -60,7 +61,7 @@ function convertRawAreaPriceParamsToModified(rawUnit: string, rawMinPrice: numbe
     };
 }
 
-export default function ExploreClient({ initialUser, initialQuery = '', initialShowMap = false }: { initialUser: any, initialQuery?: string, initialShowMap?: boolean }) {
+export default function ExploreClient({ initialUser, initialQuery = '' }: { initialUser: any, initialQuery?: string }) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -72,13 +73,17 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
     const [hoveredId, setHoveredId] = useState<number | null>(null);
     const [mapCenter, setMapCenter] = useState<[number, number]>([27.7172, 85.324]);
     const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-    const [showMap, setShowMap] = useState(initialShowMap); // For mobile toggle
+    const [showMap, setShowMap] = useState(false); // For mobile toggle in map mode
     const [searchHoldFeedback, setSearchHoldFeedback] = useState(false);
     const [skip, setSkip] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
 
     const rawQueryParam = (searchParams.get('rawQuery') || searchParams.get('q') || '').trim();
+    const rawTypeParam = (searchParams.get('type') || '').toLowerCase().trim();
+    const rawLegacyViewParam = (searchParams.get('view') || '').toLowerCase().trim();
+    const resolvedType = rawTypeParam || (rawLegacyViewParam === 'map' ? 'map' : rawLegacyViewParam === 'list' ? 'feed' : 'feed');
+    const isMapMode = resolvedType === 'map';
 
     const fetchProperties = async (loadMore = false) => {
         try {
@@ -133,8 +138,8 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
     }, []);
 
     useEffect(() => {
-        setShowMap(initialShowMap);
-    }, [initialShowMap]);
+        setShowMap(isMapMode);
+    }, [isMapMode]);
 
     useEffect(() => {
         setSearchQuery(rawQueryParam);
@@ -153,36 +158,33 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
     }, []);
 
     useEffect(() => {
-        document.cookie = `explore_view=${showMap ? 'map' : 'feed'}; path=/; max-age=31536000; samesite=lax`;
-    }, [showMap]);
+        document.cookie = `explore_view=${isMapMode ? 'map' : 'feed'}; path=/; max-age=31536000; samesite=lax`;
+    }, [isMapMode]);
 
     useEffect(() => {
         const params = new URLSearchParams(searchParams?.toString() || '');
-        const currentType = params.get('type') || (params.get('view') === 'map' ? 'map' : params.get('view') === 'list' ? 'feed' : '');
+        const currentType = (params.get('type') || '').toLowerCase().trim();
+        let changed = false;
 
         if (params.has('view')) {
+            const mappedType = params.get('view') === 'map' ? 'map' : 'feed';
             params.delete('view');
-            if (!params.get('type') && currentType) {
-                params.set('type', currentType);
+            if (!params.get('type')) {
+                params.set('type', mappedType);
             }
-            const nextUrl = `${pathname}?${params.toString()}`;
-            router.replace(nextUrl, { scroll: false });
-            return;
+            changed = true;
         }
 
-        if (initialShowMap && currentType !== 'map') {
-            params.set('type', 'map');
-            const nextUrl = `${pathname}?${params.toString()}`;
-            router.replace(nextUrl, { scroll: false });
-            return;
+        if (currentType && currentType !== 'map' && currentType !== 'feed') {
+            params.delete('type');
+            changed = true;
         }
 
-        if (!initialShowMap && currentType === 'map') {
-            params.set('type', 'feed');
+        if (changed) {
             const nextUrl = `${pathname}?${params.toString()}`;
             router.replace(nextUrl, { scroll: false });
         }
-    }, [initialShowMap, pathname, router, searchParams]);
+    }, [pathname, router, searchParams]);
 
     const applyRawQueryToUrl = () => {
         const params = new URLSearchParams(searchParams?.toString() || '');
@@ -196,9 +198,6 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
         }
 
         params.delete('q');
-        if (!params.get('type')) {
-            params.set('type', showMap ? 'map' : 'feed');
-        }
 
         const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
         router.replace(nextUrl, { scroll: false });
@@ -206,11 +205,11 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
 
     // Refetch when map bounds change
     useEffect(() => {
-        if (mapBounds) {
+        if (isMapMode && mapBounds) {
             setSkip(0);
             fetchProperties(false);
         }
-    }, [mapBounds]);
+    }, [isMapMode, mapBounds]);
 
     const toggleMobileMapView = () => {
         const nextShowMap = !showMap;
@@ -389,34 +388,35 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
                 </div>
             </div>
 
-            {/* Mobile Map Toggle Button */}
-            <button
-                className="lg:hidden fixed bottom-10 left-1/2 -translate-x-1/2 z-50 bg-text-main text-white px-8 py-4 rounded-full font-black text-[13px] uppercase tracking-widest cursor-pointer flex items-center gap-3 shadow-2xl transition-all active:scale-95 border border-white/10"
-                onClick={toggleMobileMapView}
-            >
-                {showMap ? (
-                    <>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="3" y1="12" x2="21" y2="12"></line>
-                            <line x1="3" y1="6" x2="21" y2="6"></line>
-                            <line x1="3" y1="18" x2="21" y2="18"></line>
-                        </svg>
-                        Show list
-                    </>
-                ) : (
-                    <>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-                            <line x1="8" y1="2" x2="8" y2="18"></line>
-                            <line x1="16" y1="6" x2="16" y2="22"></line>
-                        </svg>
-                        Show map
-                    </>
-                )}
-            </button>
+            {isMapMode && (
+                <button
+                    className="lg:hidden fixed bottom-10 left-1/2 -translate-x-1/2 z-50 bg-text-main text-white px-8 py-4 rounded-full font-black text-[13px] uppercase tracking-widest cursor-pointer flex items-center gap-3 shadow-2xl transition-all active:scale-95 border border-white/10"
+                    onClick={toggleMobileMapView}
+                >
+                    {showMap ? (
+                        <>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="3" y1="12" x2="21" y2="12"></line>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <line x1="3" y1="18" x2="21" y2="18"></line>
+                            </svg>
+                            Show list
+                        </>
+                    ) : (
+                        <>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                                <line x1="8" y1="2" x2="8" y2="18"></line>
+                                <line x1="16" y1="6" x2="16" y2="22"></line>
+                            </svg>
+                            Show map
+                        </>
+                    )}
+                </button>
+            )}
 
-            {/* Airbnb-style Split View */}
-            <div className="flex flex-1 relative h-[calc(100vh-var(--header-height)-81px)]">
+            {isMapMode ? (
+                <div className="flex flex-1 relative h-[calc(100vh-var(--header-height)-81px)]">
                 {/* Left: Scrollable Property List */}
                 <div
                     className={`flex-1 lg:w-1/2 overflow-y-auto custom-scrollbar p-6 lg:p-8 bg-white ${showMap ? 'hidden lg:block' : 'block'}`}
@@ -484,7 +484,39 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialS
                         onBoundsChange={handleMapBoundsChange}
                     />
                 </div>
-            </div>
+                </div>
+            ) : (
+                <div className="flex-1 overflow-y-auto custom-scrollbar bg-white" onScroll={handleScroll}>
+                    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-24">
+                        {isLoading ? (
+                            <div className="space-y-3">
+                                {Array(8).fill(0).map((_, i) => (
+                                    <div key={i} className="h-[170px] rounded-2xl bg-surface animate-pulse border border-border" />
+                                ))}
+                            </div>
+                        ) : (
+                            <div>
+                                {filteredProperties.map((p, idx) => (
+                                    <PropertyPost
+                                        key={p.id}
+                                        property={p}
+                                        isFirstInSet={idx === 0}
+                                        isLastInSet={idx === filteredProperties.length - 1}
+                                    />
+                                ))}
+                            </div>
+                        )}
+
+                        {isLoadingMore && (
+                            <div className="flex justify-center py-8 gap-2">
+                                <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
+                                <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
+                                <div className="w-2 h-2 rounded-full bg-primary animate-bounce" />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </main>
     );
 }
