@@ -10,19 +10,42 @@ interface PropertyCardProps {
         title: string;
         slug?: string;
         price: number | string;
+        listedAt?: string | Date;
         location: string;
         specs?: string;
         images?: string[];
     };
 }
 
+function getListingAgeLabel(listedAt?: string | Date): string {
+    if (!listedAt) return 'Today';
+
+    const listedDate = new Date(listedAt);
+    if (Number.isNaN(listedDate.getTime())) return 'Today';
+
+    const now = new Date();
+    const diffMs = now.getTime() - listedDate.getTime();
+    const days = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+
+    if (days < 1) return 'Today';
+    if (days < 30) return `${days} day${days === 1 ? '' : 's'} ago`;
+    if (days < 365) {
+        const months = Math.floor(days / 30);
+        return `${months} month${months === 1 ? '' : 's'} ago`;
+    }
+
+    const years = Math.floor(days / 365);
+    return `${years} year${years === 1 ? '' : 's'} ago`;
+}
+
 export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
     const slug = property.slug || property.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const propertyUrl = `/properties/${slug}-${property.id}`;
+    const listingAgeLabel = getListingAgeLabel(property.listedAt);
 
     return (
-        <div className="w-full bg-white rounded-[var(--radius-card)] border border-border shadow-[var(--shadow-card)] transition-colors duration-300 overflow-hidden flex flex-col h-full group/card relative hover:border-[color:var(--color-primary)]/8 hover:ring-1 hover:ring-[color:var(--color-primary)]/8">
-            <Link href={propertyUrl} className="block relative h-56 overflow-hidden rounded-t-[var(--radius-inner)] group/img">
+        <div className="w-full bg-white rounded-[18px] border border-black/10 shadow-sm transition-colors duration-300 overflow-hidden flex flex-col h-full group/card relative hover:border-[color:var(--color-primary)]/25">
+            <Link href={propertyUrl} className="block relative h-56 overflow-hidden rounded-t-[14px] group/img">
                 <img
                     src={property.images?.[0] ? (typeof property.images[0] === 'string' ? property.images[0] : (property.images[0] as any).url) : 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=400&q=80'}
                     alt={property.title}
@@ -31,8 +54,8 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500" />
                 
                 <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
-                    <span className="text-[10px] font-semibold text-[color:var(--color-primary)] uppercase tracking-wide bg-transparent">
-                        NEW LISTING
+                    <span className="rounded-full bg-white/92 px-2.5 py-1 text-[10px] font-semibold text-text-main shadow-sm backdrop-blur-sm">
+                        {listingAgeLabel}
                     </span>
                 </div>
 
@@ -47,7 +70,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                 </Link>
 
                 <div className="flex items-baseline gap-2">
-                    <span className="text-[color:var(--color-primary)] font-bold text-xl tracking-tighter">
+                    <span className="text-text-main font-bold text-xl tracking-tighter transition-colors group-hover/card:text-[color:var(--color-primary)]">
                         {formatPrice(property.price || property.price, true)}
                     </span>
                 </div>

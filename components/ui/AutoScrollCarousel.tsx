@@ -7,6 +7,7 @@ interface AutoScrollCarouselProps {
     className?: string;
     itemWidth?: string; // e.g., "280px", "100%", "calc(50% - 10px)"
     gap?: string; // e.g., "20px"
+    padding?: string; // e.g., "12px 8px 16px"
     desktopItemCount?: number; // How many items to show on desktop (>=1024px)
     tabletItemCount?: number; // How many items to show on tablet (>=640px)
     mobileItemCount?: number; // How many items to show on mobile (<640px)
@@ -17,6 +18,7 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
     className, 
     itemWidth = "85%", 
     gap = "16px",
+    padding = "12px 8px 16px",
     desktopItemCount,
     tabletItemCount,
     mobileItemCount
@@ -106,8 +108,7 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
                 scrollSnapType: 'x mandatory',
                 scrollbarWidth: 'none', // Firefox
                 msOverflowStyle: 'none', // IE/Edge
-                padding: '12px 8px', // Space for shadows
-                paddingBottom: '16px', // extra space for shadow
+                padding,
                 width: '100%'
             }}
         >

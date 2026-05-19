@@ -563,6 +563,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         title: p.title,
                         slug: p.slug || undefined,
                         price: p.pricing?.price ?? 0,
+                        listedAt: p.created_on,
                         location: p.location ? `${p.location.area}, ${p.location.district}` : 'Unspecified',
                         specs: `${p.features?.bedrooms || 0} beds • ${p.features?.bathrooms || 0} baths`,
                         images: p.images.map((img) => img.url)
