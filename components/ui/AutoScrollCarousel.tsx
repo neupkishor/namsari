@@ -84,10 +84,12 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
                 display: 'flex',
                 gap: gap,
                 overflowX: 'auto',
+                overflowY: 'visible',
                 scrollSnapType: 'x mandatory',
                 scrollbarWidth: 'none', // Firefox
                 msOverflowStyle: 'none', // IE/Edge
-                paddingBottom: '4px', // Space for shadow if needed
+                padding: '12px 8px', // Space for shadows
+                paddingBottom: '16px', // extra space for shadow
                 width: '100%'
             }}
         >
@@ -99,6 +101,7 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
                 @media (min-width: 1024px) {
                     .carousel-item {
                         flex: 0 0 calc((100% - ${(desktopItemCount - 1)} * ${gap}) / ${desktopItemCount}) !important;
+                        max-width: calc((100% - ${(desktopItemCount - 1)} * ${gap}) / ${desktopItemCount}) !important;
                     }
                 }
                 ` : ''}
@@ -106,6 +109,7 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
                 @media (min-width: 640px) and (max-width: 1023px) {
                     .carousel-item {
                         flex: 0 0 calc((100% - ${(tabletItemCount - 1)} * ${gap}) / ${tabletItemCount}) !important;
+                        max-width: calc((100% - ${(tabletItemCount - 1)} * ${gap}) / ${tabletItemCount}) !important;
                     }
                 }
                 ` : ''}
@@ -113,15 +117,29 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
                 @media (max-width: 639px) {
                     .carousel-item {
                         flex: 0 0 calc((100% - ${(mobileItemCount - 1)} * ${gap}) / ${mobileItemCount}) !important;
+                        max-width: calc((100% - ${(mobileItemCount - 1)} * ${gap}) / ${mobileItemCount}) !important;
                     }
                 }
                 ` : ''}
             `}</style>
-            {React.Children.map(children, (child) => (
-                <div className="carousel-item" style={{ flex: `0 0 ${itemWidth}`, scrollSnapAlign: 'start', minWidth: 0 }}>
-                    {child}
-                </div>
-            ))}
+            {React.Children.map(children, (child) => {
+                const useInlineBasis = itemWidth && itemWidth !== 'auto';
+                return (
+                    <div
+                        className="carousel-item"
+                        style={{
+                            flex: useInlineBasis ? `0 0 ${itemWidth}` : undefined,
+                            scrollSnapAlign: 'start',
+                            minWidth: 0,
+                            padding: '8px 6px',
+                            boxSizing: 'border-box',
+                            overflow: 'visible'
+                        }}
+                    >
+                        <div style={{ overflow: 'visible' }}>{child}</div>
+                    </div>
+                );
+            })}
         </div>
     );
 };

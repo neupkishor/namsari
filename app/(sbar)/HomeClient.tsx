@@ -142,7 +142,8 @@ function FeaturedSmallCard({ property }: { property: any }) {
     );
 }
 
-type HomeSearchPanel = 'price' | 'location' | 'size' | 'listedBy' | null;
+type HomeSearchPanel = 'price' | 'location' | 'size' | 'listedBy' | 'category' | null;
+type CategoryType = 'residential' | 'commercial' | 'semi-commercial';
 type ListedByType = 'developer' | 'agent' | 'agency' | 'owner' | 'bank';
 type AreaPriceUnit = 'peraana' | 'persqm';
 
@@ -248,6 +249,7 @@ function HomeSearchHero() {
     const [priceMax, setPriceMax] = useState('');
     const [areaPriceUnit, setAreaPriceUnit] = useState<AreaPriceUnit>('peraana');
     const [selectedListedBy, setSelectedListedBy] = useState<ListedByType | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
     const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
     const [sizeMin, setSizeMin] = useState('');
     const [sizeMax, setSizeMax] = useState('');
@@ -287,6 +289,10 @@ function HomeSearchHero() {
         ? `${selectedListedBy.charAt(0).toUpperCase()}${selectedListedBy.slice(1)}`
         : 'Any seller';
 
+    const currentCategoryLabel = selectedCategory
+        ? selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)
+        : 'Any category';
+
     const HOME_PRICE_PRESETS = purposes.has('rent') && !purposes.has('sale') ? HOME_PRICE_PRESETS_RENT : HOME_PRICE_PRESETS_SALE;
 
     const submitSearch = () => {
@@ -297,6 +303,7 @@ function HomeSearchHero() {
         params.set('type', 'feed');
         params.set('purposes', Array.from(purposes).join(','));
         if (selectedListedBy) params.set('listedBy', selectedListedBy);
+        if (selectedCategory) params.set('category', selectedCategory);
         if (priceMin || priceMax) {
             params.set('rawUnit', areaPriceUnit);
             if (priceMin) params.set('rawMinPrice', priceMin);
@@ -504,42 +511,83 @@ function HomeSearchHero() {
             );
         }
 
-        return (
-            <div className="space-y-4">
-                <div className="flex items-start justify-between gap-3">
-                    <div>
-                        <h3 className="text-[15px] font-black text-slate-900">Listed by</h3>
-                        <p className="text-[13px] text-slate-500">Choose the seller type you want to see.</p>
-                    </div>
-                    {selectedListedBy && (
-                        <button
-                            type="button"
-                            onClick={() => setSelectedListedBy(null)}
-                            className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[12px] font-bold text-slate-600 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
-                        >
-                            Clear
-                        </button>
-                    )}
-                </div>
-
-                <div className="flex flex-wrap gap-2.5">
-                    {HOME_LISTED_BY_OPTIONS.map((option) => {
-                        const isSelected = selectedListedBy === option;
-
-                        return (
+        if (panel === 'listedBy') {
+            return (
+                <div className="space-y-4">
+                    <div className="flex items-start justify-between gap-3">
+                        <div>
+                            <h3 className="text-[15px] font-black text-slate-900">Listed by</h3>
+                            <p className="text-[13px] text-slate-500">Choose the seller type you want to see.</p>
+                        </div>
+                        {selectedListedBy && (
                             <button
-                                key={option}
                                 type="button"
-                                onClick={() => setSelectedListedBy(isSelected ? null : option)}
-                                className={`rounded-full border px-4 py-2.5 text-[13px] font-bold capitalize transition-all duration-200 ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white shadow-[0_14px_30px_rgba(10,107,255,0.18)]' : 'border-[color:var(--color-primary)]/12 bg-white text-slate-700 hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]'}`}
+                                onClick={() => setSelectedListedBy(null)}
+                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[12px] font-bold text-slate-600 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
                             >
-                                {option}
+                                Clear
                             </button>
-                        );
-                    })}
+                        )}
+                    </div>
+
+                    <div className="flex flex-wrap gap-2.5">
+                        {HOME_LISTED_BY_OPTIONS.map((option) => {
+                            const isSelected = selectedListedBy === option;
+
+                            return (
+                                <button
+                                    key={option}
+                                    type="button"
+                                    onClick={() => setSelectedListedBy(isSelected ? null : option)}
+                                    className={`rounded-full border px-4 py-2.5 text-[13px] font-bold capitalize transition-all duration-200 ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white shadow-[0_14px_30px_rgba(10,107,255,0.18)]' : 'border-[color:var(--color-primary)]/12 bg-white text-slate-700 hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]'}`}
+                                >
+                                    {option}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
-            </div>
-        );
+            );
+        }
+
+        if (panel === 'category') {
+            return (
+                <div className="space-y-4">
+                    <div className="flex items-start justify-between gap-3">
+                        <div>
+                            <h3 className="text-[15px] font-black text-slate-900">Category</h3>
+                            <p className="text-[13px] text-slate-500">Filter by property category.</p>
+                        </div>
+                        {selectedCategory && (
+                            <button
+                                type="button"
+                                onClick={() => setSelectedCategory(null)}
+                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[12px] font-bold text-slate-600 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                            >
+                                Clear
+                            </button>
+                        )}
+                    </div>
+                    <div className="flex flex-wrap gap-2.5">
+                        {(['residential', 'commercial', 'semi-commercial'] as CategoryType[]).map((option) => {
+                            const isSelected = selectedCategory === option;
+                            return (
+                                <button
+                                    key={option}
+                                    type="button"
+                                    onClick={() => setSelectedCategory(isSelected ? null : option)}
+                                    className={`rounded-full border px-4 py-2.5 text-[13px] font-bold capitalize transition-all duration-200 ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white shadow-[0_14px_30px_rgba(10,107,255,0.18)]' : 'border-[color:var(--color-primary)]/12 bg-white text-slate-700 hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]'}`}
+                                >
+                                    {option}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        }
+
+        return null;
     };
 
     return (
@@ -629,9 +677,10 @@ function HomeSearchHero() {
                             ['location', 'Location', currentLocationLabel],
                             ['size', 'Size', currentSizeLabel],
                             ['listedBy', 'Listed by', currentListedByLabel],
+                            ['category', 'Category', currentCategoryLabel],
                         ] as Array<[Exclude<HomeSearchPanel, null>, string, string]>).map(([key, label, value]) => {
                             const isActive = activePanel === key;
-                            const hasValue = value !== 'Any budget' && value !== 'Any location' && value !== 'Any size' && value !== 'Any seller';
+                            const hasValue = value !== 'Any budget' && value !== 'Any location' && value !== 'Any size' && value !== 'Any seller' && value !== 'Any category';
                             return (
                                 <button
                                     key={key}
@@ -672,6 +721,7 @@ function HomeSearchHero() {
                                 {activePanel === 'location' && 'Location'}
                                 {activePanel === 'size' && 'Size'}
                                 {activePanel === 'listedBy' && 'Listed by'}
+                                {activePanel === 'category' && 'Category'}
                             </span>
                             <button
                                 type="button"

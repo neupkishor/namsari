@@ -4,7 +4,7 @@ import PropertyMap from './PropertyMap';
 import { Header } from '@/components/menu/Header';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
-import { PropertyCard } from '@/components/cards/PropertyCard';
+import { RecommendedProperties } from '@/components/sections/RecommendedProperties';
 
 function getAmenityIcon(type: string) {
     const map: Record<string, string> = {
@@ -83,7 +83,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             id: { not: id },
             types: { some: { id: { in: property.types.map((t) => t.id) } } }
         },
-        take: 3,
+        take: 8,
         orderBy: { created_on: 'desc' },
         include: {
             images: true,
@@ -92,6 +92,10 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             features: true
         }
     });
+    const agentPropertyCount = await prisma.property.count({
+        where: { listedById: property.listedById }
+    });
+    const contactNumber = property.listedBy?.contact_number || '';
 
     return (
         <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', paddingBottom: '100px', paddingTop: 'var(--header-height, 72px)' }}>
@@ -118,6 +122,8 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 .gallery-main {
                     height: 100%;
                     position: relative;
+                    overflow: hidden;
+                    border-radius: 16px;
                 }
                 .gallery-side {
                     display: grid;
@@ -130,10 +136,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     height: 100%;
                     object-fit: cover;
                     cursor: pointer;
-                    transition: transform 0.3s ease;
+                    transition: transform 0.35s ease;
+                    transform-origin: center;
+                    display: block;
                 }
                 .gallery-item:hover {
-                    transform: scale(1.02);
+                    transform: scale(1.05);
                 }
                 
                 /* Layout Split */
@@ -297,33 +305,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     }
                 }
 
-                /* Recommended Properties Section */
-                .recommended-properties-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-                    gap: 28px;
-                }
-
-                @media (max-width: 1024px) {
-                    .recommended-properties-grid {
-                        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-                        gap: 24px;
-                    }
-                }
-
-                @media (max-width: 768px) {
-                    .recommended-properties-grid {
-                        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                        gap: 20px;
-                    }
-                }
-
-                @media (max-width: 480px) {
-                    .recommended-properties-grid {
-                        grid-template-columns: 1fr;
-                        gap: 16px;
-                    }
-                }
+                /* Recommended Properties Section — handled by RecommendedProperties component */
             `}} />
 
             <div className="property-page-container">
@@ -401,7 +383,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         </div>
 
                         <div style={{ marginBottom: '40px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
                                 <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#f3f4f6', overflow: 'hidden' }}>
                                     {property.listedBy?.profile_picture ? (
                                         <img src={property.listedBy.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={property.listedBy.name || 'User'} />
@@ -410,9 +392,30 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                                     )}
                                 </div>
                                 <div>
-                                    <div style={{ fontWeight: '700', fontSize: '1.1rem', color: '#1a1a1a' }}>Hosted by {property.listedBy?.name || 'Agent'}</div>
-                                    <div style={{ color: '#6b7280', fontSize: '0.9rem' }}>{(property.listedBy as any)?.type ? (property.listedBy as any).type.charAt(0).toUpperCase() + (property.listedBy as any).type.slice(1) : 'Host'} • Joined {new Date(property.listedBy?.created_on || Date.now()).getFullYear()}</div>
+                                    <div style={{ fontWeight: '700', fontSize: '1.1rem', color: '#1a1a1a' }}>{property.listedBy?.name || 'Agent'}</div>
+                                    <div style={{ color: '#6b7280', fontSize: '0.9rem' }}>{agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}</div>
                                 </div>
+                                {contactNumber && (
+                                    <a
+                                        href={`tel:${contactNumber}`}
+                                        style={{
+                                            marginLeft: 'auto',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            padding: '10px 14px',
+                                            borderRadius: '10px',
+                                            fontWeight: 700,
+                                            fontSize: '0.9rem',
+                                            textDecoration: 'none',
+                                            color: '#fff',
+                                            background: 'var(--color-primary)',
+                                            whiteSpace: 'nowrap'
+                                        }}
+                                    >
+                                        📞 {contactNumber}
+                                    </a>
+                                )}
                             </div>
                             <p style={{ lineHeight: '1.8', fontSize: '1.05rem', color: '#4b5563' }}>
                                 {property.remarks || 'This property offers a perfect blend of luxury and comfort, situated in a prime location with easy access to all essential amenities.'}
@@ -554,22 +557,17 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 </div>
 
                 {/* Recommended Properties */}
-                <div style={{ marginTop: '80px', borderTop: '1px solid #e5e7eb', paddingTop: '60px' }}>
-                    <h2 className="section-title" style={{ marginBottom: '40px', fontSize: '2rem', fontWeight: '900', color: '#1a1a1a' }}>Recommended Properties</h2>
-                    <div className="recommended-properties-grid">
-                        {recommendedProperties.map((p) => (
-                            <PropertyCard key={p.id} property={{
-                                id: p.id,
-                                title: p.title,
-                                slug: p.slug || undefined,
-                                price: new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(p.pricing?.price || 0).replace('NPR', 'Rs.'),
-                                location: p.location ? `${p.location.area}, ${p.location.district}` : 'Unspecified',
-                                specs: `${p.features?.bedrooms || 0} Beds • ${p.features?.bathrooms || 0} Baths`,
-                                images: p.images.map((img) => img.url)
-                            }} />
-                        ))}
-                    </div>
-                </div>
+                <RecommendedProperties
+                    properties={recommendedProperties.map((p) => ({
+                        id: p.id,
+                        title: p.title,
+                        slug: p.slug || undefined,
+                        price: new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(p.pricing?.price || 0).replace('NPR', 'Rs.'),
+                        location: p.location ? `${p.location.area}, ${p.location.district}` : 'Unspecified',
+                        specs: `${p.features?.bedrooms || 0} beds • ${p.features?.bathrooms || 0} baths`,
+                        images: p.images.map((img) => img.url)
+                    }))}
+                />
             </div>
         </main>
     );
