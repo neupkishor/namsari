@@ -5,6 +5,8 @@ import { Header } from '@/components/menu/Header';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { RecommendedProperties } from '@/components/sections/RecommendedProperties';
+import { PropertyEmiSection } from '@/components/sections/PropertyEmiSection';
+import { SectionTitleFeed } from '@/components/sections/SectionTitleFeed';
 
 function getAmenityIcon(type: string) {
     const map: Record<string, string> = {
@@ -137,16 +139,6 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             { icon: '🗑️', label: 'Drainage' }
         );
     }
-
-    const roomAmenities: { icon: string; label: string; detail?: string }[] = [];
-    if ((property.features?.bedrooms || 0) > 0) roomAmenities.push({ icon: '🛏️', label: 'Bedroom', detail: String(property.features?.bedrooms) });
-    if ((property.features?.bathrooms || 0) > 0) roomAmenities.push({ icon: '🛁', label: 'Bathroom', detail: String(property.features?.bathrooms) });
-    if ((property.features?.kitchens || 0) > 0) roomAmenities.push({ icon: '🍳', label: 'Kitchen', detail: String(property.features?.kitchens) });
-    if ((property.features?.livingRooms || 0) > 0) roomAmenities.push({ icon: '🛋️', label: 'Living Room', detail: String(property.features?.livingRooms) });
-
-    const furnishedAmenities: { icon: string; label: string; detail?: string }[] = property.features?.furnishing
-        ? [{ icon: '🪑', label: 'Furnished', detail: property.features.furnishing }]
-        : [];
 
     return (
         <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', paddingBottom: '100px', paddingTop: 'var(--header-height, 72px)' }}>
@@ -504,35 +496,6 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                                 </div>
                             </div>
 
-                            {roomAmenities.length > 0 && (
-                                <div className="amenity-group">
-                                    <div className="amenity-group-title">Rooms</div>
-                                    <div className="amenity-grid">
-                                        {roomAmenities.map((item) => (
-                                            <div key={`${item.label}-${item.detail || ''}`} className="amenity-tile">
-                                                <span className="amenity-icon">{item.icon}</span>
-                                                <div className="amenity-name">{item.label}</div>
-                                                {item.detail ? <div className="amenity-detail">{item.detail}</div> : null}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {furnishedAmenities.length > 0 && (
-                                <div className="amenity-group" style={{ marginBottom: 0 }}>
-                                    <div className="amenity-group-title">Furnished</div>
-                                    <div className="amenity-grid">
-                                        {furnishedAmenities.map((item) => (
-                                            <div key={`${item.label}-${item.detail || ''}`} className="amenity-tile">
-                                                <span className="amenity-icon">{item.icon}</span>
-                                                <div className="amenity-name">{item.label}</div>
-                                                {item.detail ? <div className="amenity-detail">{item.detail}</div> : null}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
                         </div>
 
                         <div style={{ marginBottom: '40px' }}>
@@ -689,6 +652,16 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     </div>
                 </div>
 
+                <section className="w-full mt-14">
+                    <div className="mb-2">
+                        <SectionTitleFeed
+                            title="EMI Calculator"
+                            description="Estimate your monthly EMI with adjustable down payment, interest rate, and term."
+                        />
+                    </div>
+                    <PropertyEmiSection totalPrice={priceValue} />
+                </section>
+
                 {/* Recommended Properties */}
                 <RecommendedProperties
                     properties={recommendedProperties.map((p) => ({
@@ -703,7 +676,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     }))}
                 />
 
-                <section style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid #eceff3' }}>
+                <section style={{ marginTop: '56px' }}>
                     <div style={{ marginBottom: '14px' }}>
                         <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0f172a', marginBottom: '8px', lineHeight: 1.2 }}>
                             Property Collection
