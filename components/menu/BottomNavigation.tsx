@@ -275,10 +275,10 @@ export function BottomNavigation({ user }: { user?: any }) {
             )}
 
             {/* Bottom App Bar */}
-            <nav
+            <nav 
                 onContextMenu={preventContextMenu}
                 onDragStart={preventDragStart}
-                className={`bottom-nav-guard fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] h-[76px] bg-white/80 backdrop-blur-2xl border border-white/40 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.18)] rounded-[2.5rem] z-[1001] flex items-center justify-between px-6 lg:hidden ring-1 ring-black/5 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+                className={`bottom-nav-guard fixed bottom-4 left-1/2 -translate-x-1/2 w-[94%] max-w-[460px] h-[68px] bg-white border border-[#e5e7eb] shadow-[0_10px_30px_rgba(15,23,42,0.12)] rounded-2xl z-[1001] flex items-center justify-between px-3 lg:hidden transition-all duration-500 ${
                 isVisible ? 'translate-y-0 opacity-100' : 'translate-y-[150%] opacity-0 pointer-events-none'
             }`}
             >
@@ -303,36 +303,6 @@ export function BottomNavigation({ user }: { user?: any }) {
                             : item.icon;
                     const isHoldingExplore = isExploreAction && pressedExploreHref === itemHref;
                     const active = pathname === item.href || (item.href === '#menu' && showMobileMenu);
-                    const isCenter = item.label === 'Post';
-
-                    if (isCenter) {
-                        return (
-                            <Link 
-                                key={idx} 
-                                href={itemHref}
-                                onContextMenu={preventContextMenu}
-                                onDragStart={preventDragStart}
-                                className="bottom-nav-guard relative -top-8 flex flex-col items-center justify-center no-underline group"
-                            >
-                                <div className={`w-16 h-16 rounded-[2rem] flex items-center justify-center text-2xl shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:-translate-y-1 group-active:scale-95 ${
-                                    active 
-                                        ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-blue-200/50' 
-                                        : 'bg-gradient-to-br from-slate-800 to-slate-900 text-white shadow-slate-300/50'
-                                }`}>
-                                    <span key={`${item.label}-${itemIcon}`} className="footer-icon-swap transform group-hover:rotate-12 transition-transform duration-500">
-                                        {itemIcon}
-                                    </span>
-                                </div>
-                                <div className="absolute -bottom-6 flex flex-col items-center">
-                                    <span className={`text-[11px] font-black uppercase tracking-widest transition-colors duration-300 ${
-                                        active ? 'text-blue-600' : 'text-slate-500'
-                                    }`}>
-                                        {item.label}
-                                    </span>
-                                </div>
-                            </Link>
-                        );
-                    }
 
                     return (
                         <button 
@@ -366,14 +336,16 @@ export function BottomNavigation({ user }: { user?: any }) {
                             }}
                             onContextMenu={preventContextMenu}
                             onDragStart={preventDragStart}
-                            className="bottom-nav-guard relative flex flex-col items-center justify-center gap-1.5 min-w-[56px] h-full transition-all duration-300 active:scale-90 group"
+                            className={`bottom-nav-guard relative flex flex-col items-center justify-center gap-1 min-w-[56px] h-[52px] px-2 rounded-xl transition-all duration-200 active:scale-95 ${
+                                active ? 'bg-[color:var(--color-primary)]/8' : 'bg-transparent'
+                            }`}
                         >
-                            <div className={`transition-all duration-500 ease-out ${
+                            <div className={`transition-all duration-200 ${
                                 active 
-                                    ? 'scale-110 -translate-y-0.5' 
-                                    : 'opacity-40 grayscale group-hover:opacity-70 group-hover:grayscale-0 group-hover:-translate-y-0.5'
+                                    ? 'scale-105' 
+                                    : 'opacity-80'
                             }`}>
-                                <span key={`${item.label}-${itemIcon}`} className="footer-icon-swap inline-flex text-[22px]">
+                                <span key={`${item.label}-${itemIcon}`} className="footer-icon-swap inline-flex text-[20px]">
                                     {itemIcon}
                                 </span>
                             </div>
@@ -382,13 +354,13 @@ export function BottomNavigation({ user }: { user?: any }) {
                                     <div className="footer-hold-progress h-full bg-blue-600 rounded-full" />
                                 </div>
                             )}
-                            <span className={`text-[10px] font-bold tracking-tight transition-all duration-300 ${
-                                active ? 'text-blue-600 opacity-100' : 'text-slate-400 opacity-100'
+                            <span className={`text-[10px] font-semibold tracking-tight transition-all duration-200 ${
+                                active ? 'text-[color:var(--color-primary)] opacity-100' : 'text-slate-500 opacity-100'
                             }`}>
                                 {item.label}
                             </span>
                             {active && (
-                                <div className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.6)] animate-in fade-in zoom-in duration-500" />
+                                <div className="absolute -bottom-1 w-1 h-1 rounded-full bg-[color:var(--color-primary)]" />
                             )}
                         </button>
                     );

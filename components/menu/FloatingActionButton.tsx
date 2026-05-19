@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export function FloatingActionButton() {
+    const pathname = usePathname();
     const [isVisible, setIsVisible] = useState(true);
     const lastScrollY = useRef(0);
     const stopScrollTimer = useRef<NodeJS.Timeout | null>(null);
@@ -42,6 +44,10 @@ export function FloatingActionButton() {
             if (stopScrollTimer.current) clearTimeout(stopScrollTimer.current);
         };
     }, []);
+
+    if (pathname?.startsWith('/properties/')) {
+        return null;
+    }
 
     return (
         <Link

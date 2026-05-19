@@ -321,6 +321,9 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     color: #1a1a1a;
                     margin-bottom: 24px;
                 }
+                .mobile-floating-agent {
+                    display: none;
+                }
                 .action-btn {
                     width: 100%;
                     padding: 14px;
@@ -412,6 +415,90 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     }
                     .price-display {
                         font-size: 1.4rem;
+                    }
+                    .sidebar-sticky {
+                        display: none;
+                    }
+                    .mobile-floating-agent {
+                        position: fixed;
+                        left: 12px;
+                        right: 12px;
+                        bottom: 10px;
+                        z-index: 60;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 10px;
+                        background: #ffffff;
+                        border: 1px solid #e5e7eb;
+                        border-radius: 14px;
+                        min-height: 74px;
+                        padding: 12px;
+                        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+                    }
+                    .mobile-floating-agent-left {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        min-width: 0;
+                    }
+                    .mobile-floating-agent-avatar {
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        overflow: hidden;
+                        background: #f3f4f6;
+                        flex-shrink: 0;
+                    }
+                    .mobile-floating-agent-price {
+                        font-size: 0.95rem;
+                        font-weight: 800;
+                        color: #1f2937;
+                        line-height: 1.1;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        max-width: 120px;
+                    }
+                    .mobile-floating-agent-title {
+                        font-size: 0.8rem;
+                        font-weight: 700;
+                        color: #475569;
+                        line-height: 1.2;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        max-width: 140px;
+                        margin-bottom: 4px;
+                    }
+                    .mobile-floating-agent-actions {
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        flex-shrink: 0;
+                    }
+                    .mobile-floating-btn {
+                        width: 34px;
+                        height: 34px;
+                        border-radius: 9px;
+                        border: 1px solid #d1d5db;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        text-decoration: none;
+                        background: #fff;
+                        color: #374151;
+                        font-size: 1rem;
+                    }
+                    .mobile-floating-btn.call {
+                        color: #b91c1c;
+                        border-color: rgba(185, 28, 28, 0.25);
+                        background: rgba(185, 28, 28, 0.06);
+                    }
+                    .mobile-floating-btn.whatsapp {
+                        color: #16a34a;
+                        border-color: rgba(22, 163, 74, 0.25);
+                        background: rgba(22, 163, 74, 0.08);
                     }
                 }
 
@@ -709,6 +796,43 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         ))}
                     </div>
                 </section>
+            </div>
+
+            <div className="mobile-floating-agent">
+                <div className="mobile-floating-agent-left">
+                    <div className="mobile-floating-agent-avatar">
+                        {property.listedBy?.profile_picture ? (
+                            <img src={property.listedBy.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={property.listedBy.name || 'User'} />
+                        ) : (
+                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem' }}>👤</div>
+                        )}
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                        <div className="mobile-floating-agent-title">{property.title}</div>
+                        <div className="mobile-floating-agent-price">{formattedPrice}</div>
+                    </div>
+                </div>
+
+                <div className="mobile-floating-agent-actions">
+                    <a className="mobile-floating-btn call" href={`tel:${property.listedBy?.contact_number || ''}`} aria-label="Call agent">
+                        📞
+                    </a>
+                    <a
+                        className="mobile-floating-btn whatsapp"
+                        href={`https://wa.me/${property.listedBy?.contact_number?.replace(/[^0-9]/g, '') || ''}?text=${encodeURIComponent(`I'm interested in the ${property.title} [#${property.id}], For the property, I'm willing to offer a price of ${formattedPrice}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="WhatsApp"
+                    >
+                        💬
+                    </a>
+                    <button className="mobile-floating-btn" aria-label="Like property" type="button">
+                        ❤
+                    </button>
+                    <a className="mobile-floating-btn" href="#" aria-label="Share property">
+                        📤
+                    </a>
+                </div>
             </div>
         </main>
     );
