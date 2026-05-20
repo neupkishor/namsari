@@ -98,7 +98,7 @@ export function PropertyEmiSection({ totalPrice }: PropertyEmiSectionProps) {
                                             <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                                         ))}
                                     </Pie>
-                                    <Tooltip formatter={(value: number | string) => formatCurrency(Number(value))} />
+                                    <Tooltip formatter={(value) => formatCurrency(Number(value ?? 0))} />
                                 </PieChart>
                             </ResponsiveContainer>
                             <div
