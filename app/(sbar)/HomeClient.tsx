@@ -1148,9 +1148,9 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                             return (
                                                                 <div
                                                                     key={requirement.id || `requirement-${requirementIndex}`}
-                                                                    className={`p-5 sm:p-6 ${requirementIndex !== requirements.length - 1 ? 'border-b border-slate-200' : ''}`}
+                                                                    className={`p-4 sm:p-5 ${requirementIndex !== requirements.length - 1 ? 'border-b border-slate-200' : ''}`}
                                                                 >
-                                                                    <div className="flex flex-col gap-3">
+                                                                    <div className="flex flex-col gap-2">
                                                                         <div className="flex items-center justify-between gap-3">
                                                                             <h3 className="text-lg font-bold text-slate-900">{title}</h3>
                                                                             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase text-slate-600">
@@ -1158,9 +1158,9 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                             </span>
                                                                         </div>
                                                                         <p className="text-sm text-slate-500 line-clamp-2">{summary || 'No additional remarks shared.'}</p>
-                                                                        <div className="text-2xl font-extrabold text-slate-900">{budgetLabel}</div>
-                                                                        <div className="text-base text-slate-600">{locationLabel}</div>
-                                                                        <div className="flex items-center justify-between border-t border-slate-100 pt-3 text-sm text-slate-500">
+                                                                        <div className="text-xl font-extrabold text-slate-900">{budgetLabel}</div>
+                                                                        <div className="text-sm text-slate-600">{locationLabel}</div>
+                                                                        <div className="flex items-center justify-between border-t border-slate-100 pt-2 text-xs text-slate-500">
                                                                             <span>{requirement.user?.name || 'Anonymous user'}</span>
                                                                             <span>{new Date(requirement.created_at).toLocaleDateString()}</span>
                                                                         </div>
