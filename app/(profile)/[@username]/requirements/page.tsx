@@ -50,7 +50,7 @@ export default async function ProfileRequirementsPage({ params }: PageProps) {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {requirements.map((req) => {
-                const locationLabel = [req.area, req.cityVillage, req.district].filter(Boolean).join(', ') || 'Location not specified';
+                const locationLabel = [req.area, req.cityVillage, req.district].filter(Boolean).join(', ') || 'Any Location';
                 const title = req.mode === 'simple'
                     ? `General Property Requirement, ${locationLabel}`
                     : `${(req.propertyTypes || 'Property').split(',')[0]} requirement, ${locationLabel}`;

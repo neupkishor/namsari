@@ -278,6 +278,18 @@ function WhatsAppIcon() {
     );
 }
 
+function ShareIcon() {
+    return (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+        </svg>
+    );
+}
+
 function HomeSearchHero() {
     const router = useRouter();
     const [query, setQuery] = useState('');
@@ -1190,7 +1202,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                             const phoneNumber = String(contactNumber).replace(/[^\d+]/g, '');
                                                             const phoneHref = phoneNumber ? `tel:${phoneNumber}` : null;
                                                             const whatsappHref = waNumber ? `https://wa.me/${waNumber}` : null;
-                                                            const locationLabel = [requirement.area, requirement.cityVillage, requirement.district].filter(Boolean).join(', ') || 'Location not specified';
+                                                            const locationLabel = [requirement.area, requirement.cityVillage, requirement.district].filter(Boolean).join(', ') || 'Any Location';
                                                             const budgetLabel = requirement.minPrice && requirement.maxPrice
                                                                 ? `${formatNPR(requirement.minPrice)} - ${formatNPR(requirement.maxPrice)}`
                                                                 : requirement.maxPrice
@@ -1265,7 +1277,26 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                                     </a>
                                                                                 )}
                                                                             </span>
-                                                                            <span className="text-[11px] text-slate-400 font-medium">{formatTimeAgo(requirement.created_at)}</span>
+                                                                            <span className="flex items-center gap-1.5 flex-shrink-0">
+                                                                                <span className="text-[11px] text-slate-400 font-medium">{formatTimeAgo(requirement.created_at)}</span>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => {
+                                                                                        const shareUrl = `${window.location.origin}/requirement/${requirement.id}`;
+
+                                                                                        if (navigator.share) {
+                                                                                            navigator.share({ url: shareUrl });
+                                                                                            return;
+                                                                                        }
+
+                                                                                        navigator.clipboard?.writeText(shareUrl);
+                                                                                    }}
+                                                                                    aria-label="Share requirement"
+                                                                                    className="flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/10 transition-colors"
+                                                                                >
+                                                                                    <ShareIcon />
+                                                                                </button>
+                                                                            </span>
                                                                         </div>
                                                                     </div>
                                                                 </div>

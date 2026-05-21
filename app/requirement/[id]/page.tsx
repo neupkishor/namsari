@@ -39,7 +39,7 @@ export default async function RequirementPage({ params }: PageProps) {
 
     if (!requirement) return notFound();
 
-    const locationLabel = [requirement.area, requirement.cityVillage, requirement.district].filter(Boolean).join(', ') || 'Location not specified';
+    const locationLabel = [requirement.area, requirement.cityVillage, requirement.district].filter(Boolean).join(', ') || 'Any Location';
     const title = requirement.mode === 'simple'
         ? 'General Property Requirement'
         : `${(requirement.propertyTypes || 'Property').split(',')[0]} requirement`;
