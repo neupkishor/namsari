@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { FormGrid, FormCard } from '@/components/form';
+import Link from 'next/link';
 import { PaginationControl } from '@/components/ui';
 
 interface Requirement {
@@ -147,7 +148,7 @@ export default function RequirementsListClient({
                                     </h3>
                                 </div>
                                 <div style={{ textAlign: 'right' }}>
-                                    <button style={{ padding: '6px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer' }}>View Details</button>
+                                    <Link href={`/requirement/${req.id}`} className="inline-block" style={{ padding: '6px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer', color: 'inherit', textDecoration: 'none' }}>View Details</Link>
                                 </div>
                             </div>
 

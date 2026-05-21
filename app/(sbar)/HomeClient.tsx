@@ -1236,9 +1236,12 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                                 {typeof requirement.user?._count?.requirements === 'number' && (
                                                                                     <>
                                                                                         <span className="text-slate-400 text-[12px] font-medium">•</span>
-                                                                                        <span className="text-[12px] text-slate-500 font-medium shrink-0">
+                                                                                        <Link
+                                                                                            href={`/@${requirement.user.username}/requirements`}
+                                                                                            className="text-[12px] text-slate-500 font-medium shrink-0 hover:text-[color:var(--color-primary)] hover:underline transition-colors"
+                                                                                        >
                                                                                             {requirement.user._count.requirements} requirements
-                                                                                        </span>
+                                                                                        </Link>
                                                                                     </>
                                                                                 )}
                                                                                 {phoneHref && (
