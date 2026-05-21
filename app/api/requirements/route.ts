@@ -41,7 +41,12 @@ export async function GET(req: Request) {
                     select: {
                         name: true,
                         username: true,
-                        contact_number: true
+                        contact_number: true,
+                        _count: {
+                            select: {
+                                requirements: true
+                            }
+                        }
                     }
                 }
             }

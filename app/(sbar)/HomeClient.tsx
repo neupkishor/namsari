@@ -1204,33 +1204,42 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                             const title = requirement.mode === 'simple'
                                                                 ? 'General Property Requirement'
                                                                 : `${(requirement.propertyTypes || 'Property').split(',')[0]} requirement`;
+                                                            const titleWithLocation = `${title}, ${locationLabel}`;
 
                                                             return (
                                                                 <div
                                                                     key={requirement.id || `requirement-${requirementIndex}`}
-                                                                    className={`relative hover:z-10 p-4 sm:p-5 transition-[box-shadow,border-color,background-color] duration-300 hover:bg-slate-50/70 hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] ${requirementIndex === 0 ? 'rounded-t-[28px]' : ''} ${requirementIndex === requirements.length - 1 ? 'rounded-b-[28px]' : ''} ${requirementIndex !== requirements.length - 1 ? 'border-b border-slate-200 hover:border-b-transparent' : ''}`}
+                                                                    className={`relative hover:z-10 px-4 sm:px-5 pt-3 sm:pt-3.5 pb-1 sm:pb-1.5 transition-[box-shadow,border-color,background-color] duration-300 hover:bg-slate-50/70 hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] ${requirementIndex === 0 ? 'rounded-t-[28px]' : ''} ${requirementIndex === requirements.length - 1 ? 'rounded-b-[28px]' : ''} ${requirementIndex !== requirements.length - 1 ? 'border-b border-slate-200 hover:border-b-transparent' : ''}`}
                                                                 >
-                                                                    <div className="flex flex-col gap-2">
+                                                                    <div className="flex flex-col gap-0.5 min-w-0">
                                                                         <div className="flex items-center justify-between gap-3">
-                                                                            <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+                                                                            <h3 className="text-[13px] sm:text-[14px] font-semibold text-slate-900 leading-snug">{titleWithLocation}</h3>
                                                                             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase text-slate-600">
                                                                                 {requirement.purposes || 'Any purpose'}
                                                                             </span>
                                                                         </div>
-                                                                        <p className="text-sm text-slate-500 line-clamp-2">{summary || 'No additional remarks shared.'}</p>
-                                                                        <div className="text-xl font-extrabold text-slate-900">{budgetLabel}</div>
-                                                                        <div className="text-sm text-slate-600">{locationLabel}</div>
-                                                                        <div className="flex items-center justify-between border-t border-slate-100 pt-2 text-xs text-slate-500">
-                                                                            <span className="inline-flex items-center gap-2">
+                                                                        <p className="text-[11px] sm:text-[12px] text-slate-400 line-clamp-1 sm:line-clamp-2 mt-0.5 leading-relaxed">{summary || 'No additional remarks shared.'}</p>
+                                                                        <div className="text-[14px] sm:text-[15px] font-bold text-slate-900 mt-2">{budgetLabel}</div>
+                                                                        <div className="border-t border-slate-100 mt-1.5" />
+                                                                        <div className="flex items-center justify-between pt-1 pb-0.5 gap-2">
+                                                                            <span className="inline-flex items-center gap-2 min-w-0">
                                                                                 {requirement.user?.username ? (
                                                                                     <Link
                                                                                         href={`/@${requirement.user.username}`}
-                                                                                        className="text-slate-500 hover:text-[color:var(--color-primary)] hover:underline transition-colors"
+                                                                                        className="text-[12px] text-slate-500 font-medium truncate max-w-[90px] sm:max-w-[130px] hover:text-[color:var(--color-primary)] hover:underline transition-colors"
                                                                                     >
                                                                                         {requirement.user?.name || 'Anonymous user'}
                                                                                     </Link>
                                                                                 ) : (
-                                                                                    <span>{requirement.user?.name || 'Anonymous user'}</span>
+                                                                                    <span className="text-[12px] text-slate-500 font-medium truncate max-w-[90px] sm:max-w-[130px]">{requirement.user?.name || 'Anonymous user'}</span>
+                                                                                )}
+                                                                                {typeof requirement.user?._count?.requirements === 'number' && (
+                                                                                    <>
+                                                                                        <span className="text-slate-400 text-[12px] font-medium">•</span>
+                                                                                        <span className="text-[12px] text-slate-500 font-medium shrink-0">
+                                                                                            {requirement.user._count.requirements} requirements
+                                                                                        </span>
+                                                                                    </>
                                                                                 )}
                                                                                 {phoneHref && (
                                                                                     <a
@@ -1253,7 +1262,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                                     </a>
                                                                                 )}
                                                                             </span>
-                                                                            <span>{formatTimeAgo(requirement.created_at)}</span>
+                                                                            <span className="text-[11px] text-slate-400 font-medium">{formatTimeAgo(requirement.created_at)}</span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
