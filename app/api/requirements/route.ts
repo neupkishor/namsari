@@ -40,7 +40,8 @@ export async function GET(req: Request) {
                 user: {
                     select: {
                         name: true,
-                        username: true
+                        username: true,
+                        contact_number: true
                     }
                 }
             }

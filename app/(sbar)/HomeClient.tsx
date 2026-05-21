@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { FeaturedProjects } from '@/components/cards/FeaturedProjects';
 import { TrendingSearches } from '@/components/cards/TrendingSearches';
 import { FeaturedCollectionsFeedItem } from '@/components/cards/FeaturedCollections';
@@ -237,6 +237,29 @@ function convertAreaPriceToModified(unit: AreaPriceUnit, minPrice?: string, maxP
         modifiedMinPrice: rawMin !== null && Number.isFinite(rawMin) ? String(rawMin) : '',
         modifiedMaxPrice: rawMax !== null && Number.isFinite(rawMax) ? String(rawMax) : '',
     };
+}
+
+function formatTimeAgo(input: string | Date) {
+    const date = new Date(input);
+    if (Number.isNaN(date.getTime())) return '';
+
+    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (seconds < 60) return 'just now';
+
+    const units = [
+        { label: 'y', value: 60 * 60 * 24 * 365 },
+        { label: 'mo', value: 60 * 60 * 24 * 30 },
+        { label: 'd', value: 60 * 60 * 24 },
+        { label: 'h', value: 60 * 60 },
+        { label: 'm', value: 60 },
+    ];
+
+    for (const unit of units) {
+        const count = Math.floor(seconds / unit.value);
+        if (count >= 1) return `${count}${unit.label} ago`;
+    }
+
+    return 'just now';
 }
 
 function HomeSearchHero() {
@@ -953,6 +976,9 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
     const [hasMore, setHasMore] = useState(true);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
     const [isLoadingRequirements, setIsLoadingRequirements] = useState(false);
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
     const featuredCards = resolveFeaturedCards(featuredProperties);
 
@@ -1022,6 +1048,19 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
         fetchRequirements();
     }, []);
 
+    useEffect(() => {
+        const tab = searchParams.get('tab');
+        setActiveFeedTab(tab === 'requirements' ? 'requirements' : 'property');
+    }, [searchParams]);
+
+    const handleFeedTabChange = (tab: 'property' | 'requirements') => {
+        setActiveFeedTab(tab);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('tab', tab === 'requirements' ? 'requirements' : 'properties');
+        const query = params.toString();
+        router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    };
+
     return (
         <div className="min-h-screen bg-white">
             {/* Check if the page is loading content */}
@@ -1081,7 +1120,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                 <>
                                                     <button
                                                         type="button"
-                                                        onClick={() => setActiveFeedTab('property')}
+                                                        onClick={() => handleFeedTabChange('property')}
                                                         className="text-slate-900 cursor-default transition-colors"
                                                     >
                                                         Latest Properties
@@ -1089,7 +1128,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                     <span className="text-slate-300">|</span>
                                                     <button
                                                         type="button"
-                                                        onClick={() => setActiveFeedTab('requirements')}
+                                                        onClick={() => handleFeedTabChange('requirements')}
                                                         className="text-slate-400 hover:text-slate-600 underline underline-offset-4 transition-colors"
                                                     >
                                                         Requirements
@@ -1099,7 +1138,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                 <>
                                                     <button
                                                         type="button"
-                                                        onClick={() => setActiveFeedTab('requirements')}
+                                                        onClick={() => handleFeedTabChange('requirements')}
                                                         className="text-slate-900 cursor-default transition-colors"
                                                     >
                                                         Latest Requirements
@@ -1107,7 +1146,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                     <span className="text-slate-300">|</span>
                                                     <button
                                                         type="button"
-                                                        onClick={() => setActiveFeedTab('property')}
+                                                        onClick={() => handleFeedTabChange('property')}
                                                         className="text-slate-400 hover:text-slate-600 underline underline-offset-4 transition-colors"
                                                     >
                                                         Properties
@@ -1130,6 +1169,9 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                         <div className="p-8 text-sm text-slate-500">No active requirements available right now.</div>
                                                     ) : (
                                                         requirements.map((requirement: any, requirementIndex: number) => {
+                                                            const contactNumber = requirement.user?.contact_number || '';
+                                                            const waNumber = String(contactNumber).replace(/[^\d+]/g, '').replace(/^\+/, '');
+                                                            const whatsappHref = waNumber ? `https://wa.me/${waNumber}` : null;
                                                             const locationLabel = [requirement.area, requirement.cityVillage, requirement.district].filter(Boolean).join(', ') || 'Location not specified';
                                                             const budgetLabel = requirement.minPrice && requirement.maxPrice
                                                                 ? `${formatNPR(requirement.minPrice)} - ${formatNPR(requirement.maxPrice)}`
@@ -1148,7 +1190,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                             return (
                                                                 <div
                                                                     key={requirement.id || `requirement-${requirementIndex}`}
-                                                                    className={`p-4 sm:p-5 ${requirementIndex !== requirements.length - 1 ? 'border-b border-slate-200' : ''}`}
+                                                                    className={`relative hover:z-10 p-4 sm:p-5 transition-[box-shadow,border-color,background-color] duration-300 hover:bg-slate-50/70 hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] ${requirementIndex === 0 ? 'rounded-t-[28px]' : ''} ${requirementIndex === requirements.length - 1 ? 'rounded-b-[28px]' : ''} ${requirementIndex !== requirements.length - 1 ? 'border-b border-slate-200 hover:border-b-transparent' : ''}`}
                                                                 >
                                                                     <div className="flex flex-col gap-2">
                                                                         <div className="flex items-center justify-between gap-3">
@@ -1162,8 +1204,18 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                         <div className="text-sm text-slate-600">{locationLabel}</div>
                                                                         <div className="flex items-center justify-between border-t border-slate-100 pt-2 text-xs text-slate-500">
                                                                             <span>{requirement.user?.name || 'Anonymous user'}</span>
-                                                                            <span>{new Date(requirement.created_at).toLocaleDateString()}</span>
+                                                                            <span>{formatTimeAgo(requirement.created_at)}</span>
                                                                         </div>
+                                                                        {whatsappHref && (
+                                                                            <a
+                                                                                href={whatsappHref}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                className="sm:hidden mt-1 inline-flex w-fit items-center gap-2 rounded-full border border-green-200 bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700"
+                                                                            >
+                                                                                <span>WhatsApp</span>
+                                                                            </a>
+                                                                        )}
                                                                     </div>
                                                                 </div>
                                                             );
