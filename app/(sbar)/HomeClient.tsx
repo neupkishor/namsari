@@ -285,17 +285,13 @@ function HomeSearchHero() {
         ? `${sizeMin || 'Any'} - ${sizeMax || 'Any'} ${sizeUnit === 'm2' ? 'm²' : 'sq.ft.'}`
         : 'Any size';
 
-    const currentListedByLabel = selectedListedBy
-        ? `${selectedListedBy.charAt(0).toUpperCase()}${selectedListedBy.slice(1)}`
-        : 'Any seller';
-
     const currentCategoryLabel = selectedCategory
         ? selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)
         : 'Any category';
 
     const HOME_PRICE_PRESETS = purposes.has('rent') && !purposes.has('sale') ? HOME_PRICE_PRESETS_RENT : HOME_PRICE_PRESETS_SALE;
 
-    const submitSearch = () => {
+    const buildSearchParams = (options?: { view?: 'map' }) => {
         const params = new URLSearchParams();
         const modified = convertAreaPriceToModified(areaPriceUnit, priceMin, priceMax);
 
@@ -316,7 +312,18 @@ function HomeSearchHero() {
         if (sizeMin) params.set('sizeMin', sizeMin);
         if (sizeMax) params.set('sizeMax', sizeMax);
         if (sizeUnit) params.set('sizeUnit', sizeUnit);
+        if (options?.view) params.set('view', options.view);
 
+        return params;
+    };
+
+    const submitSearch = () => {
+        const params = buildSearchParams();
+        router.push(`/explore${params.toString() ? `?${params.toString()}` : ''}`);
+    };
+
+    const submitMapSearch = () => {
+        const params = buildSearchParams({ view: 'map' });
         router.push(`/explore${params.toString() ? `?${params.toString()}` : ''}`);
     };
 
@@ -603,91 +610,49 @@ function HomeSearchHero() {
                 </div>
 
                 <div className="space-y-1.5">
-                    {/* Purpose pills + search bar — container shrinks to pill width on top, full width search below */}
-                    <div className="w-full">
-                        {/* Purpose pills — inline so container only spans pill content */}
-                        <div className="inline-flex items-center gap-2 rounded-t-[14px] border border-b-0 border-[color:var(--color-primary)]/25 bg-white px-3 pt-2.5 pb-2.5 sm:rounded-t-[18px] sm:px-4">
-                            {([['sale', 'For Sale'], ['rent', 'For Rent']] as ['sale' | 'rent', string][]).map(([val, lbl]) => {
+                    {/* Purpose pills */}
+                    <div className="w-full max-w-[1100px]">
+                        <div className="inline-flex overflow-hidden rounded-t-[14px] border border-b-0 border-slate-200 bg-white">
+                            {([['sale', 'For Sale'], ['rent', 'For Rent']] as ['sale' | 'rent', string][]).map(([val, lbl], index, arr) => {
                                 const isActive = purposes.has(val);
                                 const togglePurpose = () => {
-                                    setPurposes(prev => {
-                                        const next = new Set(prev);
-                                        if (next.has(val)) {
-                                            if (next.size > 1) next.delete(val);
-                                        } else {
-                                            next.add(val);
-                                        }
-                                        return next;
-                                    });
+                                    setPurposes(new Set([val]));
                                     setPriceMin(''); setPriceMax('');
                                 };
+                                const isLast = index === arr.length - 1;
                                 return (
                                     <button
                                         key={val}
                                         type="button"
                                         onClick={togglePurpose}
-                                        className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-[13px] font-semibold transition-all duration-200 ${isActive ? 'bg-[color:var(--color-primary)] border-[color:var(--color-primary)] text-white shadow-[0_3px_10px_rgba(10,107,255,0.22)]' : 'border-slate-200 bg-white text-slate-500 hover:border-[color:var(--color-primary)]/40 hover:text-slate-700'}`}
+                                        className={`relative inline-flex items-center px-6 py-2 text-[14px] font-semibold transition-all duration-200 ${isActive ? 'bg-[color:var(--color-primary)] text-white' : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-800'}`}
                                     >
-                                        {isActive && purposes.size > 1 && (
-                                            <span className="inline-flex h-[20px] w-[20px] shrink-0 items-center justify-center rounded-full border border-white/60">
-                                                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                                    <line x1="18" y1="6" x2="6" y2="18" />
-                                                    <line x1="6" y1="6" x2="18" y2="18" />
-                                                </svg>
-                                            </span>
-                                        )}
+                                        {!isLast && <span className="absolute right-0 top-1/2 h-7 w-px -translate-y-1/2 bg-slate-200" aria-hidden="true" />}
                                         {lbl}
                                     </button>
                                 );
                             })}
                         </div>
 
-                        {/* Search bar — full width, top-left square to sit flush under pill bar */}
-                        <div className="flex items-center gap-2.5 rounded-b-[18px] rounded-tr-[18px] border border-[color:var(--color-primary)]/25 bg-white px-3 py-2.5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:gap-3 sm:rounded-b-[24px] sm:rounded-tr-[24px] sm:px-4 sm:py-3">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-[color:var(--color-primary)] sm:h-[22px] sm:w-[22px]">
-                                <circle cx="11" cy="11" r="8" />
-                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                            </svg>
-                            <input
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
-                                onKeyDown={(e) => { if (e.key === 'Enter') submitSearch(); }}
-                                placeholder="Search by property, area, landmark, or developer"
-                                className="w-full bg-transparent text-[14px] font-semibold text-slate-900 outline-none placeholder:text-slate-400 sm:text-[15px]"
-                            />
-                            <button
-                                type="button"
-                                onClick={submitSearch}
-                                title="Search properties"
-                                aria-label="Search properties"
-                                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-white shadow-[0_12px_24px_rgba(10,107,255,0.28)] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.98] sm:h-10 sm:w-10"
-                            >
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
-                                    <circle cx="11" cy="11" r="8" />
-                                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Compact filter pills */}
-                    <div className="flex flex-wrap gap-2 pt-1">
+                        {/* Merged filter segments */}
+                        <div>
+                        <div className="inline-flex max-w-full overflow-x-auto rounded-t-[14px] rounded-b-none border border-b-0 border-slate-200 bg-white shadow-[0_10px_28px_rgba(15,23,42,0.06)]">
                         {([
                             ['price', 'Price', currentPriceLabel],
                             ['location', 'Location', currentLocationLabel],
-                            ['size', 'Size', currentSizeLabel],
-                            ['listedBy', 'Listed by', currentListedByLabel],
+                            ['size', 'Area', currentSizeLabel],
                             ['category', 'Category', currentCategoryLabel],
-                        ] as Array<[Exclude<HomeSearchPanel, null>, string, string]>).map(([key, label, value]) => {
-                            const isActive = activePanel === key;
-                            const hasValue = value !== 'Any budget' && value !== 'Any location' && value !== 'Any size' && value !== 'Any seller' && value !== 'Any category';
+                        ] as Array<[Exclude<HomeSearchPanel, null>, string, string]>).map(([key, label, value], index, arr) => {
+                            const hasValue = value !== 'Any budget' && value !== 'Any location' && value !== 'Any size' && value !== 'Any category';
+                            const isLast = index === arr.length - 1;
                             return (
                                 <button
                                     key={key}
                                     type="button"
                                     onClick={() => openModal(key)}
-                                    className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-left text-[13px] font-semibold transition-all duration-150 ${hasValue ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/6 text-[color:var(--color-primary)]' : 'border-slate-200 bg-white text-slate-700 hover:border-[color:var(--color-primary)]/40 hover:text-slate-900'}`}
+                                    className={`group relative inline-flex shrink-0 items-center gap-1.5 px-4 py-2.5 text-left text-[13px] font-semibold transition-all duration-150 sm:px-5 ${hasValue ? 'bg-[color:var(--color-primary)]/6 text-[color:var(--color-primary)]' : 'bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900'}`}
                                 >
+                                    {!isLast && <span className="absolute right-0 top-1/2 h-6 w-px -translate-y-1/2 bg-slate-200" aria-hidden="true" />}
                                     <span className="text-[13px] font-medium text-slate-500">{label}:</span>
                                     <span className="truncate max-w-[120px]">{value}</span>
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-50">
@@ -696,6 +661,49 @@ function HomeSearchHero() {
                                 </button>
                             );
                         })}
+                        </div>
+                        </div>
+
+                        <div className="mt-0">
+                            <div className="flex items-center gap-2.5 rounded-t-none rounded-b-[18px] border border-[color:var(--color-primary)]/25 bg-white px-3 py-2 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:gap-3 sm:rounded-t-none sm:rounded-b-[24px] sm:px-4 sm:py-2.5">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-[color:var(--color-primary)] sm:h-[22px] sm:w-[22px]">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                </svg>
+                                <input
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === 'Enter') submitSearch(); }}
+                                    placeholder="Search by property, area, landmark, or developer"
+                                    className="w-full bg-transparent text-[14px] font-semibold text-slate-900 outline-none placeholder:text-slate-400 sm:text-[15px]"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={submitSearch}
+                                    title="Search properties"
+                                    aria-label="Search properties"
+                                    className="inline-flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-white shadow-[0_12px_24px_rgba(10,107,255,0.28)] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.98] sm:h-9 sm:w-9"
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="11" cy="11" r="8" />
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                    </svg>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={submitMapSearch}
+                                    className="inline-flex h-8.5 shrink-0 items-center justify-center gap-2 rounded-full bg-[color:var(--color-primary)] px-3.5 text-[13px] font-semibold text-white shadow-[0_12px_24px_rgba(10,107,255,0.28)] transition-all hover:opacity-90 sm:h-9 sm:px-4 sm:text-[14px]"
+                                >
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                                        <path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2V6z" />
+                                        <path d="M9 4v14" />
+                                        <path d="M15 6v14" />
+                                    </svg>
+                                    <span className="hidden sm:inline">Search in maps</span>
+                                    <span className="sm:hidden">Maps</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
