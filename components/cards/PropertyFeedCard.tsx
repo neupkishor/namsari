@@ -352,12 +352,12 @@ export function PropertyPost({
                 <a
                   href={`tel:${agentPhone}`}
                   aria-label="Call agent"
-                  className="flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
+                  className="hidden sm:flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
                 >
                   <PhoneIcon />
                 </a>
               ) : (
-                <span className="flex items-center justify-center p-2 rounded-lg text-slate-400 flex-shrink-0">
+                <span className="hidden sm:flex items-center justify-center p-2 rounded-lg text-slate-400 flex-shrink-0">
                   <PhoneIcon />
                 </span>
               )}

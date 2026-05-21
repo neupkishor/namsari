@@ -263,6 +263,30 @@ function toNepaliWords(value: string): string {
     return parts.join(' ');
 }
 
+function formatNumberShort(n: number): string {
+    if (!Number.isFinite(n)) return '';
+    const crore = 1_00_00_000;
+    const lakh = 1_00_000;
+    const thousand = 1000;
+
+    const parts: string[] = [];
+    if (n >= crore) {
+        const cr = Math.floor(n / crore);
+        parts.push(`${cr} Cr`);
+        n = n % crore;
+    }
+    if (n >= lakh) {
+        const lk = Math.floor(n / lakh);
+        parts.push(`${lk} L`);
+        n = n % lakh;
+    }
+    if (parts.length === 0 && n >= thousand) {
+        parts.push(`${Math.floor(n / thousand)}k`);
+    }
+
+    return parts.join(' ') || String(n);
+}
+
 function convertAreaPriceToModified(unit: AreaPriceUnit, minPrice?: string, maxPrice?: string) {
     const rawMin = minPrice && minPrice !== '' ? Number(minPrice) : null;
     const rawMax = maxPrice && maxPrice !== '' ? Number(maxPrice) : null;
@@ -370,6 +394,17 @@ function HomeSearchHero() {
     const currentPriceLabel = priceMin || priceMax
         ? `${priceMin ? formatDevanagariComma(priceMin) : 'Any'} - ${priceMax ? formatDevanagariComma(priceMax) : 'Any'}${(purposes.has('rent') && !purposes.has('sale')) ? '/mo' : ` (${areaPriceUnit === 'peraana' ? 'per aana' : 'per m²'})`}`
         : 'Any budget';
+
+    const currentPriceLabelShort = (() => {
+        if (!priceMin && !priceMax) return 'Any budget';
+        const minNum = priceMin ? Number(String(priceMin).replace(/[^\d]/g, '')) : null;
+        const maxNum = priceMax ? Number(String(priceMax).replace(/[^\d]/g, '')) : null;
+
+        if (minNum && maxNum) return `${formatNumberShort(minNum)} - ${formatNumberShort(maxNum)}`;
+        if (maxNum) return `Up to ${formatNumberShort(maxNum)}`;
+        if (minNum) return `From ${formatNumberShort(minNum)}`;
+        return 'Any budget';
+    })();
 
     const currentLocationLabel = selectedLocations.length > 0
         ? `${selectedLocations.length} selected`
@@ -737,9 +772,9 @@ function HomeSearchHero() {
                             ['size', 'Area', currentSizeLabel],
                             ['category', 'Category', currentCategoryLabel],
                         ] as Array<[Exclude<HomeSearchPanel, null>, string, string]>).map(([key, label, value], index, arr) => {
-                            const hasValue = value !== 'Any budget' && value !== 'Any location' && value !== 'Any size' && value !== 'Any category';
+                                    const hasValue = value !== 'Any budget' && value !== 'Any location' && value !== 'Any size' && value !== 'Any category';
                             const isLast = index === arr.length - 1;
-                            return (
+                                    return (
                                 <button
                                     key={key}
                                     type="button"
@@ -747,13 +782,22 @@ function HomeSearchHero() {
                                     className={`group relative inline-flex shrink-0 items-center gap-1.5 px-4 py-2.5 text-left text-[13px] font-semibold transition-all duration-150 sm:px-5 ${hasValue ? 'bg-[color:var(--color-primary)]/6 text-[color:var(--color-primary)]' : 'bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900'}`}
                                 >
                                     {!isLast && <span className="absolute right-0 top-1/2 h-6 w-px -translate-y-1/2 bg-slate-200" aria-hidden="true" />}
-                                    <span className="text-[13px] font-medium text-slate-500">{label}:</span>
-                                    <span className="truncate max-w-[120px]">{value}</span>
+                                    <span className={`text-[13px] font-medium text-slate-500 ${hasValue ? 'hidden sm:inline' : 'inline'}`}>{label}:</span>
+                                    <span className={`truncate max-w-[120px] ${hasValue ? 'inline' : 'hidden sm:inline'}`}>
+                                        {key === 'price' ? (
+                                            <>
+                                                <span className="sm:hidden">{hasValue ? currentPriceLabelShort : ''}</span>
+                                                <span className="hidden sm:inline">{value}</span>
+                                            </>
+                                        ) : (
+                                            <>{hasValue ? value : ''}</>
+                                        )}
+                                    </span>
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-50">
                                         <polyline points="6 9 12 15 18 9" />
                                     </svg>
                                 </button>
-                            );
+                                    );
                         })}
                         </div>
                         </div>
@@ -1338,7 +1382,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                             router.push(requirementUrl);
                                                                         }
                                                                     }}
-                                                                    className={`relative hover:z-10 px-4 sm:px-5 pt-3 sm:pt-3.5 pb-1 sm:pb-1.5 transition-[box-shadow,border-color,background-color] duration-300 hover:bg-slate-50/70 hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] cursor-pointer ${requirementIndex === 0 ? 'rounded-t-[28px]' : ''} ${requirementIndex === requirements.length - 1 ? 'rounded-b-[28px]' : ''} ${requirementIndex !== requirements.length - 1 ? 'border-b border-slate-200 hover:border-b-transparent' : ''}`}
+                                                                    className={`relative hover:z-10 px-4 sm:px-5 pt-3 sm:pt-3.5 pb-1 sm:pb-1.5 transition-[box-shadow,border-color,background-color] duration-300 hover:bg-slate-50/70 hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] cursor-pointer ${requirementIndex === 0 ? 'rounded-t-[28px]' : ''} ${requirementIndex === filteredRequirements.length - 1 ? 'rounded-b-[28px]' : ''} ${requirementIndex !== filteredRequirements.length - 1 ? 'border-b border-slate-200 hover:border-b-transparent' : ''}`}
                                                                 >
                                                                     <div className="flex flex-col gap-0.5 min-w-0">
                                                                         <div className="flex items-center justify-between gap-3">
@@ -1379,7 +1423,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                                     <a
                                                                                         href={phoneHref}
                                                                                         onClick={(e) => e.stopPropagation()}
-                                                                                        className="flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
+                                                                                        className="hidden sm:flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
                                                                                         aria-label="Call user"
                                                                                     >
                                                                                         <PhoneIcon />
