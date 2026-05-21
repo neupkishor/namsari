@@ -1082,7 +1082,6 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
     }, [searchParams]);
 
     const handleFeedTabChange = (tab: 'property' | 'requirements') => {
-        setActiveFeedTab(tab);
         const params = new URLSearchParams(searchParams.toString());
         params.set('tab', tab === 'requirements' ? 'requirements' : 'properties');
         const query = params.toString();
@@ -1197,6 +1196,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                         <div className="p-8 text-sm text-slate-500">No active requirements available right now.</div>
                                                     ) : (
                                                         requirements.map((requirement: any, requirementIndex: number) => {
+                                                            const requirementUrl = `/requirement/${requirement.id}`;
                                                             const contactNumber = requirement.user?.contact_number || '';
                                                             const waNumber = String(contactNumber).replace(/[^\d+]/g, '').replace(/^\+/, '');
                                                             const phoneNumber = String(contactNumber).replace(/[^\d+]/g, '');
@@ -1221,7 +1221,16 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                             return (
                                                                 <div
                                                                     key={requirement.id || `requirement-${requirementIndex}`}
-                                                                    className={`relative hover:z-10 px-4 sm:px-5 pt-3 sm:pt-3.5 pb-1 sm:pb-1.5 transition-[box-shadow,border-color,background-color] duration-300 hover:bg-slate-50/70 hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] ${requirementIndex === 0 ? 'rounded-t-[28px]' : ''} ${requirementIndex === requirements.length - 1 ? 'rounded-b-[28px]' : ''} ${requirementIndex !== requirements.length - 1 ? 'border-b border-slate-200 hover:border-b-transparent' : ''}`}
+                                                                    role="link"
+                                                                    tabIndex={0}
+                                                                    onClick={() => router.push(requirementUrl)}
+                                                                    onKeyDown={(e) => {
+                                                                        if (e.key === 'Enter' || e.key === ' ') {
+                                                                            e.preventDefault();
+                                                                            router.push(requirementUrl);
+                                                                        }
+                                                                    }}
+                                                                    className={`relative hover:z-10 px-4 sm:px-5 pt-3 sm:pt-3.5 pb-1 sm:pb-1.5 transition-[box-shadow,border-color,background-color] duration-300 hover:bg-slate-50/70 hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)] cursor-pointer ${requirementIndex === 0 ? 'rounded-t-[28px]' : ''} ${requirementIndex === requirements.length - 1 ? 'rounded-b-[28px]' : ''} ${requirementIndex !== requirements.length - 1 ? 'border-b border-slate-200 hover:border-b-transparent' : ''}`}
                                                                 >
                                                                     <div className="flex flex-col gap-0.5 min-w-0">
                                                                         <div className="flex items-center justify-between gap-3">
@@ -1238,6 +1247,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                                 {requirement.user?.username ? (
                                                                                     <Link
                                                                                         href={`/@${requirement.user.username}`}
+                                                                                        onClick={(e) => e.stopPropagation()}
                                                                                         className="text-[12px] text-slate-500 font-medium truncate max-w-[90px] sm:max-w-[130px] hover:text-[color:var(--color-primary)] hover:underline transition-colors"
                                                                                     >
                                                                                         {requirement.user?.name || 'Anonymous user'}
@@ -1250,6 +1260,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                                         <span className="text-slate-400 text-[12px] font-medium">•</span>
                                                                                         <Link
                                                                                             href={`/@${requirement.user.username}/requirements`}
+                                                                                            onClick={(e) => e.stopPropagation()}
                                                                                             className="text-[12px] text-slate-500 font-medium shrink-0 hover:text-[color:var(--color-primary)] hover:underline transition-colors"
                                                                                         >
                                                                                             {requirement.user._count.requirements} requirements
@@ -1259,6 +1270,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                                 {phoneHref && (
                                                                                     <a
                                                                                         href={phoneHref}
+                                                                                        onClick={(e) => e.stopPropagation()}
                                                                                         className="flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
                                                                                         aria-label="Call user"
                                                                                     >
@@ -1270,6 +1282,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                                         href={whatsappHref}
                                                                                         target="_blank"
                                                                                         rel="noopener noreferrer"
+                                                                                        onClick={(e) => e.stopPropagation()}
                                                                                         className="flex items-center justify-center p-2 rounded-lg text-[#25D366] hover:text-[#1aab52] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
                                                                                         aria-label="Message on WhatsApp"
                                                                                     >
@@ -1281,7 +1294,8 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                                 <span className="text-[11px] text-slate-400 font-medium">{formatTimeAgo(requirement.created_at)}</span>
                                                                                 <button
                                                                                     type="button"
-                                                                                    onClick={() => {
+                                                                                    onClick={(e) => {
+                                                                                        e.stopPropagation();
                                                                                         const shareUrl = `${window.location.origin}/requirement/${requirement.id}`;
 
                                                                                         if (navigator.share) {
