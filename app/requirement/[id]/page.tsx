@@ -4,9 +4,9 @@ import Link from 'next/link';
 import { formatNPR } from '@/lib/formatters';
 
 interface PageProps {
-    params: {
+    params: Promise<{
         id: string;
-    };
+    }>;
 }
 
 function formatBudget(minPrice: number | null, maxPrice: number | null) {
@@ -19,7 +19,9 @@ function formatBudget(minPrice: number | null, maxPrice: number | null) {
 }
 
 export default async function RequirementPage({ params }: PageProps) {
-    const id = parseInt(params.id, 10);
+    const resolvedParams = await params;
+    const rawId = resolvedParams.id;
+    const id = parseInt(rawId.split('-').pop() || rawId, 10);
     if (isNaN(id)) return notFound();
 
     const requirement = await prisma.requirement.findUnique({
@@ -63,11 +65,6 @@ export default async function RequirementPage({ params }: PageProps) {
                         </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
-        const contactNumber = requirement.user?.contact_number || '';
-        const waNumber = String(contactNumber).replace(/[^\d]/g, '').replace(/^\+/, '');
-        const phoneNumber = String(contactNumber).replace(/[^\d+]/g, '');
-                            </>
-                        )}
                         <div style={{ display: 'flex', gap: '8px' }}>
                             {phoneHref && <a href={phoneHref} style={{ padding: '8px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', textDecoration: 'none' }}>Call</a>}
                             {whatsappHref && <a href={whatsappHref} target="_blank" rel="noreferrer" style={{ padding: '8px 12px', background: '#25D366', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>WhatsApp</a>}
