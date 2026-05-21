@@ -907,7 +907,7 @@ function ExploreCategoriesSection({
         <section className="w-full">
             <div className="mb-5 space-y-0.5">
                 <h2 className="text-lg font-bold text-slate-900">Browse by category</h2>
-                <p className="text-sm text-slate-400">Find what you're looking for.</p>
+                <p className="text-sm text-slate-400">Find what you&apos;re looking for.</p>
             </div>
             <div className="flex flex-col gap-5">
                 {groups.map((group) => (
@@ -945,11 +945,14 @@ function ExploreCategoriesSection({
 
 export default function HomeClient({ user, featuredCollections, trendingSearches, featuredProperties = [], advertisements = [], exploreCategoryStats, siteSettings }: HomeClientProps) {
     const [isLoading, setIsLoading] = useState(true);
+    const [activeFeedTab, setActiveFeedTab] = useState<'property' | 'requirements'>('property');
 
     const [properties, setProperties] = useState<any[]>([]);
+    const [requirements, setRequirements] = useState<any[]>([]);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
+    const [isLoadingRequirements, setIsLoadingRequirements] = useState(false);
 
     const featuredCards = resolveFeaturedCards(featuredProperties);
 
@@ -997,8 +1000,26 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
         }
     };
 
+    const fetchRequirements = async () => {
+        setIsLoadingRequirements(true);
+        try {
+            const res = await fetch('/api/requirements');
+            const data = await res.json();
+
+            if (Array.isArray(data)) {
+                const activeRequirements = data.filter((item: any) => item?.status === 'active');
+                setRequirements(activeRequirements);
+            }
+        } catch (err) {
+            console.error('Failed to load requirements:', err);
+        } finally {
+            setIsLoadingRequirements(false);
+        }
+    };
+
     useEffect(() => {
         fetchProperties(true);
+        fetchRequirements();
     }, []);
 
     return (
@@ -1054,14 +1075,103 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                             <div className="flex flex-col gap-10">
                                 <div className="space-y-6">
                                     {/* Sub-header for the feed */}
-                                    <SectionTitleFeed
-                                        title="Latest Property/Requirements"
-                                        description="Real-time stream of premium listings, sponsored placements, and curated discovery signals."
-                                    />
+                                    <div className="mb-5 space-y-1">
+                                        <div className="flex items-center gap-2 text-xl font-bold tracking-tight text-slate-900">
+                                            {activeFeedTab === 'property' ? (
+                                                <>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setActiveFeedTab('property')}
+                                                        className="text-slate-900 cursor-default transition-colors"
+                                                    >
+                                                        Latest Properties
+                                                    </button>
+                                                    <span className="text-slate-300">|</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setActiveFeedTab('requirements')}
+                                                        className="text-slate-400 hover:text-slate-600 underline underline-offset-4 transition-colors"
+                                                    >
+                                                        Requirements
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setActiveFeedTab('requirements')}
+                                                        className="text-slate-900 cursor-default transition-colors"
+                                                    >
+                                                        Latest Requirements
+                                                    </button>
+                                                    <span className="text-slate-300">|</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setActiveFeedTab('property')}
+                                                        className="text-slate-400 hover:text-slate-600 underline underline-offset-4 transition-colors"
+                                                    >
+                                                        Properties
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                        <p className="text-sm text-slate-500">
+                                            Real-time stream of premium listings, sponsored placements, and curated discovery signals.
+                                        </p>
+                                    </div>
 
                                     <div className="flex flex-col gap-6">
                                         <div className="flex flex-col gap-6">
-                                            {(() => {
+                                            {activeFeedTab === 'requirements' ? (
+                                                <div className="rounded-[28px] border border-slate-300 bg-white shadow-[var(--shadow-card)] overflow-hidden">
+                                                    {isLoadingRequirements ? (
+                                                        <div className="p-8 text-sm text-slate-500">Loading requirements...</div>
+                                                    ) : requirements.length === 0 ? (
+                                                        <div className="p-8 text-sm text-slate-500">No active requirements available right now.</div>
+                                                    ) : (
+                                                        requirements.map((requirement: any, requirementIndex: number) => {
+                                                            const locationLabel = [requirement.area, requirement.cityVillage, requirement.district].filter(Boolean).join(', ') || 'Location not specified';
+                                                            const budgetLabel = requirement.minPrice && requirement.maxPrice
+                                                                ? `${formatNPR(requirement.minPrice)} - ${formatNPR(requirement.maxPrice)}`
+                                                                : requirement.maxPrice
+                                                                    ? `Up to ${formatNPR(requirement.maxPrice)}`
+                                                                    : requirement.minPrice
+                                                                        ? `From ${formatNPR(requirement.minPrice)}`
+                                                                        : 'Budget negotiable';
+                                                            const summary = requirement.mode === 'simple'
+                                                                ? requirement.content
+                                                                : requirement.remarks || 'Detailed requirement submitted.';
+                                                            const title = requirement.mode === 'simple'
+                                                                ? 'General Property Requirement'
+                                                                : `${(requirement.propertyTypes || 'Property').split(',')[0]} requirement`;
+
+                                                            return (
+                                                                <div
+                                                                    key={requirement.id || `requirement-${requirementIndex}`}
+                                                                    className={`p-5 sm:p-6 ${requirementIndex !== requirements.length - 1 ? 'border-b border-slate-200' : ''}`}
+                                                                >
+                                                                    <div className="flex flex-col gap-3">
+                                                                        <div className="flex items-center justify-between gap-3">
+                                                                            <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+                                                                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase text-slate-600">
+                                                                                {requirement.purposes || 'Any purpose'}
+                                                                            </span>
+                                                                        </div>
+                                                                        <p className="text-sm text-slate-500 line-clamp-2">{summary || 'No additional remarks shared.'}</p>
+                                                                        <div className="text-2xl font-extrabold text-slate-900">{budgetLabel}</div>
+                                                                        <div className="text-base text-slate-600">{locationLabel}</div>
+                                                                        <div className="flex items-center justify-between border-t border-slate-100 pt-3 text-sm text-slate-500">
+                                                                            <span>{requirement.user?.name || 'Anonymous user'}</span>
+                                                                            <span>{new Date(requirement.created_at).toLocaleDateString()}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })
+                                                    )}
+                                                </div>
+                                            ) : (
+                                            (() => {
                                                 const feedItems: any[] = [];
                                                 let propertyIndex = 0;
                                                 let insertionCount = 0;
@@ -1180,7 +1290,8 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                         </div>
                                                     );
                                                 });
-                                            })()}
+                                            })()
+                                            )}
                                         </div>
                                     </div>
 
