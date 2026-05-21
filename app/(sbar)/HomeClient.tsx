@@ -636,7 +636,7 @@ function HomeSearchHero() {
 
                         {/* Merged filter segments */}
                         <div>
-                        <div className="inline-flex max-w-full overflow-x-auto rounded-t-[14px] rounded-b-none border border-b-0 border-slate-200 bg-white shadow-[0_10px_28px_rgba(15,23,42,0.06)]">
+                        <div className="inline-flex max-w-full overflow-x-auto rounded-tl-none rounded-tr-[14px] rounded-b-none border border-b-0 border-slate-200 bg-white shadow-[0_10px_28px_rgba(15,23,42,0.06)] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                         {([
                             ['price', 'Price', currentPriceLabel],
                             ['location', 'Location', currentLocationLabel],
