@@ -75,6 +75,49 @@ function resolveFeaturedCards(properties: any[]) {
     });
 }
 
+function splitQueryValues(value: string | null | undefined): string[] {
+    if (!value) return [];
+    return value
+        .split(',')
+        .map((item) => item.trim().toLowerCase())
+        .filter(Boolean);
+}
+
+function normalizeQueryList(values: Array<string | null | undefined>): string[] {
+    return values
+        .flatMap((item) => splitQueryValues(item))
+        .filter(Boolean);
+}
+
+function collectNamedValues(items: any[] | undefined, key = 'name'): string[] {
+    if (!Array.isArray(items)) return [];
+    return items
+        .map((item) => (typeof item === 'string' ? item : item?.[key]))
+        .filter(Boolean)
+        .map((item) => String(item).trim().toLowerCase());
+}
+
+function includesAny(source: string[], filters: string[]): boolean {
+    if (filters.length === 0) return true;
+    return filters.some((filter) => source.includes(filter));
+}
+
+function matchesLocationParts(parts: Array<string | null | undefined>, filters: string[]): boolean {
+    if (filters.length === 0) return true;
+    const values = parts
+        .filter(Boolean)
+        .map((item) => String(item).trim().toLowerCase());
+    return filters.some((filter) => values.some((value) => value.includes(filter) || filter.includes(value)));
+}
+
+function matchesPriceRange(value: number | null | undefined, minPrice?: number | null, maxPrice?: number | null): boolean {
+    if (minPrice == null && maxPrice == null) return true;
+    if (value == null) return true;
+    if (minPrice != null && value < minPrice) return false;
+    if (maxPrice != null && value > maxPrice) return false;
+    return true;
+}
+
 function FeaturedSmallCard({ property }: { property: any }) {
     const slug = property.slug || property.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const propertyUrl = `/properties/${slug}-${property.id}`;
@@ -1016,6 +1059,67 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
         posted_by: ad.posted_by || ad.title // Ensure posted_by is available for the carousel UI
     }));
 
+    const queryFilters = new URLSearchParams(searchParams.toString());
+    const selectedFeedType = queryFilters.get('tab');
+    const selectedTypeFilters = queryFilters.getAll('type').map((value) => value.trim().toLowerCase()).filter(Boolean);
+    const selectedRequirementTypes = selectedTypeFilters.filter((value) => value !== 'requirements' && value !== 'property');
+    const selectedPurposeFilters = normalizeQueryList([queryFilters.get('purpose')]);
+    const selectedFacingFilters = normalizeQueryList([queryFilters.get('facing')]);
+    const selectedLocationFilters = normalizeQueryList([
+        queryFilters.get('location'),
+        queryFilters.get('district'),
+        queryFilters.get('cityVillage'),
+        queryFilters.get('area'),
+    ]);
+
+    const minPriceParam = Number(queryFilters.get('minPrice') || queryFilters.get('priceMin') || '');
+    const maxPriceParam = Number(queryFilters.get('maxPrice') || queryFilters.get('priceMax') || '');
+    const hasMinPriceFilter = Number.isFinite(minPriceParam);
+    const hasMaxPriceFilter = Number.isFinite(maxPriceParam);
+    const queryMinPrice = hasMinPriceFilter ? minPriceParam : null;
+    const queryMaxPrice = hasMaxPriceFilter ? maxPriceParam : null;
+    const hasAnyFeedFilters = selectedRequirementTypes.length > 0 || selectedPurposeFilters.length > 0 || selectedFacingFilters.length > 0 || selectedLocationFilters.length > 0 || hasMinPriceFilter || hasMaxPriceFilter;
+
+    const filteredRequirements = requirements.filter((requirement: any) => {
+        if (!includesAny(collectNamedValues(requirement.propertyTypes ? requirement.propertyTypes.split(',') : []), selectedRequirementTypes)) return false;
+        if (!includesAny(collectNamedValues(requirement.purposes ? requirement.purposes.split(',') : []), selectedPurposeFilters)) return false;
+        if (!includesAny(collectNamedValues(requirement.facings ? requirement.facings.split(',') : []), selectedFacingFilters)) return false;
+        if (!matchesLocationParts([requirement.area, requirement.cityVillage, requirement.district], selectedLocationFilters)) return false;
+
+        if (queryMinPrice != null) {
+            const upperBound = requirement.maxPrice ?? requirement.minPrice ?? null;
+            if (upperBound != null && upperBound < queryMinPrice) return false;
+        }
+
+        if (queryMaxPrice != null) {
+            const lowerBound = requirement.minPrice ?? requirement.maxPrice ?? null;
+            if (lowerBound != null && lowerBound > queryMaxPrice) return false;
+        }
+
+        return true;
+    });
+
+    const filteredProperties = properties.filter((property: any) => {
+        if (!includesAny(collectNamedValues(property.types), selectedRequirementTypes)) return false;
+        if (!includesAny(collectNamedValues(property.purposes), selectedPurposeFilters)) return false;
+        if (!includesAny(normalizeQueryList([property.facingDirection, property.facing]), selectedFacingFilters)) return false;
+        if (!matchesLocationParts([
+            property.location?.area,
+            property.location?.cityVillage,
+            property.location?.city,
+            property.location?.district,
+            property.location,
+        ], selectedLocationFilters)) return false;
+
+        const priceValue = Number(property.pricing?.price || property.price || NaN);
+        if (queryMinPrice != null && Number.isFinite(priceValue) && priceValue < queryMinPrice) return false;
+        if (queryMaxPrice != null && Number.isFinite(priceValue) && priceValue > queryMaxPrice) return false;
+
+        return true;
+    });
+
+    const visibleProperties = hasAnyFeedFilters && selectedFeedType === 'property' ? filteredProperties : properties;
+
     const carouselAds = activeAds;
     const feedAds = activeAds;
 
@@ -1078,7 +1182,9 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
 
     useEffect(() => {
         const tab = searchParams.get('tab');
-        setActiveFeedTab(tab === 'requirements' ? 'requirements' : 'property');
+        const typeFilters = searchParams.getAll('type').map((value) => value.trim().toLowerCase()).filter(Boolean);
+        const shouldShowRequirements = tab === 'requirements' || typeFilters.includes('requirements');
+        setActiveFeedTab(shouldShowRequirements ? 'requirements' : 'property');
     }, [searchParams]);
 
     const handleFeedTabChange = (tab: 'property' | 'requirements') => {
@@ -1194,8 +1300,10 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                         <div className="p-8 text-sm text-slate-500">Loading requirements...</div>
                                                     ) : requirements.length === 0 ? (
                                                         <div className="p-8 text-sm text-slate-500">No active requirements available right now.</div>
+                                                    ) : filteredRequirements.length === 0 ? (
+                                                        <div className="p-8 text-sm text-slate-500">No matching requirements found.</div>
                                                     ) : (
-                                                        requirements.map((requirement: any, requirementIndex: number) => {
+                                                        filteredRequirements.map((requirement: any, requirementIndex: number) => {
                                                             const requirementUrl = `/requirement/${requirement.id}`;
                                                             const contactNumber = requirement.user?.contact_number || '';
                                                             const waNumber = String(contactNumber).replace(/[^\d+]/g, '').replace(/^\+/, '');
@@ -1338,12 +1446,12 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                     feedItems.push({ type: 'ad', data: feedAds[adIndex] });
                                                 };
 
-                                                while (propertyIndex < properties.length) {
-                                                    const chunkCount = Math.min(4, properties.length - propertyIndex);
+                                                while (propertyIndex < visibleProperties.length) {
+                                                    const chunkCount = Math.min(4, visibleProperties.length - propertyIndex);
                                                     const propertySet: any[] = [];
 
                                                     for (let i = 0; i < chunkCount; i++) {
-                                                        propertySet.push(properties[propertyIndex++]);
+                                                        propertySet.push(visibleProperties[propertyIndex++]);
                                                     }
 
                                                     if (propertySet.length > 0) {
@@ -1397,7 +1505,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                     mergedItems.push(merged);
                                                 }
 
-                                                const triggerPropertyId = properties.length >= 5 ? properties[properties.length - 5]?.id : undefined;
+                                                const triggerPropertyId = visibleProperties.length >= 5 ? visibleProperties[visibleProperties.length - 5]?.id : undefined;
 
                                                 return mergedItems.map((item, idx) => {
                                                     let component = null;
@@ -1414,7 +1522,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                         <PropertyPost
                                                                             key={property.id || `${idx}-${propertyIndexInSet}`}
                                                                             property={property}
-                                                                            onVisible={isTrigger ? () => fetchProperties(false) : undefined}
+                                                                            onVisible={isTrigger && !hasAnyFeedFilters ? () => fetchProperties(false) : undefined}
                                                                             isFirstInSet={isFirstInSet}
                                                                             isLastInSet={isLastInSet}
                                                                         />
@@ -1454,7 +1562,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                         </div>
                                     )}
 
-                                    {!hasMore && properties.length > 0 && (
+                                    {!hasAnyFeedFilters && !hasMore && properties.length > 0 && (
                                         <div className="text-center py-20 border-t border-border/60">
                                             <div className="inline-block p-4 rounded-full bg-surface border border-border mb-4">
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted opacity-40"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
