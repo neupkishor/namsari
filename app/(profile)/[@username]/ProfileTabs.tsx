@@ -17,6 +17,7 @@ export default function ProfileTabs({ username, isOwner, accountType }: { userna
     const tabs = [
         { label: 'Overview', href: baseUrl },
         { label: 'Properties', href: `${baseUrl}/properties` },
+        { label: 'Requirements', href: `${baseUrl}/requirements` },
         { label: 'Reviews', href: `${baseUrl}/reviews` },
         { label: 'About', href: `${baseUrl}/about` },
     ];
