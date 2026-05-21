@@ -15,7 +15,7 @@ function formatBudget(minPrice: number | null, maxPrice: number | null) {
     }
     if (maxPrice) return `Up to ${formatNPR(maxPrice)}`;
     if (minPrice) return `From ${formatNPR(minPrice)}`;
-    return 'Budget negotiable';
+    return 'Budget Flexible';
 }
 
 function splitValues(input: string | null | undefined) {
