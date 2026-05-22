@@ -112,7 +112,7 @@ export default function MapsClient({ initialUser: _initialUser, initialQuery = '
             const matchesLocation = selectedLocations.length === 0 || selectedLocations.some((location) => locationLabel.includes(location));
             const matchesListedBy = !listedByFilter || normalize(property.listedBy?.type) === listedByFilter;
             const propertyTypes = (property.property_types || []).map((item: string) => normalize(item));
-            const matchesType = typeFilters.length === 0 || typeFilters.some((type) => propertyTypes.some((item) => item.includes(type) || type.includes(item)));
+            const matchesType = typeFilters.length === 0 || typeFilters.some((type) => propertyTypes.some((item: string) => item.includes(type) || type.includes(item)));
             const propertyArea = normalizeArea(property.features?.builtUpArea, property.features?.builtUpAreaUnit);
             const matchesSize = (minSize === null || propertyArea === null || propertyArea >= minSize) && (maxSize === null || propertyArea === null || propertyArea <= maxSize);
             const propertyPrice = Number(property.pricing?.price || property.price || NaN);

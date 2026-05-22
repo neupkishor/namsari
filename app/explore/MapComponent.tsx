@@ -314,13 +314,16 @@ export default function MapComponent({
                 )}
 
                 {properties.map((p) => {
-                    const lat = typeof p.latitude === 'string' ? parseFloat(p.latitude) : p.latitude;
-                    const lng = typeof p.longitude === 'string' ? parseFloat(p.longitude) : p.longitude;
+                    const latValue = typeof p.latitude === 'string' ? parseFloat(p.latitude) : p.latitude;
+                    const lngValue = typeof p.longitude === 'string' ? parseFloat(p.longitude) : p.longitude;
 
-                    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+                    if (!Number.isFinite(latValue) || !Number.isFinite(lngValue)) return null;
+
+                    const lat = Number(latValue);
+                    const lng = Number(lngValue);
 
                     const isSelected = selectedId === p.id;
-                    const displayPosition = displayPositionById.get(p.id) || [lat, lng];
+                    const displayPosition: [number, number] = displayPositionById.get(p.id) ?? [lat, lng];
 
                     return (
                         <Marker
