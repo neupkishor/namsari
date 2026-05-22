@@ -1014,7 +1014,7 @@ function PostPropertySection() {
                             <div className="text-[13px] font-semibold text-slate-800 group-hover:text-slate-900 transition-colors truncate">
                                 {card.title}
                             </div>
-                            <div className="text-[12px] font-medium text-slate-500 group-hover:text-[color:var(--color-primary)] transition-colors">
+                            <div className="text-[12px] font-medium text-slate-500 group-hover:text-[color:var(--color-primary)] transition-colors truncate">
                                 {card.subtitle}
                             </div>
                         </div>
