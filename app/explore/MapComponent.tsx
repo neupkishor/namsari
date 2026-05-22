@@ -35,14 +35,14 @@ function getCompactPriceLabel(price: unknown): string {
 
 function createPricePointerIcon(price: unknown, selected = false) {
     const label = getCompactPriceLabel(price);
-    const border = selected ? '#820000' : '#C9CDD3';
+    const border = selected ? '#820000' : '#DDE2E8';
     const text = selected ? '#820000' : '#1F2937';
     const shadow = selected
         ? '0 8px 16px rgba(130,0,0,0.22)'
         : '0 8px 16px rgba(15,23,42,0.16)';
     const tailShadow = selected
         ? 'drop-shadow(0 1px 0 #820000)'
-        : 'drop-shadow(0 1px 0 #C9CDD3)';
+        : 'drop-shadow(0 1px 0 #DDE2E8)';
 
     return L.divIcon({
         className: '',

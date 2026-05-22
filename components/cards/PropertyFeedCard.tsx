@@ -209,10 +209,10 @@ export function PropertyPost({
       className={`group/card bg-white relative hover:z-10 overflow-hidden
         transition-[box-shadow,border-color] duration-300
         hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)]
+      border-b border-b-slate-200 hover:border-b-transparent
       ${isFirstInSet ? 'rounded-t-[28px]' : ''}
       ${isLastInSet ? 'rounded-b-[28px]' : ''}
       ${(!isFirstInSet && !isLastInSet) ? 'rounded-none' : ''}
-      ${!isLastInSet ? 'border-b border-b-slate-300 hover:border-b-transparent' : ''}
       ${className || ''}`}
     >
       <div className="flex w-full gap-3 sm:gap-4 px-3 sm:px-4 pt-3 sm:pt-4 pb-0 items-stretch">

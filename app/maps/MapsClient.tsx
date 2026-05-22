@@ -177,7 +177,7 @@ export default function MapsClient({ initialUser: _initialUser, initialQuery = '
 
                     <div className="order-2 min-w-0 lg:hidden">
                         {!isDesktop && (
-                            <div className="rounded-[2rem] border border-border bg-white shadow-sm overflow-hidden h-[42vh] min-h-[300px]">
+                            <div className="rounded-[2rem] border border-slate-200 bg-white shadow-sm overflow-hidden h-[42vh] min-h-[300px]">
                                 <MapComponent
                                     properties={mapProperties}
                                     center={[27.7172, 85.324]}
@@ -196,19 +196,21 @@ export default function MapsClient({ initialUser: _initialUser, initialQuery = '
                                 <div key={index} className="h-[102px] rounded-[1.5rem] border border-border bg-white animate-pulse" />
                             ))
                         ) : visibleProperties.length > 0 ? (
-                            visibleProperties.map((property, index) => (
-                                <div
-                                    key={property.id}
-                                    data-map-result-id={property.id}
-                                    onMouseEnter={() => setSelectedId(property.id)}
-                                >
-                                    <PropertyPost
-                                        property={property}
-                                        isFirstInSet={index === 0}
-                                        isLastInSet={index === visibleProperties.length - 1}
-                                    />
-                                </div>
-                            ))
+                            <div className="rounded-[28px] border border-slate-300 bg-white shadow-[var(--shadow-card)] overflow-hidden">
+                                {visibleProperties.map((property, index) => (
+                                    <div
+                                        key={property.id}
+                                        data-map-result-id={property.id}
+                                        onMouseEnter={() => setSelectedId(property.id)}
+                                    >
+                                        <PropertyPost
+                                            property={property}
+                                            isFirstInSet={index === 0}
+                                            isLastInSet={index === visibleProperties.length - 1}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
                         ) : (
                             <div className="rounded-[1.5rem] border border-border bg-white p-6 text-center shadow-sm">
                                 <p className="text-sm font-semibold text-text-main">No map results found.</p>
@@ -220,7 +222,7 @@ export default function MapsClient({ initialUser: _initialUser, initialQuery = '
 
                 <div className="order-2 hidden min-w-0 lg:order-2 lg:block lg:h-full">
                     {isDesktop && (
-                        <div className="rounded-[2rem] border border-border bg-white shadow-sm overflow-hidden h-full">
+                        <div className="rounded-[2rem] border border-slate-200 bg-white shadow-sm overflow-hidden h-full">
                             <MapComponent
                                 properties={mapProperties}
                                 center={[27.7172, 85.324]}

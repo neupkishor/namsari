@@ -213,14 +213,16 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
                                 <div key={index} className="h-[190px] rounded-[1.5rem] border border-border bg-white/80 animate-pulse" />
                             ))
                         ) : filteredProperties.length > 0 ? (
-                            filteredProperties.map((property, index) => (
-                                <PropertyPost
-                                    key={property.id}
-                                    property={property}
-                                    isFirstInSet={index === 0}
-                                    isLastInSet={index === filteredProperties.length - 1}
-                                />
-                            ))
+                            <div className="rounded-[28px] border border-slate-300 bg-white shadow-[var(--shadow-card)] overflow-hidden">
+                                {filteredProperties.map((property, index) => (
+                                    <PropertyPost
+                                        key={property.id}
+                                        property={property}
+                                        isFirstInSet={index === 0}
+                                        isLastInSet={index === filteredProperties.length - 1}
+                                    />
+                                ))}
+                            </div>
                         ) : (
                             <div className="rounded-[1.5rem] border border-border bg-white p-8 text-center shadow-sm">
                                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[color:var(--color-primary)]/5 text-2xl">⌕</div>
