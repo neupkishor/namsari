@@ -949,52 +949,35 @@ type HomeClientProps = {
     };
 };
 
-function HomePostPropertyIcon() {
-    return (
-        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
-            <path d="M3 10.8L12 3l9 7.8" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M5.5 9.5V20h13V9.5" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M10 20v-5.5h4V20" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-    );
-}
-
-function HomePostRequirementIcon() {
-    return (
-        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
-            <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.9" />
-            <path d="M16 16l4.2 4.2" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
-        </svg>
-    );
-}
-
-function HomeIconBox({ children }: { children: React.ReactNode }) {
-    return (
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[color:var(--color-primary)]/20 bg-[color:var(--color-primary)]/[0.07] text-[color:var(--color-primary)] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
-            {children}
-        </span>
-    );
-}
-
 function PostPropertySection() {
     const cards = [
         {
-            key: 'property',
-            title: 'Post Property',
-            icon: <HomePostPropertyIcon />,
-            actions: [
-                { label: 'Sell your Property', href: '/sell?purpose=sale' },
-                { label: 'Give on rent', href: '/sell?purpose=rent' },
-            ],
+            key: 'sell-property',
+            title: 'Sell your Property',
+            subtitle: 'Post Property',
+            icon: '/icons/sack-dollar.svg',
+            href: '/sell?purpose=sale',
         },
         {
-            key: 'requirement',
-            title: 'Post Requirement',
-            icon: <HomePostRequirementIcon />,
-            actions: [
-                { label: 'Looking to buy', href: '/requirements/new?purpose=sale' },
-                { label: 'Looking to rent', href: '/requirements/new?purpose=rent' },
-            ],
+            key: 'rent-out-property',
+            title: 'Give on Rent',
+            subtitle: 'Post Property',
+            icon: '/icons/house-chimney.svg',
+            href: '/sell?purpose=rent',
+        },
+        {
+            key: 'buy-requirement',
+            title: 'Looking to buy',
+            subtitle: 'Post Requirement',
+            icon: '/icons/land-location.svg',
+            href: '/requirements/new?purpose=sale',
+        },
+        {
+            key: 'rent-requirement',
+            title: 'Looking to rent',
+            subtitle: 'Post Requirement',
+            icon: '/icons/apartment.svg',
+            href: '/requirements/new?purpose=rent',
         },
     ];
 
@@ -1004,28 +987,38 @@ function PostPropertySection() {
                 <h2 className="text-xl font-bold tracking-tight text-slate-900">Post Property or Requirement</h2>
                 <p className="text-sm text-slate-500">List your property for sale or rent, or post what you&apos;re looking for.</p>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                 {cards.map((card) => (
-                    <div
+                    <Link
                         key={card.key}
-                        className="flex items-center justify-between gap-4 rounded-[22px] border border-[color:var(--color-primary)]/12 bg-white px-4 py-4 sm:px-5 transition-all duration-200 hover:border-[color:var(--color-primary)]/30"
+                        href={card.href}
+                        className="group flex items-stretch gap-2.5 rounded-2xl border border-slate-200 bg-white pl-3 pr-3 py-2.5 shadow-sm transition-all duration-200 hover:border-[color:var(--color-primary)]/35 hover:shadow-md hover:-translate-y-px"
                     >
-                        <div className="flex flex-col gap-2.5 min-w-0">
-                            <div className="text-[14px] sm:text-[15px] font-bold text-slate-900">{card.title}</div>
-                            <div className="flex flex-wrap gap-2">
-                                {card.actions.map((action) => (
-                                    <Link
-                                        key={action.href}
-                                        href={action.href}
-                                        className="rounded-full bg-slate-100 px-3 py-1.5 text-[12px] sm:text-[13px] font-semibold text-slate-700 transition-colors hover:bg-[color:var(--color-primary)]/10 hover:text-[color:var(--color-primary)]"
-                                    >
-                                        {action.label}
-                                    </Link>
-                                ))}
+                        <div className="flex w-9 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 shrink-0">
+                            <span
+                                aria-hidden="true"
+                                className="h-4 w-4 bg-[color:var(--color-primary)]"
+                                style={{
+                                    WebkitMaskImage: `url(${card.icon})`,
+                                    maskImage: `url(${card.icon})`,
+                                    WebkitMaskRepeat: 'no-repeat',
+                                    maskRepeat: 'no-repeat',
+                                    WebkitMaskPosition: 'center',
+                                    maskPosition: 'center',
+                                    WebkitMaskSize: 'contain',
+                                    maskSize: 'contain',
+                                }}
+                            />
+                        </div>
+                        <div className="min-w-0 flex flex-col justify-center gap-0">
+                            <div className="text-[13px] font-semibold text-slate-800 group-hover:text-slate-900 transition-colors truncate">
+                                {card.title}
+                            </div>
+                            <div className="text-[12px] font-medium text-slate-500 group-hover:text-[color:var(--color-primary)] transition-colors">
+                                {card.subtitle}
                             </div>
                         </div>
-                        <HomeIconBox>{card.icon}</HomeIconBox>
-                    </div>
+                    </Link>
                 ))}
             </div>
         </section>
