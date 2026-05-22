@@ -949,12 +949,39 @@ type HomeClientProps = {
     };
 };
 
+function HomePostPropertyIcon() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
+            <path d="M3 10.8L12 3l9 7.8" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M5.5 9.5V20h13V9.5" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M10 20v-5.5h4V20" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    );
+}
+
+function HomePostRequirementIcon() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.9" />
+            <path d="M16 16l4.2 4.2" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+        </svg>
+    );
+}
+
+function HomeIconBox({ children }: { children: React.ReactNode }) {
+    return (
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[color:var(--color-primary)]/20 bg-[color:var(--color-primary)]/[0.07] text-[color:var(--color-primary)] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+            {children}
+        </span>
+    );
+}
+
 function PostPropertySection() {
     const cards = [
         {
             key: 'property',
             title: 'Post Property',
-            icon: '🏠',
+            icon: <HomePostPropertyIcon />,
             actions: [
                 { label: 'Sell your Property', href: '/sell?purpose=sale' },
                 { label: 'Give on rent', href: '/sell?purpose=rent' },
@@ -963,7 +990,7 @@ function PostPropertySection() {
         {
             key: 'requirement',
             title: 'Post Requirement',
-            icon: '🔍',
+            icon: <HomePostRequirementIcon />,
             actions: [
                 { label: 'Looking to buy', href: '/requirements/new?purpose=sale' },
                 { label: 'Looking to rent', href: '/requirements/new?purpose=rent' },
@@ -997,7 +1024,7 @@ function PostPropertySection() {
                                 ))}
                             </div>
                         </div>
-                        <span className="text-2xl sm:text-3xl shrink-0">{card.icon}</span>
+                        <HomeIconBox>{card.icon}</HomeIconBox>
                     </div>
                 ))}
             </div>
