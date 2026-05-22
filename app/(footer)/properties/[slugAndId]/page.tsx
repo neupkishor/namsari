@@ -79,6 +79,40 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         : 'Unspecified';
     const priceValue = property.pricing?.price || 0;
     const formattedPrice = new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(priceValue).replace('NPR', 'Rs.');
+    const formatDevanagariPrice = (value: number) => {
+        if (!Number.isFinite(value) || value <= 0) return 'Price on request';
+
+        const crore = 1_00_00_000;
+        const lakh = 1_00_000;
+        const thousand = 1_000;
+        const parts: string[] = [];
+        let remainder = Math.floor(value);
+
+        if (remainder >= crore) {
+            const croreCount = Math.floor(remainder / crore);
+            parts.push(`${croreCount}Crore`);
+            remainder %= crore;
+        }
+
+        if (remainder >= lakh) {
+            const lakhCount = Math.floor(remainder / lakh);
+            parts.push(`${lakhCount}Lakhs`);
+            remainder %= lakh;
+        }
+
+        if (remainder >= thousand) {
+            const thousandCount = Math.floor(remainder / thousand);
+            parts.push(`${thousandCount}Hajar`);
+            remainder %= thousand;
+        }
+
+        if (remainder > 0 || parts.length === 0) {
+            parts.push(String(remainder));
+        }
+
+        return parts.join(' ');
+    };
+    const formattedDevanagariPrice = formatDevanagariPrice(priceValue);
     const categorySuggestions = Array.from(
         new Set([
             ...(property.types?.map((t) => t.name).filter(Boolean) || []),
@@ -561,7 +595,21 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         font-size: 0.9rem;
                         font-weight: 800;
                         letter-spacing: 0.01em;
-                        box-shadow: 0 10px 22px rgba(130, 0, 0, 0.2);
+                        box-shadow: 0 6px 14px rgba(130, 0, 0, 0.14);
+                        transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+                    }
+                    .mobile-floating-call-btn:hover,
+                    .mobile-floating-call-btn:active,
+                    .mobile-floating-call-btn:focus {
+                        transform: translateY(-1px);
+                        box-shadow: 0 8px 18px rgba(130, 0, 0, 0.18);
+                        color: #fff;
+                        background: var(--color-primary);
+                        border-color: var(--color-primary);
+                    }
+                    .mobile-floating-call-btn:active {
+                        transform: translateY(0);
+                        box-shadow: 0 5px 12px rgba(130, 0, 0, 0.14);
                     }
                 }
 
@@ -874,7 +922,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     </div>
                     <div style={{ minWidth: 0 }}>
                         <div className="mobile-floating-agent-title">{property.title}</div>
-                        <div className="mobile-floating-agent-price">{formattedPrice}</div>
+                        <div className="mobile-floating-agent-price">{formattedDevanagariPrice}</div>
                     </div>
                 </div>
 
