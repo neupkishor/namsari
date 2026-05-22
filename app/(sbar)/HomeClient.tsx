@@ -1059,17 +1059,25 @@ function ExploreCategoriesSection({
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
                             </Link>
                         </div>
-                        {/* Pill chips */}
-                        <div className="flex flex-wrap gap-2">
+                        {/* Two-line category cards */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                             {group.items.map((item) => (
                                 <Link
                                     key={item.label}
                                     href={item.href}
-                                    className="group inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 shadow-sm transition-all duration-200 hover:border-[color:var(--color-primary)]/40 hover:shadow-md hover:-translate-y-px"
+                                    className="group flex items-stretch gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm transition-all duration-200 hover:border-[color:var(--color-primary)]/35 hover:shadow-md hover:-translate-y-px"
                                 >
-                                    <span className="text-sm leading-none">{item.emoji}</span>
-                                    <span className="text-[13px] font-medium text-slate-700 group-hover:text-slate-900 transition-colors">{item.label}</span>
-                                    <span className="ml-0.5 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500 group-hover:bg-[color:var(--color-primary)]/10 group-hover:text-[color:var(--color-primary)] transition-colors">{item.count}</span>
+                                    <div className="flex w-9 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 shrink-0">
+                                        <span className="text-base leading-none">{item.emoji}</span>
+                                    </div>
+                                    <div className="min-w-0 flex flex-col justify-center gap-0.5">
+                                        <div className="text-[13px] font-semibold text-slate-800 group-hover:text-slate-900 transition-colors truncate">
+                                            {item.label}
+                                        </div>
+                                        <div className="text-[12px] font-medium text-slate-500 group-hover:text-[color:var(--color-primary)] transition-colors">
+                                            {group.label}
+                                        </div>
+                                    </div>
                                 </Link>
                             ))}
                         </div>
