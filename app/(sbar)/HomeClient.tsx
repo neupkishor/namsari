@@ -425,7 +425,6 @@ function HomeSearchHero() {
         const modified = convertAreaPriceToModified(areaPriceUnit, priceMin, priceMax);
 
         if (query.trim()) params.set('rawQuery', query.trim());
-        params.set('type', 'feed');
         params.set('purposes', Array.from(purposes).join(','));
         if (selectedListedBy) params.set('listedBy', selectedListedBy);
         if (selectedCategory) params.set('category', selectedCategory);
@@ -448,12 +447,12 @@ function HomeSearchHero() {
 
     const submitSearch = () => {
         const params = buildSearchParams();
-        router.push(`/explore${params.toString() ? `?${params.toString()}` : ''}`);
+        router.push(`/search${params.toString() ? `?${params.toString()}` : ''}`);
     };
 
     const submitMapSearch = () => {
         const params = buildSearchParams({ view: 'map' });
-        router.push(`/explore${params.toString() ? `?${params.toString()}` : ''}`);
+        router.push(`/maps${params.toString() ? `?${params.toString()}` : ''}`);
     };
 
     const toggleLocation = (location: string) => {
@@ -1014,21 +1013,21 @@ function ExploreCategoriesSection({
     const groups = [
         {
             label: 'For Sale',
-            href: '/explore?type=feed&purposes=sale',
+            href: '/search?purposes=sale',
             items: [
-                { emoji: '🏠', label: 'House', count: stats.forSale.house, href: '/explore?type=feed&purposes=sale&types=house' },
-                { emoji: '🌿', label: 'Land', count: stats.forSale.land, href: '/explore?type=feed&purposes=sale&types=land' },
-                { emoji: '🏢', label: 'Building', count: stats.forSale.building, href: '/explore?type=feed&purposes=sale&types=building' },
+                { emoji: '🏠', label: 'House', count: stats.forSale.house, href: '/search?purposes=sale&types=house' },
+                { emoji: '🌿', label: 'Land', count: stats.forSale.land, href: '/search?purposes=sale&types=land' },
+                { emoji: '🏢', label: 'Building', count: stats.forSale.building, href: '/search?purposes=sale&types=building' },
             ],
         },
         {
             label: 'For Rent',
-            href: '/explore?type=feed&purposes=rent',
+            href: '/search?purposes=rent',
             items: [
-                { emoji: '🛋️', label: 'Flat', count: stats.forRent.flat, href: '/explore?type=feed&purposes=rent&types=flat' },
-                { emoji: '🏡', label: 'House', count: stats.forRent.house, href: '/explore?type=feed&purposes=rent&types=house' },
-                { emoji: '🏙️', label: 'Apartment', count: stats.forRent.apartment, href: '/explore?type=feed&purposes=rent&types=apartment' },
-                { emoji: '🔑', label: 'All Rent', count: stats.forRent.totalRent, href: '/explore?type=feed&purposes=rent' },
+                { emoji: '🛋️', label: 'Flat', count: stats.forRent.flat, href: '/search?purposes=rent&types=flat' },
+                { emoji: '🏡', label: 'House', count: stats.forRent.house, href: '/search?purposes=rent&types=house' },
+                { emoji: '🏙️', label: 'Apartment', count: stats.forRent.apartment, href: '/search?purposes=rent&types=apartment' },
+                { emoji: '🔑', label: 'All Rent', count: stats.forRent.totalRent, href: '/search?purposes=rent' },
             ],
         },
         {
@@ -1276,7 +1275,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                     title="Featured Properties"
                                     description="Curated listings with complete details and verified media."
                                     ctaText="View more"
-                                    ctaHref="/explore"
+                                    ctaHref="/search"
                                 />
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                                     {featuredCards.slice(0, 4).map((prop: any) => (

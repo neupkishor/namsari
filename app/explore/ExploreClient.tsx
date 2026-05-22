@@ -61,7 +61,7 @@ function convertRawAreaPriceParamsToModified(rawUnit: string, rawMinPrice: numbe
     };
 }
 
-export default function ExploreClient({ initialUser, initialQuery = '' }: { initialUser: any, initialQuery?: string }) {
+export default function ExploreClient({ initialUser, initialQuery = '', initialType }: { initialUser: any, initialQuery?: string, initialType?: 'feed' | 'map' }) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -82,7 +82,7 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
     const rawQueryParam = (searchParams.get('rawQuery') || searchParams.get('q') || '').trim();
     const rawTypeParam = (searchParams.get('type') || '').toLowerCase().trim();
     const rawLegacyViewParam = (searchParams.get('view') || '').toLowerCase().trim();
-    const resolvedType = rawTypeParam || (rawLegacyViewParam === 'map' ? 'map' : rawLegacyViewParam === 'list' ? 'feed' : 'feed');
+    const resolvedType = rawTypeParam || (rawLegacyViewParam === 'map' ? 'map' : rawLegacyViewParam === 'list' ? 'feed' : initialType || 'feed');
     const isMapMode = resolvedType === 'map';
 
     const fetchProperties = async (loadMore = false) => {

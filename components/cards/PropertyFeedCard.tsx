@@ -329,7 +329,7 @@ export function PropertyPost({
 
                 {agentWhatsapp ? (
                   <a
-                    href={`https://wa.me/${agentWhatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`${typeof window !== 'undefined' ? window.location.origin : ''}${propertyUrl}\nI'm interested in this "${property.title}"`)}`}
+                    href={`https://wa.me/${agentWhatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`${propertyUrl}\nI'm interested in this "${property.title}"`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="WhatsApp agent"

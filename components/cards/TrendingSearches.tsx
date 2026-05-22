@@ -22,7 +22,7 @@ export function TrendingSearches({ searches, className }: { searches: string[], 
                     </p>
                 </div>
                 <Link 
-                    href="/explore" 
+                    href="/search" 
                     className="text-[12px] font-bold text-primary hover:underline px-3 py-1.5 bg-primary/5 rounded-full transition-colors"
                 >
                     View All
@@ -34,7 +34,7 @@ export function TrendingSearches({ searches, className }: { searches: string[], 
                 {searches.map((term, i) => (
                     <Link
                         key={i}
-                        href={`/explore?q=${encodeURIComponent(term)}`}
+                        href={`/search?q=${encodeURIComponent(term)}`}
                         className="text-text-main/80 no-underline text-[13px] py-2.5 px-4 bg-white border border-border rounded-xl flex items-center gap-2.5 font-bold hover:border-primary/30 hover:bg-primary/[0.02] hover:shadow-sm transition-all duration-200 group/tag"
                     >
                         <span className="w-1.5 h-1.5 rounded-full bg-primary/40 group-hover/tag:bg-primary transition-colors" />

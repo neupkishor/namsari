@@ -60,7 +60,7 @@ export const PopularCategories: React.FC<PopularCategoriesProps> = ({ categories
                 {displayCategories.map((cat) => (
                     <Link
                         key={cat.id}
-                        href={`/explore?q=${cat.name}`}
+                        href={`/search?q=${cat.name}`}
                         className="no-underline block h-full group"
                     >
                         <div

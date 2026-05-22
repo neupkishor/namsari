@@ -75,19 +75,29 @@ function BoundsTracker({ onBoundsChange }: { onBoundsChange?: (bounds: { north: 
 
         let timeoutId: NodeJS.Timeout;
 
+        const emitBounds = () => {
+            const bounds = map.getBounds();
+            const nextBounds = {
+                north: bounds.getNorth(),
+                south: bounds.getSouth(),
+                east: bounds.getEast(),
+                west: bounds.getWest()
+            };
+
+            if (Object.values(nextBounds).every((value) => Number.isFinite(value))) {
+                onBoundsChange(nextBounds);
+            }
+        };
+
         const handleMoveEnd = () => {
             // Debounce to avoid too many API calls
             clearTimeout(timeoutId);
             timeoutId = setTimeout(() => {
-                const bounds = map.getBounds();
-                onBoundsChange({
-                    north: bounds.getNorth(),
-                    south: bounds.getSouth(),
-                    east: bounds.getEast(),
-                    west: bounds.getWest()
-                });
+                emitBounds();
             }, 1000); // Wait 1 second after user stops moving
         };
+
+        emitBounds();
 
         map.on('moveend', handleMoveEnd);
         map.on('zoomend', handleMoveEnd);
