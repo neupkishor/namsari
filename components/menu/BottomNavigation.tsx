@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { logoutAction } from '@/actions/auth';
 import { bottomNavItems, sidebarMenuGroups, managementMenuGroups } from './menu-config';
+import { MenuIcon } from './MenuIcon';
 
 const EXPLORE_VIEW_HOLD_MS = 1000;
 const EXPLORE_VIEW_FEEDBACK_MS = 200;
@@ -254,7 +255,7 @@ export function BottomNavigation({ user }: { user?: any }) {
                                         onDragStart={preventDragStart}
                                         className="bottom-nav-guard flex items-center gap-4 px-5 py-4 rounded-2xl text-[15px] text-red-500 font-bold hover:bg-red-50 active:scale-95 w-full text-left transition-all"
                                     >
-                                        <span className="text-xl">🚪</span>
+                                                <MenuIcon icon="/icons/info.svg" label="Logout" className="text-xl" />
                                         <span>Logout</span>
                                     </button>
                                 </div>
@@ -297,9 +298,9 @@ export function BottomNavigation({ user }: { user?: any }) {
                         })()
                         : item.href;
                     const itemIcon = isExploreAction
-                        ? (isMapView ? '🧭' : '🗺️')
+                        ? (isMapView ? '/icons/land-location.svg' : '/icons/land-layer-location.svg')
                         : isExploreItem && savedExploreView === 'map'
-                            ? '🗺️'
+                            ? '/icons/land-location.svg'
                             : item.icon;
                     const isHoldingExplore = isExploreAction && pressedExploreHref === itemHref;
                     const active = pathname === item.href || (item.href === '#menu' && showMobileMenu);
@@ -346,7 +347,7 @@ export function BottomNavigation({ user }: { user?: any }) {
                                     : 'opacity-80'
                             }`}>
                                 <span key={`${item.label}-${itemIcon}`} className="footer-icon-swap inline-flex text-[20px]">
-                                    {itemIcon}
+                                    <MenuIcon icon={itemIcon} label={item.label} active={active} className="text-[20px]" />
                                 </span>
                             </div>
                             {isExploreAction && isHoldingExplore && (

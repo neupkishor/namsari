@@ -486,39 +486,43 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     }
                     .mobile-floating-agent {
                         position: fixed;
-                        left: 12px;
-                        right: 12px;
-                        bottom: 10px;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
                         z-index: 60;
                         display: flex;
                         align-items: center;
                         justify-content: space-between;
-                        gap: 10px;
+                        gap: 12px;
                         background: #ffffff;
-                        border: 1px solid #e5e7eb;
-                        border-radius: 14px;
-                        min-height: 74px;
-                        padding: 12px;
-                        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+                        border-top: 1px solid #e5e7eb;
+                        border-left: 0;
+                        border-right: 0;
+                        border-bottom: 0;
+                        border-radius: 18px 18px 0 0;
+                        min-height: 84px;
+                        padding: 12px 16px 14px;
+                        box-shadow: 0 -10px 24px rgba(15, 23, 42, 0.08);
                     }
                     .mobile-floating-agent-left {
                         display: flex;
                         align-items: center;
                         gap: 10px;
                         min-width: 0;
+                        flex: 1;
                     }
                     .mobile-floating-agent-avatar {
-                        width: 40px;
-                        height: 40px;
-                        border-radius: 50%;
+                        width: 44px;
+                        height: 44px;
+                        border-radius: 14px;
                         overflow: hidden;
                         background: #f3f4f6;
                         flex-shrink: 0;
                     }
                     .mobile-floating-agent-price {
-                        font-size: 0.95rem;
+                        font-size: 0.98rem;
                         font-weight: 800;
-                        color: #1f2937;
+                        color: #0f172a;
                         line-height: 1.1;
                         white-space: nowrap;
                         overflow: hidden;
@@ -526,44 +530,38 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         max-width: 120px;
                     }
                     .mobile-floating-agent-title {
-                        font-size: 0.8rem;
+                        font-size: 0.86rem;
                         font-weight: 700;
-                        color: #475569;
+                        color: #64748b;
                         line-height: 1.2;
                         white-space: nowrap;
                         overflow: hidden;
                         text-overflow: ellipsis;
-                        max-width: 140px;
+                        max-width: 180px;
                         margin-bottom: 4px;
                     }
                     .mobile-floating-agent-actions {
                         display: flex;
                         align-items: center;
-                        gap: 6px;
+                        gap: 0;
                         flex-shrink: 0;
                     }
-                    .mobile-floating-btn {
-                        width: 34px;
-                        height: 34px;
-                        border-radius: 9px;
-                        border: 1px solid #d1d5db;
+                    .mobile-floating-call-btn {
                         display: inline-flex;
                         align-items: center;
                         justify-content: center;
+                        min-width: 118px;
+                        min-height: 48px;
+                        padding: 0 18px;
+                        border-radius: 14px;
+                        border: 1px solid var(--color-primary);
                         text-decoration: none;
-                        background: #fff;
-                        color: #374151;
-                        font-size: 1rem;
-                    }
-                    .mobile-floating-btn.call {
-                        color: #b91c1c;
-                        border-color: rgba(185, 28, 28, 0.25);
-                        background: rgba(185, 28, 28, 0.06);
-                    }
-                    .mobile-floating-btn.whatsapp {
-                        color: #16a34a;
-                        border-color: rgba(22, 163, 74, 0.25);
-                        background: rgba(22, 163, 74, 0.08);
+                        background: var(--color-primary);
+                        color: #fff;
+                        font-size: 0.9rem;
+                        font-weight: 800;
+                        letter-spacing: 0.01em;
+                        box-shadow: 0 10px 22px rgba(130, 0, 0, 0.2);
                     }
                 }
 
@@ -881,23 +879,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 </div>
 
                 <div className="mobile-floating-agent-actions">
-                    <a className="mobile-floating-btn call" href={`tel:${property.listedBy?.contact_number || ''}`} aria-label="Call agent">
-                        📞
-                    </a>
                     <a
-                        className="mobile-floating-btn whatsapp"
-                        href={`https://wa.me/${property.listedBy?.contact_number?.replace(/[^0-9]/g, '') || ''}?text=${encodeURIComponent(`I'm interested in the ${property.title} [#${property.id}], For the property, I'm willing to offer a price of ${formattedPrice}`)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="WhatsApp"
+                        className="mobile-floating-call-btn"
+                        href={`tel:${property.listedBy?.contact_number || ''}`}
+                        aria-label="Call agent"
                     >
-                        💬
-                    </a>
-                    <button className="mobile-floating-btn" aria-label="Like property" type="button">
-                        ❤
-                    </button>
-                    <a className="mobile-floating-btn" href="#" aria-label="Share property">
-                        📤
+                        Call Agent
                     </a>
                 </div>
             </div>

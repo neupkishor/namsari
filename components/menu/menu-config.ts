@@ -22,38 +22,38 @@ export const sidebarMenuGroups = (user: any): MenuGroup[] => [
     {
         title: 'Platform',
         items: [
-            { label: 'Profile', icon: '👤', href: user ? `/@${user.username}` : '/auth/login' },
-            { label: 'Houses', icon: '🏠', href: '/find/houses' },
-            { label: 'Commercial Buildings', icon: '🏢', href: '/find/commercial-buildings' },
-            { label: 'Agencies', icon: '🧑‍💼', href: '/agencies' },
-            { label: 'Favourites', icon: '❤️', href: user ? `/@${user.username}/saved` : '/auth/login' },
-            ...(user ? [{ label: 'Manage', icon: '⚙️', href: '/manage' }] : []),
+            { label: 'Profile', icon: '/icons/info.svg', href: user ? `/@${user.username}` : '/auth/login' },
+            { label: 'Houses', icon: '/icons/house-chimney.svg', href: '/find/houses' },
+            { label: 'Commercial Buildings', icon: '/icons/apartment.svg', href: '/find/commercial-buildings' },
+            { label: 'Agencies', icon: '/icons/land-location.svg', href: '/agencies' },
+            { label: 'Favourites', icon: '/icons/note.svg', href: user ? `/@${user.username}/saved` : '/auth/login' },
+            ...(user ? [{ label: 'Manage', icon: '/icons/info.svg', href: '/manage' }] : []),
         ]
     },
     {
         title: 'Insights',
         items: [
-            { label: 'Market Trends', icon: '📈', href: '/market' },
-            { label: 'Blogs/Guide', icon: '📰', href: '/blog' },
+            { label: 'Market Trends', icon: '/icons/growth-chart-invest.svg', href: '/market' },
+            { label: 'Blogs/Guide', icon: '/icons/note.svg', href: '/blog' },
         ]
     },
     {
         title: 'Tools',
         items: [
-            { label: 'Utilities', icon: '🛠️', href: '/utility' },
-            { label: 'Unit Converter', icon: '🔄', href: '/utility/unit-converter' },
-            { label: 'Date Converter', icon: '📅', href: '/utility/date-converter' },
-            { label: 'EMI Calculator', icon: '💰', href: '/utility/emi-calculator' },
+            { label: 'Utilities', icon: '/icons/convert-shapes.svg', href: '/utility' },
+            { label: 'Unit Converter', icon: '/icons/convert-shapes.svg', href: '/utility/unit-converter' },
+            { label: 'Date Converter', icon: '/icons/calendar.svg', href: '/utility/date-converter' },
+            { label: 'EMI Calculator', icon: '/icons/sack-dollar.svg', href: '/utility/emi-calculator' },
         ]
     },
     {
         title: 'Company',
         items: [
-            { label: 'About Us', icon: 'ℹ️', href: '/about' },
-            { label: 'Careers', icon: '💼', href: '/careers' },
-            { label: 'Terms', icon: '📝', href: '/terms' },
-            { label: 'Privacy', icon: '🛡️', href: '/terms/privacy' },
-            { label: 'Help Center', icon: '❓', href: '/support' },
+            { label: 'About Us', icon: '/icons/info.svg', href: '/about' },
+            { label: 'Careers', icon: '/icons/info.svg', href: '/careers' },
+            { label: 'Terms', icon: '/icons/note.svg', href: '/terms' },
+            { label: 'Privacy', icon: '/icons/info.svg', href: '/terms/privacy' },
+            { label: 'Help Center', icon: '/icons/info.svg', href: '/support' },
         ]
     }
 ];
@@ -71,12 +71,12 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
         {
             title: 'Overview',
             items: [
-                { label: 'Dashboard', icon: '📊', href: '/manage' },
+                { label: 'Dashboard', icon: '/icons/growth-chart-invest.svg', href: '/manage' },
                 // Properties: Visible to Admin, Agency, Agent
-                ...((isUserAdmin || isAgency || isAgent) ? [{ label: 'Properties', icon: '🏠', href: '/manage/properties' }] : []),
+                ...((isUserAdmin || isAgency || isAgent) ? [{ label: 'Properties', icon: '/icons/house-chimney.svg', href: '/manage/properties' }] : []),
                 // Requirements: Visible to Admin, Agency, Agent
-                ...((isUserAdmin || isAgency || isAgent) ? [{ label: 'Requirements', icon: '📋', href: '/manage/requirements' }] : []),
-                { label: 'Notifications', icon: '🔔', href: '/manage/notifications' },
+                ...((isUserAdmin || isAgency || isAgent) ? [{ label: 'Requirements', icon: '/icons/note.svg', href: '/manage/requirements' }] : []),
+                { label: 'Notifications', icon: '/icons/info.svg', href: '/manage/notifications' },
             ]
         }
     ];
@@ -86,19 +86,19 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
         groups.push({
             title: 'Content',
             items: [
-                { label: 'Featured', icon: '⭐', href: '/manage/featured' },
-                { label: 'Collections', icon: '📁', href: '/manage/collections' },
-                { label: 'Advertisements', icon: '📢', href: '/manage/advertisements' },
-                { label: 'Newsletter', icon: '📧', href: '/manage/newsletter' },
+                { label: 'Featured', icon: '/icons/growth-chart-invest.svg', href: '/manage/featured' },
+                { label: 'Collections', icon: '/icons/note.svg', href: '/manage/collections' },
+                { label: 'Advertisements', icon: '/icons/info.svg', href: '/manage/advertisements' },
+                { label: 'Newsletter', icon: '/icons/note.svg', href: '/manage/newsletter' },
             ]
         });
     } else if (isAgency || isSwitchedAccount) {
         groups.push({
             title: 'Content',
             items: [
-                { label: 'Featured', icon: '⭐', href: '/manage/featured' },
-                { label: 'Collections', icon: '📁', href: '/manage/collections' },
-                { label: 'Advertisements', icon: '📢', href: '/manage/advertisements' },
+                { label: 'Featured', icon: '/icons/growth-chart-invest.svg', href: '/manage/featured' },
+                { label: 'Collections', icon: '/icons/note.svg', href: '/manage/collections' },
+                { label: 'Advertisements', icon: '/icons/info.svg', href: '/manage/advertisements' },
             ]
         });
     }
@@ -107,16 +107,16 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
     const userManagementItems: MenuItem[] = [];
     if (isUserAdmin && !isSwitchedAccount) {
         userManagementItems.push(
-            { label: 'Users', icon: '👥', href: '/manage/accounts' },
-            { label: 'Agents', icon: '🕴️', href: '/manage/accounts/agents' },
-            { label: 'Agencies', icon: '🏢', href: '/manage/accounts/agencies' },
-            { label: 'Banks', icon: '🏦', href: '/manage/accounts/banks' },
-            { label: 'Advertisers', icon: '📢', href: '/manage/accounts/advertisers' }
+            { label: 'Users', icon: '/icons/info.svg', href: '/manage/accounts' },
+            { label: 'Agents', icon: '/icons/info.svg', href: '/manage/accounts/agents' },
+            { label: 'Agencies', icon: '/icons/apartment.svg', href: '/manage/accounts/agencies' },
+            { label: 'Banks', icon: '/icons/sack-dollar.svg', href: '/manage/accounts/banks' },
+            { label: 'Advertisers', icon: '/icons/info.svg', href: '/manage/accounts/advertisers' }
         );
     } else if (isAgency || isSwitchedAccount) {
         // Agency can manage their own agents
         userManagementItems.push(
-            { label: 'My Agents', icon: '🕴️', href: '/manage/accounts/agents' }
+            { label: 'My Agents', icon: '/icons/info.svg', href: '/manage/accounts/agents' }
         );
     }
 
@@ -132,11 +132,11 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
         groups.push({
             title: 'System',
             items: [
-                { label: 'Site', icon: '🌐', href: '/manage/site' },
-                { label: 'About', icon: 'ℹ️', href: '/manage/about' },
-                { label: 'Careers', icon: '💼', href: '/manage/careers' },
-                { label: 'Support', icon: '🔧', href: '/manage/support' },
-                { label: 'Blog', icon: '📝', href: '/manage/blog' },
+                { label: 'Site', icon: '/icons/info.svg', href: '/manage/site' },
+                { label: 'About', icon: '/icons/info.svg', href: '/manage/about' },
+                { label: 'Careers', icon: '/icons/info.svg', href: '/manage/careers' },
+                { label: 'Support', icon: '/icons/info.svg', href: '/manage/support' },
+                { label: 'Blog', icon: '/icons/note.svg', href: '/manage/blog' },
             ]
         });
     }
@@ -144,7 +144,7 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
     // Configuration
     const configItems: MenuItem[] = [];
     if (isUserAdmin && !isSwitchedAccount) {
-        configItems.push({ label: 'Permissions', icon: '🛡️', href: '/manage/permissions' });
+        configItems.push({ label: 'Permissions', icon: '/icons/info.svg', href: '/manage/permissions' });
     }
     
     if (configItems.length > 0) {
@@ -156,17 +156,17 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
 
     // Account Section
     const accountItems: MenuItem[] = [
-        { label: 'Subscriptions', icon: '💳', href: '/manage/subscriptions' },
+        { label: 'Subscriptions', icon: '/icons/sack-dollar.svg', href: '/manage/subscriptions' },
     ];
 
     if (!isSwitchedAccount) {
         accountItems.push(
-            { label: 'Logins', icon: '🔐', href: '/manage/logins' },
-            { label: 'Activity', icon: '⚡', href: '/manage/activity' }
+            { label: 'Logins', icon: '/icons/info.svg', href: '/manage/logins' },
+            { label: 'Activity', icon: '/icons/growth-chart-invest.svg', href: '/manage/activity' }
         );
     }
 
-    accountItems.push({ label: 'LogOut', icon: '🚪', href: '/auth/logout' });
+    accountItems.push({ label: 'LogOut', icon: '/icons/info.svg', href: '/auth/logout' });
 
     groups.push({
         title: 'Account',
@@ -177,11 +177,11 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
 };
 
 export const bottomNavItems = (user: any): MenuItem[] => [
-    { label: 'Home', icon: '🏠', href: '/' },
-    { label: 'Explore', icon: '🧭', href: '/explore' },
-    { label: 'Post', icon: '➕', href: '/post' },
-    { label: 'Saved', icon: '❤️', href: user ? `/@${user.username}/saved` : '/auth/login' },
-    { label: 'Menu', icon: '☰', href: '#menu' }
+    { label: 'Home', icon: '/icons/house-chimney.svg', href: '/' },
+    { label: 'Explore', icon: '/icons/land-layer-location.svg', href: '/explore' },
+    { label: 'Post', icon: '/icons/note.svg', href: '/post' },
+    { label: 'Saved', icon: '/icons/note.svg', href: user ? `/@${user.username}/saved` : '/auth/login' },
+    { label: 'Menu', icon: '/icons/info.svg', href: '#menu' }
 ];
 
 export const footerPlatformItems: MenuItem[] = [

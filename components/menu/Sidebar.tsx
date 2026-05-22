@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { logoutAction } from '@/actions/auth';
 
 import { sidebarMenuGroups, managementMenuGroups } from './menu-config';
+import { MenuIcon } from './MenuIcon';
 
 export function SidebarSkeleton() {
     return (
@@ -81,7 +82,7 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
                                                 onClick={() => logoutAction()}
                                                 className="flex items-center gap-3 pr-3 pl-0 py-2.5 rounded-lg text-[14px] text-red-600 font-semibold transition-colors hover:bg-red-50 w-full text-left"
                                             >
-                                                <span className="text-xl opacity-80">{item.icon}</span>
+                                                <MenuIcon icon={item.icon} label={item.label} className="text-xl opacity-80" />
                                                 <span>{item.label}</span>
                                             </button>
                                         );
@@ -97,9 +98,7 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
                                                 : 'font-medium text-text-muted hover:bg-surface hover:text-primary'
                                             }`}
                                         >
-                                            <span className={`text-xl transition-colors ${active ? 'text-primary' : 'text-text-muted group-hover:text-primary opacity-70'}`}>
-                                                {item.icon}
-                                            </span>
+                                            <MenuIcon icon={item.icon} label={item.label} active={active} className={`text-xl transition-colors ${active ? 'text-primary' : 'text-text-muted group-hover:text-primary opacity-70'}`} />
                                             <span>{item.label}</span>
                                         </Link>
                                     );

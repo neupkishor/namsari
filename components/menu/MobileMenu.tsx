@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logoutAction } from '@/actions/auth';
 import { sidebarMenuGroups } from './menu-config';
+import { MenuIcon } from './MenuIcon';
 
 interface MobileMenuProps {
     user?: any;
@@ -167,7 +168,7 @@ export function MobileMenu({ user, isOpen, onClose }: MobileMenuProps) {
                                                         textAlign: 'left',
                                                     }}
                                                 >
-                                                    <span style={{ fontSize: '18px', opacity: 0.85 }}>{item.icon}</span>
+                                                        <MenuIcon icon={item.icon} label={item.label} className="text-[18px]" />
                                                     <span>{item.label}</span>
                                                 </button>
                                             );
@@ -192,7 +193,7 @@ export function MobileMenu({ user, isOpen, onClose }: MobileMenuProps) {
                                                     transition: 'background 0.15s, color 0.15s',
                                                 }}
                                             >
-                                                <span style={{ fontSize: '18px', opacity: active ? 1 : 0.7 }}>{item.icon}</span>
+                                                    <MenuIcon icon={item.icon} label={item.label} active={active} className="text-[18px]" />
                                                 <span>{item.label}</span>
                                             </Link>
                                         );

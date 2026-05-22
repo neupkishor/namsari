@@ -312,7 +312,7 @@ export function PropertyPost({
           <div className="flex items-start justify-between py-2 gap-2">
             <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-2">
               {/* Icons first in DOM: on mobile they'll appear above; on desktop they'll be ordered after via sm:order-2 */}
-              <div className="flex items-center gap-2 sm:order-2">
+              <div className="hidden items-center gap-2 sm:flex sm:order-2">
                 {agentPhone ? (
                   <a
                     href={`tel:${agentPhone}`}
