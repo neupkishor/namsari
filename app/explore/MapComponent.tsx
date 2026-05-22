@@ -73,6 +73,8 @@ interface MapProps {
     userLocation?: [number, number] | null;
     zoom?: number;
     onMarkerClick?: (id: number) => void;
+    onMarkerHover?: (id: number) => void;
+    onMarkerLeave?: (id: number) => void;
     selectedId?: number | null;
     disablePopups?: boolean;
     onBoundsChange?: (bounds: { north: number; south: number; east: number; west: number }) => void;
@@ -158,6 +160,8 @@ export default function MapComponent({
     userLocation,
     zoom = 13,
     onMarkerClick,
+    onMarkerHover,
+    onMarkerLeave,
     selectedId,
     disablePopups = false,
     onBoundsChange
@@ -176,6 +180,43 @@ export default function MapComponent({
         const marker = markerRefs.current.get(selectedId);
         marker?.setZIndexOffset(10000);
     }, [selectedId]);
+
+    const displayPositionById = React.useMemo(() => {
+        const grouped = new Map<string, { id: number; lat: number; lng: number }[]>();
+
+        properties.forEach((property) => {
+            const lat = typeof property.latitude === 'string' ? parseFloat(property.latitude) : property.latitude;
+            const lng = typeof property.longitude === 'string' ? parseFloat(property.longitude) : property.longitude;
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+            const key = `${lat.toFixed(6)}:${lng.toFixed(6)}`;
+            const current = grouped.get(key) || [];
+            current.push({ id: property.id, lat, lng });
+            grouped.set(key, current);
+        });
+
+        const positions = new Map<number, [number, number]>();
+
+        grouped.forEach((group) => {
+            const ordered = [...group].sort((a, b) => a.id - b.id);
+
+            if (ordered.length === 1) {
+                positions.set(ordered[0].id, [ordered[0].lat, ordered[0].lng]);
+                return;
+            }
+
+            const radiusMeters = 22;
+            ordered.forEach((item, index) => {
+                const angle = (2 * Math.PI * index) / ordered.length;
+                const latRadians = (item.lat * Math.PI) / 180;
+                const latOffset = (radiusMeters / 111320) * Math.sin(angle);
+                const lngOffset = (radiusMeters / (111320 * Math.max(Math.cos(latRadians), 0.2))) * Math.cos(angle);
+                positions.set(item.id, [item.lat + latOffset, item.lng + lngOffset]);
+            });
+        });
+
+        return positions;
+    }, [properties]);
 
     return (
         <div className="relative isolate h-full w-full overflow-hidden rounded-3xl">
@@ -219,11 +260,12 @@ export default function MapComponent({
                     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
 
                     const isSelected = selectedId === p.id;
+                    const displayPosition = displayPositionById.get(p.id) || [lat, lng];
 
                     return (
                         <Marker
                             key={p.id}
-                            position={[lat, lng]}
+                            position={displayPosition}
                             icon={createPricePointerIcon((p as any).pricing?.price ?? p.price, isSelected)}
                             zIndexOffset={isSelected ? 1000 : 0}
                             ref={(instance) => {
@@ -234,7 +276,9 @@ export default function MapComponent({
                                 }
                             }}
                             eventHandlers={{
-                                click: () => onMarkerClick?.(p.id)
+                                click: () => onMarkerClick?.(p.id),
+                                mouseover: () => onMarkerHover?.(p.id),
+                                mouseout: () => onMarkerLeave?.(p.id),
                             }}
                         >
                             {!disablePopups && (

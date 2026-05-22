@@ -241,7 +241,7 @@ export function PropertyPost({
           {/* THUMBNAILS */}
           {images.length > 1 && (
             <div className="flex gap-1 h-7 flex-shrink-0">
-              {images.slice(0, 4).map((img: any, idx: number) => {
+              {images.slice(1, 4).map((img: any, idx: number) => {
                 const url = typeof img === 'string' ? img : img.url;
                 const isActive = activeImage === url;
                 const isFirstThumb = idx === 0;

@@ -149,6 +149,14 @@ export default function MapsClient({ initialUser: _initialUser, initialQuery = '
         element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     };
 
+    const handleMarkerHover = (id: number) => {
+        setSelectedId(id);
+    };
+
+    const handleMarkerLeave = () => {
+        setSelectedId(null);
+    };
+
     return (
         <main className="min-h-screen bg-surface pt-[var(--header-height)] lg:h-screen lg:overflow-hidden">
             <section className="mx-auto grid w-full max-w-none gap-6 px-4 sm:px-6 lg:px-8 pt-4 lg:pt-6 lg:pb-6 lg:grid-cols-2 lg:h-[calc(100vh-var(--header-height)-24px)] lg:items-stretch">
@@ -184,6 +192,8 @@ export default function MapsClient({ initialUser: _initialUser, initialQuery = '
                                     zoom={12}
                                     selectedId={selectedId}
                                     onMarkerClick={handleMarkerClick}
+                                    onMarkerHover={handleMarkerHover}
+                                    onMarkerLeave={handleMarkerLeave}
                                     onBoundsChange={setMapBounds}
                                 />
                             </div>
@@ -202,6 +212,7 @@ export default function MapsClient({ initialUser: _initialUser, initialQuery = '
                                         key={property.id}
                                         data-map-result-id={property.id}
                                         onMouseEnter={() => setSelectedId(property.id)}
+                                        className={`transition-all duration-200 rounded-[12px] ${selectedId === property.id ? 'ring-2 ring-inset ring-[color:var(--color-primary)]/45 bg-[color:var(--color-primary)]/5' : ''}`}
                                     >
                                         <PropertyPost
                                             property={property}
@@ -229,6 +240,8 @@ export default function MapsClient({ initialUser: _initialUser, initialQuery = '
                                 zoom={12}
                                 selectedId={selectedId}
                                 onMarkerClick={handleMarkerClick}
+                                onMarkerHover={handleMarkerHover}
+                                onMarkerLeave={handleMarkerLeave}
                                 onBoundsChange={setMapBounds}
                             />
                         </div>
