@@ -2,34 +2,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PropertyMap from './PropertyMap';
 import PropertyImageCarousel from './PropertyImageCarousel';
+import { NearbyAmenitiesSection } from './NearbyAmenitiesSection';
 import { Header } from '@/components/menu/Header';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { RecommendedProperties } from '@/components/sections/RecommendedProperties';
 import { PropertyEmiSection } from '@/components/sections/PropertyEmiSection';
 import { SectionTitleFeed } from '@/components/sections/SectionTitleFeed';
-
-function getAmenityIcon(type: string) {
-    const map: Record<string, string> = {
-        hospital: '🏥',
-        school: '🏫',
-        park: '🌳',
-        gym: '🏋️',
-        pharmacy: '💊',
-        restaurant: '🍽️',
-        hotel: '🏨',
-        atm: '🏧',
-        'police station': '🚓',
-        'public transport': '🚌',
-        'woda office': '🏢',
-        banquete: '🎉',
-        market: '🛒',
-        shopping: '🛍️',
-        bank: '🏦',
-        airport: '✈️'
-    };
-    return map[type.toLowerCase()] || '📍';
-}
 
 export default async function PropertyDetailPage({ params }: { params: Promise<{ slugAndId: string }> }) {
     const resolvedParams = await params;
@@ -146,32 +125,33 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         if (value === null || value === undefined) return '-';
         return Number.isInteger(value) ? String(value) : String(value);
     };
+    const formatCountLabel = (count: string, label: string) => `${count} ${label.toLowerCase()}`;
     const builtUpUnit = property.features?.builtUpAreaUnit || 'sqft';
     const builtUpValue = formatNumberValue(property.features?.builtUpArea);
     const overviewItems = [
-        { icon: '🛏️', value: formatNumberValue(property.features?.bedrooms), label: 'Bedrooms' },
-        { icon: '🚿', value: formatNumberValue(property.features?.bathrooms), label: 'Bathrooms' },
-        { icon: '📐', value: builtUpValue, label: builtUpUnit },
-        { icon: '🏗️', value: String(new Date(property.created_on).getFullYear()), label: 'Year' },
-        { icon: '🛣️', value: property.roadSize || '-', label: 'Road Access' },
-        { icon: '🧭', value: property.facingDirection || '-', label: 'Facing' },
-        { icon: '🏢', value: formatNumberValue(property.features?.totalFloors), label: 'Floors' },
-        { icon: '🪑', value: property.features?.furnishing || '-', label: 'Furnish Status' }
+        { icon: '/icons/house-chimney.svg', value: formatNumberValue(property.features?.bedrooms), label: 'bedrooms', displayValue: formatCountLabel(formatNumberValue(property.features?.bedrooms), 'bedrooms') },
+        { icon: '/icons/info.svg', value: formatNumberValue(property.features?.bathrooms), label: 'bathrooms', displayValue: formatCountLabel(formatNumberValue(property.features?.bathrooms), 'bathrooms') },
+        { icon: '/icons/land-layer-location.svg', value: builtUpValue, label: builtUpUnit, displayValue: `${builtUpValue} ${builtUpUnit.toLowerCase()}` },
+        { icon: '/icons/calendar.svg', value: String(new Date(property.created_on).getFullYear()), label: 'Year', displayValue: String(new Date(property.created_on).getFullYear()) },
+        { icon: '/icons/land-location.svg', value: property.roadSize || '-', label: 'Road Access', displayValue: property.roadSize || '-' },
+        { icon: '/icons/info.svg', value: property.facingDirection || '-', label: 'Facing', displayValue: property.facingDirection || '-' },
+        { icon: '/icons/apartment.svg', value: formatNumberValue(property.features?.totalFloors), label: 'floors', displayValue: formatCountLabel(formatNumberValue(property.features?.totalFloors), 'floors') },
+        { icon: '/icons/note.svg', value: property.features?.furnishing || '-', label: 'Furnish Status', displayValue: String(property.features?.furnishing || '-').toLowerCase() }
     ];
 
     const amenityMainFeatures: { icon: string; label: string; detail?: string }[] = [];
-    if (property.features?.parkingAvailable) amenityMainFeatures.push({ icon: '🚗', label: 'Parking' });
-    if (property.features?.elevator) amenityMainFeatures.push({ icon: '🛗', label: 'Elevator' });
-    if (property.features?.security) amenityMainFeatures.push({ icon: '🛡️', label: 'Security' });
-    if (property.features?.waterSupply) amenityMainFeatures.push({ icon: '💧', label: 'Water Supply' });
-    if (property.features?.electricity) amenityMainFeatures.push({ icon: '⚡', label: 'Electricity' });
-    if (property.roadType) amenityMainFeatures.push({ icon: '🛤️', label: 'Road Type', detail: property.roadType });
-    if (property.roadSize) amenityMainFeatures.push({ icon: '📏', label: 'Road Size', detail: property.roadSize });
+    if (property.features?.parkingAvailable) amenityMainFeatures.push({ icon: '/icons/house-chimney.svg', label: 'Parking' });
+    if (property.features?.elevator) amenityMainFeatures.push({ icon: '/icons/apartment.svg', label: 'Elevator' });
+    if (property.features?.security) amenityMainFeatures.push({ icon: '/icons/info.svg', label: 'Security' });
+    if (property.features?.waterSupply) amenityMainFeatures.push({ icon: '/icons/info.svg', label: 'Water Supply' });
+    if (property.features?.electricity) amenityMainFeatures.push({ icon: '/icons/info.svg', label: 'Electricity' });
+    if (property.roadType) amenityMainFeatures.push({ icon: '/icons/land-location.svg', label: 'Road Type', detail: property.roadType });
+    if (property.roadSize) amenityMainFeatures.push({ icon: '/icons/land-layer-location.svg', label: 'Road Size', detail: property.roadSize });
     if (amenityMainFeatures.length === 0) {
         amenityMainFeatures.push(
-            { icon: '💧', label: 'Water Supply' },
-            { icon: '⚡', label: 'Electricity' },
-            { icon: '🗑️', label: 'Drainage' }
+            { icon: '/icons/info.svg', label: 'Water Supply' },
+            { icon: '/icons/info.svg', label: 'Electricity' },
+            { icon: '/icons/note.svg', label: 'Drainage' }
         );
     }
 
@@ -247,6 +227,16 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     color: #4b5563;
                     margin-bottom: 24px;
                     font-weight: 500;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    flex-wrap: wrap;
+                }
+                .prop-location-icon {
+                    width: 16px;
+                    height: 16px;
+                    object-fit: contain;
+                    flex-shrink: 0;
                 }
                 .section-title {
                     font-size: 1.4rem;
@@ -257,31 +247,60 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 
                 /* Overview */
                 .overview-grid {
-                    display: grid;
-                    grid-template-columns: repeat(4, minmax(0, 1fr));
-                    gap: 14px;
+                    display: flex;
+                    gap: 12px;
+                    overflow-x: auto;
+                    overflow-y: hidden;
+                    scroll-snap-type: x proximity;
+                    -webkit-overflow-scrolling: touch;
+                    overscroll-behavior-x: contain;
+                    touch-action: pan-x;
+                    padding-bottom: 6px;
+                    padding-right: 4px;
                     margin-top: 18px;
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                    width: 100%;
+                }
+                .overview-grid::-webkit-scrollbar {
+                    display: none;
                 }
                 .overview-card {
                     border: 1px solid #e5e7eb;
-                    border-radius: 14px;
-                    background: #fbfbfc;
-                    padding: 16px 14px;
-                    min-height: 116px;
+                    border-radius: 12px;
+                    background: #fcfcfd;
+                    padding: 10px 12px;
+                    min-height: 72px;
+                    min-width: 118px;
+                    flex: 0 0 auto;
                     display: flex;
                     flex-direction: column;
+                    align-items: stretch;
                     justify-content: center;
-                    gap: 6px;
+                    scroll-snap-align: start;
+                }
+                .overview-content {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    justify-content: center;
+                    gap: 10px;
+                    width: 100%;
+                    min-height: 100%;
                 }
                 .overview-icon {
-                    font-size: 1.25rem;
+                    width: 18px;
+                    height: 18px;
+                    object-fit: contain;
                     line-height: 1;
+                    flex-shrink: 0;
                 }
                 .overview-value {
-                    font-size: 0.95rem;
-                    font-weight: 700;
+                    font-size: 0.84rem;
+                    font-weight: 800;
                     color: #1f2937;
                     line-height: 1.2;
+                    text-align: left;
                 }
                 .overview-label {
                     font-size: 0.8rem;
@@ -321,8 +340,11 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     text-align: center;
                 }
                 .amenity-icon {
-                    font-size: 1.45rem;
+                    width: 24px;
+                    height: 24px;
+                    object-fit: contain;
                     line-height: 1;
+                    flex-shrink: 0;
                 }
                 .amenity-name {
                     font-size: 0.95rem;
@@ -334,6 +356,83 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     font-size: 0.8rem;
                     font-weight: 600;
                     color: #64748b;
+                }
+                .nearby-amenities {
+                    margin-bottom: 40px;
+                }
+                .nearby-amenities-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                    gap: 16px;
+                    margin-top: 4px;
+                }
+                .nearby-amenities-grid-collapsed {
+                    max-height: calc((88px * 3) + (16px * 2));
+                    overflow: hidden;
+                }
+                .nearby-amenity-card {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 12px;
+                    padding: 16px;
+                    min-height: 88px;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 12px;
+                    background: #ffffff;
+                    box-sizing: border-box;
+                }
+                .nearby-amenity-card-main {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    min-width: 0;
+                }
+                .nearby-amenity-icon {
+                    width: 22px;
+                    height: 22px;
+                    object-fit: contain;
+                    flex-shrink: 0;
+                }
+                .nearby-amenity-text {
+                    min-width: 0;
+                }
+                .nearby-amenity-title {
+                    font-weight: 600;
+                    color: #1a1a1a;
+                    text-transform: capitalize;
+                    line-height: 1.2;
+                }
+                .nearby-amenity-name {
+                    font-size: 0.85rem;
+                    color: #6b7280;
+                    line-height: 1.2;
+                    margin-top: 2px;
+                }
+                .nearby-amenity-distance {
+                    font-weight: 700;
+                    color: #4b5563;
+                    font-size: 0.9rem;
+                    flex-shrink: 0;
+                }
+                .nearby-amenities-toggle {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-top: 16px;
+                    padding: 10px 14px;
+                    border-radius: 10px;
+                    border: 1px solid #cbd5e1;
+                    background: #f8fafc;
+                    color: #334155;
+                    font-weight: 700;
+                    font-size: 0.92rem;
+                    cursor: pointer;
+                    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+                }
+                .nearby-amenities-toggle:hover {
+                    background: #eef2f7;
+                    border-color: #94a3b8;
                 }
 
                 /* Agent Card */
@@ -441,6 +540,9 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     .amenity-grid {
                         grid-template-columns: repeat(2, 1fr);
                         gap: 12px;
+                    }
+                    .nearby-amenities-grid {
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
                     }
                     .agent-card {
                         padding: 16px;
@@ -666,15 +768,19 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     <div>
                         <div style={{ marginBottom: '32px' }}>
                             <h1 className="prop-title">{property.title}</h1>
-                            <div className="prop-location">📍 {locationStr}</div>
+                            <div className="prop-location">
+                                <img src="/icons/land-location.svg" alt="" aria-hidden="true" className="prop-location-icon" />
+                                <span>{locationStr}</span>
+                            </div>
 
                             <h2 className="section-title" style={{ marginBottom: '12px' }}>Overview</h2>
                             <div className="overview-grid">
                                 {overviewItems.map((item) => (
                                     <div key={`${item.label}-${item.value}`} className="overview-card">
-                                        <span className="overview-icon">{item.icon}</span>
-                                        <div className="overview-value">{item.value}</div>
-                                        <div className="overview-label">{item.label}</div>
+                                        <div className="overview-content">
+                                            <img src={item.icon} alt="" aria-hidden="true" className="overview-icon" />
+                                            <div className="overview-value">{item.displayValue}</div>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -688,7 +794,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                                 <div className="amenity-grid">
                                     {amenityMainFeatures.map((item) => (
                                         <div key={`${item.label}-${item.detail || ''}`} className="amenity-tile">
-                                            <span className="amenity-icon">{item.icon}</span>
+                                            <img src={item.icon} alt="" aria-hidden="true" className="amenity-icon" />
                                             <div className="amenity-name">{item.label}</div>
                                             {item.detail ? <div className="amenity-detail">{item.detail}</div> : null}
                                         </div>
@@ -709,7 +815,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                                 </div>
                                 <div>
                                     <div style={{ fontWeight: '700', fontSize: '1.1rem', color: '#1a1a1a' }}>{property.listedBy?.name || 'Agent'}</div>
-                                    <div style={{ color: '#6b7280', fontSize: '0.9rem' }}>{agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}</div>
+                                    <div style={{ color: 'var(--color-primary)', fontSize: '0.9rem', fontWeight: 700 }}>{agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}</div>
                                 </div>
                                 {contactNumber && (
                                     <a
@@ -738,25 +844,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                             </p>
                         </div>
 
-                        {property.amenities && property.amenities.length > 0 && (
-                            <div style={{ marginBottom: '40px' }}>
-                                <h2 className="section-title">Nearby Amenities</h2>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))', gap: '16px' }}>
-                                    {property.amenities.map((amenity: any) => (
-                                        <div key={amenity.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                <span style={{ fontSize: '1.5rem' }}>{getAmenityIcon(amenity.type)}</span>
-                                                <div>
-                                                    <div style={{ fontWeight: '600', color: '#1a1a1a', textTransform: 'capitalize' }}>{amenity.type.replace(/_/g, ' ')}</div>
-                                                    {amenity.name && <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>{amenity.name}</div>}
-                                                </div>
-                                            </div>
-                                            <div style={{ fontWeight: '700', color: '#4b5563', fontSize: '0.9rem' }}>{amenity.distance || 'N/A'}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                        {property.amenities && property.amenities.length > 0 && <NearbyAmenitiesSection amenities={property.amenities} />}
 
                         <div style={{ marginBottom: '40px' }}>
                             <h2 className="section-title">Where you'll be</h2>
@@ -917,7 +1005,9 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         {property.listedBy?.profile_picture ? (
                             <img src={property.listedBy.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={property.listedBy.name || 'User'} />
                         ) : (
-                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem' }}>👤</div>
+                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <img src="/icons/info.svg" alt="" aria-hidden="true" style={{ width: '18px', height: '18px', objectFit: 'contain' }} />
+                            </div>
                         )}
                     </div>
                     <div style={{ minWidth: 0 }}>
