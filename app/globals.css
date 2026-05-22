@@ -53,13 +53,23 @@ body.mobile-menu-open::before {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
   z-index: 1100;
   pointer-events: none;
 }
 
 @layer utilities {
+  .leaflet-container {
+    z-index: 0;
+  }
+
+  .leaflet-control-container,
+  .leaflet-top,
+  .leaflet-bottom {
+    z-index: 400 !important;
+  }
+
   /* Custom Scrollbar for Sidebar */
   .custom-scrollbar::-webkit-scrollbar {
     width: 5px;
@@ -84,7 +94,6 @@ body.mobile-menu-open::before {
 
   .scrollbar-hide {
     -ms-overflow-style: none;
-    scrollbar-width: none;
   }
 
   /* NProgress Custom Styling */

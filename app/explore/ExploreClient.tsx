@@ -466,7 +466,7 @@ export default function ExploreClient({ initialUser, initialQuery = '' }: { init
                 </div>
 
                 {/* Right: Fixed Map */}
-                <div className={`lg:w-1/2 h-full bg-surface sticky top-[calc(var(--header-height)+81px)] ${!showMap ? 'hidden lg:block' : 'block w-full fixed inset-0 z-40 top-[calc(var(--header-height)+81px)]'}`}>
+                <div className={`lg:w-1/2 h-full bg-surface sticky top-[calc(var(--header-height)+81px)] z-0 ${!showMap ? 'hidden lg:block' : 'block w-full fixed inset-0 z-20 top-[calc(var(--header-height)+81px)]'}`}>
                     <MapComponent
                         properties={mapProperties}
                         center={mapCenter}

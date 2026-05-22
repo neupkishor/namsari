@@ -113,82 +113,84 @@ export default function MapComponent({
     onBoundsChange
 }: MapProps) {
     return (
-        <MapContainer
-            center={center}
-            zoom={zoom}
-            className="h-full w-full rounded-3xl"
-            scrollWheelZoom={true}
-        >
-            <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
+        <div className="relative isolate h-full w-full overflow-hidden rounded-3xl">
+            <MapContainer
+                center={center}
+                zoom={zoom}
+                className="h-full w-full"
+                scrollWheelZoom={true}
+            >
+                <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
 
-            <MapResizer center={center} zoom={zoom} />
-            <BoundsTracker onBoundsChange={onBoundsChange} />
+                <MapResizer center={center} zoom={zoom} />
+                <BoundsTracker onBoundsChange={onBoundsChange} />
 
-            {/* User Current Location Circle */}
-            {userLocation && (
-                <>
-                    <Circle
-                        center={userLocation}
-                        radius={500} // 500 meters radius
-                        pathOptions={{
-                            fillColor: '#2D3E50',
-                            fillOpacity: 0.1,
-                            color: '#2D3E50',
-                            weight: 1,
-                            opacity: 0.2
-                        }}
-                    />
-                    <Marker position={userLocation} icon={UserLocationIcon} interactive={false} />
-                </>
-            )}
+                {/* User Current Location Circle */}
+                {userLocation && (
+                    <>
+                        <Circle
+                            center={userLocation}
+                            radius={500} // 500 meters radius
+                            pathOptions={{
+                                fillColor: '#2D3E50',
+                                fillOpacity: 0.1,
+                                color: '#2D3E50',
+                                weight: 1,
+                                opacity: 0.2
+                            }}
+                        />
+                        <Marker position={userLocation} icon={UserLocationIcon} interactive={false} />
+                    </>
+                )}
 
-            {properties.map((p) => {
-                const lat = typeof p.latitude === 'string' ? parseFloat(p.latitude) : p.latitude;
-                const lng = typeof p.longitude === 'string' ? parseFloat(p.longitude) : p.longitude;
+                {properties.map((p) => {
+                    const lat = typeof p.latitude === 'string' ? parseFloat(p.latitude) : p.latitude;
+                    const lng = typeof p.longitude === 'string' ? parseFloat(p.longitude) : p.longitude;
 
-                if (!lat || !lng || isNaN(lat) || isNaN(lng)) return null;
+                    if (!lat || !lng || isNaN(lat) || isNaN(lng)) return null;
 
-                const isSelected = selectedId === p.id;
+                    const isSelected = selectedId === p.id;
 
-                return (
-                    <Marker
-                        key={p.id}
-                        position={[lat, lng]}
-                        icon={isSelected ? RedIcon : DefaultIcon}
-                        eventHandlers={{
-                            click: () => onMarkerClick?.(p.id)
-                        }}
-                    >
-                        {!disablePopups && (
-                            <Popup className="property-popup">
-                                <div className="min-w-[180px] font-sans p-1">
-                                    <img
-                                        src={p.images?.[0] || 'https://via.placeholder.com/150'}
-                                        alt={p.title}
-                                        className="w-full rounded-lg mb-3 h-[100px] object-cover"
-                                    />
-                                    <div className="font-extrabold text-lg text-primary mb-1">{p.price}</div>
-                                    <div className="text-sm font-semibold text-primary/80 mb-1 leading-tight line-clamp-2">{p.title}</div>
-                                    <div className="text-xs text-slate-500 flex items-center gap-1">
-                                        <span>📍</span> {p.location}
+                    return (
+                        <Marker
+                            key={p.id}
+                            position={[lat, lng]}
+                            icon={isSelected ? RedIcon : DefaultIcon}
+                            eventHandlers={{
+                                click: () => onMarkerClick?.(p.id)
+                            }}
+                        >
+                            {!disablePopups && (
+                                <Popup className="property-popup">
+                                    <div className="min-w-[180px] font-sans p-1">
+                                        <img
+                                            src={p.images?.[0] || 'https://via.placeholder.com/150'}
+                                            alt={p.title}
+                                            className="w-full rounded-lg mb-3 h-[100px] object-cover"
+                                        />
+                                        <div className="font-extrabold text-lg text-primary mb-1">{p.price}</div>
+                                        <div className="text-sm font-semibold text-primary/80 mb-1 leading-tight line-clamp-2">{p.title}</div>
+                                        <div className="text-xs text-slate-500 flex items-center gap-1">
+                                            <span>📍</span> {p.location}
+                                        </div>
+                                        <div className="mt-3 pt-2 border-t border-slate-100">
+                                            <a
+                                                href={`/properties/${p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`}
+                                                className="text-gold no-underline font-bold text-xs hover:text-gold/80 transition-colors"
+                                            >
+                                                View Details →
+                                            </a>
+                                        </div>
                                     </div>
-                                    <div className="mt-3 pt-2 border-t border-slate-100">
-                                        <a
-                                            href={`/properties/${p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`}
-                                            className="text-gold no-underline font-bold text-xs hover:text-gold/80 transition-colors"
-                                        >
-                                            View Details →
-                                        </a>
-                                    </div>
-                                </div>
-                            </Popup>
-                        )}
-                    </Marker>
-                );
-            })}
-        </MapContainer>
+                                </Popup>
+                            )}
+                        </Marker>
+                    );
+                })}
+            </MapContainer>
+        </div>
     );
 }

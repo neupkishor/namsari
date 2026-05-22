@@ -98,8 +98,8 @@ export default function RequirementMap({ selectedLocation, onLocationSelect }: R
     }, []);
 
     return (
-        <div style={{ height: '500px', width: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0', position: 'relative' }}>
-            <MapContainer center={center} zoom={15} style={{ height: '100%', width: '100%' }}>
+        <div className="relative isolate h-[500px] w-full overflow-hidden rounded-[12px] border border-slate-200">
+            <MapContainer center={center} zoom={15} className="h-full w-full">
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -129,7 +129,7 @@ export default function RequirementMap({ selectedLocation, onLocationSelect }: R
                     </>
                 )}
             </MapContainer>
-            <div style={{ position: 'absolute', bottom: '16px', left: '50%', transform: 'translateX(-50%)', zIndex: 1000, background: 'rgba(255,255,255,0.9)', padding: '8px 16px', borderRadius: '20px', fontSize: '0.8rem', color: '#64748b', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', whiteSpace: 'nowrap' }}>
+            <div className="absolute bottom-4 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-white/90 px-4 py-2 text-[0.8rem] text-slate-500 shadow-md">
                 Click map to set center. Search above for locations.
             </div>
         </div>
