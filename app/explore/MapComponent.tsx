@@ -80,6 +80,12 @@ interface MapProps {
     onBoundsChange?: (bounds: { north: number; south: number; east: number; west: number }) => void;
 }
 
+function normalizeVector(x: number, y: number) {
+    const length = Math.hypot(x, y);
+    if (length === 0) return { x: 0, y: 0 };
+    return { x: x / length, y: y / length };
+}
+
 // Helper to auto-center map when properties change and invalidate size to fix rendering bugs
 function MapResizer({ center, zoom }: { center: [number, number]; zoom: number }) {
     const map = useMap();
@@ -168,6 +174,7 @@ export default function MapComponent({
 }: MapProps) {
     const [mapKey, setMapKey] = React.useState(0);
     const markerRefs = useRef<Map<number, L.Marker>>(new Map());
+    const [hoverPoint, setHoverPoint] = React.useState<{ lat: number; lng: number } | null>(null);
 
     useEffect(() => {
         // Force one fresh Leaflet instance after mount.
@@ -182,22 +189,36 @@ export default function MapComponent({
     }, [selectedId]);
 
     const displayPositionById = React.useMemo(() => {
-        const grouped = new Map<string, { id: number; lat: number; lng: number }[]>();
+        const valid = properties
+            .map((property) => {
+                const lat = typeof property.latitude === 'string' ? parseFloat(property.latitude) : property.latitude;
+                const lng = typeof property.longitude === 'string' ? parseFloat(property.longitude) : property.longitude;
+                if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+                return { id: property.id, lat, lng };
+            })
+            .filter(Boolean) as { id: number; lat: number; lng: number }[];
 
-        properties.forEach((property) => {
-            const lat = typeof property.latitude === 'string' ? parseFloat(property.latitude) : property.latitude;
-            const lng = typeof property.longitude === 'string' ? parseFloat(property.longitude) : property.longitude;
-            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+        const proximityThreshold = 0.00008; // ~8-9m latitude delta
+        const groups: { id: number; lat: number; lng: number }[][] = [];
 
-            const key = `${lat.toFixed(6)}:${lng.toFixed(6)}`;
-            const current = grouped.get(key) || [];
-            current.push({ id: property.id, lat, lng });
-            grouped.set(key, current);
+        valid.forEach((point) => {
+            const group = groups.find((candidate) =>
+                candidate.some((existing) =>
+                    Math.abs(existing.lat - point.lat) <= proximityThreshold &&
+                    Math.abs(existing.lng - point.lng) <= proximityThreshold
+                )
+            );
+
+            if (group) {
+                group.push(point);
+            } else {
+                groups.push([point]);
+            }
         });
 
         const positions = new Map<number, [number, number]>();
 
-        grouped.forEach((group) => {
+        groups.forEach((group) => {
             const ordered = [...group].sort((a, b) => a.id - b.id);
 
             if (ordered.length === 1) {
@@ -205,18 +226,57 @@ export default function MapComponent({
                 return;
             }
 
-            const radiusMeters = 22;
-            ordered.forEach((item, index) => {
-                const angle = (2 * Math.PI * index) / ordered.length;
+            const radiusMeters = 20;
+            const selectedInGroup = selectedId ? ordered.find((item) => item.id === selectedId) : null;
+
+            if (selectedInGroup) {
+                positions.set(selectedInGroup.id, [selectedInGroup.lat, selectedInGroup.lng]);
+            }
+
+            const others = selectedInGroup
+                ? ordered.filter((item) => item.id !== selectedInGroup.id)
+                : ordered;
+
+            const directionalPattern: Array<{ x: number; y: number }> = [
+                { x: 1, y: 0 },   // right
+                { x: -1, y: 0 },  // left
+                { x: 0, y: 1 },   // up
+                { x: 0, y: -1 },  // down
+                { x: 0.707, y: 0.707 },   // up-right
+                { x: -0.707, y: 0.707 },  // up-left
+                { x: 0.707, y: -0.707 },  // down-right
+                { x: -0.707, y: -0.707 }, // down-left
+            ];
+
+            const orderedDirections = (() => {
+                if (!selectedInGroup || !hoverPoint) return directionalPattern;
+
+                // Push overlaps away from the pointer area.
+                const dx = (selectedInGroup.lng - hoverPoint.lng) * Math.max(Math.cos((selectedInGroup.lat * Math.PI) / 180), 0.2);
+                const dy = selectedInGroup.lat - hoverPoint.lat;
+                const away = normalizeVector(dx, dy);
+                if (away.x === 0 && away.y === 0) return directionalPattern;
+
+                return [...directionalPattern].sort((a, b) => {
+                    const aScore = a.x * away.x + a.y * away.y;
+                    const bScore = b.x * away.x + b.y * away.y;
+                    return bScore - aScore;
+                });
+            })();
+
+            others.forEach((item, index) => {
+                const direction = orderedDirections[index % orderedDirections.length];
+                const ringMultiplier = Math.floor(index / orderedDirections.length) + 1;
+                const distanceMeters = radiusMeters * ringMultiplier;
                 const latRadians = (item.lat * Math.PI) / 180;
-                const latOffset = (radiusMeters / 111320) * Math.sin(angle);
-                const lngOffset = (radiusMeters / (111320 * Math.max(Math.cos(latRadians), 0.2))) * Math.cos(angle);
+                const latOffset = (distanceMeters / 111320) * direction.y;
+                const lngOffset = (distanceMeters / (111320 * Math.max(Math.cos(latRadians), 0.2))) * direction.x;
                 positions.set(item.id, [item.lat + latOffset, item.lng + lngOffset]);
             });
         });
 
         return positions;
-    }, [properties]);
+    }, [properties, selectedId, hoverPoint]);
 
     return (
         <div className="relative isolate h-full w-full overflow-hidden rounded-3xl">
@@ -277,8 +337,17 @@ export default function MapComponent({
                             }}
                             eventHandlers={{
                                 click: () => onMarkerClick?.(p.id),
-                                mouseover: () => onMarkerHover?.(p.id),
-                                mouseout: () => onMarkerLeave?.(p.id),
+                                mouseover: (event) => {
+                                    setHoverPoint({
+                                        lat: event.latlng.lat,
+                                        lng: event.latlng.lng,
+                                    });
+                                    onMarkerHover?.(p.id);
+                                },
+                                mouseout: () => {
+                                    setHoverPoint(null);
+                                    onMarkerLeave?.(p.id);
+                                },
                             }}
                         >
                             {!disablePopups && (
