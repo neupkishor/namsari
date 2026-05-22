@@ -790,7 +790,7 @@ function HomeSearchHero() {
                                                 <span className="hidden sm:inline">{value}</span>
                                             </>
                                         ) : (
-                                            <>{hasValue ? value : ''}</>
+                                            <>{value}</>
                                         )}
                                     </span>
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-50">
@@ -1435,7 +1435,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                                         target="_blank"
                                                                                         rel="noopener noreferrer"
                                                                                         onClick={(e) => e.stopPropagation()}
-                                                                                        className="flex items-center justify-center p-2 rounded-lg text-[#25D366] hover:text-[#1aab52] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
+                                                                                        className="hidden sm:flex items-center justify-center p-2 rounded-lg text-[#25D366] hover:text-[#1aab52] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
                                                                                         aria-label="Message on WhatsApp"
                                                                                     >
                                                                                         <WhatsAppIcon />

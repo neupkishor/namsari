@@ -309,78 +309,96 @@ export function PropertyPost({
           <div className="border-t border-slate-100" />
 
           {/* BOTTOM ROW: agent info + call/whatsapp | timestamp + share */}
-          <div className="flex items-center justify-between py-2 gap-2">
-            {/* Left: agent name · property count · call · whatsapp */}
-            <div className="flex items-center gap-2 min-w-0">
-              {agentProfileUrl ? (
-                <a
-                  href={agentProfileUrl}
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-[12px] text-slate-500 font-medium truncate max-w-[90px] sm:max-w-[130px] hover:text-[color:var(--color-primary)] hover:underline transition-colors"
-                >
-                  {agentName}
-                </a>
-              ) : (
-                <span className="text-[12px] text-slate-500 font-medium truncate max-w-[90px] sm:max-w-[130px]">
-                  {agentName}
-                </span>
-              )}
-              {agentPropertyCount != null && agentUsername && (
-                <>
-                  <span className="text-slate-400 text-[12px] font-medium">•</span>
+          <div className="flex items-start justify-between py-2 gap-2">
+            <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-2">
+              {/* Icons first in DOM: on mobile they'll appear above; on desktop they'll be ordered after via sm:order-2 */}
+              <div className="flex items-center gap-2 sm:order-2">
+                {agentPhone ? (
                   <a
-                    href={`/@${agentUsername}/properties`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="text-[12px] text-slate-500 font-medium shrink-0 hover:text-[color:var(--color-primary)] hover:underline transition-colors"
+                    href={`tel:${agentPhone}`}
+                    aria-label="Call agent"
+                    className="items-center justify-center p-2 rounded-lg text-slate-400 hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
                   >
-                    <span className="hidden sm:inline">{agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}</span>
-                    <span className="sm:hidden">{agentPropertyCount}</span>
+                    <PhoneIcon />
                   </a>
-                </>
-              )}
-              {agentPropertyCount != null && !agentUsername && (
-                <>
-                  <span className="text-slate-400 text-[12px] font-medium">•</span>
-                  <span className="text-[12px] text-slate-500 font-medium shrink-0">
-                    <span className="hidden sm:inline">{agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}</span>
-                    <span className="sm:hidden">{agentPropertyCount}</span>
+                ) : (
+                  <span className="items-center justify-center p-2 rounded-lg text-slate-400 flex-shrink-0">
+                    <PhoneIcon />
                   </span>
-                </>
-              )}
-              {/* Call button */}
-              {agentPhone ? (
-                <a
-                  href={`tel:${agentPhone}`}
-                  aria-label="Call agent"
-                  className="hidden sm:flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
-                >
-                  <PhoneIcon />
-                </a>
-              ) : (
-                <span className="hidden sm:flex items-center justify-center p-2 rounded-lg text-slate-400 flex-shrink-0">
-                  <PhoneIcon />
-                </span>
-              )}
-              {/* WhatsApp button */}
+                )}
+
+                {agentWhatsapp ? (
+                  <a
+                    href={`https://wa.me/${agentWhatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`${typeof window !== 'undefined' ? window.location.origin : ''}${propertyUrl}\nI'm interested in this "${property.title}"`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="WhatsApp agent"
+                    className="items-center justify-center p-2 rounded-lg text-[#25D366] hover:text-[#1aab52] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
+                  >
+                    <WhatsAppIcon />
+                  </a>
+                ) : (
+                  <span className="items-center justify-center p-2 rounded-lg text-[#25D366] flex-shrink-0">
+                    <WhatsAppIcon />
+                  </span>
+                )}
+              </div>
+
+              {/* Agent info: name + property count */}
+              <div className="flex items-center gap-2 min-w-0 sm:order-1 flex-1">
+                {agentProfileUrl ? (
+                  <a
+                    href={agentProfileUrl}
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-[12px] text-slate-500 font-medium truncate max-w-[160px] hover:text-[color:var(--color-primary)] hover:underline transition-colors"
+                  >
+                    {agentName}
+                  </a>
+                ) : (
+                  <span className="text-[12px] text-slate-500 font-medium truncate max-w-[160px]">
+                    {agentName}
+                  </span>
+                )}
+
+                {agentPropertyCount != null && (
+                  <>
+                    <span className="text-slate-400 text-[12px] font-medium">•</span>
+                    {agentUsername ? (
+                      <a
+                        href={`/@${agentUsername}/properties`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-[12px] text-slate-500 font-medium shrink-0 hover:text-[color:var(--color-primary)] hover:underline transition-colors"
+                      >
+                        <span className="inline">{agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}</span>
+                      </a>
+                    ) : (
+                      <span className="text-[12px] text-slate-500 font-medium shrink-0">
+                        <span className="inline">{agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}</span>
+                      </span>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Right: on mobile show WhatsApp first (if available), then time and share */}
+            <div className="flex items-center gap-2 flex-shrink-0">
               {agentWhatsapp ? (
                 <a
                   href={`https://wa.me/${agentWhatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`${typeof window !== 'undefined' ? window.location.origin : ''}${propertyUrl}\nI'm interested in this "${property.title}"`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="WhatsApp agent"
-                  className="flex items-center justify-center p-2 rounded-lg text-[#25D366] hover:text-[#1aab52] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
+                  className="flex sm:hidden items-center justify-center p-2 rounded-lg text-[#25D366] hover:text-[#1aab52] hover:bg-[color:var(--color-primary)]/10 transition-colors"
                 >
                   <WhatsAppIcon />
                 </a>
               ) : (
-                <span className="flex items-center justify-center p-2 rounded-lg text-[#25D366] flex-shrink-0">
+                <span className="flex sm:hidden items-center justify-center p-2 rounded-lg text-[#25D366]">
                   <WhatsAppIcon />
                 </span>
               )}
-            </div>
 
-            {/* Right: timestamp + share */}
-            <div className="flex items-center gap-2 flex-shrink-0">
               {timeAgo && (
                 <span className="text-[11px] text-slate-400 font-medium">{timeAgo}</span>
               )}
