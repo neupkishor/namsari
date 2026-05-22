@@ -1046,31 +1046,21 @@ function ExploreCategoriesSection({
                 <h2 className="text-lg font-bold text-slate-900">Browse by category</h2>
                 <p className="text-sm text-slate-400">Find what you&apos;re looking for.</p>
             </div>
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-1">
                 {groups.map((group) => (
                     <div key={group.label}>
-                        {/* Group label */}
-                        <div className="flex items-center mb-3">
-                            <Link
-                                href={group.href}
-                                className="inline-flex items-center gap-1 text-[13px] font-semibold text-slate-700 hover:text-[color:var(--color-primary)] transition-colors"
-                            >
-                                {group.label}
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-                            </Link>
-                        </div>
-                        {/* Two-line category cards */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div className="overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                            <div className="inline-flex gap-1.5 min-w-max">
                             {group.items.map((item) => (
                                 <Link
                                     key={item.label}
                                     href={item.href}
-                                    className="group flex items-stretch gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm transition-all duration-200 hover:border-[color:var(--color-primary)]/35 hover:shadow-md hover:-translate-y-px"
+                                    className="group flex items-stretch gap-2.5 rounded-2xl border border-slate-200 bg-white pl-3 pr-4 py-2 shadow-sm transition-all duration-200 hover:border-[color:var(--color-primary)]/35 hover:shadow-md hover:-translate-y-px"
                                 >
                                     <div className="flex w-9 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 shrink-0">
                                         <span className="text-base leading-none">{item.emoji}</span>
                                     </div>
-                                    <div className="min-w-0 flex flex-col justify-center gap-0.5">
+                                    <div className="min-w-0 flex flex-col justify-center gap-0">
                                         <div className="text-[13px] font-semibold text-slate-800 group-hover:text-slate-900 transition-colors truncate">
                                             {item.label}
                                         </div>
@@ -1080,6 +1070,7 @@ function ExploreCategoriesSection({
                                     </div>
                                 </Link>
                             ))}
+                            </div>
                         </div>
                     </div>
                 ))}
