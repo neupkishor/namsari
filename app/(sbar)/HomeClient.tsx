@@ -1015,27 +1015,27 @@ function ExploreCategoriesSection({
             label: 'For Sale',
             href: '/search?purposes=sale',
             items: [
-                { emoji: '🏠', label: 'House', count: stats.forSale.house, href: '/search?purposes=sale&types=house' },
-                { emoji: '🌿', label: 'Land', count: stats.forSale.land, href: '/search?purposes=sale&types=land' },
-                { emoji: '🏢', label: 'Building', count: stats.forSale.building, href: '/search?purposes=sale&types=building' },
+                { icon: '/icons/house-chimney.svg', label: 'House', count: stats.forSale.house, href: '/search?purposes=sale&types=house' },
+                { icon: '/icons/land-location.svg', label: 'Land', count: stats.forSale.land, href: '/search?purposes=sale&types=land' },
+                { icon: '/icons/apartment.svg', label: 'Building', count: stats.forSale.building, href: '/search?purposes=sale&types=building' },
             ],
         },
         {
             label: 'For Rent',
             href: '/search?purposes=rent',
             items: [
-                { emoji: '🛋️', label: 'Flat', count: stats.forRent.flat, href: '/search?purposes=rent&types=flat' },
-                { emoji: '🏡', label: 'House', count: stats.forRent.house, href: '/search?purposes=rent&types=house' },
-                { emoji: '🏙️', label: 'Apartment', count: stats.forRent.apartment, href: '/search?purposes=rent&types=apartment' },
-                { emoji: '🔑', label: 'All Rent', count: stats.forRent.totalRent, href: '/search?purposes=rent' },
+                { icon: '/icons/apartment.svg', label: 'Flat', count: stats.forRent.flat, href: '/search?purposes=rent&types=flat' },
+                { icon: '/icons/house-chimney.svg', label: 'House', count: stats.forRent.house, href: '/search?purposes=rent&types=house' },
+                { icon: '/icons/apartment.svg', label: 'Apartment', count: stats.forRent.apartment, href: '/search?purposes=rent&types=apartment' },
+                { icon: '/icons/note.svg', label: 'All Rent', count: stats.forRent.totalRent, href: '/search?purposes=rent' },
             ],
         },
         {
             label: 'Requirements',
             href: '/requirements',
             items: [
-                { emoji: '🏘️', label: 'Rental', count: stats.requirements.rental, href: '/requirements?purpose=rent' },
-                { emoji: '💼', label: 'Purchase', count: stats.requirements.purchase, href: '/requirements?purpose=sale' },
+                { icon: '/icons/note.svg', label: 'Rental', count: stats.requirements.rental, href: '/requirements?purpose=rent' },
+                { icon: '/icons/sack-dollar.svg', label: 'Purchase', count: stats.requirements.purchase, href: '/requirements?purpose=sale' },
             ],
         },
     ];
@@ -1058,7 +1058,20 @@ function ExploreCategoriesSection({
                                     className="group flex items-stretch gap-2.5 rounded-2xl border border-slate-200 bg-white pl-3 pr-4 py-2 shadow-sm transition-all duration-200 hover:border-[color:var(--color-primary)]/35 hover:shadow-md hover:-translate-y-px"
                                 >
                                     <div className="flex w-9 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 shrink-0">
-                                        <span className="text-base leading-none">{item.emoji}</span>
+                                        <span
+                                            aria-hidden="true"
+                                            className="h-4 w-4 bg-[color:var(--color-primary)]"
+                                            style={{
+                                                WebkitMaskImage: `url(${item.icon})`,
+                                                maskImage: `url(${item.icon})`,
+                                                WebkitMaskRepeat: 'no-repeat',
+                                                maskRepeat: 'no-repeat',
+                                                WebkitMaskPosition: 'center',
+                                                maskPosition: 'center',
+                                                WebkitMaskSize: 'contain',
+                                                maskSize: 'contain',
+                                            }}
+                                        />
                                     </div>
                                     <div className="min-w-0 flex flex-col justify-center gap-0">
                                         <div className="text-[13px] font-semibold text-slate-800 group-hover:text-slate-900 transition-colors truncate">
