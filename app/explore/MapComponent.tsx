@@ -163,12 +163,19 @@ export default function MapComponent({
     onBoundsChange
 }: MapProps) {
     const [mapKey, setMapKey] = React.useState(0);
+    const markerRefs = useRef<Map<number, L.Marker>>(new Map());
 
     useEffect(() => {
         // Force one fresh Leaflet instance after mount.
         // This avoids stale DOM references that can happen during Fast Refresh/HMR.
         setMapKey((current) => current + 1);
     }, []);
+
+    useEffect(() => {
+        if (!selectedId) return;
+        const marker = markerRefs.current.get(selectedId);
+        marker?.setZIndexOffset(10000);
+    }, [selectedId]);
 
     return (
         <div className="relative isolate h-full w-full overflow-hidden rounded-3xl">
@@ -218,6 +225,14 @@ export default function MapComponent({
                             key={p.id}
                             position={[lat, lng]}
                             icon={createPricePointerIcon((p as any).pricing?.price ?? p.price, isSelected)}
+                            zIndexOffset={isSelected ? 1000 : 0}
+                            ref={(instance) => {
+                                if (instance) {
+                                    markerRefs.current.set(p.id, instance);
+                                } else {
+                                    markerRefs.current.delete(p.id);
+                                }
+                            }}
                             eventHandlers={{
                                 click: () => onMarkerClick?.(p.id)
                             }}
