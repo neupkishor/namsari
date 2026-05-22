@@ -1012,30 +1012,33 @@ function ExploreCategoriesSection({
 }) {
     const groups = [
         {
-            label: 'For Sale',
+            label: 'Purchase',
             href: '/search?purposes=sale',
             items: [
                 { icon: '/icons/house-chimney.svg', label: 'House', count: stats.forSale.house, href: '/search?purposes=sale&types=house' },
                 { icon: '/icons/land-location.svg', label: 'Land', count: stats.forSale.land, href: '/search?purposes=sale&types=land' },
-                { icon: '/icons/apartment.svg', label: 'Building', count: stats.forSale.building, href: '/search?purposes=sale&types=building' },
+                { icon: '/icons/apartment.svg', label: 'Apartment', href: '/search?purposes=sale&types=apartment' },
+                { icon: '/icons/growth-chart-invest.svg', label: 'Business', href: '/search?purposes=sale&types=business' },
             ],
         },
         {
-            label: 'For Rent',
+            label: 'Rental',
             href: '/search?purposes=rent',
             items: [
                 { icon: '/icons/apartment.svg', label: 'Flat', count: stats.forRent.flat, href: '/search?purposes=rent&types=flat' },
                 { icon: '/icons/house-chimney.svg', label: 'House', count: stats.forRent.house, href: '/search?purposes=rent&types=house' },
                 { icon: '/icons/apartment.svg', label: 'Apartment', count: stats.forRent.apartment, href: '/search?purposes=rent&types=apartment' },
-                { icon: '/icons/note.svg', label: 'All Rent', count: stats.forRent.totalRent, href: '/search?purposes=rent' },
+                { icon: '/icons/apartment.svg', label: 'Commercial Space', href: '/search?purposes=rent&types=commercial-space' },
+                { icon: '/icons/note.svg', label: 'Office Space', href: '/search?purposes=rent&types=office-space' },
+                { icon: '/icons/growth-chart-invest.svg', label: 'Business', href: '/search?purposes=rent&types=business' },
             ],
         },
         {
             label: 'Requirements',
             href: '/requirements',
             items: [
-                { icon: '/icons/note.svg', label: 'Rental', count: stats.requirements.rental, href: '/requirements?purpose=rent' },
                 { icon: '/icons/sack-dollar.svg', label: 'Purchase', count: stats.requirements.purchase, href: '/requirements?purpose=sale' },
+                { icon: '/icons/note.svg', label: 'Rental', count: stats.requirements.rental, href: '/requirements?purpose=rent' },
             ],
         },
     ];
