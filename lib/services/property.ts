@@ -293,5 +293,8 @@ export async function createPropertyListing(input: CreatePropertyInput) {
         }
 
         return typedProperty;
+    }, {
+        maxWait: 10000,
+        timeout: 20000,
     });
 }
