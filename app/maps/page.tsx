@@ -12,7 +12,7 @@ export default async function MapsPage(props: { searchParams: Promise<{ q?: stri
     const searchParams = await props.searchParams;
     const session = await getSession();
     const user = session ? await import('@/lib/prisma').then(({ default: db }) => db.user.findUnique({ where: { id: Number(session.id) } })) : null;
-    const properties = await getBrowseProperties(80);
+    const properties = await getBrowseProperties(80, { onlyMappable: true });
 
     return (
         <MapsClient

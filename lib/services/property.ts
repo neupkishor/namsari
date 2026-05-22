@@ -295,5 +295,3 @@ export async function createPropertyListing(input: CreatePropertyInput) {
         return typedProperty;
     });
 }
-
-

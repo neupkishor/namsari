@@ -1,7 +1,29 @@
 import prisma from '@/lib/prisma';
 
-export async function getBrowseProperties(limit = 60) {
+export async function getBrowseProperties(limit = 60, options?: { onlyMappable?: boolean }) {
+    const onlyMappable = options?.onlyMappable === true;
+
     const dbProperties = await prisma.property.findMany({
+        where: onlyMappable ? {
+            OR: [
+                {
+                    location: {
+                        is: {
+                            latitude: { not: null },
+                            longitude: { not: null }
+                        }
+                    }
+                },
+                {
+                    openHouse: {
+                        is: {
+                            latitude: { not: null },
+                            longitude: { not: null }
+                        }
+                    }
+                }
+            ]
+        } : undefined,
         include: {
             listedBy: {
                 include: {
@@ -9,6 +31,7 @@ export async function getBrowseProperties(limit = 60) {
                 }
             },
             location: true,
+            openHouse: true,
             pricing: true,
             images: true,
             types: true,
@@ -25,6 +48,8 @@ export async function getBrowseProperties(limit = 60) {
 
     return dbProperties.map((property: any) => {
         const priceValue = property.pricing?.price || 0;
+        const latitude = property.location?.latitude ?? property.openHouse?.latitude ?? null;
+        const longitude = property.location?.longitude ?? property.openHouse?.longitude ?? null;
 
         const formattedPrice = new Intl.NumberFormat('en-NP', {
             style: 'currency',
@@ -44,8 +69,8 @@ export async function getBrowseProperties(limit = 60) {
             ...property,
             price: formattedPrice,
             location: locationStr,
-            latitude: property.location?.latitude,
-            longitude: property.location?.longitude,
+            latitude,
+            longitude,
             images: property.images.map((img: any) => img.url),
             property_types: property.types.map((type: any) => type.name),
             specs,

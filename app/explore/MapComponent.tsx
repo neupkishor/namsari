@@ -1,21 +1,14 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { formatPrice } from '@/lib/formatters';
 
 // Fix for default marker icons in Leaflet with Next.js
 const DefaultIcon = L.icon({
     iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-});
-
-// Red marker for hovered/selected properties
-const RedIcon = L.icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
     shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
     iconSize: [25, 41],
     iconAnchor: [12, 41],
@@ -29,6 +22,40 @@ const UserLocationIcon = L.divIcon({
 });
 
 L.Marker.prototype.options.icon = DefaultIcon;
+
+function getCompactPriceLabel(price: unknown): string {
+    const numeric = typeof price === 'number'
+        ? price
+        : Number(String(price ?? '').replace(/[^0-9.]/g, ''));
+
+    if (!Number.isFinite(numeric) || numeric <= 0) return 'NRs';
+
+    return `Rs ${formatPrice(numeric, true)}`;
+}
+
+function createPricePointerIcon(price: unknown, selected = false) {
+    const label = getCompactPriceLabel(price);
+    const border = selected ? '#820000' : '#C9CDD3';
+    const text = selected ? '#820000' : '#1F2937';
+    const shadow = selected
+        ? '0 8px 16px rgba(130,0,0,0.22)'
+        : '0 8px 16px rgba(15,23,42,0.16)';
+    const tailShadow = selected
+        ? 'drop-shadow(0 1px 0 #820000)'
+        : 'drop-shadow(0 1px 0 #C9CDD3)';
+
+    return L.divIcon({
+        className: '',
+        iconSize: [92, 44],
+        iconAnchor: [46, 40],
+        html: `
+            <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:9999px;background:#fff;border:1px solid ${border};box-shadow:${shadow};font:800 13px/1 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:${text};white-space:nowrap;">
+                ${label}
+                <span style="position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:8px solid #fff;filter:${tailShadow};"></span>
+            </div>
+        `,
+    });
+}
 
 interface Property {
     id: number;
@@ -54,15 +81,28 @@ interface MapProps {
 // Helper to auto-center map when properties change and invalidate size to fix rendering bugs
 function MapResizer({ center, zoom }: { center: [number, number]; zoom: number }) {
     const map = useMap();
+    const previousViewRef = useRef<{ lat: number; lng: number; zoom: number } | null>(null);
+
     useEffect(() => {
-        if (map) {
+        if (!map) return;
+
+        const [lat, lng] = center;
+        const previous = previousViewRef.current;
+        const didViewChange = !previous || previous.lat !== lat || previous.lng !== lng || previous.zoom !== zoom;
+
+        // Only force setView when the requested view actually changed.
+        // This preserves user-controlled zoom/pan during normal re-renders.
+        if (didViewChange) {
             map.setView(center, zoom);
-            // Invalidate size helps fix the "gray box" or "broken tiles" issue common in React-Leaflet
-            setTimeout(() => {
-                map.invalidateSize();
-            }, 500);
+            previousViewRef.current = { lat, lng, zoom };
         }
-    }, [center, zoom, map]);
+
+        // Invalidate size helps fix the "gray box" or "broken tiles" issue common in React-Leaflet
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 120);
+    }, [center[0], center[1], zoom, map]);
+
     return null;
 }
 
@@ -122,9 +162,18 @@ export default function MapComponent({
     disablePopups = false,
     onBoundsChange
 }: MapProps) {
+    const [mapKey, setMapKey] = React.useState(0);
+
+    useEffect(() => {
+        // Force one fresh Leaflet instance after mount.
+        // This avoids stale DOM references that can happen during Fast Refresh/HMR.
+        setMapKey((current) => current + 1);
+    }, []);
+
     return (
         <div className="relative isolate h-full w-full overflow-hidden rounded-3xl">
             <MapContainer
+                key={mapKey}
                 center={center}
                 zoom={zoom}
                 className="h-full w-full"
@@ -160,7 +209,7 @@ export default function MapComponent({
                     const lat = typeof p.latitude === 'string' ? parseFloat(p.latitude) : p.latitude;
                     const lng = typeof p.longitude === 'string' ? parseFloat(p.longitude) : p.longitude;
 
-                    if (!lat || !lng || isNaN(lat) || isNaN(lng)) return null;
+                    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
 
                     const isSelected = selectedId === p.id;
 
@@ -168,7 +217,7 @@ export default function MapComponent({
                         <Marker
                             key={p.id}
                             position={[lat, lng]}
-                            icon={isSelected ? RedIcon : DefaultIcon}
+                            icon={createPricePointerIcon((p as any).pricing?.price ?? p.price, isSelected)}
                             eventHandlers={{
                                 click: () => onMarkerClick?.(p.id)
                             }}
