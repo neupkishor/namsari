@@ -1053,7 +1053,7 @@ function PostPropertySection() {
                         href={card.href}
                         className="group flex items-stretch gap-2.5 rounded-2xl border border-slate-200 bg-white pl-3 pr-3 py-2.5 shadow-sm transition-all duration-200 hover:border-[color:var(--color-primary)]/35 hover:shadow-md hover:-translate-y-px"
                     >
-                        <div className="flex w-9 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 shrink-0">
+                        <div className="flex w-9 items-center justify-center shrink-0">
                             <span
                                 aria-hidden="true"
                                 className="h-4 w-4 bg-[color:var(--color-primary)]"
@@ -1139,7 +1139,7 @@ function ExploreCategoriesSection({
                                     href={item.href}
                                     className="group flex items-stretch gap-2.5 rounded-2xl border border-slate-200 bg-white pl-3 pr-4 py-2 shadow-sm transition-all duration-200 hover:border-[color:var(--color-primary)]/35 hover:shadow-md hover:-translate-y-px"
                                 >
-                                    <div className="flex w-9 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 shrink-0">
+                                    <div className="flex w-9 items-center justify-center shrink-0">
                                         <span
                                             aria-hidden="true"
                                             className="h-4 w-4 bg-[color:var(--color-primary)]"
