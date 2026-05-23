@@ -62,8 +62,24 @@ export default function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                                 <h1 style={{ fontSize: '2rem', fontWeight: '800', color: '#1e293b', margin: 0 }}>{user.name}</h1>
                                 {moreInfo.is_verified && (
-                                    <span title="Verified" style={{ color: '#0ea5e9', fontSize: '1.25rem' }}>
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                                    <span
+                                        title="Verified"
+                                        style={{
+                                            width: '24px',
+                                            height: '24px',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            background: '#1877f2',
+                                            color: '#ffffff',
+                                            clipPath: 'polygon(50% 0%, 61% 8%, 75% 3%, 81% 16%, 94% 19%, 89% 33%, 100% 43%, 91% 54%, 98% 68%, 85% 73%, 87% 87%, 73% 88%, 69% 100%, 55% 94%, 43% 100%, 34% 89%, 20% 91%, 17% 77%, 4% 71%, 10% 57%, 0% 46%, 10% 36%, 6% 22%, 20% 19%, 23% 6%, 37% 10%)',
+                                            boxShadow: '0 1px 2px rgba(24,119,242,0.35)',
+                                            flexShrink: 0,
+                                        }}
+                                    >
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                            <path d="M6 12.5l4 4L18 8.5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
                                     </span>
                                 )}
                             </div>

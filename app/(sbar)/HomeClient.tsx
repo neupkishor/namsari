@@ -10,6 +10,7 @@ import { HeroCarouselAd, FeedAd } from '@/components/cards/AdvertisementCard';
 import { SectionTitleFeed } from '@/components/sections/SectionTitleFeed';
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
 import { formatNPR } from '@/lib/formatters';
+import { setBackgroundScrollLocked, setPopupActive } from '@/lib/ui/popup-visibility';
 
 const FEATURED_FALLBACK_IMAGES = [
     'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
@@ -185,10 +186,11 @@ function FeaturedSmallCard({ property }: { property: any }) {
     );
 }
 
-type HomeSearchPanel = 'price' | 'location' | 'size' | 'listedBy' | 'category' | null;
+type HomeSearchPanel = 'type' | 'price' | 'location' | 'size' | 'listedBy' | 'category' | null;
 type CategoryType = 'residential' | 'commercial' | 'semi-commercial';
-type ListedByType = 'developer' | 'agent' | 'agency' | 'owner' | 'bank';
+type ListedByType = 'owner' | 'agent' | 'agency';
 type AreaPriceUnit = 'peraana' | 'persqm';
+type PropertyTypeOption = 'house' | 'land' | 'apartment' | 'business' | 'flat' | 'commercial space' | 'office space';
 
 const AANA_TO_SQM = 31.796;
 
@@ -226,7 +228,13 @@ const HOME_SIZE_PRESETS = [
     { label: 'Above 2,000 m²', min: '2000', max: '' },
 ];
 
-const HOME_LISTED_BY_OPTIONS: ListedByType[] = ['developer', 'agent', 'agency', 'owner', 'bank'];
+const HOME_LISTED_BY_OPTIONS: Array<{ value: ListedByType; label: string }> = [
+    { value: 'owner', label: 'owners' },
+    { value: 'agent', label: 'agents' },
+    { value: 'agency', label: 'agency' },
+];
+const HOME_PROPERTY_TYPE_OPTIONS_SALE: PropertyTypeOption[] = ['house', 'land', 'apartment', 'business'];
+const HOME_PROPERTY_TYPE_OPTIONS_RENT: PropertyTypeOption[] = ['flat', 'house', 'apartment', 'commercial space', 'office space'];
 
 function formatHeroMoney(value: string) {
     if (!value) return '';
@@ -368,6 +376,7 @@ function HomeSearchHero() {
     const [areaPriceUnit, setAreaPriceUnit] = useState<AreaPriceUnit>('peraana');
     const [selectedListedBy, setSelectedListedBy] = useState<ListedByType | null>(null);
     const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
+    const [selectedPropertyType, setSelectedPropertyType] = useState<PropertyTypeOption | null>(null);
     const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
     const [sizeMin, setSizeMin] = useState('');
     const [sizeMax, setSizeMax] = useState('');
@@ -389,6 +398,15 @@ function HomeSearchHero() {
         const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') closeModal(); };
         document.addEventListener('keydown', handler);
         return () => document.removeEventListener('keydown', handler);
+    }, [activePanel]);
+
+    useEffect(() => {
+        setPopupActive('home-search-filter-modal', Boolean(activePanel));
+        setBackgroundScrollLocked('home-search-filter-modal', Boolean(activePanel));
+        return () => {
+            setPopupActive('home-search-filter-modal', false);
+            setBackgroundScrollLocked('home-search-filter-modal', false);
+        };
     }, [activePanel]);
 
     const currentPriceLabel = priceMin || priceMax
@@ -417,8 +435,17 @@ function HomeSearchHero() {
     const currentCategoryLabel = selectedCategory
         ? selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)
         : 'Any category';
+    const currentListedByLabel = selectedListedBy
+        ? `${selectedListedBy.charAt(0).toUpperCase() + selectedListedBy.slice(1)}${selectedListedBy === 'agency' ? '' : 's'}`
+        : 'Any posted by';
+    const currentTypeLabel = selectedPropertyType
+        ? selectedPropertyType.charAt(0).toUpperCase() + selectedPropertyType.slice(1)
+        : 'Any type';
 
     const HOME_PRICE_PRESETS = purposes.has('rent') && !purposes.has('sale') ? HOME_PRICE_PRESETS_RENT : HOME_PRICE_PRESETS_SALE;
+    const HOME_PROPERTY_TYPE_OPTIONS = purposes.has('rent') && !purposes.has('sale')
+        ? HOME_PROPERTY_TYPE_OPTIONS_RENT
+        : HOME_PROPERTY_TYPE_OPTIONS_SALE;
 
     const buildSearchParams = (options?: { view?: 'map' }) => {
         const params = new URLSearchParams();
@@ -426,6 +453,7 @@ function HomeSearchHero() {
 
         if (query.trim()) params.set('rawQuery', query.trim());
         params.set('purposes', Array.from(purposes).join(','));
+        if (selectedPropertyType) params.set('types', selectedPropertyType);
         if (selectedListedBy) params.set('listedBy', selectedListedBy);
         if (selectedCategory) params.set('category', selectedCategory);
         if (priceMin || priceMax) {
@@ -548,22 +576,7 @@ function HomeSearchHero() {
                         <h3 className="text-[15px] font-black text-slate-900">Select one or more locations</h3>
                         <p className="text-[13px] text-slate-500">Choose the areas you want to search in.</p>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                        {selectedLocations.length > 0 && (
-                            <button
-                                type="button"
-                                onClick={() => setSelectedLocations([])}
-                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[13px] font-bold text-slate-600 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
-                            >
-                                Clear all
-                            </button>
-                        )}
-                        {selectedLocations.map((location) => (
-                            <span key={location} className="rounded-full bg-[color:var(--color-primary)]/10 px-4 py-2 text-[13px] font-bold text-[color:var(--color-primary)]">
-                                {location}
-                            </span>
-                        ))}
-                    </div>
+                    <div className="max-h-[46vh] overflow-y-auto pr-1">
                     <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                         {HOME_LOCATION_OPTIONS.map((location) => {
                             const isSelected = selectedLocations.includes(location);
@@ -580,6 +593,7 @@ function HomeSearchHero() {
                                 </button>
                             );
                         })}
+                    </div>
                     </div>
                 </div>
             );
@@ -646,6 +660,43 @@ function HomeSearchHero() {
             );
         }
 
+        if (panel === 'type') {
+            return (
+                <div className="space-y-4">
+                    <div className="flex items-start justify-between gap-3">
+                        <div>
+                            <h3 className="text-[15px] font-black text-slate-900">Type</h3>
+                            <p className="text-[13px] text-slate-500">Choose the property type for this purpose.</p>
+                        </div>
+                        {selectedPropertyType && (
+                            <button
+                                type="button"
+                                onClick={() => setSelectedPropertyType(null)}
+                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[12px] font-bold text-slate-600 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                            >
+                                Clear
+                            </button>
+                        )}
+                    </div>
+                    <div className="flex flex-wrap gap-2.5">
+                        {HOME_PROPERTY_TYPE_OPTIONS.map((option) => {
+                            const isSelected = selectedPropertyType === option;
+                            return (
+                                <button
+                                    key={option}
+                                    type="button"
+                                    onClick={() => setSelectedPropertyType(isSelected ? null : option)}
+                                    className={`rounded-full border px-4 py-2.5 text-[13px] font-bold capitalize transition-all duration-200 ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white shadow-[0_14px_30px_rgba(10,107,255,0.18)]' : 'border-[color:var(--color-primary)]/12 bg-white text-slate-700 hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]'}`}
+                                >
+                                    {option}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        }
+
         if (panel === 'listedBy') {
             return (
                 <div className="space-y-4">
@@ -667,16 +718,16 @@ function HomeSearchHero() {
 
                     <div className="flex flex-wrap gap-2.5">
                         {HOME_LISTED_BY_OPTIONS.map((option) => {
-                            const isSelected = selectedListedBy === option;
+                            const isSelected = selectedListedBy === option.value;
 
                             return (
                                 <button
-                                    key={option}
+                                    key={option.value}
                                     type="button"
-                                    onClick={() => setSelectedListedBy(isSelected ? null : option)}
+                                    onClick={() => setSelectedListedBy(isSelected ? null : option.value)}
                                     className={`rounded-full border px-4 py-2.5 text-[13px] font-bold capitalize transition-all duration-200 ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white shadow-[0_14px_30px_rgba(10,107,255,0.18)]' : 'border-[color:var(--color-primary)]/12 bg-white text-slate-700 hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]'}`}
                                 >
-                                    {option}
+                                    {option.label}
                                 </button>
                             );
                         })}
@@ -746,6 +797,11 @@ function HomeSearchHero() {
                                 const togglePurpose = () => {
                                     setPurposes(new Set([val]));
                                     setPriceMin(''); setPriceMax('');
+                                    setSelectedPropertyType((prev) => {
+                                        if (!prev) return prev;
+                                        const nextOptions = val === 'rent' ? HOME_PROPERTY_TYPE_OPTIONS_RENT : HOME_PROPERTY_TYPE_OPTIONS_SALE;
+                                        return nextOptions.includes(prev) ? prev : null;
+                                    });
                                 };
                                 const isLast = index === arr.length - 1;
                                 return (
@@ -766,12 +822,14 @@ function HomeSearchHero() {
                         <div>
                         <div className="inline-flex max-w-full overflow-x-auto rounded-tl-none rounded-tr-[14px] rounded-b-none border border-b-0 border-slate-200 bg-white shadow-[0_10px_28px_rgba(15,23,42,0.06)] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                         {([
+                            ['type', 'Type', currentTypeLabel],
                             ['price', 'Price', currentPriceLabel],
                             ['location', 'Location', currentLocationLabel],
                             ['size', 'Area', currentSizeLabel],
                             ['category', 'Category', currentCategoryLabel],
+                            ['listedBy', 'Posted by', currentListedByLabel],
                         ] as Array<[Exclude<HomeSearchPanel, null>, string, string]>).map(([key, label, value], index, arr) => {
-                                    const hasValue = value !== 'Any budget' && value !== 'Any location' && value !== 'Any size' && value !== 'Any category';
+                                    const hasValue = value !== 'Any type' && value !== 'Any budget' && value !== 'Any location' && value !== 'Any size' && value !== 'Any category' && value !== 'Any posted by';
                             const isLast = index === arr.length - 1;
                                     return (
                                 <button
@@ -856,12 +914,13 @@ function HomeSearchHero() {
 
                     {/* Modal panel */}
                     <div
-                        className={`relative z-10 w-full max-w-lg mx-4 mb-4 sm:mb-0 rounded-[28px] border border-[color:var(--color-primary)]/12 bg-white text-slate-900 shadow-[0_32px_80px_rgba(15,23,42,0.18)] transition-all duration-200 ease-out ${isModalVisible ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-4 scale-[0.97] opacity-0'}`}
+                        className={`relative z-10 w-[calc(100vw-2rem)] max-w-lg mx-4 mb-4 sm:mb-0 max-h-[calc(100vh-2rem)] overflow-hidden rounded-[28px] border border-[color:var(--color-primary)]/12 bg-white text-slate-900 shadow-[0_32px_80px_rgba(15,23,42,0.18)] transition-all duration-200 ease-out ${isModalVisible ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-4 scale-[0.97] opacity-0'}`}
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Modal header */}
                         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
                             <span className="text-[15px] font-black text-slate-900">
+                                {activePanel === 'type' && 'Type'}
                                 {activePanel === 'price' && 'Price'}
                                 {activePanel === 'location' && 'Location'}
                                 {activePanel === 'size' && 'Size'}
@@ -882,7 +941,7 @@ function HomeSearchHero() {
                         </div>
 
                         {/* Modal content */}
-                        <div className="p-5">
+                        <div className="max-h-[calc(100vh-12rem)] overflow-y-auto p-5">
                             {renderPanelContent(activePanel)}
                         </div>
 

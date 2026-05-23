@@ -3,9 +3,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { usePopupActive } from '@/lib/ui/popup-visibility';
 
 export function FloatingActionButton() {
     const pathname = usePathname();
+    const isPopupActive = usePopupActive();
     const [isVisible, setIsVisible] = useState(true);
     const lastScrollY = useRef(0);
     const stopScrollTimer = useRef<NodeJS.Timeout | null>(null);
@@ -45,7 +47,7 @@ export function FloatingActionButton() {
         };
     }, []);
 
-    if (pathname?.startsWith('/properties/')) {
+    if (pathname?.startsWith('/properties/') || isPopupActive) {
         return null;
     }
 

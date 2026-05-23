@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { logoutAction } from '@/actions/auth';
 import { bottomNavItems, sidebarMenuGroups, managementMenuGroups } from './menu-config';
 import { MenuIcon } from './MenuIcon';
+import { setPopupActive, usePopupActive } from '@/lib/ui/popup-visibility';
 
 const EXPLORE_VIEW_HOLD_MS = 1000;
 const EXPLORE_VIEW_FEEDBACK_MS = 200;
@@ -38,6 +39,7 @@ export function BottomNavigation({ user }: { user?: any }) {
         () => null
     );
     const [showMobileMenu, setShowMobileMenu] = useState(false);
+    const isPopupActive = usePopupActive();
     const [pressedExploreHref, setPressedExploreHref] = useState<string | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
     const exploreHoldTimer = useRef<NodeJS.Timeout | null>(null);
@@ -124,6 +126,11 @@ export function BottomNavigation({ user }: { user?: any }) {
         };
     }, [showMobileMenu]);
 
+    useEffect(() => {
+        setPopupActive('bottom-app-menu', showMobileMenu);
+        return () => setPopupActive('bottom-app-menu', false);
+    }, [showMobileMenu]);
+
     const items = bottomNavItems(user);
     const isManagePage = pathname?.startsWith('/manage');
     const menuGroups = isManagePage ? managementMenuGroups(user) : sidebarMenuGroups(user);
@@ -195,6 +202,10 @@ export function BottomNavigation({ user }: { user?: any }) {
             }
         };
     }, []);
+
+    if (isPopupActive && !showMobileMenu) {
+        return null;
+    }
 
     return (
         <>

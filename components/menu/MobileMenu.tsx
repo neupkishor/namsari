@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { logoutAction } from '@/actions/auth';
 import { sidebarMenuGroups } from './menu-config';
 import { MenuIcon } from './MenuIcon';
+import { setPopupActive } from '@/lib/ui/popup-visibility';
 
 interface MobileMenuProps {
     user?: any;
@@ -34,6 +35,11 @@ export function MobileMenu({ user, isOpen, onClose }: MobileMenuProps) {
             document.body.style.overflow = '';
             document.body.classList.remove('mobile-menu-open');
         };
+    }, [isOpen]);
+
+    useEffect(() => {
+        setPopupActive('header-mobile-menu', isOpen);
+        return () => setPopupActive('header-mobile-menu', false);
     }, [isOpen]);
 
     const menuGroups = sidebarMenuGroups(user);
