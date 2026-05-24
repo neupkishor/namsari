@@ -136,7 +136,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         { icon: '/icons/land-layer-location.svg', value: builtUpValue, label: 'area', displayValue: `${builtUpValue} ${builtUpUnit.toLowerCase()}` },
         { icon: '/icons/calendar.svg', value: String(new Date(property.created_on).getFullYear()), label: 'Year', displayValue: String(new Date(property.created_on).getFullYear()) },
         { icon: '/icons/land-location.svg', value: property.roadSize || '-', label: 'Road Access', displayValue: property.roadSize || '-' },
-        { icon: '/icons/info.svg', value: property.facingDirection || '-', label: 'Facing', displayValue: property.facingDirection || '-' },
+        { icon: '/icons/three-direction.svg', value: property.facingDirection || '-', label: 'Facing', displayValue: property.facingDirection || '-' },
         { icon: '/icons/apartment.svg', value: formatNumberValue(property.features?.totalFloors), label: 'floors', displayValue: formatCountLabel(formatNumberValue(property.features?.totalFloors), 'floors') },
         { icon: '/icons/note.svg', value: property.features?.furnishing || '-', label: 'Furnish Status', displayValue: String(property.features?.furnishing || '-').toLowerCase() }
     ];
