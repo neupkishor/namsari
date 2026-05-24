@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import PropertyMap from './PropertyMap';
 import PropertyImageCarousel from './PropertyImageCarousel';
 import { NearbyAmenitiesSection } from './NearbyAmenitiesSection';
+import PropertyOverviewGrid from './PropertyOverviewGrid';
 import { Header } from '@/components/menu/Header';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
@@ -127,11 +128,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     };
     const formatCountLabel = (count: string, label: string) => `${count} ${label.toLowerCase()}`;
     const builtUpUnit = property.features?.builtUpAreaUnit || 'sqft';
-    const builtUpValue = formatNumberValue(property.features?.builtUpArea);
+    const builtUpAreaNumeric = property.features?.builtUpArea ?? null;
+    const builtUpValue = formatNumberValue(builtUpAreaNumeric);
     const overviewItems = [
         { icon: '/icons/house-chimney.svg', value: formatNumberValue(property.features?.bedrooms), label: 'bedrooms', displayValue: formatCountLabel(formatNumberValue(property.features?.bedrooms), 'bedrooms') },
         { icon: '/icons/info.svg', value: formatNumberValue(property.features?.bathrooms), label: 'bathrooms', displayValue: formatCountLabel(formatNumberValue(property.features?.bathrooms), 'bathrooms') },
-        { icon: '/icons/land-layer-location.svg', value: builtUpValue, label: builtUpUnit, displayValue: `${builtUpValue} ${builtUpUnit.toLowerCase()}` },
+        { icon: '/icons/land-layer-location.svg', value: builtUpValue, label: 'area', displayValue: `${builtUpValue} ${builtUpUnit.toLowerCase()}` },
         { icon: '/icons/calendar.svg', value: String(new Date(property.created_on).getFullYear()), label: 'Year', displayValue: String(new Date(property.created_on).getFullYear()) },
         { icon: '/icons/land-location.svg', value: property.roadSize || '-', label: 'Road Access', displayValue: property.roadSize || '-' },
         { icon: '/icons/info.svg', value: property.facingDirection || '-', label: 'Facing', displayValue: property.facingDirection || '-' },
@@ -156,7 +158,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     }
 
     return (
-        <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', paddingBottom: '100px', paddingTop: 'var(--header-height, 72px)' }}>
+        <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', paddingBottom: '100px', paddingTop: 'var(--header-height, 72px)', overflowX: 'clip' }}>
             <Header user={currentUser} />
 
             <style dangerouslySetInnerHTML={{
@@ -165,6 +167,8 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     max-width: 1280px;
                     margin: 0 auto;
                     padding: 24px;
+                    box-sizing: border-box;
+                    overflow-x: clip;
                 }
                 
                 /* Gallery Grid */
@@ -172,10 +176,10 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     display: grid;
                     grid-template-columns: 2fr 1fr;
                     gap: 12px;
-                    height: 500px;
+                    height: 440px;
                     border-radius: 16px;
                     overflow: hidden;
-                    margin-bottom: 40px;
+                    margin-bottom: 28px;
                 }
                 .gallery-main {
                     height: 100%;
@@ -209,9 +213,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 .content-split {
                     display: grid;
                     grid-template-columns: 2fr 1fr;
-                    gap: 64px;
+                    gap: 32px;
                     align-items: start;
                     position: relative;
+                }
+                .content-split > div {
+                    min-width: 0;
                 }
                 
                 /* Typography */
@@ -221,6 +228,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     color: #1a1a1a;
                     margin-bottom: 8px;
                     line-height: 1.2;
+                    overflow-wrap: anywhere;
                 }
                 .prop-location {
                     font-size: 1.1rem;
@@ -248,22 +256,13 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 /* Overview */
                 .overview-grid {
                     display: flex;
+                    flex-wrap: wrap;
                     gap: 12px;
-                    overflow-x: auto;
-                    overflow-y: hidden;
-                    scroll-snap-type: x proximity;
-                    -webkit-overflow-scrolling: touch;
-                    overscroll-behavior-x: contain;
-                    touch-action: pan-x;
+                    overflow: visible;
                     padding-bottom: 6px;
                     padding-right: 4px;
                     margin-top: 18px;
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
                     width: 100%;
-                }
-                .overview-grid::-webkit-scrollbar {
-                    display: none;
                 }
                 .overview-card {
                     border: 1px solid #e5e7eb;
@@ -272,12 +271,17 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     padding: 10px 12px;
                     min-height: 72px;
                     min-width: 118px;
-                    flex: 0 0 auto;
+                    flex: 0 0 calc(25% - 9px);
+                    max-width: calc(25% - 9px);
                     display: flex;
                     flex-direction: column;
                     align-items: stretch;
                     justify-content: center;
-                    scroll-snap-align: start;
+                    transition: border-color 0.28s ease, background-color 0.28s ease;
+                }
+                .overview-card:hover {
+                    border-color: var(--color-primary);
+                    background: #ffffff;
                 }
                 .overview-content {
                     display: flex;
@@ -291,9 +295,19 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 .overview-icon {
                     width: 18px;
                     height: 18px;
-                    object-fit: contain;
-                    line-height: 1;
+                    display: inline-block;
+                    background-color: #475569;
+                    -webkit-mask-size: contain;
+                    mask-size: contain;
+                    -webkit-mask-repeat: no-repeat;
+                    mask-repeat: no-repeat;
+                    -webkit-mask-position: center;
+                    mask-position: center;
                     flex-shrink: 0;
+                    transition: background-color 0.28s ease;
+                }
+                .overview-card:hover .overview-icon {
+                    background-color: var(--color-primary);
                 }
                 .overview-value {
                     font-size: 0.84rem;
@@ -313,42 +327,54 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 .amenity-group {
                     margin-bottom: 20px;
                 }
-                .amenity-group-title {
-                    font-size: 0.85rem;
-                    letter-spacing: 0.08em;
-                    text-transform: uppercase;
-                    font-weight: 700;
-                    color: #475569;
-                    margin-bottom: 10px;
-                }
                 .amenity-grid {
-                    display: grid;
-                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                    display: flex;
+                    flex-wrap: wrap;
                     gap: 12px;
+                    max-height: calc((72px * 3) + (12px * 2));
+                    overflow: hidden;
                 }
                 .amenity-tile {
                     border: 1px solid #e5e7eb;
-                    background: #fafafa;
+                    background: #fcfcfd;
                     border-radius: 12px;
-                    padding: 16px 12px;
-                    min-height: 106px;
+                    padding: 10px 12px;
+                    min-height: 72px;
+                    min-width: 118px;
+                    flex: 0 0 calc(25% - 9px);
+                    max-width: calc(25% - 9px);
                     display: flex;
-                    flex-direction: column;
+                    flex-direction: row;
                     justify-content: center;
                     align-items: center;
-                    gap: 8px;
-                    text-align: center;
+                    gap: 10px;
+                    text-align: left;
+                    transition: border-color 0.28s ease, background-color 0.28s ease;
+                }
+                .amenity-tile:hover {
+                    border-color: var(--color-primary);
+                    background: #ffffff;
                 }
                 .amenity-icon {
-                    width: 24px;
-                    height: 24px;
-                    object-fit: contain;
-                    line-height: 1;
+                    width: 18px;
+                    height: 18px;
+                    display: inline-block;
+                    background-color: #475569;
+                    -webkit-mask-size: contain;
+                    mask-size: contain;
+                    -webkit-mask-repeat: no-repeat;
+                    mask-repeat: no-repeat;
+                    -webkit-mask-position: center;
+                    mask-position: center;
                     flex-shrink: 0;
+                    transition: background-color 0.28s ease;
+                }
+                .amenity-tile:hover .amenity-icon {
+                    background-color: var(--color-primary);
                 }
                 .amenity-name {
-                    font-size: 0.95rem;
-                    font-weight: 700;
+                    font-size: 0.84rem;
+                    font-weight: 800;
                     color: #1f2937;
                     line-height: 1.2;
                 }
@@ -402,18 +428,21 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     color: #1a1a1a;
                     text-transform: capitalize;
                     line-height: 1.2;
+                    overflow-wrap: anywhere;
                 }
                 .nearby-amenity-name {
                     font-size: 0.85rem;
                     color: #6b7280;
                     line-height: 1.2;
                     margin-top: 2px;
+                    overflow-wrap: anywhere;
                 }
                 .nearby-amenity-distance {
                     font-weight: 700;
                     color: #4b5563;
                     font-size: 0.9rem;
                     flex-shrink: 0;
+                    text-align: right;
                 }
                 .nearby-amenities-toggle {
                     display: inline-flex;
@@ -496,10 +525,10 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 @media (max-width: 1024px) {
                     .content-split {
                         grid-template-columns: 1fr;
-                        gap: 40px;
+                        gap: 24px;
                     }
                     .gallery-grid {
-                        height: 400px;
+                        height: 340px;
                     }
                     .sidebar-sticky {
                         position: static;
@@ -532,13 +561,32 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         font-size: 1.2rem;
                     }
                     .property-page-container {
-                        padding: 24px 16px;
+                        padding: 16px 12px 108px;
                     }
                     .overview-grid {
-                        grid-template-columns: repeat(2, minmax(0, 1fr));
+                        flex-wrap: nowrap;
+                        overflow-x: auto;
+                        overflow-y: hidden;
+                        scroll-snap-type: x proximity;
+                        -webkit-overflow-scrolling: touch;
+                        overscroll-behavior-x: contain;
+                        touch-action: pan-x;
+                        -ms-overflow-style: none;
+                        scrollbar-width: none;
+                    }
+                    .overview-grid::-webkit-scrollbar {
+                        display: none;
+                    }
+                    .overview-card {
+                        flex: 0 0 auto;
+                        max-width: none;
                     }
                     .amenity-grid {
-                        grid-template-columns: repeat(2, 1fr);
+                        max-height: calc((72px * 3) + (12px * 2));
+                    }
+                    .amenity-tile {
+                        flex: 0 0 calc(50% - 6px);
+                        max-width: calc(50% - 6px);
                         gap: 12px;
                     }
                     .nearby-amenities-grid {
@@ -637,8 +685,11 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         border-bottom: 0;
                         border-radius: 18px 18px 0 0;
                         min-height: 84px;
-                        padding: 12px 16px 14px;
+                        padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
                         box-shadow: 0 -10px 24px rgba(15, 23, 42, 0.08);
+                        box-sizing: border-box;
+                        max-width: 100vw;
+                        overflow: hidden;
                     }
                     .mobile-floating-agent-left {
                         display: flex;
@@ -681,14 +732,15 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         align-items: center;
                         gap: 0;
                         flex-shrink: 0;
+                        min-width: 0;
                     }
                     .mobile-floating-call-btn {
                         display: inline-flex;
                         align-items: center;
                         justify-content: center;
-                        min-width: 118px;
+                        min-width: 0;
                         min-height: 48px;
-                        padding: 0 18px;
+                        padding: 0 14px;
                         border-radius: 14px;
                         border: 1px solid var(--color-primary);
                         text-decoration: none;
@@ -699,6 +751,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         letter-spacing: 0.01em;
                         box-shadow: 0 6px 14px rgba(130, 0, 0, 0.14);
                         transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+                        white-space: nowrap;
                     }
                     .mobile-floating-call-btn:hover,
                     .mobile-floating-call-btn:active,
@@ -774,29 +827,29 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                             </div>
 
                             <h2 className="section-title" style={{ marginBottom: '12px' }}>Overview</h2>
-                            <div className="overview-grid">
-                                {overviewItems.map((item) => (
-                                    <div key={`${item.label}-${item.value}`} className="overview-card">
-                                        <div className="overview-content">
-                                            <img src={item.icon} alt="" aria-hidden="true" className="overview-icon" />
-                                            <div className="overview-value">{item.displayValue}</div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                            <PropertyOverviewGrid
+                                items={overviewItems}
+                                builtUpAreaValue={builtUpAreaNumeric}
+                                builtUpAreaUnit={builtUpUnit}
+                            />
                         </div>
 
                         <div style={{ marginBottom: '40px' }}>
                             <h2 className="section-title">Amenities</h2>
 
                             <div className="amenity-group">
-                                <div className="amenity-group-title">Main Features</div>
                                 <div className="amenity-grid">
                                     {amenityMainFeatures.map((item) => (
                                         <div key={`${item.label}-${item.detail || ''}`} className="amenity-tile">
-                                            <img src={item.icon} alt="" aria-hidden="true" className="amenity-icon" />
-                                            <div className="amenity-name">{item.label}</div>
-                                            {item.detail ? <div className="amenity-detail">{item.detail}</div> : null}
+                                            <span
+                                                aria-hidden="true"
+                                                className="amenity-icon"
+                                                style={{ WebkitMaskImage: `url(${item.icon})`, maskImage: `url(${item.icon})` }}
+                                            />
+                                            <div>
+                                                <div className="amenity-name">{item.label}</div>
+                                                {item.detail ? <div className="amenity-detail">{item.detail}</div> : null}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
