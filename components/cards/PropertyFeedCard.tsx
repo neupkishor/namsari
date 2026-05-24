@@ -126,6 +126,8 @@ export function PropertyPost({
     () => images.map((img: any) => (typeof img === 'string' ? img : img.url)).filter(Boolean),
     [images]
   );
+  const hasAnyImage = imageUrls.length > 0;
+  const hasSingleImage = imageUrls.length === 1;
   const activeImage = imageUrls[activeImageIndex] || null;
   const thumbWindowSize = 3;
 
@@ -221,12 +223,13 @@ export function PropertyPost({
       <div className="flex w-full max-w-[1040px] gap-2.5 sm:gap-4 px-3 sm:px-4 pt-3 sm:pt-4 pb-2 sm:pb-4 items-stretch">
 
         {/* LEFT: IMAGE STACK */}
-        <div className="w-[108px] sm:w-[155px] flex-shrink-0 flex flex-col gap-1.5 pb-1 sm:pb-2">
+        {hasAnyImage && (
+        <div className={`w-[108px] sm:w-[155px] flex-shrink-0 flex flex-col ${hasSingleImage ? 'pb-0' : 'gap-1.5 pb-1 sm:pb-2'}`}>
 
           {/* MAIN IMAGE */}
           <Link
             href={propertyUrl}
-            className={`relative overflow-hidden block aspect-square ${images.length <= 1 ? 'mb-[30px]' : ''} ${mainImageRadiusClass}`}
+            className={`relative overflow-hidden block ${hasSingleImage ? 'h-full min-h-[140px]' : 'aspect-square'} ${mainImageRadiusClass}`}
           >
             {activeImage ? (
               <img
@@ -276,6 +279,7 @@ export function PropertyPost({
             </div>
           )}
         </div>
+        )}
 
         {/* RIGHT: CONTENT */}
         <div className="flex-1 min-w-0 flex flex-col justify-center pb-0">
