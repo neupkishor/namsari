@@ -119,23 +119,26 @@ export function PropertyPost({
 
   const images = property.images || [];
 
-  const [activeImage, setActiveImage] = React.useState(
-    images.length > 0
-      ? typeof images[0] === 'string'
-        ? images[0]
-        : images[0].url
-      : null
+  const [activeImageIndex, setActiveImageIndex] = React.useState(0);
+  const [thumbStartIndex, setThumbStartIndex] = React.useState(0);
+
+  const imageUrls = React.useMemo(
+    () => images.map((img: any) => (typeof img === 'string' ? img : img.url)).filter(Boolean),
+    [images]
   );
+  const activeImage = imageUrls[activeImageIndex] || null;
+  const thumbWindowSize = 3;
 
   useEffect(() => {
-    const first =
-      images.length > 0
-        ? typeof images[0] === 'string'
-          ? images[0]
-          : images[0].url
-        : null;
-    setActiveImage(first);
+    setActiveImageIndex(0);
+    setThumbStartIndex(0);
   }, [property.id, images.length]);
+
+  const getThumbWindowStart = (selectedIndex: number, total: number) => {
+    if (total <= thumbWindowSize) return 0;
+    const preferredStart = selectedIndex - 1; // keep selection in middle when possible
+    return Math.max(0, Math.min(preferredStart, total - thumbWindowSize));
+  };
 
   const price = property.pricing?.price || property.price;
 
@@ -223,7 +226,7 @@ export function PropertyPost({
           {/* MAIN IMAGE */}
           <Link
             href={propertyUrl}
-            className={`relative overflow-hidden block aspect-square ${mainImageRadiusClass}`}
+            className={`relative overflow-hidden block aspect-square ${images.length <= 1 ? 'mb-[30px]' : ''} ${mainImageRadiusClass}`}
           >
             {activeImage ? (
               <img
@@ -239,25 +242,28 @@ export function PropertyPost({
           </Link>
 
           {/* THUMBNAILS */}
-          {images.length > 1 && (
+          {imageUrls.length > 1 && (
             <div className="flex gap-1 h-7 flex-shrink-0">
-              {images.slice(1, 4).map((img: any, idx: number) => {
-                const url = typeof img === 'string' ? img : img.url;
-                const isActive = activeImage === url;
+              {imageUrls
+                .slice(thumbStartIndex, thumbStartIndex + thumbWindowSize)
+                .map((url: string, idx: number) => {
+                const actualIndex = thumbStartIndex + idx;
+                const isActive = activeImageIndex === actualIndex;
                 const isFirstThumb = idx === 0;
                 const thumbRadiusClass = isLastInSet && isFirstThumb
                   ? 'rounded-[4px_4px_4px_16px]'
                   : 'rounded-[4px]';
                 return (
                   <button
-                    key={idx}
+                    key={`${url}-${actualIndex}`}
                     type="button"
-                    aria-label={`View image ${idx + 1}`}
+                    aria-label={`View image ${actualIndex + 1}`}
                     onClick={(e) => {
                       e.preventDefault();
-                      setActiveImage(url);
+                      setActiveImageIndex(actualIndex);
+                      setThumbStartIndex(getThumbWindowStart(actualIndex, imageUrls.length));
                     }}
-                    className={`flex-1 h-full overflow-hidden ${thumbRadiusClass}
+                    className={`flex-1 h-full aspect-square overflow-hidden ${thumbRadiusClass}
                       ${isActive
                         ? 'ring-1 ring-[color:var(--color-primary)]'
                         : 'opacity-60 hover:opacity-100'
