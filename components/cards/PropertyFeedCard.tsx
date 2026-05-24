@@ -224,7 +224,7 @@ export function PropertyPost({
 
         {/* LEFT: IMAGE STACK */}
         {hasAnyImage && (
-        <div className={`w-[108px] sm:w-[155px] flex-shrink-0 flex flex-col ${hasSingleImage ? 'pb-0' : 'gap-1.5 pb-1 sm:pb-2'}`}>
+        <div className={`w-[108px] sm:w-[132px] flex-shrink-0 self-stretch h-full ${hasSingleImage ? 'flex flex-col pb-0' : 'grid grid-rows-[auto_1fr] gap-1.5 pb-1 sm:pb-2'}`}>
 
           {/* MAIN IMAGE */}
           <Link
@@ -246,7 +246,7 @@ export function PropertyPost({
 
           {/* THUMBNAILS */}
           {imageUrls.length > 1 && (
-            <div className="flex gap-1 h-7 flex-shrink-0">
+            <div className="flex gap-1 min-h-0">
               {imageUrls
                 .slice(thumbStartIndex, thumbStartIndex + thumbWindowSize)
                 .map((url: string, idx: number) => {
@@ -266,7 +266,7 @@ export function PropertyPost({
                       setActiveImageIndex(actualIndex);
                       setThumbStartIndex(getThumbWindowStart(actualIndex, imageUrls.length));
                     }}
-                    className={`flex-1 h-full aspect-square overflow-hidden ${thumbRadiusClass}
+                    className={`flex-1 h-full overflow-hidden ${thumbRadiusClass}
                       ${isActive
                         ? 'ring-1 ring-[color:var(--color-primary)]'
                         : 'opacity-60 hover:opacity-100'
@@ -282,7 +282,7 @@ export function PropertyPost({
         )}
 
         {/* RIGHT: CONTENT */}
-        <div className="flex-1 min-w-0 flex flex-col justify-center pb-0">
+        <div className="flex-1 min-w-0 self-stretch flex flex-col justify-between pb-0">
 
           {/* TOP SECTION: title, description, price+offer, location */}
           <div className="flex flex-col gap-0.5 min-w-0 pt-0.5 pb-1 flex-none">
