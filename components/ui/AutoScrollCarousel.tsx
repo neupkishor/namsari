@@ -9,8 +9,10 @@ interface AutoScrollCarouselProps {
     gap?: string; // e.g., "20px"
     padding?: string; // e.g., "12px 8px 16px"
     desktopItemCount?: number; // How many items to show on desktop (>=1024px)
+    laptopItemCount?: number; // How many items to show on laptop (>=1024px and <1280px)
     tabletItemCount?: number; // How many items to show on tablet (>=640px)
     mobileItemCount?: number; // How many items to show on mobile (<640px)
+    smallMobileItemCount?: number; // How many items to show on very small mobile (<480px)
 }
 
 export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({ 
@@ -20,8 +22,10 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
     gap = "16px",
     padding = "12px 8px 16px",
     desktopItemCount,
+    laptopItemCount,
     tabletItemCount,
-    mobileItemCount
+    mobileItemCount,
+    smallMobileItemCount
 }) => {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [isHovering, setIsHovering] = useState(false);
@@ -66,11 +70,15 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
         setIsInteracting(false);
     };
 
-    const activeItemCount = viewportWidth >= 1024
-        ? desktopItemCount
-        : viewportWidth >= 640
-            ? tabletItemCount
-            : mobileItemCount;
+    const getActiveCountForWidth = (width: number) => {
+        if (width >= 1280) return desktopItemCount;
+        if (width >= 1024) return laptopItemCount ?? desktopItemCount;
+        if (width >= 640) return tabletItemCount;
+        if (width < 480) return smallMobileItemCount ?? mobileItemCount;
+        return mobileItemCount;
+    };
+
+    const activeItemCount = getActiveCountForWidth(viewportWidth);
     const hasResponsiveItemCount = Boolean(activeItemCount && activeItemCount > 0);
     const resolvedItemWidth = hasResponsiveItemCount
         ? `calc((100% - ${(activeItemCount! - 1)} * ${gap}) / ${activeItemCount})`
@@ -97,13 +105,8 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
                         let scrollAmount = firstChild.offsetWidth + gapVal;
                         let visibleCount = 1;
 
-                        if (window.innerWidth >= 1024 && desktopItemCount) {
-                            visibleCount = desktopItemCount;
-                        } else if (window.innerWidth >= 640 && tabletItemCount) {
-                            visibleCount = tabletItemCount;
-                        } else if (mobileItemCount) {
-                            visibleCount = mobileItemCount;
-                        }
+                        const currentVisible = getActiveCountForWidth(window.innerWidth);
+                        if (currentVisible) visibleCount = currentVisible;
 
                         // Scroll by visibleCount - 1 (keep 1 old item visible) or just 1?
                         // "show 3 new with old one" implies sliding by N-1.
@@ -125,7 +128,7 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
         }, 5000);
         
         return () => clearInterval(interval);
-    }, [gap, hasResponsiveItemCount, isHovering, desktopItemCount, tabletItemCount, mobileItemCount]);
+    }, [gap, hasResponsiveItemCount, isHovering, desktopItemCount, laptopItemCount, tabletItemCount, mobileItemCount, smallMobileItemCount]);
 
     return (
         <div 

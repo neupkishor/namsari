@@ -10,6 +10,7 @@ import { getSession } from '@/lib/auth';
 import { RecommendedProperties } from '@/components/sections/RecommendedProperties';
 import { PropertyEmiSection } from '@/components/sections/PropertyEmiSection';
 import { SectionTitleFeed } from '@/components/sections/SectionTitleFeed';
+import { AutoScrollCarousel } from '@/components/ui/AutoScrollCarousel';
 
 export default async function PropertyDetailPage({ params }: { params: Promise<{ slugAndId: string }> }) {
     const resolvedParams = await params;
@@ -118,6 +119,23 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             features: true
         }
     });
+    const collectionPresets = [
+        'house for sale under 2 crore',
+        'house for sale under 3 crore',
+        'flat for rent under 50k',
+        'land for sale under 30 lakhs per aana',
+        'land for sale under 40 lakhs per aana'
+    ];
+    const collectionCards = collectionPresets.map((title, index) => {
+        const primaryImage = recommendedProperties[index]?.images?.[0]?.url || property.images[index]?.url || property.images[0]?.url || '';
+        return {
+            key: `${title}-${index}`,
+            title,
+            description: 'Find matching listings curated for this budget.',
+            image: primaryImage,
+            href: `/explore?q=${encodeURIComponent(title)}`
+        };
+    });
     const agentPropertyCount = await prisma.property.count({
         where: { listedById: property.listedById }
     });
@@ -207,6 +225,57 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 }
                 .mobile-property-carousel {
                     display: none;
+                }
+                .property-collection-card {
+                    position: relative;
+                    height: 240px;
+                    border-radius: 16px;
+                    overflow: hidden;
+                    border: 1px solid #e2e8f0;
+                    text-decoration: none;
+                    color: #fff;
+                    display: block;
+                }
+                .property-collection-image {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform 0.5s ease;
+                }
+                .property-collection-card:hover .property-collection-image {
+                    transform: scale(1.05);
+                }
+                .property-collection-overlay {
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(to top, rgba(0, 0, 0, 0.84) 0%, rgba(0, 0, 0, 0.58) 42%, rgba(0, 0, 0, 0.14) 72%, rgba(0, 0, 0, 0) 100%);
+                }
+                .property-collection-content {
+                    position: absolute;
+                    inset: 0;
+                    padding: 18px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: flex-end;
+                    gap: 8px;
+                    z-index: 2;
+                }
+                .property-collection-title {
+                    margin: 0;
+                    font-size: 1.1rem;
+                    line-height: 1.25;
+                    font-weight: 800;
+                    color: #fff;
+                    text-transform: capitalize;
+                }
+                .property-collection-desc {
+                    margin: 2px 0 0;
+                    font-size: 0.84rem;
+                    line-height: 1.25;
+                    color: rgba(255, 255, 255, 0.9);
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
                 
                 /* Layout Split */
@@ -822,6 +891,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         transform: translateY(0);
                         box-shadow: 0 5px 12px rgba(130, 0, 0, 0.14);
                     }
+                    .property-collection-title {
+                        font-size: 1rem;
+                    }
+                    .property-collection-desc {
+                        font-size: 0.8rem;
+                    }
                 }
 
                 /* Recommended Properties Section — handled by RecommendedProperties component */
@@ -1085,28 +1160,30 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         </p>
                     </div>
 
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                        {categorySuggestions.map((category) => (
-                            <Link
-                                key={category}
-                                href={`/explore?q=${encodeURIComponent(category)}`}
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    padding: '10px 14px',
-                                    borderRadius: '999px',
-                                    border: '1px solid #e2e8f0',
-                                    background: '#fff',
-                                    color: '#1e293b',
-                                    fontSize: '0.9rem',
-                                    fontWeight: 700,
-                                    textDecoration: 'none'
-                                }}
-                            >
-                                {category}
+                    <AutoScrollCarousel
+                        gap="12px"
+                        desktopItemCount={4}
+                        laptopItemCount={3}
+                        tabletItemCount={2}
+                        mobileItemCount={1.2}
+                        smallMobileItemCount={1.1}
+                        padding="4px 2px 8px"
+                    >
+                        {collectionCards.map((card) => (
+                            <Link key={card.key} href={card.href} className="property-collection-card">
+                                {card.image ? (
+                                    <img src={card.image} alt={card.title} className="property-collection-image" />
+                                ) : (
+                                    <div className="property-collection-image" style={{ background: 'linear-gradient(135deg, #1d4ed8, #06b6d4)' }} />
+                                )}
+                                <div className="property-collection-overlay" />
+                                <div className="property-collection-content">
+                                    <h3 className="property-collection-title">{card.title}</h3>
+                                    <p className="property-collection-desc">{card.description}</p>
+                                </div>
                             </Link>
                         ))}
-                    </div>
+                    </AutoScrollCarousel>
                 </section>
             </div>
 
