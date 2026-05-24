@@ -1338,7 +1338,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                 <FeedSkeleton hasCarouselAds={carouselAds.length > 0} />
             ) : (
                 <div className="w-full">
-                    <div className="mx-auto w-full max-w-[1400px] px-2 pt-3 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
+                    <div className="mx-auto w-full max-w-[1400px] px-0.5 pt-3 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
                         <HomeSearchHero />
 
                         {exploreCategoryStats && siteSettings?.show_explore_categories !== false && (
@@ -1352,7 +1352,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
 
                     {/* Hero Carousel Ad */}
                     {siteSettings?.show_hero_carousel_ad !== false && carouselAds.length > 0 && (
-                        <div className="w-full mx-auto max-w-[1400px] px-2 sm:px-6 lg:px-8 mt-8 sm:mt-12">
+                        <div className="w-full mx-auto max-w-[1400px] px-0.5 sm:px-6 lg:px-8 mt-8 sm:mt-12">
                             <div className="mb-5 space-y-1">
                                 <h2 className="text-xl font-bold tracking-tight text-slate-900">Sponsored Deals</h2>
                                 <p className="text-sm text-slate-500">Promoted listings from verified partners and agencies.</p>
@@ -1361,7 +1361,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                         </div>
                     )}
 
-                    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8 sm:gap-12 px-2 sm:px-6 lg:px-8 mt-8 sm:mt-12">
+                    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8 sm:gap-12 px-0.5 sm:px-6 lg:px-8 mt-8 sm:mt-12">
                         {/* Featured Properties Section (eSewa Style) */}
                         {siteSettings?.show_featured_properties !== false && featuredCards.length > 0 && (
                             <section className="w-full">
@@ -1727,7 +1727,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
 function FeedSkeleton({ hasCarouselAds = true }: { hasCarouselAds?: boolean }) {
     return (
         <div className="w-full flex flex-col">
-            <div className="mx-auto w-full max-w-[1400px] px-2 pt-3 sm:px-6 lg:px-8">
+            <div className="mx-auto w-full max-w-[1400px] px-0.5 pt-3 sm:px-6 lg:px-8">
                 <div className="h-[320px] rounded-[36px] bg-surface animate-pulse mb-6" />
             </div>
 

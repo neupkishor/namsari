@@ -223,7 +223,7 @@ export function PropertyPost({
           {/* MAIN IMAGE */}
           <Link
             href={propertyUrl}
-            className={`relative overflow-hidden block flex-1 min-h-[90px] sm:min-h-[110px] ${mainImageRadiusClass}`}
+            className={`relative overflow-hidden block aspect-square ${mainImageRadiusClass}`}
           >
             {activeImage ? (
               <img
@@ -232,7 +232,7 @@ export function PropertyPost({
                 className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105"
               />
             ) : (
-              <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300 text-xs min-h-[90px]">
+              <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300 text-xs">
                 No image
               </div>
             )}
@@ -306,10 +306,10 @@ export function PropertyPost({
           </div>
 
           {/* SEPARATOR */}
-          <div className="border-t border-slate-100 my-1" />
+          <div className="border-t border-slate-100 h-px my-1" />
 
           {/* BOTTOM ROW: agent info + call/whatsapp | timestamp + share */}
-          <div className="flex items-center justify-between py-1.5 sm:py-2 gap-2">
+          <div className="flex items-center justify-between py-0.5 sm:py-1 gap-2">
             <div className="flex items-center min-w-0 flex-1">
               {agentProfileUrl ? (
                 <a
