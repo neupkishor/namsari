@@ -306,6 +306,20 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     flex-shrink: 0;
                     transition: background-color 0.28s ease;
                 }
+                .overview-icon-chip {
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 10px;
+                    background: transparent;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                    transition: background-color 0.28s ease;
+                }
+                .overview-card:hover .overview-icon-chip {
+                    background: transparent;
+                }
                 .overview-card:hover .overview-icon {
                     background-color: var(--color-primary);
                 }
@@ -369,6 +383,20 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     flex-shrink: 0;
                     transition: background-color 0.28s ease;
                 }
+                .amenity-icon-chip {
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 10px;
+                    background: transparent;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                    transition: background-color 0.28s ease;
+                }
+                .amenity-tile:hover .amenity-icon-chip {
+                    background: transparent;
+                }
                 .amenity-tile:hover .amenity-icon {
                     background-color: var(--color-primary);
                 }
@@ -399,29 +427,59 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 .nearby-amenity-card {
                     display: flex;
                     align-items: center;
-                    justify-content: space-between;
-                    gap: 12px;
+                    justify-content: flex-start;
+                    gap: 10px;
                     padding: 16px;
                     min-height: 88px;
                     border: 1px solid #e5e7eb;
                     border-radius: 12px;
                     background: #ffffff;
                     box-sizing: border-box;
+                    transition: border-color 0.28s ease, background-color 0.28s ease;
+                }
+                .nearby-amenity-card:hover {
+                    border-color: var(--color-primary);
+                    background: #ffffff;
                 }
                 .nearby-amenity-card-main {
                     display: flex;
                     align-items: center;
-                    gap: 12px;
+                    gap: 10px;
                     min-width: 0;
+                    width: 100%;
                 }
                 .nearby-amenity-icon {
                     width: 22px;
                     height: 22px;
-                    object-fit: contain;
+                    display: inline-block;
+                    background-color: #475569;
+                    -webkit-mask-size: contain;
+                    mask-size: contain;
+                    -webkit-mask-repeat: no-repeat;
+                    mask-repeat: no-repeat;
+                    -webkit-mask-position: center;
+                    mask-position: center;
                     flex-shrink: 0;
+                    transition: background-color 0.28s ease;
+                }
+                .nearby-amenity-icon-chip {
+                    width: 34px;
+                    height: 34px;
+                    border-radius: 11px;
+                    background: transparent;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                }
+                .nearby-amenity-card:hover .nearby-amenity-icon {
+                    background-color: var(--color-primary);
                 }
                 .nearby-amenity-text {
                     min-width: 0;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
                 }
                 .nearby-amenity-title {
                     font-weight: 600;
@@ -438,11 +496,9 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     overflow-wrap: anywhere;
                 }
                 .nearby-amenity-distance {
-                    font-weight: 700;
-                    color: #4b5563;
-                    font-size: 0.9rem;
-                    flex-shrink: 0;
-                    text-align: right;
+                    font-weight: 600;
+                    color: #64748b;
+                    font-size: 0.82rem;
                 }
                 .nearby-amenities-toggle {
                     display: inline-flex;
@@ -841,11 +897,13 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                                 <div className="amenity-grid">
                                     {amenityMainFeatures.map((item) => (
                                         <div key={`${item.label}-${item.detail || ''}`} className="amenity-tile">
-                                            <span
-                                                aria-hidden="true"
-                                                className="amenity-icon"
-                                                style={{ WebkitMaskImage: `url(${item.icon})`, maskImage: `url(${item.icon})` }}
-                                            />
+                                            <span className="amenity-icon-chip" aria-hidden="true">
+                                                <span
+                                                    aria-hidden="true"
+                                                    className="amenity-icon"
+                                                    style={{ WebkitMaskImage: `url(${item.icon})`, maskImage: `url(${item.icon})` }}
+                                                />
+                                            </span>
                                             <div>
                                                 <div className="amenity-name">{item.label}</div>
                                                 {item.detail ? <div className="amenity-detail">{item.detail}</div> : null}

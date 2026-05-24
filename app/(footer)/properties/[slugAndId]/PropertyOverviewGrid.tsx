@@ -208,11 +208,13 @@ export default function PropertyOverviewGrid({
                         style={isAreaCard || isDirectionCard ? { cursor: 'pointer' } : undefined}
                     >
                         <div className="overview-content">
-                            <span
-                                aria-hidden="true"
-                                className="overview-icon"
-                                style={{ WebkitMaskImage: `url(${item.icon})`, maskImage: `url(${item.icon})` }}
-                            />
+                            <span className="overview-icon-chip" aria-hidden="true">
+                                <span
+                                    aria-hidden="true"
+                                    className="overview-icon"
+                                    style={{ WebkitMaskImage: `url(${item.icon})`, maskImage: `url(${item.icon})` }}
+                                />
+                            </span>
                             <div className="overview-value">{directionDisplay}</div>
                         </div>
                     </div>

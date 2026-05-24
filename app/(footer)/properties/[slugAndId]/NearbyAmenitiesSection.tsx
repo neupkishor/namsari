@@ -20,10 +20,21 @@ export function NearbyAmenitiesSection({ amenities }: { amenities: Amenity[] }) 
                 {amenities.map((amenity) => (
                     <div key={amenity.id} className="nearby-amenity-card">
                         <div className="nearby-amenity-card-main">
-                            <img src={getAmenityIcon(amenity.type, amenity.name)} alt="" aria-hidden="true" className="nearby-amenity-icon" />
-                            <div className="nearby-amenity-title">{getLandmarkLabel(amenity)}</div>
+                            <span className="nearby-amenity-icon-chip" aria-hidden="true">
+                                <span
+                                    aria-hidden="true"
+                                    className="nearby-amenity-icon"
+                                    style={{
+                                        WebkitMaskImage: `url(${getAmenityIcon(amenity.type, amenity.name)})`,
+                                        maskImage: `url(${getAmenityIcon(amenity.type, amenity.name)})`
+                                    }}
+                                />
+                            </span>
+                            <div className="nearby-amenity-text">
+                                <div className="nearby-amenity-title">{getLandmarkLabel(amenity)}</div>
+                                <div className="nearby-amenity-distance">{amenity.distance || 'N/A'}</div>
+                            </div>
                         </div>
-                        <div className="nearby-amenity-distance">{amenity.distance || 'N/A'}</div>
                     </div>
                 ))}
             </div>
@@ -51,7 +62,7 @@ function getAmenityIcon(type: string, name?: string | null) {
         gym: '/icons/house-chimney.svg',
         pharmacy: '/icons/sack-dollar.svg',
         restaurant: '/icons/note.svg',
-        hotel: '/icons/house-chimney.svg',
+        hotel: '/icons/concierge-bell.svg',
         atm: '/icons/sack-dollar.svg',
         'police station': '/icons/land-location.svg',
         'public transport': '/icons/land-location.svg',
@@ -60,7 +71,7 @@ function getAmenityIcon(type: string, name?: string | null) {
         market: '/icons/land-layer-location.svg',
         shopping: '/icons/note.svg',
         bank: '/icons/sack-dollar.svg',
-        airport: '/icons/land-location.svg'
+        airport: '/icons/plane-departure.svg'
     };
 
     const normalized = `${name || ''} ${type || ''}`.toLowerCase();
@@ -72,10 +83,10 @@ function getAmenityIcon(type: string, name?: string | null) {
     if (/(gym|fitness|workout|sports)/.test(normalized)) return '/icons/house-chimney.svg';
     if (/(pharmacy|drug|medicine)/.test(normalized)) return '/icons/sack-dollar.svg';
     if (/(restaurant|cafe|coffee|food|eatery|bakery)/.test(normalized)) return '/icons/note.svg';
-    if (/(hotel|resort|lodge|inn)/.test(normalized)) return '/icons/house-chimney.svg';
+    if (/(hotel|resort|lodge|inn)/.test(normalized)) return '/icons/concierge-bell.svg';
     if (/(atm|bank|finance)/.test(normalized)) return '/icons/sack-dollar.svg';
     if (/(police|station|post)/.test(normalized)) return '/icons/land-location.svg';
-    if (/(transport|bus|micro|taxi|metro|airport|terminal)/.test(normalized)) return '/icons/land-location.svg';
+    if (/(transport|bus|micro|taxi|metro|airport|terminal)/.test(normalized)) return '/icons/plane-departure.svg';
     if (/(market|bazaar|mall|shopping|store|mart)/.test(normalized)) return '/icons/land-layer-location.svg';
     if (/(office|woda|ward|municipality|government)/.test(normalized)) return '/icons/apartment.svg';
 
