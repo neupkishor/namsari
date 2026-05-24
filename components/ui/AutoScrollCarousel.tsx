@@ -26,6 +26,11 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
     const scrollRef = useRef<HTMLDivElement>(null);
     const [isHovering, setIsHovering] = useState(false);
     const [viewportWidth, setViewportWidth] = useState(1200);
+    const [isDragging, setIsDragging] = useState(false);
+    const [isInteracting, setIsInteracting] = useState(false);
+    const activePointerId = useRef<number | null>(null);
+    const dragStartX = useRef(0);
+    const dragStartScrollLeft = useRef(0);
 
     useEffect(() => {
         const updateViewport = () => setViewportWidth(window.innerWidth);
@@ -33,6 +38,33 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
         window.addEventListener('resize', updateViewport);
         return () => window.removeEventListener('resize', updateViewport);
     }, []);
+
+    const snapToNearestItem = () => {
+        if (!scrollRef.current) return;
+        const container = scrollRef.current;
+        const items = Array.from(container.querySelectorAll<HTMLElement>('.carousel-item'));
+        if (items.length === 0) return;
+
+        const currentLeft = container.scrollLeft;
+        let nearestLeft = items[0].offsetLeft;
+        let smallestDistance = Math.abs(nearestLeft - currentLeft);
+
+        for (const item of items) {
+            const distance = Math.abs(item.offsetLeft - currentLeft);
+            if (distance < smallestDistance) {
+                smallestDistance = distance;
+                nearestLeft = item.offsetLeft;
+            }
+        }
+
+        container.scrollTo({ left: nearestLeft, behavior: 'smooth' });
+    };
+
+    const stopDragging = () => {
+        activePointerId.current = null;
+        setIsDragging(false);
+        setIsInteracting(false);
+    };
 
     const activeItemCount = viewportWidth >= 1024
         ? desktopItemCount
@@ -43,6 +75,7 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
     const resolvedItemWidth = hasResponsiveItemCount
         ? `calc((100% - ${(activeItemCount! - 1)} * ${gap}) / ${activeItemCount})`
         : itemWidth;
+    const effectiveContainerGap = hasResponsiveItemCount ? '0px' : gap;
     
     useEffect(() => {
         if (isHovering) return;
@@ -59,7 +92,7 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
                     const firstChild = scrollRef.current.firstElementChild as HTMLElement;
                     if (firstChild) {
                          // Parse gap if it's in px, otherwise assume 16
-                        const gapVal = parseInt(gap) || 16;
+                        const gapVal = hasResponsiveItemCount ? 0 : (parseInt(gap) || 16);
                         
                         let scrollAmount = firstChild.offsetWidth + gapVal;
                         let visibleCount = 1;
@@ -92,24 +125,71 @@ export const AutoScrollCarousel: React.FC<AutoScrollCarouselProps> = ({
         }, 5000);
         
         return () => clearInterval(interval);
-    }, [gap, isHovering, desktopItemCount, tabletItemCount, mobileItemCount]);
+    }, [gap, hasResponsiveItemCount, isHovering, desktopItemCount, tabletItemCount, mobileItemCount]);
 
     return (
         <div 
             ref={scrollRef}
             className={`auto-scroll-carousel ${className || ''}`}
             onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}
+            onMouseDown={(e) => {
+                if (!scrollRef.current) return;
+                e.preventDefault();
+            }}
+            onPointerDown={(e) => {
+                if (!scrollRef.current) return;
+                if (e.pointerType === 'mouse' && e.button !== 0) return;
+                activePointerId.current = e.pointerId;
+                setIsDragging(true);
+                setIsInteracting(true);
+                dragStartX.current = e.clientX;
+                dragStartScrollLeft.current = scrollRef.current.scrollLeft;
+                scrollRef.current.setPointerCapture(e.pointerId);
+            }}
+            onPointerMove={(e) => {
+                if (!scrollRef.current) return;
+                if (!isDragging || activePointerId.current !== e.pointerId) return;
+                e.preventDefault();
+                const deltaX = e.clientX - dragStartX.current;
+                scrollRef.current.scrollLeft = dragStartScrollLeft.current - deltaX;
+            }}
+            onPointerUp={(e) => {
+                if (!scrollRef.current) return;
+                if (activePointerId.current === e.pointerId) {
+                    scrollRef.current.releasePointerCapture(e.pointerId);
+                    snapToNearestItem();
+                    stopDragging();
+                }
+            }}
+            onPointerCancel={(e) => {
+                if (!scrollRef.current) return;
+                if (activePointerId.current === e.pointerId) {
+                    scrollRef.current.releasePointerCapture(e.pointerId);
+                    snapToNearestItem();
+                    stopDragging();
+                }
+            }}
+            onMouseLeave={() => {
+                setIsHovering(false);
+                stopDragging();
+            }}
             style={{
                 display: 'flex',
-                gap: gap,
+                gap: effectiveContainerGap,
                 overflowX: 'auto',
                 overflowY: 'visible',
-                scrollSnapType: 'x mandatory',
+                scrollSnapType: isDragging ? 'none' : 'x mandatory',
+                scrollBehavior: isDragging ? 'auto' : 'smooth',
                 scrollbarWidth: 'none', // Firefox
                 msOverflowStyle: 'none', // IE/Edge
                 padding,
-                width: '100%'
+                width: '100%',
+                cursor: isDragging ? 'grabbing' : 'grab',
+                userSelect: isDragging ? 'none' : 'auto',
+                WebkitUserSelect: isDragging ? 'none' : 'auto',
+                touchAction: 'pan-y',
+                transition: 'filter 180ms ease',
+                filter: isInteracting ? 'drop-shadow(0 6px 10px rgba(15,23,42,0.08))' : 'none'
             }}
         >
             <style jsx>{`

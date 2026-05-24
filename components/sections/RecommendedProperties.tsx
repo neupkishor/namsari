@@ -36,7 +36,7 @@ export function RecommendedProperties({ properties }: RecommendedPropertiesProps
             </div>
 
             <AutoScrollCarousel
-                gap="16px"
+                gap="2px"
                 desktopItemCount={4}
                 tabletItemCount={2.5}
                 mobileItemCount={1.5}

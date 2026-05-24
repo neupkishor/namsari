@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 type OverviewItem = {
     icon: string;
@@ -148,17 +148,20 @@ export default function PropertyOverviewGrid({
     const sourceUnit = normalizeUnit(builtUpAreaUnit || 'sqft');
     const canConvertArea = Number.isFinite(builtUpAreaValue) && !!TO_SQFT[sourceUnit];
 
-    const [prefUnit, setPrefUnit] = useState<string>(() => {
+    const [prefUnit, setPrefUnit] = useState<string>(sourceUnit);
+    const [prefLang, setPrefLang] = useState<'english' | 'romanized'>('english');
+
+    useEffect(() => {
         const fromCookie = normalizeUnit(readCookie('prefUnit'));
         if (fromCookie && UNIT_SEQUENCE.includes(fromCookie as typeof UNIT_SEQUENCE[number])) {
-            return fromCookie;
+            setPrefUnit(fromCookie);
         }
-        return sourceUnit;
-    });
-    const [prefLang, setPrefLang] = useState<'english' | 'romanized'>(() => {
-        const fromCookie = (readCookie('prefLang') || '').trim().toLowerCase();
-        return fromCookie === 'romanized' ? 'romanized' : 'english';
-    });
+
+        const langFromCookie = (readCookie('prefLang') || '').trim().toLowerCase();
+        if (langFromCookie === 'romanized') {
+            setPrefLang('romanized');
+        }
+    }, []);
 
     const areaDisplayValue = useMemo(() => {
         if (!canConvertArea || builtUpAreaValue == null) return null;
