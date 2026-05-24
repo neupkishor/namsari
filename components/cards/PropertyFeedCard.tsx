@@ -246,7 +246,7 @@ export function PropertyPost({
 
           {/* THUMBNAILS */}
           {imageUrls.length > 1 && (
-            <div className="flex gap-1 min-h-0">
+            <div className="grid grid-cols-3 gap-1">
               {imageUrls
                 .slice(thumbStartIndex, thumbStartIndex + thumbWindowSize)
                 .map((url: string, idx: number) => {
@@ -266,7 +266,7 @@ export function PropertyPost({
                       setActiveImageIndex(actualIndex);
                       setThumbStartIndex(getThumbWindowStart(actualIndex, imageUrls.length));
                     }}
-                    className={`flex-1 h-full overflow-hidden ${thumbRadiusClass}
+                    className={`w-full aspect-square overflow-hidden ${thumbRadiusClass}
                       ${isActive
                         ? 'ring-1 ring-[color:var(--color-primary)]'
                         : 'opacity-60 hover:opacity-100'

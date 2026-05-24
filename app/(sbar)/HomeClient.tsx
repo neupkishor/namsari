@@ -850,7 +850,7 @@ function HomeSearchHero() {
                                             <>{value}</>
                                         )}
                                     </span>
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-50">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="hidden sm:block shrink-0 opacity-50">
                                         <polyline points="6 9 12 15 18 9" />
                                     </svg>
                                 </button>
