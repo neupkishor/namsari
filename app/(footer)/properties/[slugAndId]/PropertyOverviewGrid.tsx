@@ -15,12 +15,13 @@ type PropertyOverviewGridProps = {
     builtUpAreaUnit?: string | null;
 };
 
-const UNIT_SEQUENCE = ['sqft', 'sqm', 'aana', 'dhur', 'ropani'] as const;
+const UNIT_SEQUENCE = ['sqft', 'sqm', 'aana', 'kattha', 'dhur', 'ropani'] as const;
 
 const TO_SQFT: Record<string, number> = {
     sqft: 1,
     sqm: 10.7639,
     aana: 342.25,
+    kattha: 3645,
     dhur: 182.25,
     ropani: 5476
 };
@@ -29,6 +30,7 @@ function normalizeUnit(unit?: string | null) {
     const normalized = (unit || '').trim().toLowerCase();
     if (normalized === 'square feet' || normalized === 'sq feet' || normalized === 'ft2') return 'sqft';
     if (normalized === 'square meter' || normalized === 'square meters' || normalized === 'm2') return 'sqm';
+    if (normalized === 'katha' || normalized === 'katha' || normalized === 'katta') return 'kattha';
     return normalized;
 }
 
@@ -52,8 +54,90 @@ function writeCookie(name: string, value: string) {
 
 function formatArea(value: number, unit: string) {
     if (!Number.isFinite(value)) return '-';
+    if (unit === 'sqft') return formatSqftSystem(value);
+    if (unit === 'sqm') return formatSqmSystem(value);
+    if (unit === 'aana') return formatAanaSystem(value);
+    if (unit === 'kattha') return formatKatthaSystem(value);
+    if (unit === 'ropani') return formatRopaniSystem(value);
+    if (unit === 'dhur') return formatDhurSystem(value);
     const rounded = value >= 100 ? Math.round(value) : Math.round(value * 100) / 100;
     return `${rounded} ${unit}`;
+}
+
+function trimDecimal(value: number) {
+    const rounded = Math.round(value * 100) / 100;
+    return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+}
+
+function formatSqftSystem(sqftValue: number) {
+    const safe = Math.max(0, sqftValue);
+    const wholeSqft = Math.floor(safe);
+    let sqIn = Math.round((safe - wholeSqft) * 144); // 1 sq.ft = 144 sq.in
+    let carrySqft = 0;
+    if (sqIn >= 144) {
+        carrySqft = Math.floor(sqIn / 144);
+        sqIn = sqIn % 144;
+    }
+    const totalSqft = wholeSqft + carrySqft;
+    if (sqIn === 0) return `${totalSqft} Sq.ft`;
+    return `${totalSqft} Sq.ft ${sqIn} Sq.in`;
+}
+
+function formatSqmSystem(sqmValue: number) {
+    const safe = Math.max(0, sqmValue);
+    const wholeSqm = Math.floor(safe);
+    const remSqft = (safe - wholeSqm) * TO_SQFT.sqm;
+    if (remSqft <= 0.01) return `${wholeSqm} Sq.m`;
+    return `${wholeSqm} Sq.m ${trimDecimal(remSqft)} Sq.ft`;
+}
+
+function formatAanaSystem(aanaValue: number) {
+    const safe = Math.max(0, aanaValue);
+    const wholeAana = Math.floor(safe);
+    const paisaFloat = (safe - wholeAana) * 4; // 1 aana = 4 paisa
+    const wholePaisa = Math.floor(paisaFloat);
+    const daam = Math.round((paisaFloat - wholePaisa) * 4); // 1 paisa = 4 daam
+
+    if (wholePaisa === 0 && daam === 0) return `${wholeAana} Aana`;
+    if (daam === 0) return `${wholeAana} Aana ${wholePaisa} Paisa`;
+    return `${wholeAana} Aana ${wholePaisa} Paisa ${daam} Daam`;
+}
+
+function formatRopaniSystem(ropaniValue: number) {
+    const safe = Math.max(0, ropaniValue);
+    const wholeRopani = Math.floor(safe);
+    const aanaFloat = (safe - wholeRopani) * 16; // 1 ropani = 16 aana
+    const wholeAana = Math.floor(aanaFloat);
+    const paisaFloat = (aanaFloat - wholeAana) * 4; // 1 aana = 4 paisa
+    const wholePaisa = Math.floor(paisaFloat);
+    const daam = Math.round((paisaFloat - wholePaisa) * 4); // 1 paisa = 4 daam
+
+    const parts: string[] = [];
+    if (wholeRopani > 0) parts.push(`${wholeRopani} Ropani`);
+    if (wholeAana > 0) parts.push(`${wholeAana} Aana`);
+    if (wholePaisa > 0) parts.push(`${wholePaisa} Paisa`);
+    if (daam > 0) parts.push(`${daam} Daam`);
+    return parts.length ? parts.join(' ') : '0 Ropani';
+}
+
+function formatKatthaSystem(katthaValue: number) {
+    const safe = Math.max(0, katthaValue);
+    const wholeKattha = Math.floor(safe);
+    const dhur = (safe - wholeKattha) * 20; // 1 kattha = 20 dhur
+
+    if (dhur <= 0.01) return `${wholeKattha} Kattha`;
+    if (wholeKattha === 0) return `${trimDecimal(dhur)} Dhur`;
+    return `${wholeKattha} Kattha ${trimDecimal(dhur)} Dhur`;
+}
+
+function formatDhurSystem(dhurValue: number) {
+    const safe = Math.max(0, dhurValue);
+    const kattha = Math.floor(safe / 20); // 20 dhur = 1 kattha
+    const remainingDhur = safe - kattha * 20;
+
+    if (kattha === 0) return `${trimDecimal(remainingDhur)} Dhur`;
+    if (remainingDhur <= 0.01) return `${kattha} Kattha`;
+    return `${kattha} Kattha ${trimDecimal(remainingDhur)} Dhur`;
 }
 
 export default function PropertyOverviewGrid({

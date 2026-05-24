@@ -145,15 +145,15 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     if (property.features?.parkingAvailable) amenityMainFeatures.push({ icon: '/icons/house-chimney.svg', label: 'Parking' });
     if (property.features?.elevator) amenityMainFeatures.push({ icon: '/icons/apartment.svg', label: 'Elevator' });
     if (property.features?.security) amenityMainFeatures.push({ icon: '/icons/info.svg', label: 'Security' });
-    if (property.features?.waterSupply) amenityMainFeatures.push({ icon: '/icons/info.svg', label: 'Water Supply' });
-    if (property.features?.electricity) amenityMainFeatures.push({ icon: '/icons/info.svg', label: 'Electricity' });
+    if (property.features?.waterSupply) amenityMainFeatures.push({ icon: '/icons/faucet.svg', label: 'Water Supply' });
+    if (property.features?.electricity) amenityMainFeatures.push({ icon: '/icons/plug-alt.svg', label: 'Electricity' });
     if (property.roadType) amenityMainFeatures.push({ icon: '/icons/land-location.svg', label: 'Road Type', detail: property.roadType });
     if (property.roadSize) amenityMainFeatures.push({ icon: '/icons/land-layer-location.svg', label: 'Road Size', detail: property.roadSize });
     if (amenityMainFeatures.length === 0) {
         amenityMainFeatures.push(
-            { icon: '/icons/info.svg', label: 'Water Supply' },
-            { icon: '/icons/info.svg', label: 'Electricity' },
-            { icon: '/icons/note.svg', label: 'Drainage' }
+            { icon: '/icons/faucet.svg', label: 'Water Supply' },
+            { icon: '/icons/plug-alt.svg', label: 'Electricity' },
+            { icon: '/icons/bridge-water.svg', label: 'Drainage' }
         );
     }
 
