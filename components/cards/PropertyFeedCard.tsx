@@ -206,7 +206,7 @@ export function PropertyPost({
   return (
     <div
       ref={containerRef}
-      className={`group/card bg-white relative hover:z-10 overflow-hidden
+      className={`group/card bg-white relative hover:z-10 overflow-hidden flex justify-center
         transition-[box-shadow,border-color] duration-300
         hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)]
       border-b border-b-slate-200 hover:border-b-transparent
@@ -215,10 +215,10 @@ export function PropertyPost({
       ${(!isFirstInSet && !isLastInSet) ? 'rounded-none' : ''}
       ${className || ''}`}
     >
-      <div className="flex w-full gap-3 sm:gap-4 px-3 sm:px-4 pt-3 sm:pt-4 pb-0 items-stretch">
+      <div className="flex w-full max-w-[1040px] gap-2.5 sm:gap-4 px-3 sm:px-4 pt-3 sm:pt-4 pb-2 sm:pb-4 items-stretch">
 
         {/* LEFT: IMAGE STACK */}
-        <div className="w-[110px] sm:w-[155px] flex-shrink-0 flex flex-col gap-1.5 pb-3 sm:pb-4">
+        <div className="w-[108px] sm:w-[155px] flex-shrink-0 flex flex-col gap-1.5 pb-1 sm:pb-2">
 
           {/* MAIN IMAGE */}
           <Link
@@ -272,10 +272,10 @@ export function PropertyPost({
         </div>
 
         {/* RIGHT: CONTENT */}
-        <div className="flex-1 min-w-0 flex flex-col pb-0">
+        <div className="flex-1 min-w-0 flex flex-col justify-center pb-0">
 
           {/* TOP SECTION: title, description, price+offer, location */}
-          <div className="flex flex-col gap-0.5 min-w-0 pt-1 pb-2 flex-1">
+          <div className="flex flex-col gap-0.5 min-w-0 pt-0.5 pb-1 flex-none">
             {/* Title + description — clickable */}
             <Link href={propertyUrl} className="flex flex-col gap-0.5 min-w-0">
               <h3 className="text-[13px] sm:text-[14px] font-semibold text-slate-900 line-clamp-2 leading-snug group-hover/card:text-[color:var(--color-primary)] transition-colors">
@@ -306,82 +306,45 @@ export function PropertyPost({
           </div>
 
           {/* SEPARATOR */}
-          <div className="border-t border-slate-100" />
+          <div className="border-t border-slate-100 my-1" />
 
           {/* BOTTOM ROW: agent info + call/whatsapp | timestamp + share */}
-          <div className="flex items-start justify-between py-2 gap-2">
-            <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-2">
-              {/* Icons first in DOM: on mobile they'll appear above; on desktop they'll be ordered after via sm:order-2 */}
-              <div className="hidden items-center gap-2 sm:flex sm:order-2">
-                {agentPhone ? (
-                  <a
-                    href={`tel:${agentPhone}`}
-                    aria-label="Call agent"
-                    className="items-center justify-center p-2 rounded-lg text-slate-400 hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
-                  >
-                    <PhoneIcon />
-                  </a>
-                ) : (
-                  <span className="items-center justify-center p-2 rounded-lg text-slate-400 flex-shrink-0">
-                    <PhoneIcon />
-                  </span>
-                )}
+          <div className="flex items-center justify-between py-1.5 sm:py-2 gap-2">
+            <div className="flex items-center min-w-0 flex-1">
+              {agentProfileUrl ? (
+                <a
+                  href={agentProfileUrl}
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-[12px] text-slate-500 font-medium truncate max-w-[160px] hover:text-[color:var(--color-primary)] hover:underline transition-colors"
+                >
+                  {agentName}
+                </a>
+              ) : (
+                <span className="text-[12px] text-slate-500 font-medium truncate max-w-[160px]">
+                  {agentName}
+                </span>
+              )}
 
-                {agentWhatsapp ? (
-                  <a
-                    href={`https://wa.me/${agentWhatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`${propertyUrl}\nI'm interested in this "${property.title}"`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="WhatsApp agent"
-                    className="items-center justify-center p-2 rounded-lg text-[#25D366] hover:text-[#1aab52] hover:bg-[color:var(--color-primary)]/10 transition-colors flex-shrink-0"
-                  >
-                    <WhatsAppIcon />
-                  </a>
-                ) : (
-                  <span className="items-center justify-center p-2 rounded-lg text-[#25D366] flex-shrink-0">
-                    <WhatsAppIcon />
-                  </span>
-                )}
-              </div>
-
-              {/* Agent info: name + property count */}
-              <div className="flex items-center gap-2 min-w-0 sm:order-1 flex-1">
-                {agentProfileUrl ? (
-                  <a
-                    href={agentProfileUrl}
-                    onClick={(e) => e.stopPropagation()}
-                    className="text-[12px] text-slate-500 font-medium truncate max-w-[160px] hover:text-[color:var(--color-primary)] hover:underline transition-colors"
-                  >
-                    {agentName}
-                  </a>
-                ) : (
-                  <span className="text-[12px] text-slate-500 font-medium truncate max-w-[160px]">
-                    {agentName}
-                  </span>
-                )}
-
-                {agentPropertyCount != null && (
-                  <>
-                    <span className="text-slate-400 text-[12px] font-medium">•</span>
-                    {agentUsername ? (
-                      <a
-                        href={`/@${agentUsername}/properties`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-[12px] text-slate-500 font-medium shrink-0 hover:text-[color:var(--color-primary)] hover:underline transition-colors"
-                      >
-                        <span className="inline">{agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}</span>
-                      </a>
-                    ) : (
-                      <span className="text-[12px] text-slate-500 font-medium shrink-0">
-                        <span className="inline">{agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}</span>
-                      </span>
-                    )}
-                  </>
-                )}
-              </div>
+              {agentPropertyCount != null && (
+                <>
+                  <span className="hidden sm:inline text-slate-400 text-[12px] font-medium ml-2">•</span>
+                  {agentUsername ? (
+                    <a
+                      href={`/@${agentUsername}/properties`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="hidden sm:inline text-[12px] text-slate-500 font-medium shrink-0 ml-2 hover:text-[color:var(--color-primary)] hover:underline transition-colors"
+                    >
+                      {agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}
+                    </a>
+                  ) : (
+                    <span className="hidden sm:inline text-[12px] text-slate-500 font-medium shrink-0 ml-2">
+                      {agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}
+                    </span>
+                  )}
+                </>
+              )}
             </div>
 
-            {/* Right: on mobile show WhatsApp first (if available), then time and share */}
             <div className="flex items-center gap-2 flex-shrink-0">
               {agentWhatsapp ? (
                 <a
