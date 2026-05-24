@@ -71,6 +71,10 @@ export default function PropertyOverviewGrid({
         }
         return sourceUnit;
     });
+    const [prefLang, setPrefLang] = useState<'english' | 'romanized'>(() => {
+        const fromCookie = (readCookie('prefLang') || '').trim().toLowerCase();
+        return fromCookie === 'romanized' ? 'romanized' : 'english';
+    });
 
     const areaDisplayValue = useMemo(() => {
         if (!canConvertArea || builtUpAreaValue == null) return null;
@@ -89,26 +93,35 @@ export default function PropertyOverviewGrid({
         writeCookie('prefUnit', next);
     };
 
+    const handleDirectionCardClick = () => {
+        const nextLang: 'english' | 'romanized' = prefLang === 'english' ? 'romanized' : 'english';
+        setPrefLang(nextLang);
+        writeCookie('prefLang', nextLang);
+    };
+
     return (
         <div className="overview-grid">
             {items.map((item) => {
                 const isAreaCard = item.label.toLowerCase() === 'area';
+                const isDirectionCard = item.label.toLowerCase() === 'facing' || item.label.toLowerCase() === 'direction';
                 const display = isAreaCard && areaDisplayValue ? areaDisplayValue : item.displayValue;
+                const directionDisplay = isDirectionCard ? convertDirectionLabel(item.displayValue, prefLang) : display;
                 return (
                     <div
                         key={`${item.label}-${item.value}`}
                         className="overview-card"
-                        onClick={isAreaCard ? handleAreaCardClick : undefined}
-                        role={isAreaCard ? 'button' : undefined}
-                        tabIndex={isAreaCard ? 0 : undefined}
-                        onKeyDown={isAreaCard ? (e) => {
+                        onClick={isAreaCard ? handleAreaCardClick : isDirectionCard ? handleDirectionCardClick : undefined}
+                        role={isAreaCard || isDirectionCard ? 'button' : undefined}
+                        tabIndex={isAreaCard || isDirectionCard ? 0 : undefined}
+                        onKeyDown={isAreaCard || isDirectionCard ? (e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
                                 e.preventDefault();
-                                handleAreaCardClick();
+                                if (isAreaCard) handleAreaCardClick();
+                                if (isDirectionCard) handleDirectionCardClick();
                             }
                         } : undefined}
-                        title={isAreaCard ? 'Click to change area unit' : undefined}
-                        style={isAreaCard ? { cursor: 'pointer' } : undefined}
+                        title={isAreaCard ? 'Click to change area unit' : isDirectionCard ? 'Click to switch direction language' : undefined}
+                        style={isAreaCard || isDirectionCard ? { cursor: 'pointer' } : undefined}
                     >
                         <div className="overview-content">
                             <span
@@ -116,11 +129,42 @@ export default function PropertyOverviewGrid({
                                 className="overview-icon"
                                 style={{ WebkitMaskImage: `url(${item.icon})`, maskImage: `url(${item.icon})` }}
                             />
-                            <div className="overview-value">{display}</div>
+                            <div className="overview-value">{directionDisplay}</div>
                         </div>
                     </div>
                 );
             })}
         </div>
     );
+}
+
+function convertDirectionLabel(value: string, lang: 'english' | 'romanized') {
+    const raw = (value || '').trim();
+    if (!raw || raw === '-') return '-';
+
+    const table: Array<{ english: string; romanized: string }> = [
+        { english: 'east', romanized: 'purba' },
+        { english: 'west', romanized: 'paschim' },
+        { english: 'north', romanized: 'uttar' },
+        { english: 'south', romanized: 'dakshin' },
+        { english: 'north east', romanized: 'uttar purba' },
+        { english: 'north west', romanized: 'uttar paschim' },
+        { english: 'south east', romanized: 'dakshin purba' },
+        { english: 'south west', romanized: 'dakshin paschim' }
+    ];
+
+    const normalized = raw
+        .toLowerCase()
+        .replace(/[_-]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    const pair = table.find((d) => d.english === normalized || d.romanized === normalized);
+    if (!pair) return raw;
+
+    const target = lang === 'romanized' ? pair.romanized : pair.english;
+    return target
+        .split(' ')
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
 }
