@@ -7,7 +7,7 @@ type PropertyEmiSectionProps = {
     totalPrice: number;
 };
 
-const CHART_COLORS = ['#3b82f6', '#c7d2fe'];
+const CHART_COLORS = ['var(--color-primary)', '#d9a3a3'];
 
 function formatAmountInLakhSystem(value: number) {
     const n = Math.floor(Math.max(0, value || 0));
@@ -82,7 +82,7 @@ export function PropertyEmiSection({ totalPrice }: PropertyEmiSectionProps) {
             className="emi-section"
             style={{
                 padding: '24px',
-                border: '1px solid #e5e7eb',
+                border: '1px solid #e7d4d4',
                 borderRadius: '16px',
                 background: '#fff'
             }}
@@ -109,7 +109,7 @@ export function PropertyEmiSection({ totalPrice }: PropertyEmiSectionProps) {
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     fontWeight: 700,
-                                    color: '#475569'
+                                    color: 'var(--color-primary)'
                                 }}
                             >
                                 {rate}%
@@ -117,36 +117,36 @@ export function PropertyEmiSection({ totalPrice }: PropertyEmiSectionProps) {
                         </div>
 
                         <div>
-                            <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#1f2937' }}>{formatCurrency(monthlyEmi)}</div>
-                            <div style={{ color: '#64748b', fontWeight: 600, marginTop: '4px' }}>Monthly EMI</div>
+                            <div style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--color-primary)' }}>{formatCurrency(monthlyEmi)}</div>
+                            <div style={{ color: '#8a3a3a', fontWeight: 600, marginTop: '4px' }}>Monthly EMI</div>
                         </div>
                     </div>
 
-                    <div style={{ marginTop: '18px', borderTop: '1px solid #e5e7eb', paddingTop: '14px', color: '#475569' }}>
+                    <div style={{ marginTop: '18px', borderTop: '1px solid #f0dede', paddingTop: '14px', color: '#6e3a3a' }}>
                         <div style={{ marginBottom: '10px' }}>
-                            <strong style={{ color: '#1f2937' }}>Loan Amount:</strong> {formatCurrency(loanAmount)}
+                            <strong style={{ color: 'var(--color-primary)' }}>Loan Amount:</strong> {formatCurrency(loanAmount)}
                         </div>
                         <div style={{ marginBottom: '10px' }}>
-                            <strong style={{ color: '#1f2937' }}>Total Interest Payable:</strong> {formatCurrency(totalInterest)}
+                            <strong style={{ color: 'var(--color-primary)' }}>Total Interest Payable:</strong> {formatCurrency(totalInterest)}
                         </div>
                         <div>
-                            <strong style={{ color: '#1f2937' }}>Total Payment:</strong> {formatCurrency(totalPayment)}
+                            <strong style={{ color: 'var(--color-primary)' }}>Total Payment:</strong> {formatCurrency(totalPayment)}
                         </div>
                     </div>
                 </div>
 
                 <div style={{ display: 'grid', gap: '14px', minWidth: 0 }}>
-                    <label style={{ display: 'grid', gap: '8px', color: '#475569', fontWeight: 700 }}>
+                    <label style={{ display: 'grid', gap: '8px', color: '#6e3a3a', fontWeight: 700 }}>
                         Total Price
                         <input
                             type="number"
                             value={normalizedTotalPrice}
                             disabled
-                            style={{ padding: '12px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#64748b' }}
+                            style={{ padding: '12px', borderRadius: '10px', border: '1px solid #e7d4d4', background: '#fff7f7', color: '#7a4a4a' }}
                         />
                     </label>
 
-                    <label style={{ display: 'grid', gap: '8px', color: '#475569', fontWeight: 700 }}>
+                    <label style={{ display: 'grid', gap: '8px', color: '#6e3a3a', fontWeight: 700 }}>
                         Down Payment ({downPaymentPercent.toFixed(2)}%)
                         <input
                             type="number"
@@ -154,12 +154,12 @@ export function PropertyEmiSection({ totalPrice }: PropertyEmiSectionProps) {
                             max={normalizedTotalPrice}
                             value={clampedDownPayment}
                             onChange={(e) => setDownPayment(Number(e.target.value))}
-                            style={{ padding: '12px', borderRadius: '10px', border: '1px solid #cbd5e1' }}
+                            style={{ padding: '12px', borderRadius: '10px', border: '1px solid #e7d4d4' }}
                         />
                     </label>
 
                     <div className="emi-two-field-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                        <label style={{ display: 'grid', gap: '8px', color: '#475569', fontWeight: 700 }}>
+                        <label style={{ display: 'grid', gap: '8px', color: '#6e3a3a', fontWeight: 700 }}>
                             Interest Rate (% p.a.)
                             <input
                                 type="number"
@@ -167,11 +167,11 @@ export function PropertyEmiSection({ totalPrice }: PropertyEmiSectionProps) {
                                 step={0.1}
                                 value={rate}
                                 onChange={(e) => setRate(Number(e.target.value))}
-                                style={{ padding: '12px', borderRadius: '10px', border: '1px solid #cbd5e1' }}
+                                style={{ padding: '12px', borderRadius: '10px', border: '1px solid #e7d4d4' }}
                             />
                         </label>
 
-                        <label style={{ display: 'grid', gap: '8px', color: '#475569', fontWeight: 700 }}>
+                        <label style={{ display: 'grid', gap: '8px', color: '#6e3a3a', fontWeight: 700 }}>
                             Term (Years)
                             <input
                                 type="number"
@@ -179,7 +179,7 @@ export function PropertyEmiSection({ totalPrice }: PropertyEmiSectionProps) {
                                 step={1}
                                 value={termYears}
                                 onChange={(e) => setTermYears(Number(e.target.value))}
-                                style={{ padding: '12px', borderRadius: '10px', border: '1px solid #cbd5e1' }}
+                                style={{ padding: '12px', borderRadius: '10px', border: '1px solid #e7d4d4' }}
                             />
                         </label>
                     </div>
