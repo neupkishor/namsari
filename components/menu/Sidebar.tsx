@@ -80,7 +80,7 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
                                             <button
                                                 key={idx}
                                                 onClick={() => logoutAction()}
-                                                className="flex items-center gap-3 pr-3 pl-0 py-2.5 rounded-lg text-[14px] text-red-600 font-semibold transition-colors hover:bg-red-50 w-full text-left"
+                                                className="group flex items-center gap-3 pr-3 pl-2 py-2.5 rounded-lg text-[14px] text-red-600 font-semibold transition-all duration-200 hover:bg-red-50 hover:translate-x-1 w-full text-left"
                                             >
                                                 <MenuIcon icon={item.icon} label={item.label} className="text-xl opacity-80" />
                                                 <span>{item.label}</span>
@@ -92,12 +92,18 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
                                         <Link 
                                             key={idx} 
                                             href={item.href} 
-                                            className={`flex items-center gap-3 pr-3 pl-0 py-2.5 rounded-lg transition-all duration-200 text-[14px] no-underline ${
+                                            className={`group relative flex items-center gap-3 pr-3 pl-2 py-2.5 rounded-lg transition-all duration-200 text-[14px] no-underline ${
                                                 active 
                                                 ? 'font-bold text-primary bg-primary/5 shadow-sm' 
-                                                : 'font-medium text-text-muted hover:bg-surface hover:text-primary'
+                                                : 'font-medium text-text-muted hover:bg-surface hover:text-primary hover:translate-x-1'
                                             }`}
                                         >
+                                            <span
+                                                aria-hidden="true"
+                                                className={`absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-full bg-primary transition-all duration-200 ${
+                                                    active ? 'opacity-100 scale-100' : 'opacity-0 scale-50 group-hover:opacity-60 group-hover:scale-100'
+                                                }`}
+                                            />
                                             <MenuIcon icon={item.icon} label={item.label} active={active} className={`text-xl transition-colors ${active ? 'text-primary' : 'text-text-muted group-hover:text-primary opacity-70'}`} />
                                             <span>{item.label}</span>
                                         </Link>

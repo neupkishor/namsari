@@ -73,7 +73,7 @@ model Property {
   // Relations
   images                 PropertyImage[]
   videos                 PropertyVideo[]
-  amenities              PropertyAmenity[]
+  amenities              Json?
 
   // Ownership Details
   listedById             Int
@@ -111,16 +111,6 @@ model PropertyLocation {
   ward             String?
   landmark         String?
   distanceFrom     String? // Base suggestion string or specific landmark
-}
-
-model PropertyAmenity {
-  id               Int      @id @default(autoincrement())
-  propertyId       Int
-  property         Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  type             String   // hospital, gym, park, school, etc.
-  name             String?  // Name of the specific amenity
-  distance         String?  // Distance from property
 }
 
 model PropertyPricing {

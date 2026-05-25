@@ -205,7 +205,7 @@ model Property {
   // Relations
   images                 PropertyImage[]
   videos                 PropertyVideo[]
-  amenities              PropertyAmenity[]
+  amenities              Json?
 
   // Ownership Details
   listedById             Int
@@ -295,16 +295,6 @@ model PropertyLocation {
   ward             String?
   landmark         String?
   distanceFrom     String? // suggestions (swyambhunath, pashupatinath, fewataal, 0km, ringroad, bouddha, bhatbhateni)
-}
-
-model PropertyAmenity {
-  id               Int      @id @default(autoincrement())
-  propertyId       Int
-  property         Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  type             String   // hospital, gym, park, pokhara, woda office, public transport, school, pharmacy, banquete, restaurant, hotel, atm, police station
-  name             String?  
-  distance         String?  
 }
 
 model PropertyPricing {
