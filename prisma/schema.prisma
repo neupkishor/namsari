@@ -60,46 +60,64 @@ model User {
   roleId         Int?
   role           Role?    @relation(fields: [roleId], references: [id])
 
-  credentials    UserCredential?
+  credentials    UserCredential[]
   
   permissionsGiven UserPermission[] @relation("ResourceOwner")
   permissionsReceived UserPermission[] @relation("Actor")
 
   sessions       Session[]
-  accounts       Account[]
   
   @@map("users")
   @@index([type])
 }
 
 model Account {
-  id                String  @id @default(cuid())
-  userId            Int
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
+  id                  String             @id @default(cuid())
+  type                AccountType
+  provider            AccountProvider?
+  provider_account_id String
+  refresh_token       String?
+  access_token        String?
+  password_hash       String?
+  role                AccountRole        @default(user)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
+  @@unique([provider, provider_account_id])
   @@map("accounts")
 }
 
 model UserCredential {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @unique @map("accountId")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  password  String
-  updated_at DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("accountId")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  password    String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
   
   @@map("account_creds")
+  @@index([userId])
+}
+
+enum AccountType {
+  user
+  agent
+  agency
+  admin
+  advertiser
+  bank
+}
+
+enum AccountProvider {
+  bank
+  agency
+}
+
+enum AccountRole {
+  user
+  agent
+  agency
+  admin
+  advertiser
+  bank
 }
 
 model UserPermission {

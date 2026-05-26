@@ -23,10 +23,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 { contact_number: credentials.identifier as string },
               ],
             },
-            include: { credentials: true },
+            include: {
+              credentials: {
+                orderBy: { updated_at: "desc" },
+                take: 1,
+              },
+            },
           });
 
-          if (!user || !user.credentials?.password) return null;
+          const latestCredential = user?.credentials?.[0];
+          if (!user || !latestCredential?.password) return null;
 
           // Check status
           if (user.status === 'banned' || user.status === 'suspended') {
@@ -35,7 +41,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           const isPasswordValid = await bcrypt.compare(
             credentials.password as string,
-            user.credentials.password
+            latestCredential.password
           );
 
           if (!isPasswordValid) return null;
