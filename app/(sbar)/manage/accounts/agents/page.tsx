@@ -33,10 +33,7 @@ export default async function ManageAgentsPage({ searchParams }: { searchParams:
     const where: any = {};
     
     if (isAgency) {
-        where.OR = [
-            { agency_id: agencyId },
-            { memberships: { some: { partOf: agencyId } } }
-        ];
+        where.agency_id = agencyId;
     } else {
         // Admin sees all agents and agency_agents
         where.OR = [
@@ -50,12 +47,8 @@ export default async function ManageAgentsPage({ searchParams }: { searchParams:
             where,
             orderBy: { name: 'asc' },
             include: { 
-                agency: { select: { name: true } },
-                memberships: {
-                    where: { partOf: agencyId || -1 },
-                    take: 1
-                }
-            } as any,
+                agency: { select: { name: true } }
+            },
             skip,
             take: limit
         }),
@@ -99,14 +92,6 @@ export default async function ManageAgentsPage({ searchParams }: { searchParams:
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{ fontWeight: '700', color: 'var(--color-primary)', fontSize: '1.1rem', marginBottom: '4px' }}>{u.name}</div>
                                     <div style={{ fontSize: '0.95rem', color: '#64748b' }}>@{u.username}</div>
-                                    <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                                        {isAgency && u.memberships?.[0]?.exclusive && (
-                                            <span style={{ fontSize: '0.75rem', color: '#dc2626', background: '#fef2f2', padding: '2px 6px', borderRadius: '4px', fontWeight: '600' }}>Exclusive</span>
-                                        )}
-                                        {isAgency && u.memberships?.[0]?.status === 'invited' && (
-                                            <span style={{ fontSize: '0.75rem', color: '#d97706', background: '#fffbeb', padding: '2px 6px', borderRadius: '4px', fontWeight: '600' }}>Invited</span>
-                                        )}
-                                    </div>
                                 </div>
                                 <div>
                                     <span style={{ background: '#f1f5f9', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '600', color: '#64748b' }}>

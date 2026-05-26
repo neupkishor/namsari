@@ -11,10 +11,11 @@ interface AgencyManagementClientProps {
     yourAgencies: any[];
     allAgencies: any[];
     showAllAgencies: boolean;
+    canCreateAgency: boolean;
     totalPages: number;
 }
 
-export default function AgencyManagementClient({ yourAgencies, allAgencies, showAllAgencies, totalPages }: AgencyManagementClientProps) {
+export default function AgencyManagementClient({ yourAgencies, allAgencies, showAllAgencies, canCreateAgency, totalPages }: AgencyManagementClientProps) {
     const [showForm, setShowForm] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [profilePic, setProfilePic] = useState('');
@@ -116,23 +117,25 @@ export default function AgencyManagementClient({ yourAgencies, allAgencies, show
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h1 className="section-title">Agency Management</h1>
-                <button
-                    onClick={() => setShowForm(!showForm)}
-                    style={{
-                        background: 'var(--color-primary)',
-                        color: 'white',
-                        padding: '12px 24px',
-                        borderRadius: '8px',
-                        border: 'none',
-                        fontWeight: '700',
-                        cursor: 'pointer'
-                    }}
-                >
-                    {showForm ? 'Cancel' : 'Add New Agency'}
-                </button>
+                {canCreateAgency && (
+                    <button
+                        onClick={() => setShowForm(!showForm)}
+                        style={{
+                            background: 'var(--color-primary)',
+                            color: 'white',
+                            padding: '12px 24px',
+                            borderRadius: '8px',
+                            border: 'none',
+                            fontWeight: '700',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        {showForm ? 'Cancel' : 'Add New Agency'}
+                    </button>
+                )}
             </div>
 
-            {showForm && (
+            {canCreateAgency && showForm && (
                 <div className="card" style={{ padding: '32px' }}>
                     <h3 style={{ marginBottom: '24px', fontSize: '1.25rem', fontWeight: '800' }}>Create Agency Profile</h3>
                     <form action={async (formData) => {
@@ -157,6 +160,10 @@ export default function AgencyManagementClient({ yourAgencies, allAgencies, show
                             <div>
                                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '700', marginBottom: '8px', color: '#64748b' }}>Phone (Optional)</label>
                                 <input name="phone" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }} placeholder="+977 123456789" />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '700', marginBottom: '8px', color: '#64748b' }}>Password</label>
+                                <input name="password" type="password" required style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }} placeholder="Set login password" />
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '700', marginBottom: '8px', color: '#64748b' }}>Website</label>
@@ -200,7 +207,7 @@ export default function AgencyManagementClient({ yourAgencies, allAgencies, show
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
                     {normalizedYourAgencies.length === 0 ? (
                         <div style={{ gridColumn: '1 / -1', padding: '40px', textAlign: 'center', color: 'var(--color-text-muted)', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                            You don't have any agencies yet. Create one above.
+                            You do not have any agencies yet. Create one above.
                         </div>
                     ) : (
                         normalizedYourAgencies.map((agency) => renderAgencyCard(agency, showAllAgencies))

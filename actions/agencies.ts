@@ -9,6 +9,15 @@ export async function createAgency(formData: FormData) {
     if (!session?.id) {
         throw new Error('Unauthorized');
     }
+    const actorId = parseInt(session.id, 10);
+    const actor = await prisma.user.findUnique({
+        where: { id: actorId },
+        include: { role: true }
+    });
+    const isAdmin = actor?.type === 'admin' || actor?.role?.role?.toLowerCase().includes('admin');
+    if (!isAdmin) {
+        throw new Error('Only admins can create agencies');
+    }
 
     const name = formData.get('name') as string;
     const username = formData.get('username') as string;
@@ -22,6 +31,7 @@ export async function createAgency(formData: FormData) {
     const instagram = formData.get('instagram') as string;
     const twitter = formData.get('twitter') as string;
     const linkedin = formData.get('linkedin') as string;
+    const password = (formData.get('password') as string | null)?.trim() || '';
 
     const socialLinks = {
         facebook,
@@ -29,6 +39,8 @@ export async function createAgency(formData: FormData) {
         twitter,
         linkedin
     };
+    const bcrypt = await import('bcryptjs');
+    const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
 
     // Create User as Agency
     const newAgency = await prisma.user.create({
@@ -47,11 +59,28 @@ export async function createAgency(formData: FormData) {
         }
     });
 
+    await prisma.account.upsert({
+        where: { id: newAgency.id.toString() },
+        update: {
+            type: 'agency',
+            provider: 'agency',
+            provider_account_id: `user:${newAgency.id}`,
+            password_hash: hashedPassword,
+        },
+        create: {
+            id: newAgency.id.toString(),
+            type: 'agency',
+            provider: 'agency',
+            provider_account_id: `user:${newAgency.id}`,
+            password_hash: hashedPassword,
+        },
+    });
+
     // Grant full permissions to the creator
     await prisma.userPermission.create({
         data: {
             ownerId: newAgency.id,
-            actorId: parseInt(session.id),
+            actorId,
             permissions: '*' // Full permissions
         }
     });

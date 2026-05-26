@@ -80,6 +80,7 @@ export default async function AgencyManagementPage({ searchParams }: { searchPar
             yourAgencies={yourAgencies} 
             allAgencies={allAgencies}
             showAllAgencies={isAdmin || false}
+            canCreateAgency={isAdmin || false}
             totalPages={totalPages}
         />
     );
