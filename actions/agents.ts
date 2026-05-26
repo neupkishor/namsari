@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
+import { getSession } from '@/lib/auth';
 
 export async function createAgencyAgent(data: FormData) {
     const name = data.get('name') as string;
@@ -96,4 +97,55 @@ export async function addExistingAgent(data: FormData) {
 export async function toggleExclusive(memberId: number, isExclusive: boolean) {
     // Membership table is removed; no-op for compatibility.
     revalidatePath('/manage/accounts/agents');
+}
+
+export async function resetAgentPassword(agentId: number, newPassword: string) {
+    const session = await getSession();
+    if (!session?.id) {
+        return { success: false, message: 'Unauthorized' };
+    }
+
+    if (!newPassword || newPassword.trim().length < 6) {
+        return { success: false, message: 'Password must be at least 6 characters.' };
+    }
+
+    const actorId = parseInt(session.id, 10);
+    const actor = await prisma.user.findUnique({
+        where: { id: actorId },
+        include: { role: true }
+    });
+    if (!actor) {
+        return { success: false, message: 'Unauthorized' };
+    }
+
+    const target = await prisma.user.findUnique({ where: { id: agentId } });
+    if (!target) {
+        return { success: false, message: 'Agent not found.' };
+    }
+
+    const isAdmin = actor.type === 'admin' || actor.role?.role?.toLowerCase().includes('admin');
+    const isAgencyOwner = actor.type === 'agency' && target.agency_id === actor.id;
+
+    if (!isAdmin && !isAgencyOwner) {
+        return { success: false, message: 'Forbidden' };
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword.trim(), 10);
+    await prisma.account.upsert({
+        where: { id: target.id.toString() },
+        update: {
+            password_hash: hashedPassword,
+            provider_account_id: `user:${target.id}`,
+        },
+        create: {
+            id: target.id.toString(),
+            type: (target.type as any) || 'agent',
+            provider_account_id: `user:${target.id}`,
+            password_hash: hashedPassword,
+        },
+    });
+
+    revalidatePath('/manage/accounts/agents');
+    revalidatePath(`/manage/accounts/${target.username}`);
+    return { success: true, message: 'Agent password updated.' };
 }

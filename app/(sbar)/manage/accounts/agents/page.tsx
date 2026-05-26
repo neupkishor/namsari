@@ -5,6 +5,7 @@ import { PaginationControl } from '@/components/ui';
 import { getCurrentUser } from '@/actions/auth';
 import { redirect } from 'next/navigation';
 import CreateAgentForm from '@/components/agents/CreateAgentForm';
+import AgentPasswordResetForm from '@/components/agents/AgentPasswordResetForm';
 
 export default async function ManageAgentsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
     const user = await getCurrentUser();
@@ -76,12 +77,10 @@ export default async function ManageAgentsPage({ searchParams }: { searchParams:
                     </div>
                 ) : (
                     users.map((u: any) => (
-                        <Link
+                        <div
                             key={u.id}
-                            href={`/manage/accounts/${u.username}`}
-                            style={{ textDecoration: 'none', color: 'inherit' }}
+                            style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', alignItems: 'center', gap: '20px', transition: 'all 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
                         >
-                            <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', alignItems: 'center', gap: '20px', transition: 'all 0.2s', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                                 <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--color-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.5rem', overflow: 'hidden', flexShrink: 0 }}>
                                     {u.profile_picture ? (
                                         <img src={u.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={u.name} />
@@ -90,16 +89,18 @@ export default async function ManageAgentsPage({ searchParams }: { searchParams:
                                     )}
                                 </div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ fontWeight: '700', color: 'var(--color-primary)', fontSize: '1.1rem', marginBottom: '4px' }}>{u.name}</div>
+                                    <Link href={`/manage/accounts/${u.username}`} style={{ textDecoration: 'none' }}>
+                                        <div style={{ fontWeight: '700', color: 'var(--color-primary)', fontSize: '1.1rem', marginBottom: '4px' }}>{u.name}</div>
+                                    </Link>
                                     <div style={{ fontSize: '0.95rem', color: '#64748b' }}>@{u.username}</div>
                                 </div>
-                                <div>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
                                     <span style={{ background: '#f1f5f9', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '600', color: '#64748b' }}>
                                         {u.type === 'agency_agent' && u.agency ? `Agent of ${u.agency.name}` : 'Agent'}
                                     </span>
+                                    {(isAgency || isAdmin) && <AgentPasswordResetForm agentId={u.id} />}
                                 </div>
-                            </div>
-                        </Link>
+                        </div>
                     ))
                 )}
             </div>
