@@ -123,10 +123,12 @@ export async function resetAgentPassword(agentId: number, newPassword: string) {
         return { success: false, message: 'Agent not found.' };
     }
 
-    const isAdmin = actor.type === 'admin' || actor.role?.role?.toLowerCase().includes('admin');
+    const roleName = actor.role?.role?.toLowerCase() || '';
+    const isOwner = actor.type === 'owner' || roleName.includes('owner');
+    const isAdmin = actor.type === 'admin' || roleName.includes('admin');
     const isAgencyOwner = actor.type === 'agency' && target.agency_id === actor.id;
 
-    if (!isAdmin && !isAgencyOwner) {
+    if (!isOwner && !isAdmin && !isAgencyOwner) {
         return { success: false, message: 'Forbidden' };
     }
 

@@ -20,7 +20,8 @@ export async function updateUser(username: string, formData: FormData) {
     }
 
     const targetUser = await prisma.user.findUnique({
-        where: { username }
+        where: { username },
+        include: { role: true }
     });
 
     if (!targetUser) {
@@ -28,11 +29,13 @@ export async function updateUser(username: string, formData: FormData) {
     }
 
     // Permission Check
-    const isAdmin = currentUser.type === 'admin' || currentUser.role?.role?.toLowerCase().includes('admin');
+    const roleName = currentUser.role?.role?.toLowerCase() || '';
+    const isOwner = currentUser.type === 'owner' || roleName.includes('owner');
+    const isAdmin = currentUser.type === 'admin' || roleName.includes('admin');
     const isSelf = currentUser.id === targetUser.id;
     const isAgencyOwner = currentUser.type === 'agency' && targetUser.agency_id === currentUser.id;
 
-    if (!isAdmin && !isSelf && !isAgencyOwner) {
+    if (!isOwner && !isAdmin && !isSelf && !isAgencyOwner) {
         return { success: false, message: 'Forbidden' };
     }
 
@@ -58,6 +61,29 @@ export async function updateUser(username: string, formData: FormData) {
     if (cover_image) updateData.cover_image = cover_image;
 
     if (password && password.trim() !== '') {
+        const targetRoleName = (targetUser as any)?.role?.role?.toLowerCase?.() || '';
+        const targetIsAdmin = targetUser.type === 'admin' || targetRoleName.includes('admin');
+        const targetIsOwner = targetUser.type === 'owner' || targetRoleName.includes('owner');
+
+        // Password change policy:
+        // - Admin: can change everyone EXCEPT admins and owners
+        // - Owner: can change everyone, including admins and owners
+        // - Agency: can change only their own agents (covered by isAgencyOwner)
+        // - Self: allowed
+        if (isOwner) {
+            // allowed
+        } else if (isAdmin) {
+            if (targetIsAdmin || targetIsOwner) {
+                return { success: false, message: 'Admins cannot change password of admins or owners.' };
+            }
+        } else if (isAgencyOwner) {
+            if (targetUser.type !== 'agent' && targetUser.type !== 'agency_agent') {
+                return { success: false, message: 'Agency can only change password of their agents.' };
+            }
+        } else if (!isSelf) {
+            return { success: false, message: 'Forbidden' };
+        }
+
         const bcrypt = await import('bcryptjs');
         const hashedPassword = await bcrypt.hash(password, 10);
         await prisma.account.upsert({

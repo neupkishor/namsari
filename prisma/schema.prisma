@@ -85,6 +85,7 @@ enum AccountType {
   agent
   agency
   admin
+  owner
   advertiser
   bank
 
