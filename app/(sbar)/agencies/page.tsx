@@ -1,14 +1,7 @@
 import prisma from '@/lib/prisma';
-import { Header } from '@/components/menu/Header';
-import { getSession } from '@/lib/auth';
 import Link from 'next/link';
 
 export default async function AgenciesPage() {
-    const session = await getSession();
-    const currentUserId = session ? parseInt(session.id) : null;
-    const currentUser = currentUserId ? await prisma.user.findUnique({ where: { id: currentUserId } }) : null;
-
-    // Fetch all users with account_type = 'agency'
     const agencies = await prisma.user.findMany({
         where: {
             type: 'agency',
@@ -25,10 +18,8 @@ export default async function AgenciesPage() {
     });
 
     return (
-        <main style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-            <Header user={currentUser} />
-
-            <div className="layout-container" style={{ padding: '100px 24px 80px' }}>
+        <main style={{ minHeight: '100%' }}>
+            <div className="mx-auto w-full max-w-[1400px] px-0.5 pt-3 sm:px-6 lg:px-8" style={{ paddingBottom: '80px' }}>
                 <div style={{ marginBottom: '40px', maxWidth: '600px' }}>
                     <h1 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--color-primary)', marginBottom: '8px', letterSpacing: '-0.02em' }}>
                         Partner Agencies

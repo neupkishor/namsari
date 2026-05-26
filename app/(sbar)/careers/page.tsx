@@ -1,18 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
-import { Header } from '@/components/menu/Header';
-import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
 import { getJobListings } from '@/actions/careers';
 
 export default async function CareersPage() {
-    const session = await getSession();
-    let user = null;
-    if (session?.id) {
-        user = await prisma.user.findUnique({ where: { id: Number(session.id) } });
-    }
-
-    // Fetch real jobs from the database
     let positions: any[] = [];
     try {
         positions = await getJobListings();
@@ -20,13 +10,11 @@ export default async function CareersPage() {
         console.error("Failed to fetch jobs", e);
     }
 
-    // Filter only open positions for public view
     const openPositions = positions.filter((p: any) => p.status === 'open');
 
     return (
-        <main style={{ background: 'white', minHeight: '100vh' }}>
-            <Header user={user} />
-            <div className="layout-container" style={{ paddingTop: '120px', paddingBottom: '100px', maxWidth: '900px' }}>
+        <main style={{ background: 'white', minHeight: '100%' }}>
+            <div className="mx-auto w-full max-w-[900px] px-0.5 pt-3 sm:px-6 lg:px-8" style={{ paddingBottom: '100px' }}>
                 <div style={{ textAlign: 'center', marginBottom: '80px' }}>
                     <h1 style={{ fontSize: '3.5rem', fontWeight: '800', marginBottom: '20px', color: 'var(--color-primary)' }}>
                         Build the future of Real Estate.

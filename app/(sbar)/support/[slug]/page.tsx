@@ -1,22 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Header } from '@/components/menu/Header';
-import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
 import { getSupportArticleBySlug } from '@/actions/support';
 
 export default async function SupportArticlePage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
 
-    // Fetch user for header
-    const session = await getSession();
-    let user = null;
-    if (session?.id) {
-        user = await prisma.user.findUnique({ where: { id: Number(session.id) } });
-    }
-
-    // Fetch article
     let article: any = null;
     try {
         article = await getSupportArticleBySlug(slug);
@@ -27,10 +16,8 @@ export default async function SupportArticlePage({ params }: { params: Promise<{
     if (!article || article.status !== 'published') return notFound();
 
     return (
-        <main style={{ minHeight: '100vh', background: '#f8fafc' }}>
-            <Header user={user} />
-
-            <div className="layout-container" style={{ paddingTop: '120px', paddingBottom: '100px', maxWidth: '800px' }}>
+        <main style={{ minHeight: '100%', background: '#f8fafc' }}>
+            <div className="mx-auto w-full max-w-[800px] px-0.5 pt-3 sm:px-6 lg:px-8" style={{ paddingBottom: '100px' }}>
                 <Link href="/support" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--color-text-muted)', textDecoration: 'none', fontWeight: '600', marginBottom: '32px' }}>
                     ← Back to Help Center
                 </Link>
@@ -65,7 +52,6 @@ export default async function SupportArticlePage({ params }: { params: Promise<{
                     <a href="mailto:support@namsari.com" className="btn-corporate">Contact Support</a>
                 </div>
             </div>
-
         </main>
     );
 }

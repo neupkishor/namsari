@@ -1,9 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import { getJobListingBySlug } from '@/actions/careers';
 import JobApplicationForm from './JobApplicationForm';
-import { Header } from '@/components/menu/Header';
-import { getSession } from "@/lib/auth";
-import prisma from '@/lib/prisma';
 import { cookies } from 'next/headers';
 
 export default async function PublicJobPage({
@@ -19,22 +16,11 @@ export default async function PublicJobPage({
 
     if (!job || job.status !== 'open') return notFound();
 
-    const sessionData = await getSession();
-    let user = null;
-    if (sessionData?.id) {
-        user = await prisma.user.findUnique({
-            where: { id: Number(sessionData.id) }
-        });
-    }
-
-    // Handle session tracking via cookie as requested
     const cookieStore = await cookies();
     let session = querySession || cookieStore.get('job_application_session')?.value;
 
     if (!session) {
         session = Math.random().toString(36).substring(2, 15);
-        // We still use query param for the very first step to ensure persistence in URL, 
-        // but we'll also save to cookie.
         cookieStore.set('job_application_session', session, { path: '/' });
         redirect(`/careers/${slug}?step=0&session=${session}`);
     }
@@ -43,10 +29,8 @@ export default async function PublicJobPage({
     const currentStepIndex = parseInt(step);
 
     return (
-        <main style={{ minHeight: '100vh', background: '#f8fafc' }}>
-            <Header user={user} />
-
-            <div className="layout-container" style={{ paddingTop: '120px', paddingBottom: '100px', maxWidth: '800px' }}>
+        <main style={{ minHeight: '100%', background: '#f8fafc' }}>
+            <div className="mx-auto w-full max-w-[800px] px-0.5 pt-3 sm:px-6 lg:px-8" style={{ paddingBottom: '100px' }}>
                 <header style={{ textAlign: 'center', marginBottom: '48px' }}>
                     <span style={{
                         padding: '6px 16px', borderRadius: '40px', background: 'var(--color-gold)', color: 'white',

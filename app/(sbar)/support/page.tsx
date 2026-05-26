@@ -1,17 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
-import { Header } from '@/components/menu/Header';
-import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
 import { getSupportArticles } from '@/actions/support';
 
 export default async function SupportPage() {
-    const session = await getSession();
-    let user = null;
-    if (session?.id) {
-        user = await prisma.user.findUnique({ where: { id: Number(session.id) } });
-    }
-
     let articles: any[] = [];
     try {
         articles = await getSupportArticles('published');
@@ -19,20 +10,9 @@ export default async function SupportPage() {
         console.error("Failed to fetch support articles", e);
     }
 
-    // Group articles by category
-    const groupedArticles: { [key: string]: any[] } = {};
-    articles.forEach((article: any) => {
-        if (!groupedArticles[article.category]) {
-            groupedArticles[article.category] = [];
-        }
-        groupedArticles[article.category].push(article);
-    });
-
     return (
-        <main style={{ minHeight: '100vh', background: '#f8fafc' }}>
-            <Header user={user} />
-
-            <div className="layout-container" style={{ paddingTop: '120px', paddingBottom: '100px', maxWidth: '1000px' }}>
+        <main style={{ minHeight: '100%', background: '#f8fafc' }}>
+            <div className="mx-auto w-full max-w-[1000px] px-0.5 pt-3 sm:px-6 lg:px-8" style={{ paddingBottom: '100px' }}>
                 <div style={{ textAlign: 'center', marginBottom: '60px' }}>
                     <h1 style={{ fontSize: '3rem', fontWeight: '800', marginBottom: '16px', color: 'var(--color-primary)' }}>
                         How can we help you?
@@ -98,7 +78,6 @@ export default async function SupportPage() {
                     <a href="mailto:support@namsari.com" className="btn-corporate">Contact Support</a>
                 </div>
             </div>
-
         </main>
     );
 }

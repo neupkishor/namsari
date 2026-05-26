@@ -9,7 +9,6 @@ export default function JobApplicationForm({ job, steps, currentStepIndex, sessi
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
-    // Form state stored in localStorage keyed by session
     const [answers, setAnswers] = useState<any>(() => {
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem(`job_app_${session}`);
@@ -103,7 +102,6 @@ export default function JobApplicationForm({ job, steps, currentStepIndex, sessi
         );
     }
 
-    // Step 0 is reserved for basic info: Name, Email, Phone
     if (currentStepIndex === 0) {
         return (
             <div className="card" style={{ padding: '40px' }}>
@@ -135,7 +133,7 @@ export default function JobApplicationForm({ job, steps, currentStepIndex, sessi
         );
     }
 
-    const currentStep = steps[currentStepIndex - 1]; // because step 0 is basics
+    const currentStep = steps[currentStepIndex - 1];
     if (!currentStep) return <div className="card" style={{ padding: '40px', textAlign: 'center' }}>Step not found. Please go back or restart.</div>;
 
     const isLastStep = currentStepIndex === steps.length;
