@@ -243,12 +243,8 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                 features: features ? {
                     create: features
                 } : undefined,
-                // Nested create for amenities
-                amenities: amenities && amenities.length > 0 ? {
-                    createMany: {
-                        data: amenities
-                    }
-                } : undefined,
+                // Scalar JSON amenities
+                amenities: amenities && amenities.length > 0 ? amenities : undefined,
                 // Nested create for images
                 images: images && images.length > 0 ? {
                     createMany: {
@@ -269,7 +265,6 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                 features: true,
                 images: true,
                 videos: true,
-                amenities: true,
                 types: true,
                 purposes: true,
                 natures: true,

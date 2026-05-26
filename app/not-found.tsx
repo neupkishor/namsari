@@ -9,7 +9,7 @@ export default function NotFound() {
 
     useEffect(() => {
         // Fetch current user if logged in to show profile in header
-        fetch('/api/auth/me')
+        fetch('/api/auth/session')
             .then(res => res.ok ? res.json() : null)
             .then(data => setUser(data))
             .catch(() => setUser(null));

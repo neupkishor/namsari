@@ -36,7 +36,6 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             images: true,
             types: true,
             features: true,
-            amenities: true,
             comments: {
                 include: { user: true },
                 orderBy: { created_at: 'desc' }
