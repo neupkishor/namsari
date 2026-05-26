@@ -2,7 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { getCurrentUser, getSession } from '@/lib/auth';
-import { User, Role, RolePermission } from '@prisma/client';
+import { User } from '@prisma/client';
 
 // Helper to calculate date ranges
 const getDateRange = (days: number) => {
@@ -108,7 +108,7 @@ export async function getDashboardStats() {
     const user = await prisma.user.findUnique({
         where: { id: userId },
         include: {
-            role: { include: { permissions: true } },
+            role: true,
             agency: true
         }
     });
@@ -157,7 +157,7 @@ export async function getDashboardStats() {
 
     // 3. Admin Stats
     let adminStats = null;
-    const isAdmin = user.type === 'admin' || user.role?.name?.toLowerCase().includes('admin');
+    const isAdmin = user.type === 'admin' || user.role?.role?.toLowerCase().includes('admin');
     
     if (isAdmin) {
         // Admin View includes Global Stats

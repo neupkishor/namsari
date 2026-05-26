@@ -32,7 +32,7 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
 
     if (currentUserId) {
         const currentUser = await prisma.user.findUnique({ where: { id: currentUserId }, include: { role: true } });
-        isAdmin = (currentUser?.type === 'admin' || currentUser?.role?.name?.toLowerCase().includes('admin')) || false;
+        isAdmin = (currentUser?.type === 'admin' || currentUser?.role?.role?.toLowerCase().includes('admin')) || false;
 
         if (user.type === 'agency') {
             const permission = await prisma.userPermission.findUnique({

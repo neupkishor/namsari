@@ -13,7 +13,7 @@ export default async function BlogManagementPage() {
         redirect('/auth/login');
     }
 
-    if (user.type !== 'admin' && !user.role?.name?.toLowerCase().includes('admin')) {
+    if (user.type !== 'admin' && !user.role?.role?.toLowerCase().includes('admin')) {
         redirect('/manage');
     }
 

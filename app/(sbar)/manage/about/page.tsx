@@ -11,7 +11,7 @@ export default async function ManageAboutPage() {
         redirect('/auth/login');
     }
 
-    if (user.type !== 'admin' && !user.role?.name?.toLowerCase().includes('admin')) {
+    if (user.type !== 'admin' && !user.role?.role?.toLowerCase().includes('admin')) {
         redirect('/manage');
     }
 

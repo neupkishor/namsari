@@ -17,7 +17,7 @@ async function checkPropertyAccess(propertyId: number): Promise<boolean> {
     if (!user) return false;
 
     // Admin can do anything
-    if (user.type === 'admin' || user.role?.name?.toLowerCase().includes('admin')) {
+    if (user.type === 'admin' || user.role?.role?.toLowerCase().includes('admin')) {
         return true;
     }
 

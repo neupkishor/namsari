@@ -18,7 +18,7 @@ export default async function ManageAgentsPage({ searchParams }: { searchParams:
     // Get the effective agency ID if operating as one, or if user is agency type themselves
     const agencyId = isOperatingAsAgency ? user.operatingId : (user.type === 'agency' ? user.id : null);
 
-    const isAdmin = user.type === 'admin' || user.role?.name?.toLowerCase().includes('admin');
+    const isAdmin = user.type === 'admin' || user.role?.role?.toLowerCase().includes('admin');
     const isAgency = !!agencyId;
 
     if (!isAdmin && !isAgency) {

@@ -32,7 +32,7 @@ export default async function AgencyManagementPage({ searchParams }: { searchPar
 
     // Check for admin/management permissions
     // Assuming 'admin' type or 'admin' role has access to all agencies
-    const isAdmin = user.type === 'admin' || user.role?.name?.toLowerCase().includes('admin');
+    const isAdmin = user.type === 'admin' || user.role?.role?.toLowerCase().includes('admin');
 
     // Restrict access if operating as switched account (even if admin)
     if (session.operatingId) {

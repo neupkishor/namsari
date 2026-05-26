@@ -22,7 +22,7 @@ export async function updateAboutContent(data: {
 
     if (!user) throw new Error("Unauthorized");
 
-    if (user.type !== 'admin' && !user.role?.name?.toLowerCase().includes('admin')) {
+    if (user.type !== 'admin' && !user.role?.role?.toLowerCase().includes('admin')) {
         throw new Error("Forbidden");
     }
 

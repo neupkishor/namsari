@@ -28,7 +28,7 @@ export async function updateUser(username: string, formData: FormData) {
     }
 
     // Permission Check
-    const isAdmin = currentUser.type === 'admin' || currentUser.role?.name?.toLowerCase().includes('admin');
+    const isAdmin = currentUser.type === 'admin' || currentUser.role?.role?.toLowerCase().includes('admin');
     const isSelf = currentUser.id === targetUser.id;
     const isAgencyOwner = currentUser.type === 'agency' && targetUser.agency_id === currentUser.id;
 

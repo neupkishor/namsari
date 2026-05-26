@@ -22,7 +22,7 @@ async function checkAdmin() {
 
     if (!user) return false;
 
-    return user.type === 'admin' || user.role?.name?.toLowerCase().includes('admin');
+    return user.type === 'admin' || user.role?.role?.toLowerCase().includes('admin');
 }
 
 export async function getBlogPosts(status?: string) {

@@ -118,12 +118,12 @@ export async function getAds(status?: string) {
     
     const user = await prisma.user.findUnique({
         where: { id: parseInt(session.id) },
-        include: { role: { include: { permissions: true } } }
+        include: { role: true }
     });
 
     // Simplified admin check logic - strictly for demonstration
     // In production, check actual permissions JSON or role name
-    const isAdmin = user?.type === 'admin' || user?.role?.name === 'Admin'; 
+    const isAdmin = user?.type === 'admin' || user?.role?.role === 'Admin'; 
 
     if (isAdmin) {
         return await prisma.advertisement.findMany({

@@ -88,7 +88,7 @@ export default function RolesClient({ roles }: { roles: any[] }) {
                 {roles.map((role) => (
                     <div key={role.id} style={{ background: 'white', borderRadius: '12px', padding: '24px', border: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                            <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#1e293b' }}>{role.name}</h3>
+                            <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#1e293b' }}>{role.role}</h3>
                             <button 
                                 onClick={() => handleDelete(role.id)}
                                 style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}

@@ -13,7 +13,7 @@ export default async function ManageUsersPage({ searchParams }: { searchParams: 
     }
 
     // Only Admins can see all users (and not when switched)
-    if ((user.type !== 'admin' && !user.role?.name?.toLowerCase().includes('admin')) || user.operatingId) {
+    if ((user.type !== 'admin' && !user.role?.role?.toLowerCase().includes('admin')) || user.operatingId) {
         redirect('/manage');
     }
 

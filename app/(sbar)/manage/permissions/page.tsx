@@ -11,7 +11,7 @@ export default async function PermissionsPage() {
         redirect('/auth/login');
     }
 
-    if (user.type !== 'admin' && !user.role?.name?.toLowerCase().includes('admin')) {
+    if (user.type !== 'admin' && !user.role?.role?.toLowerCase().includes('admin')) {
         redirect('/manage');
     }
 
@@ -93,7 +93,7 @@ export default async function PermissionsPage() {
                                             fontSize: '0.85rem',
                                             fontWeight: '600'
                                         }}>
-                                            {user.role.name}
+                                            {user.role.role}
                                         </span>
                                     ) : (
                                         <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>No Role</span>

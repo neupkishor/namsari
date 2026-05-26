@@ -96,7 +96,7 @@ export default function UserPermissionClient({ user, roles }: { user: any, roles
                         >
                             <option value="">No Role (Default User)</option>
                             {roles.map(role => (
-                                <option key={role.id} value={role.id}>{role.name}</option>
+                                <option key={role.id} value={role.id}>{role.role}</option>
                             ))}
                         </select>
                         <button 
