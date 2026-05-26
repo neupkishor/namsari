@@ -209,80 +209,81 @@ export function PropertyPost({
   };
 
   return (
-    <div
-      ref={containerRef}
-      className={`group/card bg-white relative hover:z-10 overflow-hidden flex justify-center
-        transition-[box-shadow,border-color] duration-300
-        hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)]
-      border-b border-b-slate-200 hover:border-b-transparent
-      ${isFirstInSet ? 'rounded-t-[28px]' : ''}
-      ${isLastInSet ? 'rounded-b-[28px]' : ''}
-      ${(!isFirstInSet && !isLastInSet) ? 'rounded-none' : ''}
-      ${className || ''}`}
-    >
-      <div className="flex w-full max-w-[1040px] gap-2.5 sm:gap-4 px-3 sm:px-4 pt-3 sm:pt-4 pb-2 sm:pb-4 items-stretch">
+    <div ref={containerRef}>
+      {/* Mobile Card (existing layout) */}
+      <div
+        className={`lg:hidden group/card bg-white relative hover:z-10 overflow-hidden flex justify-center
+          transition-[box-shadow,border-color] duration-300
+          hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)]
+        border-b border-b-slate-200 hover:border-b-transparent
+        ${isFirstInSet ? 'rounded-t-[28px]' : ''}
+        ${isLastInSet ? 'rounded-b-[28px]' : ''}
+        ${(!isFirstInSet && !isLastInSet) ? 'rounded-none' : ''}
+        ${className || ''}`}
+      >
+        <div className="flex w-full max-w-[1040px] gap-2.5 sm:gap-4 px-3 sm:px-4 pt-3 sm:pt-4 pb-2 sm:pb-4 items-stretch">
 
-        {/* LEFT: IMAGE STACK */}
-        {hasAnyImage && (
-        <div className={`w-[108px] sm:w-[132px] flex-shrink-0 self-stretch h-full ${hasSingleImage ? 'flex flex-col pb-0' : 'grid grid-rows-[auto_1fr] gap-1.5 pb-1 sm:pb-2'}`}>
+          {/* LEFT: IMAGE STACK */}
+          {hasAnyImage && (
+          <div className={`w-[108px] sm:w-[132px] flex-shrink-0 self-stretch h-full ${hasSingleImage ? 'flex flex-col pb-0' : 'grid grid-rows-[auto_1fr] gap-1.5 pb-1 sm:pb-2'}`}>
 
-          {/* MAIN IMAGE */}
-          <Link
-            href={propertyUrl}
-            className={`relative overflow-hidden block ${hasSingleImage ? 'h-full min-h-[140px]' : 'aspect-square'} ${mainImageRadiusClass}`}
-          >
-            {activeImage ? (
-              <img
-                src={activeImage}
-                alt={property.title}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105"
-              />
-            ) : (
-              <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300 text-xs">
-                No image
+            {/* MAIN IMAGE */}
+            <Link
+              href={propertyUrl}
+              className={`relative overflow-hidden block ${hasSingleImage ? 'h-full min-h-[140px]' : 'aspect-square'} ${mainImageRadiusClass}`}
+            >
+              {activeImage ? (
+                <img
+                  src={activeImage}
+                  alt={property.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105"
+                />
+              ) : (
+                <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300 text-xs">
+                  No image
+                </div>
+              )}
+            </Link>
+
+            {/* THUMBNAILS */}
+            {imageUrls.length > 1 && (
+              <div className="grid grid-cols-3 gap-1">
+                {imageUrls
+                  .slice(thumbStartIndex, thumbStartIndex + thumbWindowSize)
+                  .map((url: string, idx: number) => {
+                  const actualIndex = thumbStartIndex + idx;
+                  const isActive = activeImageIndex === actualIndex;
+                  const isFirstThumb = idx === 0;
+                  const thumbRadiusClass = isLastInSet && isFirstThumb
+                    ? 'rounded-[4px_4px_4px_16px]'
+                    : 'rounded-[4px]';
+                  return (
+                    <button
+                      key={`${url}-${actualIndex}`}
+                      type="button"
+                      aria-label={`View image ${actualIndex + 1}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setActiveImageIndex(actualIndex);
+                        setThumbStartIndex(getThumbWindowStart(actualIndex, imageUrls.length));
+                      }}
+                      className={`w-full aspect-square overflow-hidden ${thumbRadiusClass}
+                        ${isActive
+                          ? 'ring-1 ring-[color:var(--color-primary)]'
+                          : 'opacity-60 hover:opacity-100'
+                        }`}
+                    >
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  );
+                })}
               </div>
             )}
-          </Link>
-
-          {/* THUMBNAILS */}
-          {imageUrls.length > 1 && (
-            <div className="grid grid-cols-3 gap-1">
-              {imageUrls
-                .slice(thumbStartIndex, thumbStartIndex + thumbWindowSize)
-                .map((url: string, idx: number) => {
-                const actualIndex = thumbStartIndex + idx;
-                const isActive = activeImageIndex === actualIndex;
-                const isFirstThumb = idx === 0;
-                const thumbRadiusClass = isLastInSet && isFirstThumb
-                  ? 'rounded-[4px_4px_4px_16px]'
-                  : 'rounded-[4px]';
-                return (
-                  <button
-                    key={`${url}-${actualIndex}`}
-                    type="button"
-                    aria-label={`View image ${actualIndex + 1}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setActiveImageIndex(actualIndex);
-                      setThumbStartIndex(getThumbWindowStart(actualIndex, imageUrls.length));
-                    }}
-                    className={`w-full aspect-square overflow-hidden ${thumbRadiusClass}
-                      ${isActive
-                        ? 'ring-1 ring-[color:var(--color-primary)]'
-                        : 'opacity-60 hover:opacity-100'
-                      }`}
-                  >
-                    <img src={url} alt="" className="w-full h-full object-cover" />
-                  </button>
-                );
-              })}
-            </div>
+          </div>
           )}
-        </div>
-        )}
 
-        {/* RIGHT: CONTENT */}
-        <div className="flex-1 min-w-0 self-stretch flex flex-col justify-between pb-0">
+          {/* RIGHT: CONTENT */}
+          <div className="flex-1 min-w-0 self-stretch flex flex-col justify-between pb-0">
 
           {/* TOP SECTION: title, description, price+offer, location */}
           <div className="flex flex-col gap-0.5 min-w-0 pt-0.5 pb-1 flex-none">
@@ -386,6 +387,73 @@ export function PropertyPost({
             </div>
           </div>
 
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Card (new layout) */}
+      <div
+        className={`hidden lg:block group/card bg-white relative hover:z-10 overflow-hidden
+          transition-[box-shadow,border-color] duration-300
+          hover:ring-2 hover:ring-inset hover:ring-[color:var(--color-primary)]
+        border-b border-b-slate-200 hover:border-b-transparent
+        ${isFirstInSet ? 'rounded-t-[28px]' : ''}
+        ${isLastInSet ? 'rounded-b-[28px]' : ''}
+        ${(!isFirstInSet && !isLastInSet) ? 'rounded-none' : ''}
+        ${className || ''}`}
+      >
+        <div className="w-full max-w-[1040px] mx-auto px-5 py-4 flex gap-5 items-stretch">
+          {hasAnyImage && (
+            <Link href={propertyUrl} className="w-[240px] shrink-0 rounded-[14px] overflow-hidden bg-slate-100">
+              {activeImage ? (
+                <img src={activeImage} alt={property.title} className="w-full h-full object-cover min-h-[172px]" />
+              ) : (
+                <div className="w-full h-full min-h-[172px] flex items-center justify-center text-slate-300 text-xs">No image</div>
+              )}
+            </Link>
+          )}
+
+          <div className="flex-1 min-w-0 flex flex-col justify-between">
+            <div className="space-y-2">
+              <Link href={propertyUrl}>
+                <h3 className="text-[18px] leading-tight font-bold text-slate-900 group-hover/card:text-[color:var(--color-primary)] transition-colors line-clamp-2">
+                  {property.title}
+                </h3>
+              </Link>
+              <p className="text-[14px] text-slate-500 leading-relaxed line-clamp-2">
+                {property.remarks || 'This property offers a perfect blend of luxury and comfort, situated in a prime location with easy access to all essential amenities.'}
+              </p>
+              <div className="text-[17px] font-extrabold text-slate-900">
+                {formattedPrice} {pricingUnit}.
+              </div>
+              <div className="text-[13px] text-slate-500">{locationStr}</div>
+            </div>
+
+            <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-2 min-w-0">
+                {agentProfileUrl ? (
+                  <a href={agentProfileUrl} onClick={(e) => e.stopPropagation()} className="text-[13px] text-slate-600 font-semibold truncate hover:text-[color:var(--color-primary)] hover:underline">
+                    {agentName}
+                  </a>
+                ) : (
+                  <span className="text-[13px] text-slate-600 font-semibold truncate">{agentName}</span>
+                )}
+                {agentPropertyCount != null && (
+                  <span className="text-[12px] text-slate-400">
+                    • {agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <MakeOfferLink propertyUrl={propertyUrl} title={property.title} price={`${formattedPrice} ${pricingUnit}`} phone={agentWhatsapp || agentPhone} />
+                {timeAgo && <span className="text-[12px] text-slate-400">{timeAgo}</span>}
+                <button type="button" onClick={handleShare} aria-label="Share property" className="flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/10 transition-colors">
+                  <ShareIcon />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
