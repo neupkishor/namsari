@@ -3,7 +3,6 @@ import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getSession } from '@/lib/auth';
-import { switchProfileAction } from '@/actions/auth';
 import { toggleAgencyVerification } from '@/actions/agencies';
 
 export default async function UserDetailsPage({ params }: { params: Promise<{ username: string }> }) {
@@ -27,26 +26,12 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
     const currentUserId = session?.id ? parseInt(session.id) : null;
     
     // Check permissions
-    let canSwitch = false;
     let isAdmin = false;
 
     if (currentUserId) {
         const currentUser = await prisma.user.findUnique({ where: { id: currentUserId }, include: { role: true } });
         isAdmin = (currentUser?.type === 'admin' || currentUser?.role?.role?.toLowerCase().includes('admin')) || false;
 
-        if (user.type === 'agency') {
-            const permission = await prisma.userPermission.findUnique({
-                where: {
-                    ownerId_actorId: {
-                        ownerId: user.id,
-                        actorId: currentUserId
-                    }
-                }
-            });
-            if (permission || isAdmin) {
-                canSwitch = true;
-            }
-        }
     }
 
     let moreInfo: any = {};
@@ -119,31 +104,6 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
 
                         {/* Action Buttons */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            {canSwitch && (
-                                <form action={async () => {
-                                    'use server';
-                                    await switchProfileAction(user.id);
-                                }}>
-                                    <button 
-                                        type="submit" 
-                                        style={{ 
-                                            width: '100%',
-                                            padding: '14px',
-                                            background: 'var(--color-primary)',
-                                            color: 'white',
-                                            borderRadius: '8px',
-                                            border: 'none',
-                                            fontWeight: '700',
-                                            fontSize: '1rem',
-                                            cursor: 'pointer',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
-                                        }}
-                                    >
-                                        <span>🔄</span> Switch to this Account
-                                    </button>
-                                </form>
-                            )}
-
                             {isAdmin && (
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '8px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
                                     <form action={async () => {

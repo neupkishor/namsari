@@ -54,9 +54,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 )}
 
                 <div
-                    className="prose"
+                    className="blog-article"
                     dangerouslySetInnerHTML={{ __html: post.content }}
-                    style={{ lineHeight: '1.8', fontSize: '1.15rem', color: '#334155' }}
+                    style={{
+                        lineHeight: '1.8',
+                        fontSize: '1.05rem',
+                        color: '#334155',
+                        overflowWrap: 'normal',
+                        wordBreak: 'normal'
+                    }}
                 />
 
                 <hr style={{ margin: '60px 0', border: '0', borderTop: '1px solid #e2e8f0' }} />
@@ -69,6 +75,77 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                         <button style={{ padding: '10px 20px', borderRadius: '50px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', fontWeight: '600' }}>LinkedIn</button>
                     </div>
                 </div>
+
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                    .blog-article h1,
+                    .blog-article h2,
+                    .blog-article h3,
+                    .blog-article h4,
+                    .blog-article h5,
+                    .blog-article h6 {
+                        color: var(--color-primary);
+                        font-weight: 800;
+                        line-height: 1.3;
+                        margin-top: 2rem;
+                        margin-bottom: 0.8rem;
+                        overflow-wrap: normal;
+                        word-break: normal;
+                    }
+                    .blog-article h1 { font-size: 2.1rem; }
+                    .blog-article h2 { font-size: 1.75rem; }
+                    .blog-article h3 { font-size: 1.45rem; }
+                    .blog-article h4 { font-size: 1.2rem; }
+                    .blog-article h5 { font-size: 1.05rem; }
+                    .blog-article h6 { font-size: 1rem; }
+
+                    .blog-article p,
+                    .blog-article li,
+                    .blog-article blockquote,
+                    .blog-article td,
+                    .blog-article th {
+                        font-size: 1.05rem;
+                        line-height: 1.85;
+                        overflow-wrap: normal;
+                        word-break: normal;
+                    }
+
+                    .blog-article p,
+                    .blog-article ul,
+                    .blog-article ol,
+                    .blog-article blockquote,
+                    .blog-article table {
+                        margin-bottom: 1.1rem;
+                    }
+
+                    .blog-article ul,
+                    .blog-article ol {
+                        padding-left: 1.4rem;
+                    }
+
+                    .blog-article a {
+                        color: var(--color-primary);
+                        text-decoration: underline;
+                        text-underline-offset: 2px;
+                        overflow-wrap: anywhere;
+                        word-break: break-word;
+                    }
+
+                    .blog-article img,
+                    .blog-article iframe,
+                    .blog-article video,
+                    .blog-article table {
+                        max-width: 100%;
+                        height: auto;
+                    }
+
+                    .blog-article pre,
+                    .blog-article code {
+                        white-space: pre-wrap;
+                        word-break: break-word;
+                    }
+                `
+                }} />
             </article>
         </main>
     );
