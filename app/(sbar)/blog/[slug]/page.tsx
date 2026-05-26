@@ -1,22 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Header } from '@/components/menu/Header';
-import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
 import { getBlogPostBySlug } from '@/actions/blog';
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
 
-    // Fetch user for header
-    const session = await getSession();
-    let user = null;
-    if (session?.id) {
-        user = await prisma.user.findUnique({ where: { id: Number(session.id) } });
-    }
-
-    // Fetch blog post
     let post: any = null;
     try {
         post = await getBlogPostBySlug(slug);
@@ -27,10 +16,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     if (!post || post.status !== 'published') return notFound();
 
     return (
-        <main style={{ minHeight: '100vh', background: 'white' }}>
-            <Header user={user} />
-
-            <article className="layout-container" style={{ paddingTop: '120px', paddingBottom: '100px', maxWidth: '800px' }}>
+        <main style={{ minHeight: '100%', background: 'white' }}>
+            <article className="mx-auto w-full max-w-[800px] px-0.5 pt-3 sm:px-6 lg:px-8" style={{ paddingBottom: '100px' }}>
                 <Link href="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--color-text-muted)', textDecoration: 'none', fontWeight: '600', marginBottom: '40px' }}>
                     ← Back to Blog
                 </Link>

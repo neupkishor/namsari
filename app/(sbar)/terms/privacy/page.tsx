@@ -1,19 +1,9 @@
 import React from 'react';
-import { Header } from '@/components/menu/Header';
-import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
 
-export default async function PrivacyPage() {
-    const session = await getSession();
-    let user = null;
-    if (session?.id) {
-        user = await prisma.user.findUnique({ where: { id: Number(session.id) } });
-    }
-
+export default function PrivacyPage() {
     return (
-        <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', paddingBottom: '80px' }}>
-            <Header user={user} />
-            <div className="layout-container" style={{ maxWidth: '800px', margin: '0 auto', paddingTop: '60px' }}>
+        <main style={{ backgroundColor: '#ffffff', minHeight: '100%', paddingBottom: '80px' }}>
+            <div className="mx-auto w-full max-w-[800px] px-0.5 pt-3 sm:px-6 lg:px-8">
                 <h1 style={{ fontSize: '3rem', fontWeight: '800', marginBottom: '24px', color: 'var(--color-primary)' }}>
                     Privacy Policy
                 </h1>

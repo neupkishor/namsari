@@ -1,17 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
-import { Header } from '@/components/menu/Header';
-import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
 import { getBlogPosts } from '@/actions/blog';
 
 export default async function BlogPage() {
-    const session = await getSession();
-    let user = null;
-    if (session?.id) {
-        user = await prisma.user.findUnique({ where: { id: Number(session.id) } });
-    }
-
     let posts: any[] = [];
     try {
         posts = await getBlogPosts('published');
@@ -20,9 +11,8 @@ export default async function BlogPage() {
     }
 
     return (
-        <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', paddingBottom: '80px' }}>
-            <Header user={user} />
-            <div className="layout-container" style={{ paddingTop: '60px' }}>
+        <main style={{ backgroundColor: '#ffffff', minHeight: '100%', paddingBottom: '80px' }}>
+            <div className="mx-auto w-full max-w-[1400px] px-0.5 pt-3 sm:px-6 lg:px-8">
                 <div style={{ textAlign: 'center', marginBottom: '80px' }}>
                     <h1 style={{ fontSize: '3.5rem', fontWeight: '800', marginBottom: '20px', color: 'var(--color-primary)' }}>
                         Namsari Blog
@@ -75,7 +65,6 @@ export default async function BlogPage() {
                                             {post.excerpt || 'Read the full story...'}
                                         </p>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            {/* Optional Author Avatar */}
                                             <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: '700', color: 'white' }}>
                                                 {post.author ? post.author[0] : 'N'}
                                             </div>
