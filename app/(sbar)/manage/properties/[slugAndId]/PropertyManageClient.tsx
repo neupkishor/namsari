@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { addPropertyImage, removePropertyImage, updatePropertyStatus, updateSoldStatus } from '@/actions/properties';
+import { addPropertyImage, removePropertyImage, reorderPropertyImages, updatePropertyStatus, updateSoldStatus } from '@/actions/properties';
 import { useRouter } from 'next/navigation';
 
 import imageCompression from 'browser-image-compression';
@@ -14,6 +14,9 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
     const router = useRouter();
     const [uploading, setUploading] = useState(false);
     const [compressing, setCompressing] = useState(false);
+    const [images, setImages] = useState<any[]>(property.images || []);
+    const [draggingImageId, setDraggingImageId] = useState<number | null>(null);
+    const [savingOrder, setSavingOrder] = useState(false);
 
     const stats = [
         { label: 'Total Views', value: property.views || 0, icon: '👁️', color: '#10b981' },
@@ -62,10 +65,46 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
         if (!confirm('Are you sure you want to remove this image?')) return;
         try {
             await removePropertyImage(id);
+            setImages((prev) => prev.filter((img) => img.id !== id));
             router.refresh();
         } catch (err) {
             console.error(err);
             alert('Failed to delete image');
+        }
+    };
+
+    const handleDragStart = (imageId: number) => {
+        setDraggingImageId(imageId);
+    };
+
+    const handleDrop = (targetImageId: number) => {
+        if (!draggingImageId || draggingImageId === targetImageId) return;
+
+        setImages((prev) => {
+            const fromIndex = prev.findIndex((img) => img.id === draggingImageId);
+            const toIndex = prev.findIndex((img) => img.id === targetImageId);
+            if (fromIndex < 0 || toIndex < 0) return prev;
+
+            const next = [...prev];
+            const [moved] = next.splice(fromIndex, 1);
+            next.splice(toIndex, 0, moved);
+            return next;
+        });
+        setDraggingImageId(null);
+    };
+
+    const hasOrderChanged = images.map((img) => img.id).join(',') !== (property.images || []).map((img: any) => img.id).join(',');
+
+    const handleSaveOrder = async () => {
+        try {
+            setSavingOrder(true);
+            await reorderPropertyImages(property.id, images.map((img) => img.id));
+            router.refresh();
+        } catch (error) {
+            console.error(error);
+            alert('Failed to save image order');
+        } finally {
+            setSavingOrder(false);
         }
     };
 
@@ -92,13 +131,57 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
                     <div className="card" style={{ padding: '32px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                             <h3 style={{ fontSize: '1.25rem', fontWeight: '800' }}>Media Gallery</h3>
-                            <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{property.images.length} Images total</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{images.length} Images total</div>
+                                {hasOrderChanged && (
+                                    <button
+                                        type="button"
+                                        onClick={handleSaveOrder}
+                                        disabled={savingOrder}
+                                        style={{
+                                            padding: '8px 12px',
+                                            borderRadius: '8px',
+                                            border: '1px solid #e2e8f0',
+                                            background: 'white',
+                                            fontWeight: '700',
+                                            cursor: savingOrder ? 'not-allowed' : 'pointer',
+                                            color: 'var(--color-primary)'
+                                        }}
+                                    >
+                                        {savingOrder ? 'Saving...' : 'Save Order'}
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '16px' }}>
-                            {property.images.map((img: any) => (
-                                <div key={img.id} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', aspectRatio: '1/1', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                            {images.map((img: any, index: number) => (
+                                <div
+                                    key={img.id}
+                                    draggable
+                                    onDragStart={() => handleDragStart(img.id)}
+                                    onDragOver={(e) => e.preventDefault()}
+                                    onDrop={() => handleDrop(img.id)}
+                                    onDragEnd={() => setDraggingImageId(null)}
+                                    style={{
+                                        position: 'relative',
+                                        borderRadius: '12px',
+                                        overflow: 'hidden',
+                                        aspectRatio: '1/1',
+                                        background: '#f8fafc',
+                                        border: draggingImageId === img.id ? '2px solid var(--color-primary)' : '1px solid #e2e8f0',
+                                        cursor: 'grab'
+                                    }}
+                                >
                                     <img src={img.url} style={{ width: '100%', height: '150px', objectFit: 'cover' }} alt={img.imageOf} />
+                                    <div style={{ position: 'absolute', top: '8px', left: '8px', display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                        <span style={{ background: 'rgba(0,0,0,0.7)', color: 'white', borderRadius: '6px', padding: '2px 6px', fontSize: '0.7rem', fontWeight: '700' }}>
+                                            #{index + 1}
+                                        </span>
+                                        <span style={{ background: 'rgba(255,255,255,0.9)', borderRadius: '6px', padding: '2px 6px', fontSize: '0.75rem', fontWeight: '700' }}>
+                                            ↕ Drag
+                                        </span>
+                                    </div>
                                     <div style={{ position: 'absolute', top: '8px', right: '8px', display: 'flex', gap: '4px' }}>
                                         <button
                                             onClick={() => handleDeleteImage(img.id)}

@@ -20,7 +20,9 @@ export default async function ManagePropertyDetailPage({ params }: { params: Pro
             listedBy: true,
             pricing: true,
             location: true,
-            images: true,
+            images: {
+                orderBy: { id: 'asc' }
+            },
             types: true,
             features: true,
             property_likes: true,

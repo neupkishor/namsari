@@ -76,6 +76,46 @@ export async function removePropertyImage(imageId: number) {
     revalidatePath(`/manage/properties/[slugAndId]`, 'page');
 }
 
+export async function reorderPropertyImages(propertyId: number, orderedImageIds: number[]) {
+    const hasAccess = await checkPropertyAccess(propertyId);
+    if (!hasAccess) {
+        throw new Error("Unauthorized");
+    }
+
+    if (!Array.isArray(orderedImageIds) || orderedImageIds.length === 0) return;
+
+    const images = await prisma.propertyImage.findMany({
+        where: { propertyId },
+        select: { id: true, url: true, imageOf: true, filename: true },
+        orderBy: { id: 'asc' }
+    });
+
+    if (images.length !== orderedImageIds.length) {
+        throw new Error("Invalid image ordering payload");
+    }
+
+    const imageById = new Map(images.map((img) => [img.id, img]));
+    const reordered = orderedImageIds.map((id) => imageById.get(id)).filter(Boolean) as typeof images;
+
+    if (reordered.length !== images.length) {
+        throw new Error("Invalid image ordering payload");
+    }
+
+    await prisma.$transaction(async (tx) => {
+        await tx.propertyImage.deleteMany({ where: { propertyId } });
+        await tx.propertyImage.createMany({
+            data: reordered.map((img) => ({
+                propertyId,
+                url: img.url,
+                imageOf: img.imageOf,
+                filename: img.filename
+            }))
+        });
+    });
+
+    revalidatePath(`/manage/properties/[slugAndId]`, 'page');
+}
+
 export async function updatePropertyStatus(propertyId: number, status: string) {
     const hasAccess = await checkPropertyAccess(propertyId);
     if (!hasAccess) {
