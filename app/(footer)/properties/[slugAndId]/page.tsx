@@ -19,10 +19,9 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     const session = await getSession();
     const currentUser = session ? await prisma.user.findUnique({ where: { id: Number(session.id) } }) : null;
 
-    // Extract ID from slug-id format
-    const parts = slugAndId.split('-');
-    const idStr = parts[parts.length - 1];
-    const id = parseInt(idStr);
+    // Extract numeric ID from slug-id format (robust against malformed slug text)
+    const idMatch = slugAndId.match(/(\d+)(?!.*\d)/);
+    const id = idMatch ? parseInt(idMatch[1], 10) : NaN;
 
     if (isNaN(id)) return notFound();
 
@@ -53,7 +52,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     });
 
     const isLiked = session && property.property_likes.some((l) => l.user_id === Number(session.id));
-    const images = property.images.map((img) => img.url);
+    const mediaImages = Array.isArray((property as any).media?.images)
+        ? (property as any).media.images
+            .map((m: any) => m?.url)
+            .filter((u: any) => typeof u === 'string' && u.length > 0)
+        : [];
+    const images = mediaImages.length > 0 ? mediaImages : property.images.map((img) => img.url);
     const locationStr = property.location
         ? `${property.location.area}, ${property.location.district}`
         : 'Unspecified';
@@ -126,7 +130,8 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         'land for sale under 40 lakhs per aana'
     ];
     const collectionCards = collectionPresets.map((title, index) => {
-        const primaryImage = recommendedProperties[index]?.images?.[0]?.url || property.images[index]?.url || property.images[0]?.url || '';
+        const currentMainImage = (property as any).mainMedia || '';
+        const primaryImage = currentMainImage || recommendedProperties[index]?.images?.[0]?.url || property.images[index]?.url || property.images[0]?.url || '';
         return {
             key: `${title}-${index}`,
             title,

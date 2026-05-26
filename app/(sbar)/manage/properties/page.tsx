@@ -181,7 +181,7 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
                                     Listed {new Date(p.created_on).toLocaleDateString()}
                                 </div>
                                 <div style={{ display: 'flex', gap: '12px' }}>
-                                    <Link href={`/properties/${p.slug || p.id}`} style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: '600', textDecoration: 'none' }}>
+                                    <Link href={`/properties/${p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`} style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: '600', textDecoration: 'none' }}>
                                         View
                                     </Link>
                                     <Link href={`/manage/properties/${p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`} style={{ color: 'var(--color-primary)', fontSize: '0.85rem', fontWeight: '600', textDecoration: 'none' }}>

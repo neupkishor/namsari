@@ -213,6 +213,8 @@ model Property {
   // Relations
   images                 PropertyImage[]
   videos                 PropertyVideo[]
+  media                  Json?
+  mainMedia              String?
   amenities              Json?
 
   // Ownership Details

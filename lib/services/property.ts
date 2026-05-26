@@ -200,6 +200,22 @@ export async function createPropertyListing(input: CreatePropertyInput) {
         priceInWords: pricing.priceInWords || numberToWords(pricing.price),
         priceNegotiableInWords: pricing.priceNegotiable ? (pricing.priceNegotiableInWords || numberToWords(pricing.priceNegotiable)) : undefined
     };
+    const mediaPayload = {
+        images: (images || []).map((img, idx) => ({
+            kind: 'image',
+            url: img.url,
+            label: img.imageOf,
+            filename: img.filename,
+            sort: idx + 1,
+        })),
+        videos: (videos || []).map((vid, idx) => ({
+            kind: 'video',
+            url: vid.url,
+            label: vid.type,
+            sort: idx + 1,
+        })),
+    };
+    const mainMedia = images && images.length > 0 ? images[0].url : undefined;
 
     // 3. Wrap in a transaction to ensure atomic operations across multiple tables
     return await prisma.$transaction(async (tx) => {
@@ -257,6 +273,8 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                         data: videos
                     }
                 } : undefined,
+                media: mediaPayload,
+                mainMedia,
             },
             include: {
                 location: true,

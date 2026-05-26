@@ -6,10 +6,9 @@ export default async function GalleryPage({ params }: { params: Promise<{ slugAn
     const resolvedParams = await params;
     const { slugAndId } = resolvedParams;
 
-    // Extract ID
-    const parts = slugAndId.split('-');
-    const idStr = parts[parts.length - 1];
-    const id = parseInt(idStr);
+    // Extract numeric ID from slug-id format (robust against malformed slug text)
+    const idMatch = slugAndId.match(/(\d+)(?!.*\d)/);
+    const id = idMatch ? parseInt(idMatch[1], 10) : NaN;
 
     if (isNaN(id)) return notFound();
 
