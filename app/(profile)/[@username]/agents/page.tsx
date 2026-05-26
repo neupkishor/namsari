@@ -35,7 +35,17 @@ export default async function ProfileAgentsPage({ params }: PageProps) {
 
     if (agents.length === 0) {
         return (
-            <div className="card" style={{ padding: '60px 40px', textAlign: 'center', background: 'white' }}>
+            <div
+                className="card"
+                style={{
+                    padding: '60px 40px',
+                    textAlign: 'center',
+                    background: 'white',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '24px',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                }}
+            >
                 <div style={{ fontSize: '3rem', marginBottom: '16px' }}>👥</div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '8px' }}>No agents found</h3>
                 <p style={{ color: 'var(--color-text-muted)', maxWidth: '300px', margin: '0 auto' }}>
@@ -49,7 +59,19 @@ export default async function ProfileAgentsPage({ params }: PageProps) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '24px' }}>
             {agents.map((agent: any) => (
                 <Link href={`/@${agent.username}`} key={agent.id} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <div className="card" style={{ padding: '24px', textAlign: 'center', transition: 'transform 0.2s', cursor: 'pointer' }}>
+                    <div
+                        className="card"
+                        style={{
+                            padding: '24px',
+                            textAlign: 'center',
+                            transition: 'transform 0.2s',
+                            cursor: 'pointer',
+                            background: 'white',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '24px',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                        }}
+                    >
                         <div 
                             style={{ 
                                 width: '100px', 
