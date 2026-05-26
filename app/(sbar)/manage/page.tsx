@@ -27,6 +27,9 @@ export default async function ManageDashboard() {
 
     const { user, userStats, agenciesStats, adminStats } = data;
     const isOperatingAsAgency = user.operatingId !== null && user.operatingId !== undefined;
+    const isAgencyUser = user.type === 'agency';
+    const showAgencyOverview = isOperatingAsAgency || isAgencyUser;
+    const activeAgencyId = isOperatingAsAgency ? user.operatingId : (isAgencyUser ? user.id : null);
 
     return (
         <div style={{ maxWidth: '1200px', margin: '0 auto', paddingBottom: '60px' }}>
@@ -66,10 +69,10 @@ export default async function ManageDashboard() {
                 )}
             </header>
 
-            {/* If operating as agency, ONLY show that agency's stats */}
-            {isOperatingAsAgency ? (
+            {/* If agency account or operating as agency, show that agency's stats */}
+            {showAgencyOverview ? (
                 agenciesStats.map((item: any) => {
-                    if (item.agency.id !== user.operatingId) return null;
+                    if (!activeAgencyId || item.agency.id !== activeAgencyId) return null;
                     
                     return (
                         <section key={item.agency.id} style={{ marginBottom: '48px' }}>
