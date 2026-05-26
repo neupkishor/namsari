@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { PropertyCard } from '@/components/cards/PropertyCard';
 import Link from 'next/link';
+import { AutoScrollCarousel } from '@/components/ui/AutoScrollCarousel';
 
 interface PageProps {
     params: Promise<{
@@ -85,12 +86,17 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
         include: { author: true }
     });
 
-    // Fetch agents if agency (latest 4)
+    // Fetch top agents if agency (max 10 by most listings)
     let agents: any[] = [];
     if (user.type === 'agency') {
         agents = await prisma.user.findMany({
             where: { agency_id: user.id },
-            take: 4,
+            take: 10,
+            orderBy: {
+                listedProperties: {
+                    _count: 'desc'
+                }
+            },
             include: {
                 _count: { select: { listedProperties: true } }
             }
@@ -154,52 +160,64 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
         );
     }
 
-    // Default View (Agent & Agency) - Facebook style 2-column layout
+    // Default View (Agent & Agency)
     return (
-        <div style={{ display: 'grid', gridTemplateColumns: (user.type === 'agency' && agents.length > 0) ? 'minmax(0, 1fr) 2fr' : '1fr', gap: '24px', alignItems: 'start' }}>
-            {/* Left Column: Information (Sticky on Desktop) */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', position: 'sticky', top: '24px' }}>
-                {/* Agents Mini-List (For Agencies) - Sidebar style */}
-                {user.type === 'agency' && agents.length > 0 && (
-                    <div className="card" style={{ padding: '24px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: '800', color: '#1e293b' }}>Team Members</h3>
-                            <Link href={`/@${user.username}/agents`} style={{ fontSize: '0.85rem', color: 'var(--color-primary)', fontWeight: '600', textDecoration: 'none' }}>See All</Link>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            {agents.slice(0, 3).map((agent: any) => (
-                                <Link href={`/@${agent.username}`} key={agent.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none', color: 'inherit' }}>
-                                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#f1f5f9', overflow: 'hidden' }}>
-                                        {agent.profile_picture ? (
-                                            <img src={agent.profile_picture} alt={agent.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                        ) : (
-                                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: '700', color: '#94a3b8' }}>{(agent.name || 'U')[0]}</div>
-                                        )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Team Members First (Agencies only) */}
+            {user.type === 'agency' && agents.length > 0 && (
+                <section>
+                    <AutoScrollCarousel itemWidth="260px" gap="16px" desktopItemCount={4} tabletItemCount={2} mobileItemCount={1}>
+                        {agents.map((agent: any) => (
+                            <Link key={agent.id} href={`/@${agent.username}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                                <div
+                                    className="card"
+                                    style={{
+                                        padding: '24px',
+                                        textAlign: 'center',
+                                        transition: 'transform 0.2s',
+                                        cursor: 'pointer',
+                                        background: 'white',
+                                        border: '1px solid #e2e8f0',
+                                        borderRadius: '24px',
+                                        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                                        minHeight: '190px'
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            width: '100px',
+                                            height: '100px',
+                                            borderRadius: '50%',
+                                            overflow: 'hidden',
+                                            margin: '0 auto 16px',
+                                            backgroundColor: '#e2e8f0',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '2.5rem'
+                                        }}
+                                    >
+                                            {agent.profile_picture ? (
+                                                <img src={agent.profile_picture} alt={agent.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            ) : (
+                                                <span>{(agent.name || 'U')[0]}</span>
+                                            )}
                                     </div>
-                                    <div>
-                                        <div style={{ fontWeight: '600', fontSize: '0.9rem', color: '#1e293b' }}>{agent.name}</div>
-                                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{agent._count.listedProperties} listings</div>
+                                    <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '4px' }}>{agent.name}</h3>
+                                    <p style={{ color: '#64748b', fontSize: '0.875rem', marginBottom: '12px' }}>@{agent.username}</p>
+                                    <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '0.875rem', color: '#64748b' }}>
+                                        <span>🏠 {agent._count.listedProperties} Properties</span>
                                     </div>
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-                )}
-            </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </AutoScrollCarousel>
+                </section>
+            )}
 
-            {/* Right Column: Feed (Properties & Reviews) */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {/* Properties Feed */}
                 <div>
-                    <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px', padding: '20px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#1e293b' }}>Latest Listings</h3>
-                        {user._count.listedProperties > 3 && (
-                            <Link href={`/@${user.username}/properties`} style={{ padding: '8px 16px', background: '#f1f5f9', borderRadius: '8px', fontSize: '0.85rem', fontWeight: '600', color: '#475569', textDecoration: 'none' }}>
-                                View All ({user._count.listedProperties})
-                            </Link>
-                        )}
-                    </div>
-
                     {enrichedProperties.length > 0 ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                             {enrichedProperties.map((p: any) => (
@@ -246,15 +264,6 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
                     </div>
                 )}
             </div>
-            
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                @media (max-width: 900px) {
-                    .profile-layout-grid {
-                        grid-template-columns: 1fr !important;
-                    }
-                }
-            `}} />
         </div>
     );
 }
