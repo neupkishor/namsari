@@ -87,11 +87,15 @@ enum AccountType {
   admin
   advertiser
   bank
+
+  @@map("account_type")
 }
 
 enum AccountProvider {
   bank
   agency
+
+  @@map("account_provider")
 }
 
 model UserPermission {
