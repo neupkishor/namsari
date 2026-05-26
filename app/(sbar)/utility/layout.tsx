@@ -1,19 +1,14 @@
 import React from 'react';
-import { Header } from '@/components/menu/Header';
-import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
 
 export default async function UtilityLayout({ children }: { children: React.ReactNode }) {
-    const session = await getSession();
-    let user = null;
-    if (session?.id) {
-        user = await prisma.user.findUnique({ where: { id: Number(session.id) } });
-    }
-
     return (
-        <main style={{ minHeight: '100vh', background: '#f8fafc' }}>
-            <Header user={user} />
-            <div className="layout-container" style={{ paddingTop: '120px', paddingBottom: '100px' }}>
+        <main
+            style={{
+                minHeight: '100%',
+                background: 'transparent'
+            }}
+        >
+            <div className="mx-auto w-full max-w-[1400px] px-0.5 pt-3 sm:px-6 lg:px-8" style={{ paddingBottom: '80px' }}>
                 {children}
             </div>
         </main>

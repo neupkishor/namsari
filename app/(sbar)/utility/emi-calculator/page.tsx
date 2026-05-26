@@ -41,7 +41,7 @@ export default function EMICalculatorPage() {
     };
 
     return (
-        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '820px', margin: '0 auto' }}>
             <Link href="/utility" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--color-text-muted)', textDecoration: 'none', fontWeight: '600', marginBottom: '24px' }}>
                 ← Back to Tools
             </Link>
