@@ -11,6 +11,21 @@ const generateSlug = (title: string) => {
         .replace(/\s+/g, '-') + '-' + Math.random().toString(36).substring(2, 7);
 };
 
+function normalizeBlogContent(rawContent: string) {
+    const content = (rawContent || '').trim();
+    if (!content) return '';
+
+    const hasBlockHtml = /<(p|h[1-6]|ul|ol|li|blockquote|pre|table|div|img|figure|hr|br)\b/i.test(content);
+    if (hasBlockHtml) return content;
+
+    return content
+        .split(/\n{2,}/)
+        .map((chunk) => chunk.trim())
+        .filter(Boolean)
+        .map((chunk) => `<p>${chunk.replace(/\n/g, '<br />')}</p>`)
+        .join('');
+}
+
 async function checkAdmin() {
     const session = await getSession();
     if (!session?.id) return false;
@@ -74,7 +89,7 @@ export async function createBlogPost(data: {
         data: {
             title: data.title,
             slug: generateSlug(data.title),
-            content: data.content,
+            content: normalizeBlogContent(data.content),
             excerpt: data.excerpt,
             cover_image: data.cover_image,
             category: data.category || 'General',
@@ -107,7 +122,7 @@ export async function updateBlogPost(id: number, data: {
         where: { id },
         data: {
             title: data.title,
-            content: data.content,
+            content: normalizeBlogContent(data.content),
             excerpt: data.excerpt,
             cover_image: data.cover_image,
             category: data.category,

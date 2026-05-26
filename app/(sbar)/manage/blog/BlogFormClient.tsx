@@ -196,54 +196,6 @@ export default function BlogFormClient({ initialData, isEdit = false }: { initia
                 </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--color-primary)' }}>Short Excerpt (for preview cards)</label>
-                <textarea
-                    name="excerpt"
-                    value={formData.excerpt}
-                    onChange={handleChange}
-                    rows={3}
-                    placeholder="Brief summary of the post..."
-                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--color-border)', fontSize: '1rem', fontFamily: 'inherit', resize: 'vertical' }}
-                />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--color-primary)' }}>Content</label>
-                <div style={{ height: 'auto', minHeight: '400px' }} className="quill-wrapper">
-                    <ReactQuill
-                        theme="snow"
-                        value={formData.content}
-                        onChange={handleContentChange}
-                        modules={modules}
-                        style={{ height: '350px', marginBottom: '50px' }}
-                    />
-                </div>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--color-border)', paddingTop: '24px', marginTop: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <label style={{ fontSize: '0.9rem', fontWeight: '700' }}>Status:</label>
-                    <div style={{ display: 'flex', gap: '16px' }}>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>
-                            <input type="radio" name="status" value="published" checked={formData.status === 'published'} onChange={handleChange as any} /> Published
-                        </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>
-                            <input type="radio" name="status" value="draft" checked={formData.status === 'draft'} onChange={handleChange as any} /> Draft
-                        </label>
-                    </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '16px' }}>
-                    <button type="button" onClick={() => router.back()} style={{ background: 'none', border: '1px solid var(--color-border)', padding: '12px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>
-                        Cancel
-                    </button>
-                    <button type="submit" disabled={loading} className="btn-corporate" style={{ padding: '12px 32px' }}>
-                        {loading ? 'Saving...' : isEdit ? 'Update Post' : 'Publish Post'}
-                    </button>
-                </div>
-            </div>
-
             <style jsx global>{`
                 .quill-wrapper .ql-container {
                     border-bottom-left-radius: 12px;
