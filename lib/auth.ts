@@ -23,16 +23,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 { contact_number: credentials.identifier as string },
               ],
             },
-            include: {
-              credentials: {
-                orderBy: { updated_at: "desc" },
-                take: 1,
-              },
-            },
           });
 
-          const latestCredential = user?.credentials?.[0];
-          if (!user || !latestCredential?.password) return null;
+          if (!user) return null;
+
+          const account = await prisma.account.findUnique({
+            where: { id: user.id.toString() },
+            select: { password_hash: true },
+          });
+
+          if (!account?.password_hash) return null;
 
           // Check status
           if (user.status === 'banned' || user.status === 'suspended') {
@@ -41,7 +41,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           const isPasswordValid = await bcrypt.compare(
             credentials.password as string,
-            latestCredential.password
+            account.password_hash
           );
 
           if (!isPasswordValid) return null;

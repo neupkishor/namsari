@@ -56,8 +56,6 @@ model User {
   roleId         Int?
   role           Role?    @relation(fields: [roleId], references: [id])
 
-  credentials    UserCredential[]
-  
   permissionsGiven UserPermission[] @relation("ResourceOwner")
   permissionsReceived UserPermission[] @relation("Actor")
 
@@ -80,18 +78,6 @@ model Account {
 
   @@unique([provider, provider_account_id])
   @@map("accounts")
-}
-
-model UserCredential {
-  id          Int      @id @default(autoincrement())
-  userId      Int      @map("accountId")
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  password    String
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  
-  @@map("account_creds")
-  @@index([userId])
 }
 
 enum AccountType {

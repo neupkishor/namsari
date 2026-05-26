@@ -60,12 +60,19 @@ export async function updateUser(username: string, formData: FormData) {
     if (password && password.trim() !== '') {
         const bcrypt = await import('bcryptjs');
         const hashedPassword = await bcrypt.hash(password, 10);
-        updateData.credentials = {
-            upsert: {
-                create: { password: hashedPassword },
-                update: { password: hashedPassword }
-            }
-        };
+        await prisma.account.upsert({
+            where: { id: targetUser.id.toString() },
+            update: {
+                password_hash: hashedPassword,
+                provider_account_id: `user:${targetUser.id}`,
+            },
+            create: {
+                id: targetUser.id.toString(),
+                type: (targetUser.type as any) || 'user',
+                provider_account_id: `user:${targetUser.id}`,
+                password_hash: hashedPassword,
+            },
+        });
     }
 
     try {

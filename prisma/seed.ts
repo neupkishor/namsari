@@ -16,12 +16,6 @@ async function main() {
             status: 'active',
             type: 'admin',
             profile_picture: 'https://cdn.neupgroup.com/namsari/f_697f571bf16e60.87332081.jpg',
-            credentials: {
-                upsert: {
-                    create: { password: hashedPassword },
-                    update: { password: hashedPassword }
-                }
-            }
         },
         create: {
             username: 'neupkishor',
@@ -32,10 +26,12 @@ async function main() {
             bio: 'System Administrator',
             contact_number: '9840710507',
             profile_picture: 'https://cdn.neupgroup.com/namsari/f_697f571bf16e60.87332081.jpg',
-            credentials: {
-                create: { password: hashedPassword }
-            }
         },
+    });
+    await prisma.account.upsert({
+        where: { id: admin.id.toString() },
+        update: { type: 'admin', provider_account_id: `user:${admin.id}`, password_hash: hashedPassword },
+        create: { id: admin.id.toString(), type: 'admin', provider_account_id: `user:${admin.id}`, password_hash: hashedPassword },
     });
 
     console.log("Admin seeded:", admin.username);
@@ -55,12 +51,6 @@ async function main() {
             where: { username: u.username },
             update: {
                 profile_picture: u.image,
-                credentials: {
-                    upsert: {
-                        create: { password: hashedPassword },
-                        update: { password: hashedPassword }
-                    }
-                }
             },
             create: {
                 username: u.username,
@@ -71,22 +61,39 @@ async function main() {
                 contact_number: '9840000000',
                 status: 'active',
                 profile_picture: u.image,
-                credentials: {
-                    create: { password: hashedPassword }
-                }
             }
+        });
+        await prisma.account.upsert({
+            where: { id: user.id.toString() },
+            update: { type: (u.type as any), provider_account_id: `user:${user.id}`, password_hash: hashedPassword },
+            create: { id: user.id.toString(), type: (u.type as any), provider_account_id: `user:${user.id}`, password_hash: hashedPassword },
         });
         users.push(user);
     }
     console.log(`Seeded ${users.length} fake users.`);
 
-    // Create Requirements
-    await prisma.requirement.createMany({
-        data: [
-            { userId: users[0].id, mode: 'simple', content: 'Looking for 4BHK House in Bhaisepati, budget 5Cr.' },
-            { userId: users[2].id, mode: 'detailed', propertyTypes: 'Land', district: 'Kathmandu', maxPrice: 50000000, remarks: 'Urgent requirement for commercial land.' }
-        ]
-    });
+    // Create Requirements (idempotent)
+    const requirementSeeds = [
+        { userId: users[0].id, mode: 'simple', content: 'Looking for 4BHK House in Bhaisepati, budget 5Cr.' },
+        { userId: users[2].id, mode: 'detailed', propertyTypes: 'Land', district: 'Kathmandu', maxPrice: 50000000, remarks: 'Urgent requirement for commercial land.' }
+    ] as const;
+
+    for (const req of requirementSeeds) {
+        const exists = await prisma.requirement.findFirst({
+            where: {
+                userId: req.userId,
+                mode: req.mode,
+                content: req.content ?? null,
+                district: req.district ?? null,
+                propertyTypes: req.propertyTypes ?? null,
+                maxPrice: req.maxPrice ?? null,
+                remarks: req.remarks ?? null,
+            }
+        });
+        if (!exists) {
+            await prisma.requirement.create({ data: req as any });
+        }
+    }
 
     // Create Collections
     // Create Collections (Upsert to avoid duplicates)
@@ -229,23 +236,41 @@ async function main() {
 
     // Create Reviews
     if (agency && agent1) {
-        await prisma.review.create({
-            data: {
-                rating: 5,
-                comment: "Great agency to work with! Highly recommended.",
+        const reviewA = await prisma.review.findFirst({
+            where: {
                 author_id: agent1.id,
-                receiver_id: agency.id
+                receiver_id: agency.id,
+                comment: "Great agency to work with! Highly recommended.",
             }
         });
-        
-        await prisma.review.create({
-            data: {
-                rating: 4,
+        if (!reviewA) {
+            await prisma.review.create({
+                data: {
+                    rating: 5,
+                    comment: "Great agency to work with! Highly recommended.",
+                    author_id: agent1.id,
+                    receiver_id: agency.id
+                }
+            });
+        }
+
+        const reviewB = await prisma.review.findFirst({
+            where: {
+                author_id: agency.id,
+                receiver_id: agent1.id,
                 comment: "Professional and timely service.",
-                author_id: agency.id, // Agency reviewing agent
-                receiver_id: agent1.id
             }
         });
+        if (!reviewB) {
+            await prisma.review.create({
+                data: {
+                    rating: 4,
+                    comment: "Professional and timely service.",
+                    author_id: agency.id, // Agency reviewing agent
+                    receiver_id: agent1.id
+                }
+            });
+        }
         console.log("Seeded reviews.");
     }
 

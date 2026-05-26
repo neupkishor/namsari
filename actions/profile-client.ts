@@ -173,16 +173,16 @@ export async function beginSensitiveProfileUpdate(userId: number, kind: 'email' 
         return { success: false, message: 'Current password is required' };
     }
 
-    const user = await prisma.user.findUnique({
-        where: { id: userId },
-        include: { credentials: true }
+    const account = await prisma.account.findUnique({
+        where: { id: userId.toString() },
+        select: { password_hash: true }
     });
 
-    if (!user?.credentials?.password) {
+    if (!account?.password_hash) {
         return { success: false, message: 'Password verification is unavailable for this account' };
     }
 
-    const isValid = await bcrypt.compare(currentPassword, user.credentials.password);
+    const isValid = await bcrypt.compare(currentPassword, account.password_hash);
     if (!isValid) {
         return { success: false, message: 'Current password is incorrect' };
     }
@@ -257,12 +257,19 @@ export async function completeSensitiveProfileUpdate(
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        data.credentials = {
-            upsert: {
-                create: { password: hashedPassword },
-                update: { password: hashedPassword }
+        await prisma.account.upsert({
+            where: { id: userId.toString() },
+            update: {
+                password_hash: hashedPassword,
+                provider_account_id: `user:${userId}`,
+            },
+            create: {
+                id: userId.toString(),
+                type: 'user',
+                provider_account_id: `user:${userId}`,
+                password_hash: hashedPassword,
             }
-        };
+        });
         changes.push('password updated');
     }
 

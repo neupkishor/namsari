@@ -20,7 +20,7 @@ export async function getCurrentUser() {
                 type: true,
                 role: {
                     select: {
-                        name: true
+                        role: true
                     }
                 }
             }
@@ -145,14 +145,20 @@ export async function registerAction(formData: FormData) {
                 }
             });
 
-            if (type === 'user' && hashedPassword) {
-                await (tx as any).userCredential.create({
-                    data: {
-                        userId: newAccount.id,
-                        password: hashedPassword
-                    }
-                });
-            }
+            await tx.account.upsert({
+                where: { id: newAccount.id.toString() },
+                update: {
+                    type: (type as any),
+                    provider_account_id: `user:${newAccount.id}`,
+                    password_hash: hashedPassword,
+                },
+                create: {
+                    id: newAccount.id.toString(),
+                    type: (type as any),
+                    provider_account_id: `user:${newAccount.id}`,
+                    password_hash: hashedPassword,
+                },
+            });
         });
 
         // After successful registration, sign in

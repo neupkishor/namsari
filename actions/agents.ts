@@ -41,28 +41,25 @@ export async function createAgencyAgent(data: FormData) {
                     username,
                     email,
                     contact_number: phone,
-                    type: 'agency_agent',
+                    type: 'agent',
                     agency_id: agencyId, // Link directly
                     status: 'active'
                 }
             });
 
-            // Create Credentials
-            await tx.userCredential.create({
-                data: {
-                    userId: user.id,
-                    password: hashedPassword
-                }
-            });
-
-            // Create Membership
-            await (tx as any).member.create({
-                data: {
-                    accountId: user.id,
-                    partOf: agencyId,
-                    exclusive: isExclusive,
-                    status: 'active'
-                }
+            await tx.account.upsert({
+                where: { id: user.id.toString() },
+                update: {
+                    type: 'agent',
+                    provider_account_id: `user:${user.id}`,
+                    password_hash: hashedPassword,
+                },
+                create: {
+                    id: user.id.toString(),
+                    type: 'agent',
+                    provider_account_id: `user:${user.id}`,
+                    password_hash: hashedPassword,
+                },
             });
         });
 
@@ -79,44 +76,24 @@ export async function addExistingAgent(data: FormData) {
 
     if (!username || !agencyId) throw new Error("Missing required fields");
 
-    const agent = await prisma.user.findUnique({
-        where: { username },
-        include: { memberships: true } as any
-    });
+    const agent = await prisma.user.findUnique({ where: { username } });
 
     if (!agent) throw new Error("Agent not found");
     
-    // Check if agent is exclusive to another agency
-    const memberships = (agent as any).memberships || [];
-    const exclusiveMembership = memberships.find((m: any) => m.exclusive);
-    if (exclusiveMembership) {
-        throw new Error("This agent is exclusively bound to another agency.");
-    }
-
-    // Check if already a member of this agency
-    const existingMembership = memberships.find((m: any) => m.partOf === agencyId);
-    if (existingMembership) {
+    // Check if already linked to this agency
+    if (agent.agency_id === agencyId) {
         throw new Error("Agent is already a member of this agency.");
     }
 
-    // Create Membership
-    await (prisma as any).member.create({
-        data: {
-            accountId: agent.id,
-            partOf: agencyId,
-            exclusive: false,
-            status: 'invited'
-        }
+    await prisma.user.update({
+        where: { id: agent.id },
+        data: { agency_id: agencyId },
     });
 
     revalidatePath('/manage/accounts/agents');
 }
 
 export async function toggleExclusive(memberId: number, isExclusive: boolean) {
-    // This action should ideally have authorization checks
-    await (prisma as any).member.update({
-        where: { id: memberId },
-        data: { exclusive: isExclusive }
-    });
+    // Membership table is removed; no-op for compatibility.
     revalidatePath('/manage/accounts/agents');
 }
