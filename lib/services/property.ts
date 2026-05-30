@@ -5,8 +5,7 @@ import {
     PropertyPricing,
     PropertyOpenHouse,
     PropertyImage,
-    PropertyVideo,
-    PropertyAmenity
+    PropertyVideo
 } from '@prisma/client';
 
 export interface CreatePropertyInput {

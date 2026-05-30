@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-type Amenity = {
+export type Amenity = {
     id: number | string;
     type: string;
     name?: string | null;

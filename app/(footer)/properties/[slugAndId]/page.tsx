@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import PropertyMap from './PropertyMap';
 import PropertyImageCarousel from './PropertyImageCarousel';
 import { NearbyAmenitiesSection } from './NearbyAmenitiesSection';
+import type { Amenity } from './NearbyAmenitiesSection';
 import PropertyOverviewGrid from './PropertyOverviewGrid';
 import { Header } from '@/components/menu/Header';
 import prisma from '@/lib/prisma';
@@ -11,6 +12,14 @@ import { RecommendedProperties } from '@/components/sections/RecommendedProperti
 import { PropertyEmiSection } from '@/components/sections/PropertyEmiSection';
 import { SectionTitleFeed } from '@/components/sections/SectionTitleFeed';
 import { AutoScrollCarousel } from '@/components/ui/AutoScrollCarousel';
+
+function isAmenity(value: unknown): value is Amenity {
+    if (!value || typeof value !== 'object') return false;
+    const candidate = value as Record<string, unknown>;
+    const id = candidate.id;
+    const type = candidate.type;
+    return (typeof id === 'string' || typeof id === 'number') && typeof type === 'string';
+}
 
 export default async function PropertyDetailPage({ params }: { params: Promise<{ slugAndId: string }> }) {
     const resolvedParams = await params;
@@ -178,6 +187,9 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             { icon: '/icons/bridge-water.svg', label: 'Drainage' }
         );
     }
+    const nearbyAmenities = Array.isArray(property.amenities)
+        ? property.amenities.filter(isAmenity)
+        : [];
 
     return (
         <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', paddingBottom: '100px', paddingTop: 'var(--header-height, 72px)', overflowX: 'clip' }}>
@@ -1034,7 +1046,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                             </p>
                         </div>
 
-                        {property.amenities && property.amenities.length > 0 && <NearbyAmenitiesSection amenities={property.amenities} />}
+                        {nearbyAmenities.length > 0 && <NearbyAmenitiesSection amenities={nearbyAmenities} />}
 
                         <div style={{ marginBottom: '40px' }}>
                             <h2 className="section-title">Where you'll be</h2>
