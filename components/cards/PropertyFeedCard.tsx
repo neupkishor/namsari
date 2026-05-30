@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 
+
 interface PropertyPostProps {
   property: any;
   onVisible?: () => void;
@@ -8,6 +9,7 @@ interface PropertyPostProps {
   isFirstInSet?: boolean;
   isLastInSet?: boolean;
 }
+
 
 // Phone icon (outline)
 function PhoneIcon() {
@@ -18,6 +20,7 @@ function PhoneIcon() {
   );
 }
 
+
 // WhatsApp icon (brand green)
 function WhatsAppIcon() {
   return (
@@ -26,6 +29,7 @@ function WhatsAppIcon() {
     </svg>
   );
 }
+
 
 // Share icon
 function ShareIcon() {
@@ -40,6 +44,7 @@ function ShareIcon() {
   );
 }
 
+
 function formatTimeAgo(date: string | Date | null | undefined): string {
   if (!date) return '';
   const now = new Date();
@@ -53,6 +58,7 @@ function formatTimeAgo(date: string | Date | null | undefined): string {
   if (diffMonths < 12) return `${diffMonths}mo`;
   return `${Math.floor(diffMonths / 12)}y`;
 }
+
 
 function MakeOfferLink({ propertyUrl, title, price, phone }: {
   propertyUrl: string;
@@ -85,6 +91,7 @@ function MakeOfferLink({ propertyUrl, title, price, phone }: {
     </a>
   );
 }
+
 
 export function PropertyPost({
   property,
@@ -142,8 +149,10 @@ export function PropertyPost({
     return Math.max(0, Math.min(preferredStart, total - thumbWindowSize));
   };
 
+
   const price = property.pricing?.price || property.price;
 
+  
   const formatNepaliPrice = (amt: number) => {
     if (!amt) return 'Price on Request';
     const crore = 10000000;
@@ -188,8 +197,8 @@ export function PropertyPost({
   const agentUsername = property.listedBy?.username || null;
   const agentProfileUrl = agentUsername ? `/@${agentUsername}` : null;
   const agentPropertyCount = property.listedBy?._count?.listedProperties;
-  const agentPhone = property.listedBy?.phone;
-  const agentWhatsapp = property.listedBy?.whatsapp || property.listedBy?.phone;
+  const agentPhone = property.listedBy?.phone || property.listedBy?.contact_number;
+  const agentWhatsapp = property.listedBy?.whatsapp || property.listedBy?.phone || property.listedBy?.contact_number;
   const timeAgo = formatTimeAgo(property.created_on || property.createdAt);
 
   // Image corner radius: top-left of first card gets large rounding
@@ -404,11 +413,11 @@ export function PropertyPost({
       >
         <div className="w-full max-w-[1040px] mx-auto px-5 py-4 flex gap-5 items-stretch">
           {hasAnyImage && (
-            <Link href={propertyUrl} className="w-[240px] shrink-0 rounded-[14px] overflow-hidden bg-slate-100">
+            <Link href={propertyUrl} className="w-[170px] shrink-0 rounded-[14px] overflow-hidden bg-slate-100">
               {activeImage ? (
-                <img src={activeImage} alt={property.title} className="w-full h-full object-cover min-h-[172px]" />
+                <img src={activeImage} alt={property.title} className="w-full h-full object-cover min-h-[140px]" />
               ) : (
-                <div className="w-full h-full min-h-[172px] flex items-center justify-center text-slate-300 text-xs">No image</div>
+                <div className="w-full h-full min-h-[140px] flex items-center justify-center text-slate-300 text-xs">No image</div>
               )}
             </Link>
           )}
@@ -446,6 +455,21 @@ export function PropertyPost({
               </div>
 
               <div className="flex items-center gap-2">
+                {agentWhatsapp ? (
+                  <a
+                    href={`https://wa.me/${agentWhatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`${propertyUrl}\nI'm interested in this "${property.title}"`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="WhatsApp agent"
+                    className="flex items-center justify-center p-2 rounded-lg text-[#25D366] hover:text-[#1aab52] hover:bg-[color:var(--color-primary)]/10 transition-colors"
+                  >
+                    <WhatsAppIcon />
+                  </a>
+                ) : (
+                  <span className="flex items-center justify-center p-2 rounded-lg text-[#25D366]">
+                    <WhatsAppIcon />
+                  </span>
+                )}
                 <MakeOfferLink propertyUrl={propertyUrl} title={property.title} price={`${formattedPrice} ${pricingUnit}`} phone={agentWhatsapp || agentPhone} />
                 {timeAgo && <span className="text-[12px] text-slate-400">{timeAgo}</span>}
                 <button type="button" onClick={handleShare} aria-label="Share property" className="flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)]/10 transition-colors">
