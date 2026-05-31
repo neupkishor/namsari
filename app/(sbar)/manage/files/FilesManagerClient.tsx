@@ -150,8 +150,8 @@ export function FilesManagerClient({ currentFolderId, currentFolderPath, folders
                 </div>
             </div>
             {showCreateFolder && (
-                <div style={{ position: 'fixed', left: 0, top: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ background: 'white', padding: 20, borderRadius: 8, minWidth: 360 }}>
+                <div style={{ position: 'fixed', left: 0, top: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', zIndex: 60 }}>
+                    <div style={{ background: 'white', padding: 20, borderRadius: 8, minWidth: 360, boxShadow: '0 10px 30px rgba(2,6,23,0.4)' }}>
                         <h3 style={{ marginTop: 0 }}>Create folder</h3>
                         <input id="newFolderName" placeholder="Folder name" style={{ width: '100%', padding: '8px 10px', marginBottom: 8, border: '1px solid #cbd5e1', borderRadius: 6 }} />
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
@@ -168,8 +168,8 @@ export function FilesManagerClient({ currentFolderId, currentFolderPath, folders
             )}
 
             {showUploadModal && (
-                <div style={{ position: 'fixed', left: 0, top: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ background: 'white', padding: 20, borderRadius: 8, minWidth: 420 }}>
+                <div style={{ position: 'fixed', left: 0, top: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', zIndex: 60 }}>
+                    <div style={{ background: 'white', padding: 20, borderRadius: 8, minWidth: 420, boxShadow: '0 10px 30px rgba(2,6,23,0.4)' }}>
                         <h3 style={{ marginTop: 0 }}>Upload files</h3>
                         <input id="uploadFilesInput" type="file" multiple style={{ width: '100%', marginBottom: 8 }} />
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
