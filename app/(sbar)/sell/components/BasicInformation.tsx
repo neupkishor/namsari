@@ -1,12 +1,11 @@
 "use client";
 
 import React from 'react';
-import { Input, Checkbox } from '@/components/ui';
+import { Checkbox } from '@/components/ui';
 import {
     FormGrid,
     FormLabel,
-    SelectableCheckboxCard,
-    PrivacyCheckboxCard
+    SelectableCheckboxCard
 } from '@/components/form';
 
 interface BasicInformationProps {
@@ -24,10 +23,6 @@ interface BasicInformationProps {
     selectedNatures: string[];
     natureOptions: any[];
     handleNatureChange: (val: string) => void;
-    // Title
-    title: string;
-    setTitle: (val: string) => void;
-    setIsTitleEdited: (val: boolean) => void;
     // Errors
     errors: Record<string, string>;
     setErrors: React.Dispatch<React.SetStateAction<Record<string, string>>>;
@@ -45,9 +40,6 @@ export const BasicInformation: React.FC<BasicInformationProps> = ({
     selectedNatures,
     natureOptions,
     handleNatureChange,
-    title,
-    setTitle,
-    setIsTitleEdited,
     errors,
     setErrors
 }) => {
@@ -120,42 +112,6 @@ export const BasicInformation: React.FC<BasicInformationProps> = ({
                             onClick={() => handleNatureChange(opt.value)}
                         />
                     ))}
-                </FormGrid>
-            </div>
-
-            <div style={{ marginBottom: '40px' }}>
-                <Input
-                    label="Property Title"
-                    name="title"
-                    placeholder="e.g. Modern Villa in Bhaisepati"
-                    required
-                    value={title}
-                    onChange={(e) => {
-                        setTitle(e.target.value);
-                        setErrors(prev => ({ ...prev, title: '' }));
-                        if (e.target.value.length > 0) {
-                            setIsTitleEdited(true);
-                        }
-                    }}
-                    error={errors.title}
-                />
-            </div>
-
-            <div style={{ marginBottom: '40px' }}>
-                <FormLabel>Visibility & Privacy</FormLabel>
-                <FormGrid minWidth="280px" gap="12px">
-                    <PrivacyCheckboxCard
-                        id="isPrivate-cb"
-                        name="isPrivate"
-                        title="Mark as Private"
-                        description="Don't add exact images to your private listing if you want to hide details."
-                    />
-                    <PrivacyCheckboxCard
-                        id="dontShow-cb"
-                        name="dontShowOnWebsite"
-                        title="Don't show on website"
-                        description="Will be private only for your management."
-                    />
                 </FormGrid>
             </div>
 

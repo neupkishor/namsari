@@ -6,6 +6,7 @@ import imageCompression from 'browser-image-compression';
 import { createListing } from './actions/listing';
 import { BasicInformation } from './components/BasicInformation';
 import { LocationInformation } from './components/LocationInformation';
+import { NearbyLocationInformation } from './components/NearbyLocationInformation';
 import { PropertyInformation } from './components/PropertyInformation';
 
 import { Header } from '@/components/menu/Header';
@@ -34,6 +35,7 @@ export default function SellClient({ users, currentUserId, currentUser, initialP
     // State for toggling between Rent and Sale details
     // Form sections are now managed by unlockedSections state
     const [title, setTitle] = useState('');
+    const [province, setProvince] = useState('');
     const [district, setDistrict] = useState('');
     const [cityVillage, setCityVillage] = useState('');
     const [area, setArea] = useState('');
@@ -155,13 +157,14 @@ export default function SellClient({ users, currentUserId, currentUser, initialP
         if (section === 1) {
             if (selectedPurposes.length === 0) newErrors.purpose = "Please select a Purpose.";
             if (selectedTypes.length === 0) newErrors.type = "Please select at least one Property Type.";
-            if (!title.trim()) newErrors.title = "Please enter a Property Title.";
         } else if (section === 2) {
+            if (!province.trim()) newErrors.province = "Province is required.";
             if (!district.trim()) newErrors.district = "District is required.";
             if (!cityVillage.trim()) newErrors.cityVillage = "City/Village is required.";
             if (!area.trim()) newErrors.area = "Area is required.";
-        } else if (section === 3) {
+        } else if (section === 4) {
             if (!price.trim()) newErrors.price = "Please enter a Price.";
+            if (!title.trim()) newErrors.title = "Please enter a Property Title.";
         }
 
         setErrors(newErrors);
@@ -171,7 +174,7 @@ export default function SellClient({ users, currentUserId, currentUser, initialP
     const handleCompleteSection = (section: number) => {
         if (validateSection(section)) {
             // Unlock the next section if not already unlocked
-            if (!unlockedSections.includes(section + 1) && section < 3) {
+            if (!unlockedSections.includes(section + 1) && section < 4) {
                 setUnlockedSections(prev => [...prev, section + 1]);
             }
             // Scroll to next section smoothly
@@ -301,9 +304,6 @@ export default function SellClient({ users, currentUserId, currentUser, initialP
                         selectedNatures={selectedNatures}
                         natureOptions={natureOptions}
                         handleNatureChange={handleNatureChange}
-                        title={title}
-                        setTitle={setTitle}
-                        setIsTitleEdited={setIsTitleEdited}
                         errors={errors}
                         setErrors={setErrors}
                     />
@@ -311,6 +311,8 @@ export default function SellClient({ users, currentUserId, currentUser, initialP
                     <LocationInformation
                         unlocked={unlockedSections.includes(2)}
                         onComplete={() => handleCompleteSection(2)}
+                        province={province}
+                        setProvince={setProvince}
                         locationSource={locationSource}
                         handleLocationSourceChange={handleLocationSourceChange}
                         fetchCoordinates={fetchCoordinates}
@@ -324,8 +326,6 @@ export default function SellClient({ users, currentUserId, currentUser, initialP
                         setCityVillage={setCityVillage}
                         area={area}
                         setArea={setArea}
-                        nearbyLocations={nearbyLocations}
-                        setNearbyLocations={setNearbyLocations}
                         ward={ward}
                         setWard={setWard}
                         landmark={landmark}
@@ -334,9 +334,19 @@ export default function SellClient({ users, currentUserId, currentUser, initialP
                         setErrors={setErrors}
                     />
 
-                    <PropertyInformation
+                    <NearbyLocationInformation
                         unlocked={unlockedSections.includes(3)}
+                        onComplete={() => handleCompleteSection(3)}
+                        nearbyLocations={nearbyLocations}
+                        setNearbyLocations={setNearbyLocations}
+                    />
+
+                    <PropertyInformation
+                        unlocked={unlockedSections.includes(4)}
                         selectedTypes={selectedTypes}
+                        title={title}
+                        setTitle={setTitle}
+                        setIsTitleEdited={setIsTitleEdited}
                         pricingType={pricingType}
                         setPricingType={setPricingType}
                         pricingUnit={pricingUnit}

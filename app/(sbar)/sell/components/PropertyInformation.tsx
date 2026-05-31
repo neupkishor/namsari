@@ -7,12 +7,16 @@ import {
     FormLabel,
     FormCard,
     SectionTitle,
-    SelectableRadioCard
+    SelectableRadioCard,
+    PrivacyCheckboxCard
 } from '@/components/form';
 
 interface PropertyInformationProps {
     unlocked: boolean;
     selectedTypes: string[];
+    title: string;
+    setTitle: (val: string) => void;
+    setIsTitleEdited: (val: boolean) => void;
     // Road & Facing
     roadType: string;
     setRoadType: (val: string) => void;
@@ -55,6 +59,9 @@ interface PropertyInformationProps {
 export const PropertyInformation: React.FC<PropertyInformationProps> = ({
     unlocked,
     selectedTypes,
+    title,
+    setTitle,
+    setIsTitleEdited,
     roadType,
     setRoadType,
     facingDirection,
@@ -90,9 +97,9 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
     if (!unlocked) return null;
 
     return (
-        <div id="section-3" style={{ padding: '0 0 60px 0', marginBottom: '60px' }}>
+        <div id="section-4" style={{ padding: '0 0 60px 0', marginBottom: '60px' }}>
             <h2 style={{ fontSize: '2.4rem', fontWeight: '900', color: 'var(--color-primary-light)', marginBottom: '48px', borderBottom: '4px solid var(--color-primary)', paddingBottom: '20px', width: '100%' }}>
-                3. Property Information
+                4. Property Information
             </h2>
 
             <div style={{ marginBottom: '40px' }}>
@@ -264,6 +271,46 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
                     <div style={{ paddingTop: '32px' }}>
                         <Checkbox label="Price is Negotiable" name="negotiable" defaultChecked />
                     </div>
+                </div>
+            </FormCard>
+
+            <FormCard padding="0" background="transparent" border="none" style={{ marginBottom: '40px' }}>
+                <SectionTitle>Publishing</SectionTitle>
+
+                <div style={{ marginBottom: '24px' }}>
+                    <Input
+                        label="Property Title"
+                        name="title"
+                        placeholder="e.g. Modern Villa in Bhaisepati"
+                        required
+                        value={title}
+                        onChange={(e) => {
+                            setTitle(e.target.value);
+                            setErrors(prev => ({ ...prev, title: '' }));
+                            if (e.target.value.length > 0) {
+                                setIsTitleEdited(true);
+                            }
+                        }}
+                        error={errors.title}
+                    />
+                </div>
+
+                <div style={{ marginBottom: '24px' }}>
+                    <FormLabel>Visibility & Privacy</FormLabel>
+                    <FormGrid minWidth="280px" gap="12px">
+                        <PrivacyCheckboxCard
+                            id="isPrivate-cb"
+                            name="isPrivate"
+                            title="Mark as Private"
+                            description="Don't add exact images to your private listing if you want to hide details."
+                        />
+                        <PrivacyCheckboxCard
+                            id="dontShow-cb"
+                            name="dontShowOnWebsite"
+                            title="Don't show on website"
+                            description="Will be private only for your management."
+                        />
+                    </FormGrid>
                 </div>
             </FormCard>
 

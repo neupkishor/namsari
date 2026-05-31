@@ -30,6 +30,7 @@ export async function createListing(formData: FormData) {
     const facingDirection = formData.get('facingDirection') as string || undefined;
 
     // 4. Location Information
+    const province = formData.get('province') as string;
     const latitude = formData.get('latitude') ? parseFloat(formData.get('latitude') as string) : undefined;
     const longitude = formData.get('longitude') ? parseFloat(formData.get('longitude') as string) : undefined;
     const district = formData.get('district') as string;
@@ -117,6 +118,7 @@ export async function createListing(formData: FormData) {
             roadSize,
             facingDirection,
             location: {
+                province,
                 latitude,
                 longitude,
                 district,

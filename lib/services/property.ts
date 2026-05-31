@@ -36,6 +36,7 @@ export interface CreatePropertyInput {
         latitude?: number;
         longitude?: number;
         country?: string;
+        province: string;
         district: string;
         cityVillage: string;
         area: string;

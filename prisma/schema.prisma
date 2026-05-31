@@ -300,12 +300,27 @@ model PropertyLocation {
   latitude         Float?
   longitude        Float?
   country          String   @default("Nepal")
+  province         String
   district         String
   cityVillage      String
   area             String
   ward             String?
   landmark         String?
   distanceFrom     String? // suggestions (swyambhunath, pashupatinath, fewataal, 0km, ringroad, bouddha, bhatbhateni)
+}
+
+model Location {
+  id         Int       @id @default(autoincrement())
+  name       String
+  type       String
+  parentId   Int?      @map("parent_id")
+  parent     Location? @relation("LocationTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children   Location[] @relation("LocationTree")
+  details    Json?
+
+  @@index([parentId])
+  @@unique([name, type, parentId])
+  @@map("location")
 }
 
 model PropertyPricing {
