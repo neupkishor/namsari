@@ -1089,35 +1089,36 @@ function ExploreCategoriesSection({
 }: {
     stats: NonNullable<HomeClientProps['exploreCategoryStats']>;
 }) {
+    // Show three sub-categories: For Sale, For Rent, Active Requirements
     const groups = [
         {
-            label: 'Purchase',
+            label: 'For Sale',
             href: '/search?purposes=sale',
             items: [
-                { icon: '/icons/house-chimney.svg', label: 'House', count: stats.forSale.house, href: '/search?purposes=sale&types=house' },
-                { icon: '/icons/land-location.svg', label: 'Land', count: stats.forSale.land, href: '/search?purposes=sale&types=land' },
-                { icon: '/icons/apartment.svg', label: 'Apartment', href: '/search?purposes=sale&types=apartment' },
-                { icon: '/icons/growth-chart-invest.svg', label: 'Business', href: '/search?purposes=sale&types=business' },
+                { icon: '/icons/house-chimney.svg', label: 'House', count: stats.forSale.house ?? 0, href: '/search?purposes=sale&types=house' },
+                { icon: '/icons/land-location.svg', label: 'Land', count: stats.forSale.land ?? 0, href: '/search?purposes=sale&types=land' },
+                { icon: '/icons/apartment.svg', label: 'Apartment', count: stats.forSale.building ?? 0, href: '/search?purposes=sale&types=apartment' },
+                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: stats.forSale.building ?? 0, href: '/search?purposes=sale&types=business' },
             ],
         },
         {
-            label: 'Rental',
+            label: 'For Rent',
             href: '/search?purposes=rent',
             items: [
-                { icon: '/icons/apartment.svg', label: 'Flat', count: stats.forRent.flat, href: '/search?purposes=rent&types=flat' },
-                { icon: '/icons/house-chimney.svg', label: 'House', count: stats.forRent.house, href: '/search?purposes=rent&types=house' },
-                { icon: '/icons/apartment.svg', label: 'Apartment', count: stats.forRent.apartment, href: '/search?purposes=rent&types=apartment' },
-                { icon: '/icons/apartment.svg', label: 'Commercial Space', href: '/search?purposes=rent&types=commercial-space' },
-                { icon: '/icons/note.svg', label: 'Office Space', href: '/search?purposes=rent&types=office-space' },
-                { icon: '/icons/growth-chart-invest.svg', label: 'Business', href: '/search?purposes=rent&types=business' },
+                { icon: '/icons/apartment.svg', label: 'Flat', count: stats.forRent.flat ?? 0, href: '/search?purposes=rent&types=flat' },
+                { icon: '/icons/house-chimney.svg', label: 'House', count: stats.forRent.house ?? 0, href: '/search?purposes=rent&types=house' },
+                { icon: '/icons/apartment.svg', label: 'Apartment', count: stats.forRent.apartment ?? 0, href: '/search?purposes=rent&types=apartment' },
+                { icon: '/icons/apartment.svg', label: 'Commercial Space', count: 0, href: '/search?purposes=rent&types=commercial-space' },
+                { icon: '/icons/note.svg', label: 'Office Space', count: 0, href: '/search?purposes=rent&types=office-space' },
+                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: stats.forRent.totalRent ?? 0, href: '/search?purposes=rent&types=business' },
             ],
         },
         {
-            label: 'Requirements',
+            label: 'Active Requirements',
             href: '/requirements',
             items: [
-                { icon: '/icons/sack-dollar.svg', label: 'Purchase', count: stats.requirements.purchase, href: '/requirements?purpose=sale' },
-                { icon: '/icons/note.svg', label: 'Rental', count: stats.requirements.rental, href: '/requirements?purpose=rent' },
+                { icon: '/icons/sack-dollar.svg', label: 'Purchase', count: stats.requirements.purchase ?? 0, href: '/requirements?purpose=sale' },
+                { icon: '/icons/note.svg', label: 'Rental', count: stats.requirements.rental ?? 0, href: '/requirements?purpose=rent' },
             ],
         },
     ];
@@ -1160,7 +1161,7 @@ function ExploreCategoriesSection({
                                             {item.label}
                                         </div>
                                         <div className="text-[12px] font-medium text-slate-500 group-hover:text-[color:var(--color-primary)] transition-colors">
-                                            {group.label}
+                                            {typeof item.count === 'number' ? `${item.count} ${item.count === 1 ? 'property' : 'properties'}` : group.label}
                                         </div>
                                     </div>
                                 </Link>
@@ -1386,43 +1387,24 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                     {/* Sub-header for the feed */}
                                     <div className="mb-5 space-y-1">
                                         <div className="flex items-center gap-2 text-xl font-bold tracking-tight text-slate-900">
-                                            {activeFeedTab === 'property' ? (
-                                                <>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleFeedTabChange('property')}
-                                                        className="text-slate-900 cursor-default transition-colors"
-                                                    >
-                                                        Latest Properties
-                                                    </button>
-                                                    <span className="text-slate-300">|</span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleFeedTabChange('requirements')}
-                                                        className="text-slate-400 hover:text-slate-600 underline underline-offset-4 transition-colors"
-                                                    >
-                                                        Requirements
-                                                    </button>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleFeedTabChange('requirements')}
-                                                        className="text-slate-900 cursor-default transition-colors"
-                                                    >
-                                                        Latest Requirements
-                                                    </button>
-                                                    <span className="text-slate-300">|</span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleFeedTabChange('property')}
-                                                        className="text-slate-400 hover:text-slate-600 underline underline-offset-4 transition-colors"
-                                                    >
-                                                        Properties
-                                                    </button>
-                                                </>
-                                            )}
+                                                    {/* Consistent tab label: always show "Properties | Requirements" */}
+                                                    <>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleFeedTabChange('property')}
+                                                            className={`cursor-pointer transition-colors ${activeFeedTab === 'property' ? 'text-slate-900 font-semibold' : 'text-slate-400'}`}
+                                                        >
+                                                            Properties
+                                                        </button>
+                                                        <span className="text-slate-300">|</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleFeedTabChange('requirements')}
+                                                            className={`cursor-pointer transition-colors ${activeFeedTab === 'requirements' ? 'text-slate-900 font-semibold' : 'text-slate-400'}`}
+                                                        >
+                                                            Requirements
+                                                        </button>
+                                                    </>
                                         </div>
                                         <p className="text-sm text-slate-500">
                                             Real-time stream of premium listings, sponsored placements, and curated discovery signals.
