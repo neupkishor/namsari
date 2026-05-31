@@ -180,13 +180,34 @@ if ($action === 'delete_folder') {
         phpAppError('Folder is outside uploads directory', 403);
     }
 
-    // Only allow deletion of empty folders for safety
-    $entries = array_diff(scandir($targetReal), array('.', '..'));
-    if (!empty($entries)) {
-        phpAppError('Folder is not empty', 400);
-    }
+    $deleteRecursive = function (string $path) use (&$deleteRecursive): bool {
+        if (is_file($path) || is_link($path)) {
+            return @unlink($path);
+        }
 
-    if (!rmdir($targetReal)) {
+        if (!is_dir($path)) {
+            return true;
+        }
+
+        $items = scandir($path);
+        if ($items === false) {
+            return false;
+        }
+
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+
+            if (!$deleteRecursive($path . DIRECTORY_SEPARATOR . $item)) {
+                return false;
+            }
+        }
+
+        return @rmdir($path);
+    };
+
+    if (!$deleteRecursive($targetReal)) {
         phpAppError('Failed to delete folder', 500);
     }
 

@@ -17,6 +17,7 @@ type MediaItem = {
     fileName: string;
     originalName: string;
     folderId: number | null;
+    uploadType: string;
 };
 
 type FilesManagerClientProps = {
@@ -35,6 +36,8 @@ export function FilesManagerClient({ currentFolderId, currentFolderPath, folders
     const [showCreateFolder, setShowCreateFolder] = React.useState(false);
     const [showUploadModal, setShowUploadModal] = React.useState(false);
     const [folderPage, setFolderPage] = React.useState(1);
+    const [selectedUploadFiles, setSelectedUploadFiles] = React.useState<File[]>([]);
+    const [uploadLabel, setUploadLabel] = React.useState('');
     const foldersPerPage = 10;
     const visibleFolders = folders.slice(0, folderPage * foldersPerPage);
     const router = useRouter();
@@ -43,47 +46,6 @@ export function FilesManagerClient({ currentFolderId, currentFolderPath, folders
     const [progress, setProgress] = useState(0);
     const [message, setMessage] = useState('');
     const [isPending, startTransition] = useTransition();
-
-    const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-
-        setUploading(true);
-        setMessage('');
-        setStatus('Preparing upload...');
-        setProgress(0);
-
-        try {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('platform', 'namsari');
-
-            const data = await uploadFileWithIntent({
-                type: 'files',
-                file,
-                originalFile: file,
-                folderId: currentFolderId,
-                folderPath: folderUploadPath(currentFolderPath),
-                formData,
-                onStatusChange: nextStatus => setStatus(nextStatus === 'preparing' ? 'Preparing upload...' : 'Uploading file...'),
-                onProgress: setProgress,
-            });
-
-            if (!data?.success) {
-                throw new Error(data?.message || data?.error || 'Upload failed');
-            }
-
-            router.refresh();
-        } catch (uploadError) {
-            const errorMessage = uploadError instanceof Error ? uploadError.message : 'Failed to upload file';
-            setMessage(errorMessage);
-        } finally {
-            setUploading(false);
-            setStatus('');
-            setProgress(0);
-            event.target.value = '';
-        }
-    };
 
     const runAction = (action: () => Promise<void>) => {
         setMessage('');
@@ -107,22 +69,29 @@ export function FilesManagerClient({ currentFolderId, currentFolderPath, folders
         router.refresh();
     }
 
-    async function submitUploadFiles(files: FileList | null) {
-        if (!files || files.length === 0) return;
+    async function submitUploadFiles(files: File[]) {
+        if (!files.length) return;
         setUploading(true);
         setMessage('');
+        setStatus('Preparing upload...');
+        setProgress(0);
         try {
             for (let i = 0; i < files.length; i++) {
                 const f = files[i];
+                setUploadLabel(f.name);
                 await uploadFileWithIntent({
                     type: 'files',
                     file: f,
                     originalFile: f,
                     folderId: currentFolderId,
                     folderPath: folderUploadPath(currentFolderPath),
-                    onStatusChange: () => {},
-                    onProgress: () => {},
+                    onStatusChange: nextStatus => setStatus(nextStatus === 'preparing' ? 'Preparing upload...' : 'Uploading files...'),
+                    onProgress: nextProgress => {
+                        const overall = Math.min(100, Math.round(((i + (nextProgress / 100)) / files.length) * 100));
+                        setProgress(overall);
+                    },
                 });
+                setProgress(Math.round(((i + 1) / files.length) * 100));
             }
             router.refresh();
         } catch (err) {
@@ -130,6 +99,10 @@ export function FilesManagerClient({ currentFolderId, currentFolderPath, folders
         } finally {
             setUploading(false);
             setShowUploadModal(false);
+            setSelectedUploadFiles([]);
+            setUploadLabel('');
+            setStatus('');
+            setProgress(0);
         }
     }
 
@@ -169,15 +142,68 @@ export function FilesManagerClient({ currentFolderId, currentFolderPath, folders
 
             {showUploadModal && (
                 <div style={{ position: 'fixed', left: 0, top: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', zIndex: 60 }}>
-                    <div style={{ background: 'white', padding: 20, borderRadius: 8, minWidth: 420, boxShadow: '0 10px 30px rgba(2,6,23,0.4)' }}>
+                    <div style={{ background: 'white', padding: 20, borderRadius: 10, minWidth: 460, maxWidth: '92vw', boxShadow: '0 10px 30px rgba(2,6,23,0.4)' }}>
                         <h3 style={{ marginTop: 0 }}>Upload files</h3>
-                        <input id="uploadFilesInput" type="file" multiple style={{ width: '100%', marginBottom: 8 }} />
+                        <p style={{ marginTop: -4, marginBottom: 12, color: '#64748b', fontSize: '0.9rem' }}>Select one or more files. They will upload one by one and the progress bar will reflect the total upload.</p>
+                        <input
+                            id="uploadFilesInput"
+                            type="file"
+                            multiple
+                            onChange={event => setSelectedUploadFiles(Array.from(event.target.files || []))}
+                            style={{ width: '100%', marginBottom: 12 }}
+                        />
+
+                        <div style={{ border: '1px dashed #cbd5e1', borderRadius: 10, background: '#f8fafc', padding: 12, marginBottom: 12 }}>
+                            <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>
+                                {selectedUploadFiles.length > 0 ? `${selectedUploadFiles.length} file${selectedUploadFiles.length === 1 ? '' : 's'} selected` : 'No files selected'}
+                            </div>
+                            {selectedUploadFiles.length > 0 ? (
+                                <div style={{ display: 'grid', gap: 8, maxHeight: 220, overflow: 'auto' }}>
+                                    {selectedUploadFiles.map(file => (
+                                        <div key={`${file.name}-${file.size}-${file.lastModified}`} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', background: 'white', border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 10px' }}>
+                                            <div style={{ minWidth: 0 }}>
+                                                <div style={{ fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.name}</div>
+                                                <div style={{ color: '#64748b', fontSize: '0.82rem' }}>{Math.max(1, Math.round(file.size / 1024))} KB</div>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => setSelectedUploadFiles(prev => prev.filter(item => !(item.name === file.name && item.size === file.size && item.lastModified === file.lastModified)))}
+                                                style={{ border: '1px solid #fecaca', background: '#fff1f2', color: '#b91c1c', borderRadius: 8, padding: '6px 10px', fontWeight: 700 }}
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div style={{ color: '#94a3b8', fontSize: '0.88rem' }}>Choose files to see them listed here.</div>
+                            )}
+                        </div>
+
+                        {uploading && (
+                            <div style={{ marginBottom: 12 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569', fontSize: '0.82rem', fontWeight: 700, marginBottom: '6px' }}>
+                                    <span>{status || 'Uploading files...'}</span>
+                                    <span>{progress ? `${progress}%` : ''}</span>
+                                </div>
+                                <div style={{ height: '8px', background: '#e2e8f0', borderRadius: '999px', overflow: 'hidden' }}>
+                                    <div style={{ height: '100%', width: `${progress || 12}%`, background: 'var(--color-primary)', borderRadius: '999px', transition: 'width 0.2s ease' }} />
+                                </div>
+                                <div style={{ marginTop: 6, color: '#64748b', fontSize: '0.82rem' }}>{uploadLabel || 'Preparing...'}</div>
+                            </div>
+                        )}
+
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                            <button onClick={() => setShowUploadModal(false)} style={{ padding: '8px 12px' }}>Cancel</button>
-                            <button onClick={async () => {
-                                const input = document.getElementById('uploadFilesInput') as HTMLInputElement | null;
-                                await submitUploadFiles(input?.files || null);
-                            }} style={{ padding: '8px 12px', background: 'var(--color-primary)', color: 'white', borderRadius: 6 }}>Upload</button>
+                            <button onClick={() => { setShowUploadModal(false); setSelectedUploadFiles([]); }} style={{ padding: '8px 12px' }} disabled={uploading}>Cancel</button>
+                            <button
+                                onClick={async () => {
+                                    await submitUploadFiles(selectedUploadFiles);
+                                }}
+                                disabled={uploading || selectedUploadFiles.length === 0}
+                                style={{ padding: '8px 12px', background: 'var(--color-primary)', color: 'white', borderRadius: 6, opacity: uploading || selectedUploadFiles.length === 0 ? 0.65 : 1 }}
+                            >
+                                Upload
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -191,25 +217,9 @@ export function FilesManagerClient({ currentFolderId, currentFolderPath, folders
                         </p>
                     </div>
 
-                    <label style={{ cursor: uploading ? 'not-allowed' : 'pointer', opacity: uploading ? 0.7 : 1, background: 'var(--color-primary)', color: 'white', borderRadius: '8px', padding: '10px 14px', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                        {uploading ? (progress ? `${progress}%` : status || 'Uploading...') : 'Upload here'}
-                        <input type="file" onChange={handleUpload} disabled={uploading} style={{ display: 'none' }} />
-                    </label>
                 </div>
 
                 {/* Create folder and upload actions are handled via popups above */}
-
-                {uploading && (
-                    <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569', fontSize: '0.82rem', fontWeight: 700, marginBottom: '6px' }}>
-                            <span>{status || 'Uploading file...'}</span>
-                            <span>{progress ? `${progress}%` : ''}</span>
-                        </div>
-                        <div style={{ height: '7px', background: '#e2e8f0', borderRadius: '999px', overflow: 'hidden' }}>
-                            <div style={{ height: '100%', width: `${progress || 12}%`, background: 'var(--color-primary)', borderRadius: '999px', transition: 'width 0.2s ease' }} />
-                        </div>
-                    </div>
-                )}
 
                 {message && (
                     <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 12px', fontSize: '0.86rem', fontWeight: 700 }}>
@@ -229,7 +239,7 @@ export function FilesManagerClient({ currentFolderId, currentFolderPath, folders
                                 </div>
                                 <div>
                                     <button onClick={() => {
-                                        if (!confirm(`Delete folder ${folder.name}? This only deletes empty folders.`)) return;
+                                        if (!confirm(`Delete folder ${folder.name} and all of its contents? This cannot be undone.`)) return;
                                         runAction(async () => deleteMediaFolder(folder.id));
                                     }} style={{ border: '1px solid #fecaca', background: '#fff1f2', color: '#b91c1c', borderRadius: '8px', padding: '8px 10px', fontWeight: 800 }}>Delete</button>
                                 </div>

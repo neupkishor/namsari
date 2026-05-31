@@ -3,7 +3,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/actions/auth";
-import { deleteMedia as deleteMediaAction, deleteMediaFolder } from '@/actions/media';
 import { PaginationControl } from "@/components/ui";
 import { FilesManagerClient } from "./FilesManagerClient";
 
@@ -132,6 +131,7 @@ export default async function ManageFilesPage({ searchParams }: { searchParams: 
                     fileName: item.fileName,
                     originalName: item.originalName,
                     folderId: item.folderId,
+                    uploadType: item.uploadType,
                 }))}
             />
 
