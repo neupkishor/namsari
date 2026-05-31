@@ -12,6 +12,13 @@ import { PropertyInformation } from './components/PropertyInformation';
 import { Header } from '@/components/menu/Header';
 import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
 
+type UploadProgress = {
+    fileName: string;
+    previewUrl: string;
+    progress: number;
+    status: 'compressing' | 'uploading';
+} | null;
+
 export default function SellClient({ currentUser, initialPurpose }: { currentUser?: any, initialPurpose?: string }) {
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [selectedPurposes, setSelectedPurposes] = useState<string[]>(initialPurpose === 'sale' || initialPurpose === 'rent' ? [initialPurpose] : []);
@@ -22,6 +29,7 @@ export default function SellClient({ currentUser, initialPurpose }: { currentUse
 
     const [uploading, setUploading] = useState(false);
     const [compressing, setCompressing] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState<UploadProgress>(null);
     const [uploadedImages, setUploadedImages] = useState<Array<{ url: string; type: string }>>([]);
 
     const [price, setPrice] = useState('');
@@ -243,6 +251,14 @@ export default function SellClient({ currentUser, initialPurpose }: { currentUse
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, imageType: string) => {
         if (!e.target.files?.[0]) return;
         const originalFile = e.target.files[0];
+        const previewUrl = URL.createObjectURL(originalFile);
+
+        setUploadProgress({
+            fileName: originalFile.name,
+            previewUrl,
+            progress: 0,
+            status: 'compressing'
+        });
         setCompressing(true);
         try {
             const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
@@ -254,11 +270,35 @@ export default function SellClient({ currentUser, initialPurpose }: { currentUse
             formData.append('platform', 'namsari');
 
             setUploading(true);
-            const res = await fetch(buildUploaderUrl('properties'), {
-                method: 'POST',
-                body: formData,
+            setUploadProgress(prev => prev ? { ...prev, progress: 0, status: 'uploading' } : prev);
+
+            const data = await new Promise<any>((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', buildUploaderUrl('properties'));
+
+                xhr.upload.onprogress = (event) => {
+                    if (!event.lengthComputable) return;
+                    const progress = Math.round((event.loaded / event.total) * 100);
+                    setUploadProgress(prev => prev ? { ...prev, progress, status: 'uploading' } : prev);
+                };
+
+                xhr.onload = () => {
+                    try {
+                        const parsed = JSON.parse(xhr.responseText);
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            resolve(parsed);
+                        } else {
+                            reject(new Error(parsed.message || parsed.error || 'Upload failed'));
+                        }
+                    } catch {
+                        reject(new Error('Upload failed'));
+                    }
+                };
+
+                xhr.onerror = () => reject(new Error('Upload failed'));
+                xhr.send(formData);
             });
-            const data = await res.json();
+
             if (data.success) {
                 const fileUrl = resolveUploadedFileUrl(data.path, data.url);
                 setUploadedImages(prev => [...prev, { url: fileUrl, type: imageType }]);
@@ -267,9 +307,13 @@ export default function SellClient({ currentUser, initialPurpose }: { currentUse
             }
         } catch (err) {
             console.error(err);
+            alert(err instanceof Error ? err.message : 'Failed to upload image');
         } finally {
+            URL.revokeObjectURL(previewUrl);
+            e.target.value = '';
             setCompressing(false);
             setUploading(false);
+            setUploadProgress(null);
         }
     };
 
@@ -357,6 +401,7 @@ export default function SellClient({ currentUser, initialPurpose }: { currentUse
                         getPriceInWords={getPriceInWords}
                         uploadedImages={uploadedImages}
                         uploading={uploading}
+                        uploadProgress={uploadProgress}
                         handleFileChange={handleFileChange}
                         removeImage={removeImage}
                         roadType={roadType}

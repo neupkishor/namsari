@@ -42,6 +42,12 @@ interface PropertyInformationProps {
     // Media
     uploadedImages: Array<{ url: string; type: string }>;
     uploading: boolean;
+    uploadProgress: {
+        fileName: string;
+        previewUrl: string;
+        progress: number;
+        status: 'compressing' | 'uploading';
+    } | null;
     handleFileChange: (e: React.ChangeEvent<HTMLInputElement>, imageType: string) => void;
     removeImage: (index: number) => void;
     // Errors
@@ -76,6 +82,7 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
     getPriceInWords,
     uploadedImages,
     uploading,
+    uploadProgress,
     handleFileChange,
     removeImage,
     errors,
@@ -187,7 +194,24 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
                             <input type="hidden" name="image_of" value={img.type} />
                         </div>
                     ))}
-                    {uploading && <div style={{ width: '100px', height: '100px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>Uploding...</div>}
+                    {uploadProgress && (
+                        <div style={{ width: '160px', minHeight: '100px', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', background: 'white' }}>
+                            <div style={{ height: '92px', position: 'relative', background: '#f1f5f9' }}>
+                                <img src={uploadProgress.previewUrl} alt={uploadProgress.fileName} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.72 }} />
+                                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.75rem', fontWeight: '800', textShadow: '0 1px 4px rgba(0,0,0,0.45)' }}>
+                                    {uploadProgress.status === 'compressing' ? 'Compressing...' : `${uploadProgress.progress}%`}
+                                </div>
+                            </div>
+                            <div style={{ padding: '8px' }}>
+                                <div title={uploadProgress.fileName} style={{ fontSize: '0.72rem', fontWeight: '700', color: '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: '6px' }}>
+                                    {uploadProgress.fileName}
+                                </div>
+                                <div style={{ height: '6px', borderRadius: '999px', background: '#e2e8f0', overflow: 'hidden' }}>
+                                    <div style={{ height: '100%', width: `${uploadProgress.status === 'compressing' ? 12 : uploadProgress.progress}%`, borderRadius: '999px', background: 'var(--color-primary)', transition: 'width 0.2s ease' }} />
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
