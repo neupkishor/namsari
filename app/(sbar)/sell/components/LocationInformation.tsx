@@ -156,6 +156,21 @@ const mergeUnique = (...groups: string[][]) => {
     });
 };
 
+const toAdministrativeAreaName = (locationName: string) => {
+    return locationName
+        .replace(/\s*\([^)]*\)/g, '')
+        .replace(/\s+(Metropolitan City|Sub-Metropolitan City|Municipality|Rural Municipality)$/i, '')
+        .trim();
+};
+
+const withAdministrativeAreaOptions = (locations: string[]) => {
+    return mergeUnique(locations, locations.map(toAdministrativeAreaName).filter(Boolean));
+};
+
+const allFallbackCityVillages = () => {
+    return Object.values(CITY_VILLAGES_BY_DISTRICT).flat();
+};
+
 type LocationRow = {
     id: number;
     name: string;
@@ -287,7 +302,7 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
         Object.entries(CITY_VILLAGES_BY_DISTRICT).forEach(([districtName, cityNames]) => {
             const provinceName = normalizedDistrictMap.get(districtName.toLowerCase());
             if (!provinceName) return;
-            cityNames.forEach(cityName => {
+            withAdministrativeAreaOptions(cityNames).forEach(cityName => {
                 if (!map.has(cityName.toLowerCase())) {
                     map.set(cityName.toLowerCase(), { district: districtName, province: provinceName });
                 }
@@ -324,7 +339,7 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
             const apiCities = locationRows
                 .filter(item => item.type === 'city' && item.parentId === selectedDistrictRow.id)
                 .map(item => item.name);
-            return mergeUnique(apiCities, CITY_VILLAGES_BY_DISTRICT[selectedDistrictRow.name] || []);
+            return withAdministrativeAreaOptions(mergeUnique(apiCities, CITY_VILLAGES_BY_DISTRICT[selectedDistrictRow.name] || []));
         }
 
         if (selectedProvinceRow) {
@@ -335,16 +350,21 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
                 .filter(item => item.type === 'city' && item.parentId !== null && districtIds.has(item.parentId))
                 .map(item => item.name);
             const fallbackCities = districtOptions.flatMap(districtName => CITY_VILLAGES_BY_DISTRICT[districtName] || []);
-            return mergeUnique(apiCities, fallbackCities);
+            return withAdministrativeAreaOptions(mergeUnique(apiCities, fallbackCities));
         }
 
         const selectedDistrictFallback = CITY_VILLAGES_BY_DISTRICT[selectedDistrictName];
         if (selectedDistrictFallback) {
-            return selectedDistrictFallback;
+            return withAdministrativeAreaOptions(selectedDistrictFallback);
         }
 
-        return cityList;
-    }, [cityList, districtOptions, locationRows, selectedDistrictName, selectedDistrictRow, selectedProvinceRow]);
+        if (selectedProvinceName) {
+            const provinceFallbackCities = districtOptions.flatMap(districtName => CITY_VILLAGES_BY_DISTRICT[districtName] || []);
+            return withAdministrativeAreaOptions(mergeUnique(provinceFallbackCities, cityList));
+        }
+
+        return withAdministrativeAreaOptions(mergeUnique(cityList, allFallbackCityVillages()));
+    }, [cityList, districtOptions, locationRows, selectedDistrictName, selectedDistrictRow, selectedProvinceName, selectedProvinceRow]);
 
     const filteredCities = cityVillage
         ? cityOptions.filter(city => city.toLowerCase().includes(cityVillage.toLowerCase()))
