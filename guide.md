@@ -10,6 +10,8 @@ The layout is:
 
 The browser sends uploads to the Next.js proxy at `/api/upload`. The Next.js server forwards the request to the PHP uploader and attaches the secret key server-side.
 
+Both PHP endpoints respond as JSON APIs. Requests that use a non-POST method are rejected with `success: false` and `error: "Invalid method for request"`.
+
 ## Environment
 
 Use one shared `.env` at the repo root:
@@ -36,6 +38,7 @@ NEXT_PUBLIC_UPLOADER_URL=/api/upload
 2. The Next.js route forwards the form data to `/uploader/upload.php`
 3. The Next.js route adds `X-Namsari-Upload-Key` from the shared `.env`
 4. The PHP uploader verifies the key and saves the file into `../uploads/{type}`
+5. Successful uploads return `file: "/{type}/{originalName}.{randomId}.{extension}"`
 
 ## Upload Storage
 
@@ -43,6 +46,12 @@ Files are stored under the external uploads root like this:
 
 ```text
 ../uploads/{type}/{originalName}.{randomId}.{extension}
+```
+
+The response uses the same relative format without the storage prefix:
+
+```text
+/{type}/{originalName}.{randomId}.{extension}
 ```
 
 Examples:

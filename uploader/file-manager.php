@@ -7,7 +7,20 @@ function phpAppFileManagerRespond(array $payload, int $status = 200): void {
     phpAppSendJson($payload, $status);
 }
 
+function phpAppFileManagerRequirePostMethod(): void {
+    $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+    if ($method !== 'POST') {
+        phpAppError('Invalid method for request', 405);
+    }
+}
+
+function phpAppFileManagerNormalizePublicFilePath(string $relativePath): string {
+    $relativePath = ltrim(str_replace('\\', '/', $relativePath), '/');
+    return '/' . $relativePath;
+}
+
 $uploadsRoot = '';
+phpAppFileManagerRequirePostMethod();
 try {
     $uploadsRoot = phpAppGetUploadsRoot();
 } catch (RuntimeException $exception) {
@@ -38,6 +51,7 @@ if ($action === '' || $source === '') {
 $sourcePath = phpAppEnsurePathInsideUploads($uploadsRoot, $source);
 $sourceDir = dirname($sourcePath);
 $sourceName = basename($sourcePath);
+$sourcePublicPath = phpAppFileManagerNormalizePublicFilePath($source);
 
 if ($action === 'delete') {
     if (!is_file($sourcePath)) {
@@ -51,7 +65,7 @@ if ($action === 'delete') {
     phpAppFileManagerRespond([
         'success' => true,
         'action' => 'delete',
-        'file' => $source,
+        'file' => $sourcePublicPath,
     ]);
 }
 
@@ -74,13 +88,13 @@ if ($action === 'rename') {
 
     $relativeNewPath = str_replace($uploadsRoot . DIRECTORY_SEPARATOR, '', $newPath);
     $relativeNewPath = str_replace(DIRECTORY_SEPARATOR, '/', $relativeNewPath);
+    $relativeNewPath = phpAppFileManagerNormalizePublicFilePath($relativeNewPath);
 
     phpAppFileManagerRespond([
         'success' => true,
         'action' => 'rename',
-        'file' => $source,
+        'file' => $sourcePublicPath,
         'new_file' => $relativeNewPath,
-        'path' => phpAppBuildUploadsWebPath($relativeNewPath),
     ]);
 }
 
@@ -125,13 +139,13 @@ if ($action === 'move') {
 
     $relativeNewPath = str_replace($uploadsRootReal . DIRECTORY_SEPARATOR, '', $targetPath);
     $relativeNewPath = str_replace(DIRECTORY_SEPARATOR, '/', $relativeNewPath);
+    $relativeNewPath = phpAppFileManagerNormalizePublicFilePath($relativeNewPath);
 
     phpAppFileManagerRespond([
         'success' => true,
         'action' => 'move',
-        'file' => $source,
+        'file' => $sourcePublicPath,
         'new_file' => $relativeNewPath,
-        'path' => phpAppBuildUploadsWebPath($relativeNewPath),
     ]);
 }
 

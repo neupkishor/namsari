@@ -134,6 +134,18 @@ function phpAppError(string $message, int $status = 400): void {
     phpAppSendJson(['success' => false, 'error' => $message], $status);
 }
 
+function phpAppRequirePostMethod(): void {
+    $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+    if ($method !== 'POST') {
+        phpAppError('Invalid method for request', 405);
+    }
+}
+
+function phpAppNormalizePublicFilePath(string $relativePath): string {
+    $relativePath = ltrim(str_replace('\\', '/', $relativePath), '/');
+    return '/' . $relativePath;
+}
+
 function phpAppEnsurePathInsideUploads(string $uploadsRoot, string $relativePath): string {
     $relativePath = ltrim(str_replace('\\', '/', $relativePath), '/');
     if ($relativePath === '' || str_contains($relativePath, "\0") || str_contains($relativePath, '..')) {

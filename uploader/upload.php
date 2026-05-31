@@ -4,6 +4,7 @@ require_once __DIR__ . '/bootstrap.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $uploadsRoot = '';
+phpAppRequirePostMethod();
 try {
     $uploadsRoot = phpAppGetUploadsRoot();
 } catch (RuntimeException $exception) {
@@ -87,11 +88,11 @@ if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
 
 @chmod($targetPath, 0644);
 $mime = function_exists('mime_content_type') ? mime_content_type($targetPath) : 'application/octet-stream';
-$relativePath = '/uploads/' . rawurlencode($type) . '/' . rawurlencode($targetFilename);
+$relativePath = phpAppNormalizePublicFilePath($type . '/' . $targetFilename);
 
 phpAppSendJson([
     'success' => true,
-    'path' => $relativePath,
+    'file' => $relativePath,
     'name' => $targetFilename,
     'id' => $id,
     'size' => $size,
