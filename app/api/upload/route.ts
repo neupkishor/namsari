@@ -1,15 +1,61 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { createErrorLog } from '@/lib/error-logger';
+import fs from 'node:fs';
+import path from 'node:path';
 
 export const runtime = 'nodejs';
 
+function readEnvValue(key: string) {
+    const envPaths = [
+        path.join(process.cwd(), '.env'),
+        path.join(process.cwd(), 'uploader', '.env')
+    ];
+
+    for (const envPath of envPaths) {
+        if (!fs.existsSync(envPath)) continue;
+
+        const lines = fs.readFileSync(envPath, 'utf8').split(/\r?\n/);
+        for (const rawLine of lines) {
+            const line = rawLine.trim();
+            if (!line || line.startsWith('#')) continue;
+
+            const separatorIndex = line.indexOf('=');
+            if (separatorIndex < 0) continue;
+
+            const envKey = line.slice(0, separatorIndex).trim();
+            if (envKey !== key) continue;
+
+            return line.slice(separatorIndex + 1).trim().replace(/^["']|["']$/g, '');
+        }
+    }
+
+    return '';
+}
+
 function getUploaderSecret() {
-    return process.env.PRIVATE_KEY || '';
+    return process.env.PRIVATE_KEY || readEnvValue('PRIVATE_KEY');
+}
+
+function getConfiguredUploaderUrl() {
+    return process.env.NEXT_PUBLIC_UPLOADER_URL || readEnvValue('NEXT_PUBLIC_UPLOADER_URL');
+}
+
+function getPublicRequestUrl(request: Request) {
+    const requestUrl = new URL(request.url);
+    const forwardedHost = request.headers.get('x-forwarded-host') || request.headers.get('host');
+    const forwardedProto = request.headers.get('x-forwarded-proto') || requestUrl.protocol.replace(':', '');
+
+    if (forwardedHost) {
+        requestUrl.host = forwardedHost;
+        requestUrl.protocol = `${forwardedProto}:`;
+    }
+
+    return requestUrl.toString();
 }
 
 function getUploadTargetUrl(request: Request) {
-    const configuredUrl = process.env.NEXT_PUBLIC_UPLOADER_URL || '';
+    const configuredUrl = getConfiguredUploaderUrl();
 
     if (configuredUrl.startsWith('http://') || configuredUrl.startsWith('https://')) {
         const requestUrl = new URL(request.url);
@@ -26,14 +72,18 @@ function getUploadTargetUrl(request: Request) {
 export async function POST(request: Request) {
     try {
         const session = await auth();
+        const publicRequestUrl = getPublicRequestUrl(request);
         const privateKey = getUploaderSecret();
         if (!privateKey) {
             await createErrorLog({
                 message: 'Uploader secret is missing',
                 source: 'upload',
-                page: request.url,
+                page: publicRequestUrl,
                 userId: session?.user?.id ? Number(session.user.id) : null,
-                log: { reason: 'missing_private_key' }
+                log: {
+                    reason: 'missing_private_key',
+                    checked: ['process.env.PRIVATE_KEY', '.env PRIVATE_KEY', 'uploader/.env PRIVATE_KEY']
+                }
             });
             return NextResponse.json({ error: 'Uploader secret is missing' }, { status: 500 });
         }
@@ -48,7 +98,7 @@ export async function POST(request: Request) {
             await createErrorLog({
                 message: `No file uploaded with field name: ${fileField}`,
                 source: 'upload',
-                page: request.url,
+                page: publicRequestUrl,
                 userId: session?.user?.id ? Number(session.user.id) : null,
                 log: { type, fileField, reason: 'missing_file' }
             });
@@ -79,7 +129,7 @@ export async function POST(request: Request) {
                 await createErrorLog({
                     message: payload?.message || payload?.error || `Upload failed with status ${response.status}`,
                     source: 'upload',
-                    page: request.url,
+                    page: publicRequestUrl,
                     userId: session?.user?.id ? Number(session.user.id) : null,
                     log: {
                         type,
@@ -98,7 +148,7 @@ export async function POST(request: Request) {
             await createErrorLog({
                 message: `Upload failed with status ${response.status}`,
                 source: 'upload',
-                page: request.url,
+                page: publicRequestUrl,
                 userId: session?.user?.id ? Number(session.user.id) : null,
                 log: {
                     type,
@@ -116,7 +166,7 @@ export async function POST(request: Request) {
         await createErrorLog({
             message: err.message || 'Failed to proxy upload',
             source: 'upload',
-            page: request.url,
+            page: getPublicRequestUrl(request),
             stack: err.stack || null,
             log: { reason: 'proxy_exception' }
         }).catch(() => {});
