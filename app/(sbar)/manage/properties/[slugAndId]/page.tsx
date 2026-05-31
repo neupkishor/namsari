@@ -51,6 +51,12 @@ export default async function ManagePropertyDetailPage({ params }: { params: Pro
                 >
                     View Public Page ↗
                 </Link>
+                <Link
+                    href={`/sell?id=${property.id}`}
+                    style={{ marginLeft: '12px', background: 'var(--color-primary)', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' }}
+                >
+                    Edit Listing
+                </Link>
             </header>
 
             <PropertyManageClient property={property} />

@@ -27,6 +27,32 @@ interface PropertyInformationProps {
     setFurnishing: (val: string) => void;
     builtUpAreaUnit: string;
     setBuiltUpAreaUnit: (val: string) => void;
+    roadSize: string;
+    setRoadSize: (val: string) => void;
+    bedrooms: string;
+    setBedrooms: (val: string) => void;
+    bathrooms: string;
+    setBathrooms: (val: string) => void;
+    kitchens: string;
+    setKitchens: (val: string) => void;
+    livingRooms: string;
+    setLivingRooms: (val: string) => void;
+    floorNumber: string;
+    setFloorNumber: (val: string) => void;
+    totalFloors: string;
+    setTotalFloors: (val: string) => void;
+    builtUpArea: string;
+    setBuiltUpArea: (val: string) => void;
+    parkingAvailable: boolean;
+    setParkingAvailable: (val: boolean) => void;
+    elevator: boolean;
+    setElevator: (val: boolean) => void;
+    security: boolean;
+    setSecurity: (val: boolean) => void;
+    waterSupply: boolean;
+    setWaterSupply: (val: boolean) => void;
+    electricity: boolean;
+    setElectricity: (val: boolean) => void;
     // Pricing
     pricingType: string;
     setPricingType: (val: string) => void;
@@ -69,6 +95,32 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
     setFurnishing,
     builtUpAreaUnit,
     setBuiltUpAreaUnit,
+    roadSize,
+    setRoadSize,
+    bedrooms,
+    setBedrooms,
+    bathrooms,
+    setBathrooms,
+    kitchens,
+    setKitchens,
+    livingRooms,
+    setLivingRooms,
+    floorNumber,
+    setFloorNumber,
+    totalFloors,
+    setTotalFloors,
+    builtUpArea,
+    setBuiltUpArea,
+    parkingAvailable,
+    setParkingAvailable,
+    elevator,
+    setElevator,
+    security,
+    setSecurity,
+    waterSupply,
+    setWaterSupply,
+    electricity,
+    setElectricity,
     pricingType,
     setPricingType,
     pricingUnit,
@@ -109,7 +161,7 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
                 </div>
 
                 <div style={{ marginBottom: '24px' }}>
-                    <Input label="Road Size" name="roadSize" placeholder="e.g. 13 ft" />
+                    <Input label="Road Size" name="roadSize" placeholder="e.g. 13 ft" value={roadSize} onChange={(e) => setRoadSize(e.target.value)} />
                 </div>
 
                 <div style={{ marginBottom: '24px' }}>
@@ -125,13 +177,13 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
             {(selectedTypes.includes('house') || selectedTypes.includes('apartment') || selectedTypes.includes('villa')) && (
                 <FormCard padding="0" background="transparent" border="none" style={{ marginBottom: '40px' }}>
                     <FormGrid cols={3} gap="24px">
-                        <Input label="Bedrooms" name="bedrooms" type="number" />
-                        <Input label="Bathrooms" name="bathrooms" type="number" />
-                        <Input label="Kitchens" name="kitchens" type="number" />
-                        <Input label="Living Rooms" name="livingRooms" type="number" />
-                        <Input label="Floor No." name="floorNumber" type="number" />
-                        <Input label="Total Floors" name="totalFloors" type="number" />
-                        <Input label="Built-up Area" name="builtUpArea" type="number" />
+                        <Input label="Bedrooms" name="bedrooms" type="number" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} />
+                        <Input label="Bathrooms" name="bathrooms" type="number" value={bathrooms} onChange={(e) => setBathrooms(e.target.value)} />
+                        <Input label="Kitchens" name="kitchens" type="number" value={kitchens} onChange={(e) => setKitchens(e.target.value)} />
+                        <Input label="Living Rooms" name="livingRooms" type="number" value={livingRooms} onChange={(e) => setLivingRooms(e.target.value)} />
+                        <Input label="Floor No." name="floorNumber" type="number" value={floorNumber} onChange={(e) => setFloorNumber(e.target.value)} />
+                        <Input label="Total Floors" name="totalFloors" type="number" value={totalFloors} onChange={(e) => setTotalFloors(e.target.value)} />
+                        <Input label="Built-up Area" name="builtUpArea" type="number" value={builtUpArea} onChange={(e) => setBuiltUpArea(e.target.value)} />
 
                         <div style={{ gridColumn: '1 / -1', marginTop: '20px' }}>
                             <FormLabel>Furnishing</FormLabel>
@@ -160,12 +212,12 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
             )}
 
             <div style={{ marginBottom: '40px' }}>
-                <FormGrid minWidth="150px" gap="12px">
-                    <Checkbox label="Parking" name="parkingAvailable" />
-                    <Checkbox label="Elevator" name="elevator" />
-                    <Checkbox label="Security" name="security" />
-                    <Checkbox label="Water" name="waterSupply" />
-                    <Checkbox label="Electricity" name="electricity" />
+                    <FormGrid minWidth="150px" gap="12px">
+                    <Checkbox label="Parking" name="parkingAvailable" checked={parkingAvailable} onChange={(e) => setParkingAvailable(e.target.checked)} />
+                    <Checkbox label="Elevator" name="elevator" checked={elevator} onChange={(e) => setElevator(e.target.checked)} />
+                    <Checkbox label="Security" name="security" checked={security} onChange={(e) => setSecurity(e.target.checked)} />
+                    <Checkbox label="Water" name="waterSupply" checked={waterSupply} onChange={(e) => setWaterSupply(e.target.checked)} />
+                    <Checkbox label="Electricity" name="electricity" checked={electricity} onChange={(e) => setElectricity(e.target.checked)} />
                 </FormGrid>
             </div>
 

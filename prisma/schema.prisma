@@ -48,6 +48,8 @@ model User {
   errorLogs      ErrorLog[]
   media          Media[]
   mediaFolders   MediaFolder[]
+  propertyDraftsCreated PropertyDraft[] @relation("PropertyDraftCreatedBy")
+  propertyDraftsAccount PropertyDraft[] @relation("PropertyDraftAccount")
 
   // Reviews
   reviews_received Review[] @relation("ReviewReceiver")
@@ -64,6 +66,23 @@ model User {
   
   @@map("users")
   @@index([type])
+}
+
+model PropertyDraft {
+  id          Int      @id @default(autoincrement())
+  changes     Json
+  doing       String   @default("creation") // creation, edit
+  created_by  Int
+  createdBy   User     @relation("PropertyDraftCreatedBy", fields: [created_by], references: [id], onDelete: Cascade)
+  account_id  Int
+  account     User     @relation("PropertyDraftAccount", fields: [account_id], references: [id], onDelete: Cascade)
+  status      String   @default("draft") // draft, published, discarded
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([account_id, status])
+  @@index([created_by])
+  @@map("property_drafts")
 }
 
 model Account {

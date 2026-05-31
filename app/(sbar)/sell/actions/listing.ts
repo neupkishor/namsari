@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import { createPropertyListing } from '@/lib/services/property';
 import { logActivity } from '@/lib/activity';
+import { publishPropertyDraft } from './drafts';
 
 export async function createListing(formData: FormData) {
     const session = await getSession();
@@ -101,6 +102,8 @@ export async function createListing(formData: FormData) {
     const price = parseFloatNum(formData.get('price')) || 0;
     const priceNegotiable = parseFloatNum(formData.get('priceNegotiable'));
     const rentPrice = parseFloatNum(formData.get('rentPrice'));
+    const draftIdValue = formData.get('draftId');
+    const draftId = draftIdValue ? Number(draftIdValue) : null;
 
     try {
         await createPropertyListing({
@@ -163,6 +166,14 @@ export async function createListing(formData: FormData) {
             description: `Created property listing: ${title}`,
             account_id: userId,
         });
+
+        if (draftId && Number.isFinite(draftId)) {
+            try {
+                await publishPropertyDraft(draftId);
+            } catch (draftError) {
+                console.warn('Failed to mark property draft as published:', draftError);
+            }
+        }
     } catch (error: any) {
         console.error("Failed to add property:", error);
         throw new Error("Failed to create listing: " + (error.message || error));
