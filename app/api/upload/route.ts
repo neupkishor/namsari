@@ -51,6 +51,14 @@ function getPublicRequestUrl(request: Request) {
         requestUrl.protocol = `${forwardedProto}:`;
     }
 
+    const isLocalHost = requestUrl.hostname === 'localhost' || requestUrl.hostname === '127.0.0.1';
+    const isIpAddress = /^\d{1,3}(\.\d{1,3}){3}$/.test(requestUrl.hostname);
+    const isProductionDomain = requestUrl.protocol === 'https:' && !isLocalHost && !isIpAddress;
+
+    if (isProductionDomain) {
+        requestUrl.port = '';
+    }
+
     return requestUrl.toString();
 }
 

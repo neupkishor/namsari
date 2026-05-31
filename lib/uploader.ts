@@ -1,15 +1,20 @@
 const DEFAULT_UPLOADER_BASE_URL = '/api/upload';
 
 export function getUploaderBaseUrl() {
-    if (
-        typeof window !== 'undefined' &&
-        window.location.hostname === 'localhost' &&
-        process.env.NEXT_PUBLIC_UPLOADER_URL?.startsWith('http')
-    ) {
-        return DEFAULT_UPLOADER_BASE_URL;
+    const configuredUrl = process.env.NEXT_PUBLIC_UPLOADER_URL || DEFAULT_UPLOADER_BASE_URL;
+
+    if (typeof window !== 'undefined' && configuredUrl.startsWith('http')) {
+        const configured = new URL(configuredUrl);
+        const currentHost = window.location.hostname;
+        const isLocalTesting = currentHost === 'localhost' || currentHost === '127.0.0.1';
+        const isSameDomain = configured.hostname === currentHost;
+
+        if (isLocalTesting || isSameDomain) {
+            return DEFAULT_UPLOADER_BASE_URL;
+        }
     }
 
-    return process.env.NEXT_PUBLIC_UPLOADER_URL || DEFAULT_UPLOADER_BASE_URL;
+    return configuredUrl;
 }
 
 export function buildUploaderUrl(type: string, fileField = 'file') {
