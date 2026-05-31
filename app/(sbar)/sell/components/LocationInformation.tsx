@@ -58,6 +58,16 @@ const PROVINCES = [
     "Sudurpashchim"
 ];
 
+const DISTRICTS_BY_PROVINCE: Record<string, string[]> = {
+    Koshi: ["Bhojpur", "Dhankuta", "Ilam", "Jhapa", "Khotang", "Morang", "Okhaldhunga", "Panchthar", "Sankhuwasabha", "Solukhumbu", "Sunsari", "Taplejung", "Terhathum", "Udayapur"],
+    Madhesh: ["Bara", "Dhanusha", "Mahottari", "Parsa", "Rautahat", "Saptari", "Sarlahi", "Siraha"],
+    Bagmati: ["Bhaktapur", "Chitwan", "Dhading", "Dolakha", "Kathmandu", "Kavrepalanchok", "Lalitpur", "Makwanpur", "Nuwakot", "Ramechhap", "Rasuwa", "Sindhuli", "Sindhupalchok"],
+    Gandaki: ["Baglung", "Gorkha", "Kaski", "Lamjung", "Manang", "Mustang", "Myagdi", "Nawalpur (East Nawalparasi)", "Parbat", "Syangja", "Tanahun"],
+    Lumbini: ["Arghakhanchi", "Banke", "Bardiya", "Dang", "Gulmi", "Kapilvastu", "Palpa", "Pyuthan", "Rolpa", "Rupandehi", "Eastern Rukum (Rukum East)", "Nawalparasi West (West of Bardaghat Susta)"],
+    Karnali: ["Dailekh", "Dolpa", "Humla", "Jajarkot", "Jumla", "Kalikot", "Mugu", "Salyan", "Surkhet", "Western Rukum (Rukum West)"],
+    Sudurpashchim: ["Achham", "Baitadi", "Bajhang", "Bajura", "Dadeldhura", "Darchula", "Doti", "Kailali", "Kanchanpur"]
+};
+
 type LocationRow = {
     id: number;
     name: string;
@@ -141,6 +151,19 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
         return new Map(locationRows.map(item => [item.id, item] as const));
     }, [locationRows]);
 
+    const selectedProvinceRow = useMemo(() => {
+        const normalizedProvince = province.trim().toLowerCase();
+        if (!normalizedProvince) return undefined;
+        return locationRows.find(item => item.type === 'province' && item.name.toLowerCase() === normalizedProvince);
+    }, [locationRows, province]);
+
+    const selectedDistrictRow = useMemo(() => {
+        const normalizedDistrict = district.trim().toLowerCase();
+        if (!normalizedDistrict) return undefined;
+        return locationRows.find(item => item.type === 'district' && item.name.toLowerCase() === normalizedDistrict);
+    }, [district, locationRows]);
+
+    const selectedProvinceName = selectedProvinceRow?.name || provinceList.find(p => p.toLowerCase() === province.trim().toLowerCase()) || '';
     const normalizedDistrictMap = useMemo(() => {
         const map = new Map<string, string>();
         districtList.forEach(districtName => {
@@ -151,6 +174,13 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
                     map.set(districtName.toLowerCase(), parent.name);
                 }
             }
+        });
+        Object.entries(DISTRICTS_BY_PROVINCE).forEach(([provinceName, districts]) => {
+            districts.forEach(districtName => {
+                if (!map.has(districtName.toLowerCase())) {
+                    map.set(districtName.toLowerCase(), provinceName);
+                }
+            });
         });
         return map;
     }, [districtList, locationById, locationRows]);
@@ -172,13 +202,47 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
         ? provinceList.filter(p => p.toLowerCase().includes(province.toLowerCase()))
         : provinceList;
 
+    const districtOptions = useMemo(() => {
+        if (selectedProvinceRow) {
+            const apiDistricts = locationRows
+                .filter(item => item.type === 'district' && item.parentId === selectedProvinceRow.id)
+                .map(item => item.name);
+            if (apiDistricts.length > 0) return apiDistricts;
+        }
+
+        if (selectedProvinceName && DISTRICTS_BY_PROVINCE[selectedProvinceName]) {
+            return DISTRICTS_BY_PROVINCE[selectedProvinceName];
+        }
+
+        return districtList;
+    }, [districtList, locationRows, selectedProvinceName, selectedProvinceRow]);
+
     const filteredDistricts = district
-        ? districtList.filter(d => d.toLowerCase().includes(district.toLowerCase()))
-        : districtList;
+        ? districtOptions.filter(d => d.toLowerCase().includes(district.toLowerCase()))
+        : districtOptions;
+
+    const cityOptions = useMemo(() => {
+        if (selectedDistrictRow) {
+            return locationRows
+                .filter(item => item.type === 'city' && item.parentId === selectedDistrictRow.id)
+                .map(item => item.name);
+        }
+
+        if (selectedProvinceRow) {
+            const districtIds = new Set(locationRows
+                .filter(item => item.type === 'district' && item.parentId === selectedProvinceRow.id)
+                .map(item => item.id));
+            return locationRows
+                .filter(item => item.type === 'city' && item.parentId !== null && districtIds.has(item.parentId))
+                .map(item => item.name);
+        }
+
+        return cityList;
+    }, [cityList, locationRows, selectedDistrictRow, selectedProvinceRow]);
 
     const filteredCities = cityVillage
-        ? cityList.filter(city => city.toLowerCase().includes(cityVillage.toLowerCase()))
-        : cityList;
+        ? cityOptions.filter(city => city.toLowerCase().includes(cityVillage.toLowerCase()))
+        : cityOptions;
 
     const chipStyle: React.CSSProperties = {
         padding: '6px 14px',
@@ -308,6 +372,7 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
                             onChange={(e) => {
                                 const nextDistrict = e.target.value;
                                 setDistrict(nextDistrict);
+                                setCityVillage('');
                                 setErrors(prev => ({ ...prev, district: '' }));
                                 if (nextDistrict.trim()) {
                                     syncProvinceFromDistrict(nextDistrict);
@@ -352,6 +417,7 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
                                         type="button"
                                         onClick={() => {
                                             setDistrict(d);
+                                            setCityVillage('');
                                             syncProvinceFromDistrict(d);
                                             setErrors(prev => ({ ...prev, district: '' }));
                                         }}
