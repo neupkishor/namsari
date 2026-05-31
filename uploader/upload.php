@@ -82,7 +82,21 @@ $baseName = substr($baseName, 0, 100);
 $ext = isset($pathInfo['extension']) ? strtolower(preg_replace('/[^A-Za-z0-9]/', '', $pathInfo['extension'])) : '';
 $id = phpAppGenerateId16();
 
-$targetDir = $uploadsRoot . DIRECTORY_SEPARATOR . $type;
+$folder = isset($_REQUEST['folder']) && is_string($_REQUEST['folder']) ? $_REQUEST['folder'] : '';
+$folder = ltrim(str_replace('\\', '/', $folder), '/');
+$folder = preg_replace('#/+#', '/', $folder);
+$folderSegments = [];
+if ($folder !== '') {
+    foreach (explode('/', $folder) as $segment) {
+        $segment = phpAppSanitizeSegment($segment);
+        if ($segment !== '') {
+            $folderSegments[] = $segment;
+        }
+    }
+}
+
+$relativeDir = $type . (!empty($folderSegments) ? '/' . implode('/', $folderSegments) : '');
+$targetDir = $uploadsRoot . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativeDir);
 if (!is_dir($targetDir) && !mkdir($targetDir, 0755, true) && !is_dir($targetDir)) {
     phpAppError('Failed to create type directory', 500);
 }
@@ -104,7 +118,7 @@ if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
 
 @chmod($targetPath, 0644);
 $mime = function_exists('mime_content_type') ? mime_content_type($targetPath) : 'application/octet-stream';
-$relativePath = phpAppNormalizePublicFilePath($type . '/' . $targetFilename);
+$relativePath = phpAppNormalizePublicFilePath($relativeDir . '/' . $targetFilename);
 
 phpAppSendJson([
     'success' => true,

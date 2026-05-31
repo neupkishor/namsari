@@ -47,6 +47,8 @@ type UploadWithIntentOptions = {
     type: string;
     file: File;
     originalFile?: File;
+    folderId?: number | null;
+    folderPath?: string | null;
     formData?: FormData;
     fileField?: string;
     onProgress?: (progress: number) => void;
@@ -82,7 +84,7 @@ async function ensurePhpAuthCookie() {
     }
 }
 
-async function recordUploadedMedia(uploadType: string, file: File, originalFile: File, intent: UploadIntent, data: any) {
+async function recordUploadedMedia(uploadType: string, file: File, originalFile: File, intent: UploadIntent, data: any, folderId?: number | null) {
     const path = data?.path || data?.file || '';
     const url = resolveUploadedFileUrl(path, data?.url);
     if (!url) return null;
@@ -103,6 +105,7 @@ async function recordUploadedMedia(uploadType: string, file: File, originalFile:
             storedSize: typeof data?.size === 'number' ? data.size : file.size,
             sha256: intent.sha256,
             providerResponse: data || null,
+            folderId: folderId || null,
         }),
     });
 
@@ -118,6 +121,9 @@ export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
     const formData = options.formData || new FormData();
     formData.set(fileField, options.file);
     formData.set('platform', String(formData.get('platform') || 'namsari'));
+    if (options.folderPath) {
+        formData.set('folder', options.folderPath);
+    }
     formData.set('upload_signature', intent.sha256);
     formData.set('upload_size', String(intent.size));
     formData.set('upload_name', intent.name);
@@ -140,7 +146,7 @@ export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
                 try {
                     const parsed = JSON.parse(xhr.responseText);
                     if (xhr.status >= 200 && xhr.status < 300) {
-                        recordUploadedMedia(options.type, options.file, originalFile, intent, parsed)
+                        recordUploadedMedia(options.type, options.file, originalFile, intent, parsed, options.folderId)
                             .finally(() => resolve(parsed));
                     } else {
                         reject(new Error(parsed.message || parsed.error || `Upload failed with status ${xhr.status}`));
@@ -165,7 +171,7 @@ export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
         throw new Error(data.message || data.error || `Upload failed with status ${response.status}`);
     }
 
-    await recordUploadedMedia(options.type, options.file, originalFile, intent, data);
+    await recordUploadedMedia(options.type, options.file, originalFile, intent, data, options.folderId);
 
     return data;
 }

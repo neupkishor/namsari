@@ -47,6 +47,7 @@ model User {
   notifications  Notification[]
   errorLogs      ErrorLog[]
   media          Media[]
+  mediaFolders   MediaFolder[]
 
   // Reviews
   reviews_received Review[] @relation("ReviewReceiver")
@@ -383,12 +384,34 @@ model Media {
   width             Int?
   height            Int?
   providerResponse  Json?
+  folderId          Int?
+  folder            MediaFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
   @@index([uploaderId])
+  @@index([folderId])
   @@index([uploadType])
   @@index([createdAt])
+}
+
+model MediaFolder {
+  id        Int      @id @default(autoincrement())
+  name      String
+  slug      String
+  fullPath  String   @unique
+  parentId  Int?
+  parent    MediaFolder? @relation("MediaFolderChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  children  MediaFolder[] @relation("MediaFolderChildren")
+  media     Media[]
+  createdById Int
+  createdBy User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([parentId, slug])
+  @@index([parentId])
+  @@index([createdById])
 }
 
 model FeaturedInformation {

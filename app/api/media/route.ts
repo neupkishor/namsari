@@ -49,6 +49,7 @@ export async function POST(request: Request) {
             width: toNullableNumber((body as any).width),
             height: toNullableNumber((body as any).height),
             providerResponse: (body as any).providerResponse || undefined,
+            folderId: toNullableNumber((body as any).folderId),
         },
     });
 
