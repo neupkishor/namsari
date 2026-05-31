@@ -52,11 +52,7 @@ export async function createListing(formData: FormData) {
     const openHouse_start = formData.get('openHouse_start') as string || undefined;
     const openHouse_end = formData.get('openHouse_end') as string || undefined;
 
-    // 7. Owner/Authorized
-    const ownerId = formData.get('ownerId') ? Number(formData.get('ownerId')) : userId;
-    const authorizedPersonId = formData.get('authorizedPersonId') ? Number(formData.get('authorizedPersonId')) : undefined;
-
-    // 8. Amenities & Nearby Locations
+    // 7. Amenities & Nearby Locations
     const selectedAmenities = formData.getAll('amenities') as string[];
     const amenityTypes = selectedAmenities.map(type => ({ type }));
 
@@ -70,7 +66,7 @@ export async function createListing(formData: FormData) {
 
     const amenities = [...amenityTypes, ...nearbyAmenities];
 
-    // 9. Media
+    // 8. Media
     const imageUrls = formData.getAll('image_url') as string[];
     const imageOfs = formData.getAll('image_of') as string[];
     const images = imageUrls.map((url, index) => ({
@@ -83,7 +79,7 @@ export async function createListing(formData: FormData) {
     const parseNum = (val: any) => (val && val !== '') ? Number(val) : undefined;
     const parseFloatNum = (val: any) => (val && val !== '') ? parseFloat(val.toString().replace(/[^0-9.-]+/g, "")) : undefined;
 
-    // 10. Features (Varying by type)
+    // 9. Features (Varying by type)
     const features = {
         bedrooms: parseNum(formData.get('bedrooms')),
         bathrooms: parseNum(formData.get('bathrooms')),
@@ -157,8 +153,6 @@ export async function createListing(formData: FormData) {
                 longitude
             } : undefined,
             listedById: userId,
-            ownerId,
-            authorizedPersonId,
             amenities,
             images,
             features

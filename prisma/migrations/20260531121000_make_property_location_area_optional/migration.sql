@@ -1,0 +1,1 @@
+ALTER TABLE "PropertyLocation" ALTER COLUMN "area" DROP NOT NULL;

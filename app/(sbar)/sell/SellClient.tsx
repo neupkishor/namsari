@@ -12,7 +12,7 @@ import { PropertyInformation } from './components/PropertyInformation';
 import { Header } from '@/components/menu/Header';
 import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
 
-export default function SellClient({ users, currentUserId, currentUser, initialPurpose }: { users: any[], currentUserId: number, currentUser?: any, initialPurpose?: string }) {
+export default function SellClient({ currentUser, initialPurpose }: { currentUser?: any, initialPurpose?: string }) {
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [selectedPurposes, setSelectedPurposes] = useState<string[]>(initialPurpose === 'sale' || initialPurpose === 'rent' ? [initialPurpose] : []);
     const [selectedNatures, setSelectedNatures] = useState<string[]>([]);
@@ -50,8 +50,6 @@ export default function SellClient({ users, currentUserId, currentUser, initialP
     const [facingDirection, setFacingDirection] = useState('East');
     const [furnishing, setFurnishing] = useState('Unfurnished');
     const [builtUpAreaUnit, setBuiltUpAreaUnit] = useState('sqft');
-    const [ownerId, setOwnerId] = useState(currentUserId.toString());
-    const [authorizedPersonId, setAuthorizedPersonId] = useState('');
 
     useEffect(() => {
         if (isTitleEdited) return;
@@ -161,7 +159,6 @@ export default function SellClient({ users, currentUserId, currentUser, initialP
             if (!province.trim()) newErrors.province = "Province is required.";
             if (!district.trim()) newErrors.district = "District is required.";
             if (!cityVillage.trim()) newErrors.cityVillage = "City/Village is required.";
-            if (!area.trim()) newErrors.area = "Area is required.";
         } else if (section === 4) {
             if (!price.trim()) newErrors.price = "Please enter a Price.";
             if (!title.trim()) newErrors.title = "Please enter a Property Title.";
@@ -362,8 +359,6 @@ export default function SellClient({ users, currentUserId, currentUser, initialP
                         uploading={uploading}
                         handleFileChange={handleFileChange}
                         removeImage={removeImage}
-                        users={users}
-                        currentUserId={currentUserId}
                         roadType={roadType}
                         setRoadType={setRoadType}
                         facingDirection={facingDirection}
@@ -372,10 +367,6 @@ export default function SellClient({ users, currentUserId, currentUser, initialP
                         setFurnishing={setFurnishing}
                         builtUpAreaUnit={builtUpAreaUnit}
                         setBuiltUpAreaUnit={setBuiltUpAreaUnit}
-                        ownerId={ownerId}
-                        setOwnerId={setOwnerId}
-                        authorizedPersonId={authorizedPersonId}
-                        setAuthorizedPersonId={setAuthorizedPersonId}
                         errors={errors}
                         setErrors={setErrors}
                     />

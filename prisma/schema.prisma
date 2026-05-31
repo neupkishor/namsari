@@ -31,8 +31,6 @@ model User {
   
   // Relations
   listedProperties    Property[] @relation("ListedBy")
-  ownedProperties     Property[] @relation("Owner")
-  authorizedProperties Property[] @relation("AuthorizedPerson")
   advertisements      Advertisement[]
   
   comments       Comment[]
@@ -221,12 +219,6 @@ model Property {
   // Ownership Details
   listedById             Int
   listedBy               User     @relation("ListedBy", fields: [listedById], references: [id])
-  
-  ownerId                Int
-  owner                  User     @relation("Owner", fields: [ownerId], references: [id])
-  
-  authorizedPersonId     Int?
-  authorizedPerson       User?    @relation("AuthorizedPerson", fields: [authorizedPersonId], references: [id])
 
   // Core metadata
   title                  String
@@ -304,7 +296,7 @@ model PropertyLocation {
   province         String
   district         String
   cityVillage      String
-  area             String
+  area             String?
   ward             String?
   landmark         String?
   distanceFrom     String? // suggestions (swyambhunath, pashupatinath, fewataal, 0km, ringroad, bouddha, bhatbhateni)

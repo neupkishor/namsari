@@ -19,21 +19,9 @@ export default async function SellPage({ searchParams }: { searchParams: Promise
     const userId = Number(session.id);
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
-    // Fetch all users for owner/authorized person selection
-    const users = await prisma.user.findMany({
-        orderBy: { name: 'asc' }
-    });
-
     return (
         <SellClient
             currentUser={user}
-            users={(users as any[]).map(u => ({
-                id: u.id,
-                name: u.name,
-                email: u.kyc?.email || '',
-                phone: u.kyc?.phone || u.contact_number || ''
-            }))}
-            currentUserId={userId}
             initialPurpose={purpose}
         />
     );

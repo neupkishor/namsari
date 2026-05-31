@@ -39,7 +39,7 @@ export interface CreatePropertyInput {
         province: string;
         district: string;
         cityVillage: string;
-        area: string;
+        area?: string;
         ward?: string;
         landmark?: string;
         distanceFrom?: string;
@@ -93,10 +93,8 @@ export interface CreatePropertyInput {
         electricity?: boolean;
     };
 
-    // Owner Details
+    // Listing author
     listedById: number;
-    ownerId: number;
-    authorizedPersonId?: number;
 
     // Property Media
     images: Array<{
@@ -289,10 +287,7 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                 types: true,
                 purposes: true,
                 natures: true,
-                owner: {
-                    include: { kyc: true }
-                },
-                authorizedPerson: {
+                listedBy: {
                     include: { kyc: true }
                 }
             }

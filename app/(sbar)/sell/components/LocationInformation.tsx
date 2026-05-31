@@ -624,7 +624,7 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
                         )}
                     </div>
                     <FormGrid>
-                        <Input label="Area" name="area" placeholder="Area" required value={area} onChange={(e) => { setArea(e.target.value); setErrors(prev => ({ ...prev, area: '' })); }} error={errors.area} />
+                        <Input label="Area" name="area" placeholder="Area" value={area} onChange={(e) => { setArea(e.target.value); setErrors(prev => ({ ...prev, area: '' })); }} error={errors.area} />
                         <Input label="Ward Number" name="ward" placeholder="e.g. 8" value={ward} onChange={(e) => setWard(e.target.value)} />
                     </FormGrid>
 

@@ -44,13 +44,6 @@ interface PropertyInformationProps {
     uploading: boolean;
     handleFileChange: (e: React.ChangeEvent<HTMLInputElement>, imageType: string) => void;
     removeImage: (index: number) => void;
-    // Ownership
-    users: any[];
-    currentUserId: number;
-    ownerId: string;
-    setOwnerId: (val: string) => void;
-    authorizedPersonId: string;
-    setAuthorizedPersonId: (val: string) => void;
     // Errors
     errors: Record<string, string>;
     setErrors: React.Dispatch<React.SetStateAction<Record<string, string>>>;
@@ -85,12 +78,6 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
     uploading,
     handleFileChange,
     removeImage,
-    users,
-    currentUserId,
-    ownerId,
-    setOwnerId,
-    authorizedPersonId,
-    setAuthorizedPersonId,
     errors,
     setErrors
 }) => {
@@ -203,29 +190,6 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
                     {uploading && <div style={{ width: '100px', height: '100px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>Uploding...</div>}
                 </div>
             </div>
-
-            <FormCard padding="0" background="transparent" border="none" style={{ marginBottom: '40px' }}>
-                <SectionTitle color="#0369a1">Ownership & Authorization</SectionTitle>
-
-                <div style={{ marginBottom: '24px' }}>
-                    <FormLabel>Property Owner</FormLabel>
-                    <FormGrid minWidth="200px" gap="10px">
-                        {users.map(u => (
-                            <SelectableRadioCard key={u.id} name="ownerId" value={u.id.toString()} label={`${u.name} (${u.phone})`} selected={ownerId === u.id.toString()} onClick={() => setOwnerId(u.id.toString())} />
-                        ))}
-                    </FormGrid>
-                </div>
-
-                <div style={{ marginBottom: '24px' }}>
-                    <FormLabel>Authorized Person (Optional)</FormLabel>
-                    <FormGrid minWidth="200px" gap="10px">
-                        <SelectableRadioCard name="authorizedPersonId" value="" label="None / Self" selected={authorizedPersonId === ''} onClick={() => setAuthorizedPersonId('')} />
-                        {users.map(u => (
-                            <SelectableRadioCard key={u.id} name="authorizedPersonId" value={u.id.toString()} label={`${u.name} (${u.phone})`} selected={authorizedPersonId === u.id.toString()} onClick={() => setAuthorizedPersonId(u.id.toString())} />
-                        ))}
-                    </FormGrid>
-                </div>
-            </FormCard>
 
             <FormCard padding="0" background="transparent" border="none" style={{ marginBottom: '40px' }}>
                 <SectionTitle>Pricing Details</SectionTitle>
