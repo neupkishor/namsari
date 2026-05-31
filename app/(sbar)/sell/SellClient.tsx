@@ -328,8 +328,6 @@ export default function SellClient({ users, currentUserId, currentUser, initialP
                         setArea={setArea}
                         ward={ward}
                         setWard={setWard}
-                        landmark={landmark}
-                        setLandmark={setLandmark}
                         errors={errors}
                         setErrors={setErrors}
                     />
@@ -339,6 +337,8 @@ export default function SellClient({ users, currentUserId, currentUser, initialP
                         onComplete={() => handleCompleteSection(3)}
                         nearbyLocations={nearbyLocations}
                         setNearbyLocations={setNearbyLocations}
+                        landmark={landmark}
+                        setLandmark={setLandmark}
                     />
 
                     <PropertyInformation

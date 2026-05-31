@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { Input } from '@/components/ui';
 import {
     FormGrid,
     FormLabel,
@@ -13,6 +14,8 @@ interface NearbyLocationInformationProps {
     onComplete: () => void;
     nearbyLocations: Array<{ id: string; name: string; distance: number }>;
     setNearbyLocations: React.Dispatch<React.SetStateAction<Array<{ id: string; name: string; distance: number }>>>;
+    landmark: string;
+    setLandmark: (val: string) => void;
 }
 
 const PRESET_CATEGORIES = [
@@ -41,6 +44,8 @@ export const NearbyLocationInformation: React.FC<NearbyLocationInformationProps>
     onComplete,
     nearbyLocations,
     setNearbyLocations,
+    landmark,
+    setLandmark,
 }) => {
     if (!unlocked) return null;
 
@@ -85,6 +90,10 @@ export const NearbyLocationInformation: React.FC<NearbyLocationInformationProps>
 
             <div style={{ marginBottom: '40px' }}>
                 <FormLabel>Nearby Location</FormLabel>
+
+                <div style={{ marginBottom: '24px' }}>
+                    <Input label="Landmark" name="landmark" placeholder="e.g. Behind Big Mart" value={landmark} onChange={(e) => setLandmark(e.target.value)} />
+                </div>
 
                 <FormGrid minWidth="280px" gap="16px">
                     {nearbyLocations.map((loc) => (

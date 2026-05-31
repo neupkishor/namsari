@@ -31,8 +31,6 @@ interface LocationInformationProps {
     // Ward & Landmark
     ward: string;
     setWard: (val: string) => void;
-    landmark: string;
-    setLandmark: (val: string) => void;
     // Errors
     errors: Record<string, string>;
     setErrors: React.Dispatch<React.SetStateAction<Record<string, string>>>;
@@ -198,8 +196,6 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
     setArea,
     ward,
     setWard,
-    landmark,
-    setLandmark,
     errors,
     setErrors
 }) => {
@@ -631,7 +627,6 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
                         <Input label="Area" name="area" placeholder="Area" required value={area} onChange={(e) => { setArea(e.target.value); setErrors(prev => ({ ...prev, area: '' })); }} error={errors.area} />
                         <Input label="Ward Number" name="ward" placeholder="e.g. 8" value={ward} onChange={(e) => setWard(e.target.value)} />
                     </FormGrid>
-                    <Input label="Landmark" name="landmark" placeholder="e.g. Behind Big Mart" value={landmark} onChange={(e) => setLandmark(e.target.value)} />
 
                     <GeoLocationInput
                         value={locationSource}
