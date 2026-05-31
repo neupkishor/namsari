@@ -6,6 +6,7 @@ import { createAgency, deleteAgency, toggleAgencyVerification } from '@/actions/
 import imageCompression from 'browser-image-compression';
 
 import { PaginationControl } from '@/components/ui';
+import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
 
 interface AgencyManagementClientProps {
     yourAgencies: any[];
@@ -94,16 +95,16 @@ export default function AgencyManagementClient({ yourAgencies, allAgencies, show
             formData.append('platform', 'namsari');
 
             setUploading(true);
-            const res = await fetch('https://cdn.neupgroup.com/bridge/api/v1/upload', {
+            const res = await fetch(buildUploaderUrl('agencies'), {
                 method: 'POST',
                 body: formData,
             });
             const data = await res.json();
 
             if (data.success) {
-                setProfilePic(data.url);
+                setProfilePic(resolveUploadedFileUrl(data.path, data.url));
             } else {
-                alert('Upload failed: ' + data.message);
+                alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
             console.error(err);

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import imageCompression from 'browser-image-compression';
 import { useRouter } from 'next/navigation';
 import { updateUserCoverImage } from '@/actions/profile-client';
+import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
 
 interface ProfileCoverUploadButtonProps {
     userId: number;
@@ -30,17 +31,18 @@ export default function ProfileCoverUploadButton({ userId }: ProfileCoverUploadB
             formData.append('platform', 'namsari');
 
             setUploading(true);
-            const res = await fetch('https://cdn.neupgroup.com/bridge/api/v1/upload', {
+            const res = await fetch(buildUploaderUrl('users'), {
                 method: 'POST',
                 body: formData,
             });
             const data = await res.json();
 
             if (data.success) {
-                await updateUserCoverImage(userId, data.url);
+                const fileUrl = resolveUploadedFileUrl(data.path, data.url);
+                await updateUserCoverImage(userId, fileUrl);
                 router.refresh();
             } else {
-                alert('Upload failed: ' + data.message);
+                alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (error) {
             console.error(error);

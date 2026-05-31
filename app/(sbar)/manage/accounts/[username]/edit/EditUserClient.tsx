@@ -33,17 +33,18 @@ export default function EditUserClient({ user }: EditUserClientProps) {
             formData.append('file', compressedFile);
             formData.append('platform', 'namsari');
 
-            const res = await fetch('https://cdn.neupgroup.com/bridge/api/v1/upload', {
+                const res = await fetch(buildUploaderUrl('users'), {
                 method: 'POST',
                 body: formData,
             });
             const data = await res.json();
 
             if (data.success) {
-                if (type === 'profile') setProfilePic(data.url);
-                else setCoverImg(data.url);
+                    const fileUrl = resolveUploadedFileUrl(data.path, data.url);
+                if (type === 'profile') setProfilePic(fileUrl);
+                else setCoverImg(fileUrl);
             } else {
-                alert('Upload failed: ' + data.message);
+                alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
             console.error(err);

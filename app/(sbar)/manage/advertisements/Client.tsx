@@ -3,17 +3,15 @@
 import React, { useState, useTransition } from 'react';
 import { createAdvertisement, toggleAdvertisementStatus, deleteAdvertisement } from '@/actions/advertisements';
 import imageCompression from 'browser-image-compression';
+import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
 
 export default function AdvertisementManager({ initialAds }: { initialAds: any[] }) {
     const [isPending, startTransition] = useTransition();
     const [uploading, setUploading] = useState(false);
-    
-    // Form State
     const [image, setImage] = useState('');
     const [takesTo, setTakesTo] = useState('');
     const [postedBy, setPostedBy] = useState('');
     const [showsOnTop, setShowsOnTop] = useState(false);
-    
     const [showForm, setShowForm] = useState(false);
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,16 +28,17 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
             formData.append('file', compressedFile);
             formData.append('platform', 'namsari');
 
-            const res = await fetch('https://cdn.neupgroup.com/bridge/api/v1/upload', {
+            const res = await fetch(buildUploaderUrl('ads'), {
                 method: 'POST',
                 body: formData,
             });
             const data = await res.json();
 
             if (data.success) {
-                setImage(data.url);
+                const fileUrl = resolveUploadedFileUrl(data.path, data.url);
+                setImage(fileUrl);
             } else {
-                alert('Upload failed: ' + data.message);
+                alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
             console.error(err);
@@ -49,13 +48,8 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        
-        if (!image) {
-            alert("Please upload an image first.");
-            return;
-        }
 
         const formData = new FormData();
         formData.append('image', image);
@@ -67,13 +61,14 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
             const res = await createAdvertisement(formData);
             if (res.error) {
                 alert(res.error);
-            } else {
-                setImage('');
-                setTakesTo('');
-                setPostedBy('');
-                setShowsOnTop(false);
-                setShowForm(false);
+                return;
             }
+
+            setImage('');
+            setTakesTo('');
+            setPostedBy('');
+            setShowsOnTop(false);
+            setShowForm(false);
         });
     };
 
@@ -84,7 +79,8 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
     };
 
     const handleDelete = (id: number) => {
-        if (!confirm("Are you sure you want to delete this advertisement?")) return;
+        if (!confirm('Are you sure you want to delete this advertisement?')) return;
+
         startTransition(async () => {
             await deleteAdvertisement(id);
         });
@@ -97,7 +93,7 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
                     <h1 className="section-title" style={{ fontSize: '2rem', marginBottom: '8px' }}>Advertisements</h1>
                     <p style={{ color: 'var(--color-text-muted)' }}>Manage sponsored content and banners.</p>
                 </div>
-                <button 
+                <button
                     onClick={() => setShowForm(!showForm)}
                     style={{ background: 'var(--color-primary)', color: 'white', padding: '10px 20px', borderRadius: '6px', border: 'none', fontWeight: '600', cursor: 'pointer' }}
                 >
@@ -108,8 +104,6 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
             {showForm && (
                 <div className="card" style={{ marginBottom: '32px' }}>
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        
-                        {/* Image Upload */}
                         <div>
                             <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Ad Image</label>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -122,59 +116,58 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
                                         Preview
                                     </div>
                                 )}
-                                
-                                <label style={{ 
-                                    background: uploading ? '#f1f5f9' : 'white', 
-                                    border: '1px solid #e2e8f0', 
-                                    padding: '8px 16px', 
-                                    borderRadius: '6px', 
-                                    cursor: uploading ? 'not-allowed' : 'pointer',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    fontSize: '0.9rem',
-                                    fontWeight: '500'
-                                }}>
+
+                                <label
+                                    style={{
+                                        background: uploading ? '#f1f5f9' : 'white',
+                                        border: '1px solid #e2e8f0',
+                                        padding: '8px 16px',
+                                        borderRadius: '6px',
+                                        cursor: uploading ? 'not-allowed' : 'pointer',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        fontSize: '0.9rem',
+                                        fontWeight: '500'
+                                    }}
+                                >
                                     {uploading ? 'Uploading...' : 'Upload Image'}
-                                    <input 
-                                        type="file" 
-                                        accept="image/*" 
-                                        onChange={handleImageUpload} 
-                                        style={{ display: 'none' }} 
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageUpload}
+                                        style={{ display: 'none' }}
                                         disabled={uploading}
                                     />
                                 </label>
                             </div>
                         </div>
 
-                        {/* Link */}
                         <div>
                             <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Takes To (Redirect URL)</label>
-                            <input 
-                                type="url" 
-                                value={takesTo} 
+                            <input
+                                type="url"
+                                value={takesTo}
                                 onChange={(e) => setTakesTo(e.target.value)}
                                 className="form-control"
                                 placeholder="https://example.com/promo"
                             />
                         </div>
 
-                        {/* Posted By */}
                         <div>
                             <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Posted By (Advertiser Name)</label>
-                            <input 
-                                type="text" 
-                                value={postedBy} 
+                            <input
+                                type="text"
+                                value={postedBy}
                                 onChange={(e) => setPostedBy(e.target.value)}
                                 className="form-control"
                                 placeholder="e.g. Coca Cola"
                             />
                         </div>
 
-                        {/* Shows On Top */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <input 
-                                type="checkbox" 
+                            <input
+                                type="checkbox"
                                 id="showsOnTop"
                                 checked={showsOnTop}
                                 onChange={(e) => setShowsOnTop(e.target.checked)}
@@ -186,8 +179,8 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
                             If checked, this ad will appear in the top carousel and the feed. Otherwise, it will only be injected into the feed.
                         </p>
 
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             disabled={isPending || uploading || !image}
                             className="btn-primary"
                             style={{ width: 'fit-content', marginTop: '8px' }}
@@ -204,60 +197,70 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
                         No advertisements found.
                     </div>
                 ) : (
-                    initialAds.map((ad) => {
-                        return (
-                            <div key={ad.id} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-                                <div style={{ width: '120px', height: '80px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, background: '#f8fafc' }}>
-                                    <img src={ad.image} alt="Ad preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                        <span style={{ 
-                                            background: (ad.position === 'banner_top' || ad.shows_on_top) ? '#dbeafe' : '#f1f5f9', 
+                    initialAds.map((ad) => (
+                        <div key={ad.id} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+                            <div style={{ width: '120px', height: '80px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, background: '#f8fafc' }}>
+                                <img src={ad.image} alt="Ad preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                    <span
+                                        style={{
+                                            background: (ad.position === 'banner_top' || ad.shows_on_top) ? '#dbeafe' : '#f1f5f9',
                                             color: (ad.position === 'banner_top' || ad.shows_on_top) ? '#1e40af' : '#475569',
-                                            padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase' 
-                                        }}>
-                                            {(ad.position === 'banner_top' || ad.shows_on_top) ? 'Top Carousel' : 'Feed'}
-                                        </span>
-                                        <span style={{ 
-                                            background: (ad.status === 'active' || ad.is_active) ? '#dcfce7' : '#fee2e2', 
+                                            padding: '2px 8px',
+                                            borderRadius: '4px',
+                                            fontSize: '0.75rem',
+                                            fontWeight: '700',
+                                            textTransform: 'uppercase'
+                                        }}
+                                    >
+                                        {(ad.position === 'banner_top' || ad.shows_on_top) ? 'Top Carousel' : 'Feed'}
+                                    </span>
+                                    <span
+                                        style={{
+                                            background: (ad.status === 'active' || ad.is_active) ? '#dcfce7' : '#fee2e2',
                                             color: (ad.status === 'active' || ad.is_active) ? '#166534' : '#991b1b',
-                                            padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase' 
-                                        }}>
-                                            {(ad.status === 'active' || ad.is_active) ? 'Active' : 'Inactive'}
-                                        </span>
-                                    </div>
-                                    <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#334155' }}>
-                                        {ad.title || ad.posted_by || 'Unknown Advertiser'}
-                                    </div>
-                                    <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', wordBreak: 'break-all', marginTop: '2px' }}>
-                                        Link: <a href={ad.link || ad.takes_to} target="_blank" rel="noreferrer" style={{ color: 'var(--color-primary)' }}>{ad.link || ad.takes_to || 'None'}</a>
-                                    </div>
-                                    <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '4px' }}>
-                                        Created on {new Date(ad.created_at).toLocaleDateString()}
-                                    </div>
+                                            padding: '2px 8px',
+                                            borderRadius: '4px',
+                                            fontSize: '0.75rem',
+                                            fontWeight: '700',
+                                            textTransform: 'uppercase'
+                                        }}
+                                    >
+                                        {(ad.status === 'active' || ad.is_active) ? 'Active' : 'Inactive'}
+                                    </span>
                                 </div>
-                                <div style={{ display: 'flex', gap: '8px' }}>
-                                    <button 
-                                        onClick={() => handleToggle(ad.id)}
-                                        disabled={isPending}
-                                        style={{ background: 'none', border: '1px solid #e2e8f0', padding: '8px', borderRadius: '6px', cursor: 'pointer', color: '#64748b' }}
-                                        title={(ad.status === 'active' || ad.is_active) ? "Deactivate" : "Activate"}
-                                    >
-                                        {(ad.status === 'active' || ad.is_active) ? '⏸️' : '▶️'}
-                                    </button>
-                                    <button 
-                                        onClick={() => handleDelete(ad.id)}
-                                        disabled={isPending}
-                                        style={{ background: 'none', border: '1px solid #fee2e2', padding: '8px', borderRadius: '6px', cursor: 'pointer', color: '#ef4444' }}
-                                        title="Delete"
-                                    >
-                                        🗑️
-                                    </button>
+                                <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#334155' }}>
+                                    {ad.title || ad.posted_by || 'Unknown Advertiser'}
+                                </div>
+                                <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', wordBreak: 'break-all', marginTop: '2px' }}>
+                                    Link: <a href={ad.link || ad.takes_to} target="_blank" rel="noreferrer" style={{ color: 'var(--color-primary)' }}>{ad.link || ad.takes_to || 'None'}</a>
+                                </div>
+                                <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '4px' }}>
+                                    Created on {new Date(ad.created_at).toLocaleDateString()}
                                 </div>
                             </div>
-                        );
-                    })
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <button
+                                    onClick={() => handleToggle(ad.id)}
+                                    disabled={isPending}
+                                    style={{ background: 'none', border: '1px solid #e2e8f0', padding: '8px', borderRadius: '6px', cursor: 'pointer', color: '#64748b' }}
+                                    title={(ad.status === 'active' || ad.is_active) ? 'Deactivate' : 'Activate'}
+                                >
+                                    {(ad.status === 'active' || ad.is_active) ? '⏸️' : '▶️'}
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(ad.id)}
+                                    disabled={isPending}
+                                    style={{ background: 'none', border: '1px solid #fee2e2', padding: '8px', borderRadius: '6px', cursor: 'pointer', color: '#ef4444' }}
+                                    title="Delete"
+                                >
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    ))
                 )}
             </div>
         </div>

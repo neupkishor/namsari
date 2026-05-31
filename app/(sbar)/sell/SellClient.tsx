@@ -9,6 +9,7 @@ import { LocationInformation } from './components/LocationInformation';
 import { PropertyInformation } from './components/PropertyInformation';
 
 import { Header } from '@/components/menu/Header';
+import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
 
 export default function SellClient({ users, currentUserId, currentUser, initialPurpose }: { users: any[], currentUserId: number, currentUser?: any, initialPurpose?: string }) {
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -253,15 +254,16 @@ export default function SellClient({ users, currentUserId, currentUser, initialP
             formData.append('platform', 'namsari');
 
             setUploading(true);
-            const res = await fetch('https://cdn.neupgroup.com/bridge/api/v1/upload', {
+            const res = await fetch(buildUploaderUrl('properties'), {
                 method: 'POST',
                 body: formData,
             });
             const data = await res.json();
             if (data.success) {
-                setUploadedImages(prev => [...prev, { url: data.url, type: imageType }]);
+                const fileUrl = resolveUploadedFileUrl(data.path, data.url);
+                setUploadedImages(prev => [...prev, { url: fileUrl, type: imageType }]);
             } else {
-                alert('Upload failed: ' + data.message);
+                alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
             console.error(err);

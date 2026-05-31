@@ -5,6 +5,7 @@ import { addPropertyImage, removePropertyImage, reorderPropertyImages, updatePro
 import { useRouter } from 'next/navigation';
 
 import imageCompression from 'browser-image-compression';
+import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
 
 interface PropertyManageClientProps {
     property: any;
@@ -40,17 +41,18 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
             formData.append('platform', 'namsari');
 
             setUploading(true);
-            const res = await fetch('https://cdn.neupgroup.com/bridge/api/v1/upload', {
+            const res = await fetch(buildUploaderUrl('properties'), {
                 method: 'POST',
                 body: formData,
             });
             const data = await res.json();
 
             if (data.success) {
-                await addPropertyImage(property.id, data.url, type);
+                const fileUrl = resolveUploadedFileUrl(data.path, data.url);
+                await addPropertyImage(property.id, fileUrl, type);
                 router.refresh();
             } else {
-                alert('Upload failed: ' + data.message);
+                alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
             console.error(err);

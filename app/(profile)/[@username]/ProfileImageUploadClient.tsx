@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import imageCompression from 'browser-image-compression';
 import { updateUserProfilePicture } from '@/actions/profile-client';
 import { useRouter } from 'next/navigation';
+import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
 
 interface ProfileImageUploadProps {
     userId: number;
@@ -33,17 +34,18 @@ export default function ProfileImageUploadClient({ userId, currentImage, userNam
             formData.append('platform', 'namsari');
 
             setUploading(true);
-            const res = await fetch('https://cdn.neupgroup.com/bridge/api/v1/upload', {
+            const res = await fetch(buildUploaderUrl('users'), {
                 method: 'POST',
                 body: formData,
             });
             const data = await res.json();
 
             if (data.success) {
-                await updateUserProfilePicture(userId, data.url);
+                const fileUrl = resolveUploadedFileUrl(data.path, data.url);
+                await updateUserProfilePicture(userId, fileUrl);
                 router.refresh();
             } else {
-                alert('Upload failed: ' + data.message);
+                alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
             console.error(err);

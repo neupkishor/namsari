@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createAd, getAdRates } from '@/actions/ads';
 import imageCompression from 'browser-image-compression';
+import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
 
 export default function CreateAdForm() {
     const [isOpen, setIsOpen] = useState(false);
@@ -74,16 +75,17 @@ export default function CreateAdForm() {
             formData.append('file', compressedFile);
             formData.append('platform', 'namsari');
 
-            const res = await fetch('https://cdn.neupgroup.com/bridge/api/v1/upload', {
+            const res = await fetch(buildUploaderUrl('ads'), {
                 method: 'POST',
                 body: formData,
             });
             const data = await res.json();
 
             if (data.success) {
-                setImageUrl(data.url);
+                const fileUrl = resolveUploadedFileUrl(data.path, data.url);
+                setImageUrl(fileUrl);
             } else {
-                alert('Upload failed: ' + data.message);
+                alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
             console.error(err);
