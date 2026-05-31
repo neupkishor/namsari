@@ -276,6 +276,7 @@ export default function SellClient({ currentUser, initialPurpose }: { currentUse
             const data = await uploadFileWithIntent({
                 type: 'properties',
                 file,
+                originalFile,
                 formData,
                 onStatusChange: (status) => {
                     setUploadProgress(prev => prev ? { ...prev, status, progress: status === 'preparing' ? 0 : prev.progress } : prev);

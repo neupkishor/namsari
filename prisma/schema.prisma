@@ -46,6 +46,7 @@ model User {
   // Notifications
   notifications  Notification[]
   errorLogs      ErrorLog[]
+  media          Media[]
 
   // Reviews
   reviews_received Review[] @relation("ReviewReceiver")
@@ -362,6 +363,32 @@ model PropertyVideo {
   
   url              String
   type             String   // YouTube Video, Instagram Reel, Facebook Reel, YouTube Shorts, Tiktok Shorts
+}
+
+model Media {
+  id                Int      @id @default(autoincrement())
+  uploaderId        Int
+  uploader          User     @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+
+  url               String
+  path              String?
+  uploadType        String
+  originalName      String
+  fileName          String
+  mime              String?
+  originalSize      Int?
+  compressedSize    Int?
+  storedSize        Int?
+  sha256            String?
+  width             Int?
+  height            Int?
+  providerResponse  Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([uploaderId])
+  @@index([uploadType])
+  @@index([createdAt])
 }
 
 model FeaturedInformation {

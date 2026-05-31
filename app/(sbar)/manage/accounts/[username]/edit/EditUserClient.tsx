@@ -46,6 +46,7 @@ export default function EditUserClient({ user }: EditUserClientProps) {
             const data = await uploadFileWithIntent({
                 type: 'users',
                 file: compressedFile,
+                originalFile: file,
                 formData,
                 onStatusChange: status => setStatus(status === 'preparing' ? 'Preparing secure upload...' : 'Uploading image...'),
                 onProgress: setProgress,

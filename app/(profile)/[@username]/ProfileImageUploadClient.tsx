@@ -42,6 +42,7 @@ export default function ProfileImageUploadClient({ userId, currentImage, userNam
             const data = await uploadFileWithIntent({
                 type: 'users',
                 file,
+                originalFile,
                 formData,
                 onStatusChange: status => setUploadStatus(status === 'preparing' ? 'Preparing secure upload...' : 'Uploading image...'),
                 onProgress: setUploadProgress,

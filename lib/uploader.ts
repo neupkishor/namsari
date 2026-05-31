@@ -46,6 +46,7 @@ export type UploadIntent = {
 type UploadWithIntentOptions = {
     type: string;
     file: File;
+    originalFile?: File;
     formData?: FormData;
     fileField?: string;
     onProgress?: (progress: number) => void;
@@ -70,19 +71,6 @@ export async function createUploadIntent(file: File): Promise<UploadIntent> {
     };
 }
 
-async function buildUploadFormData(formData: FormData | undefined, fileField: string, file: File) {
-    const intent = await createUploadIntent(file);
-    const signedForm = formData || new FormData();
-    signedForm.set(fileField, file);
-    signedForm.set('platform', String(signedForm.get('platform') || 'namsari'));
-    signedForm.set('upload_signature', intent.sha256);
-    signedForm.set('upload_size', String(intent.size));
-    signedForm.set('upload_name', intent.name);
-    signedForm.set('upload_mime', intent.type);
-    signedForm.set('upload_last_modified', String(intent.lastModified));
-    return signedForm;
-}
-
 async function ensurePhpAuthCookie() {
     const response = await fetch(AUTH_COOKIE_SYNC_ENDPOINT, {
         method: 'POST',
@@ -94,11 +82,47 @@ async function ensurePhpAuthCookie() {
     }
 }
 
+async function recordUploadedMedia(uploadType: string, file: File, originalFile: File, intent: UploadIntent, data: any) {
+    const path = data?.path || data?.file || '';
+    const url = resolveUploadedFileUrl(path, data?.url);
+    if (!url) return null;
+
+    const response = await fetch('/api/media', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+            url,
+            path: path || null,
+            uploadType,
+            originalName: originalFile.name,
+            fileName: data?.name || path.split('/').filter(Boolean).pop() || file.name,
+            mime: data?.mime || file.type || null,
+            originalSize: originalFile.size,
+            compressedSize: file.size,
+            storedSize: typeof data?.size === 'number' ? data.size : file.size,
+            sha256: intent.sha256,
+            providerResponse: data || null,
+        }),
+    });
+
+    return response.ok ? response.json().catch(() => null) : null;
+}
+
 export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
     const fileField = options.fileField || 'file';
+    const originalFile = options.originalFile || options.file;
     options.onStatusChange?.('preparing');
     await ensurePhpAuthCookie();
-    const formData = await buildUploadFormData(options.formData, fileField, options.file);
+    const intent = await createUploadIntent(options.file);
+    const formData = options.formData || new FormData();
+    formData.set(fileField, options.file);
+    formData.set('platform', String(formData.get('platform') || 'namsari'));
+    formData.set('upload_signature', intent.sha256);
+    formData.set('upload_size', String(intent.size));
+    formData.set('upload_name', intent.name);
+    formData.set('upload_mime', intent.type);
+    formData.set('upload_last_modified', String(intent.lastModified));
     options.onStatusChange?.('uploading');
 
     if (options.onProgress) {
@@ -116,7 +140,8 @@ export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
                 try {
                     const parsed = JSON.parse(xhr.responseText);
                     if (xhr.status >= 200 && xhr.status < 300) {
-                        resolve(parsed);
+                        recordUploadedMedia(options.type, options.file, originalFile, intent, parsed)
+                            .finally(() => resolve(parsed));
                     } else {
                         reject(new Error(parsed.message || parsed.error || `Upload failed with status ${xhr.status}`));
                     }
@@ -139,6 +164,8 @@ export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
     if (!response.ok) {
         throw new Error(data.message || data.error || `Upload failed with status ${response.status}`);
     }
+
+    await recordUploadedMedia(options.type, options.file, originalFile, intent, data);
 
     return data;
 }

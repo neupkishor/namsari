@@ -49,6 +49,7 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
             const data = await uploadFileWithIntent({
                 type: 'properties',
                 file,
+                originalFile,
                 formData,
                 onStatusChange: status => setUploadStatus(status === 'preparing' ? 'Preparing secure upload...' : 'Uploading image...'),
                 onProgress: setUploadProgress,

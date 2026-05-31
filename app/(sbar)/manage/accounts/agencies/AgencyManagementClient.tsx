@@ -103,6 +103,7 @@ export default function AgencyManagementClient({ yourAgencies, allAgencies, show
             const data = await uploadFileWithIntent({
                 type: 'agencies',
                 file,
+                originalFile,
                 formData,
                 onStatusChange: status => setUploadStatus(status === 'preparing' ? 'Preparing secure upload...' : 'Uploading image...'),
                 onProgress: setUploadProgress,

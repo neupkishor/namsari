@@ -39,6 +39,7 @@ export default function ProfileCoverUploadButton({ userId }: ProfileCoverUploadB
             const data = await uploadFileWithIntent({
                 type: 'users',
                 file,
+                originalFile,
                 formData,
                 onStatusChange: status => setUploadStatus(status === 'preparing' ? 'Preparing secure upload...' : 'Uploading cover...'),
                 onProgress: setUploadProgress,

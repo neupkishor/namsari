@@ -36,6 +36,7 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
             const data = await uploadFileWithIntent({
                 type: 'ads',
                 file: compressedFile,
+                originalFile: file,
                 formData,
                 onStatusChange: status => setUploadStatus(status === 'preparing' ? 'Preparing secure upload...' : 'Uploading image...'),
                 onProgress: setUploadProgress,
