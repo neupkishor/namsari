@@ -2,6 +2,12 @@
 require_once __DIR__ . '/bootstrap.php';
 
 header('Content-Type: application/json; charset=utf-8');
+phpAppSendCorsHeaders();
+
+if (strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET')) === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
 
 function phpAppFileManagerRespond(array $payload, int $status = 200): void {
     phpAppSendJson($payload, $status);
@@ -31,6 +37,8 @@ if ($uploadsRoot === '') {
     phpAppError('Unable to resolve uploads root', 500);
 }
 
+$authenticatedUser = phpAppRequireAuthenticatedUser();
+
 $privateKey = phpAppGetPrivateKey();
 if ($privateKey === '') {
     phpAppError('PRIVATE_KEY is missing from the shared .env file', 500);
@@ -46,6 +54,10 @@ $source = trim((string) ($_REQUEST['file'] ?? $_REQUEST['source'] ?? ''));
 
 if ($action === '' || $source === '') {
     phpAppError('action and file are required', 400);
+}
+
+if (!$authenticatedUser['isAdmin']) {
+    phpAppError('Unauthorized', 403);
 }
 
 $sourcePath = phpAppEnsurePathInsideUploads($uploadsRoot, $source);

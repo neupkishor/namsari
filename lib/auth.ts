@@ -2,6 +2,68 @@ import NextAuth from "next-auth";
 import { prisma } from "@/lib/prisma";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { createHmac } from "node:crypto";
+
+const AUTH_COOKIE_MAX_AGE = 30 * 24 * 60 * 60;
+
+function base64Url(input: string | Buffer) {
+  return Buffer.from(input).toString("base64url");
+}
+
+function getAuthCookieSecret() {
+  return process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "";
+}
+
+function createAuthCookieJwt(user: { id: string | number; type?: string | null; username?: string | null; sessionId?: string | null; operatingId?: number | null }) {
+  const secret = getAuthCookieSecret();
+  if (!secret) return "";
+
+  const now = Math.floor(Date.now() / 1000);
+  const header = { alg: "HS256", typ: "JWT" };
+  const payload = {
+    user: {
+      id: String(user.id),
+      type: user.type || "user",
+      username: user.username || "",
+      sessionId: user.sessionId || null,
+      operatingId: user.operatingId ?? null,
+    },
+    iat: now,
+    exp: now + AUTH_COOKIE_MAX_AGE,
+  };
+  const encodedHeader = base64Url(JSON.stringify(header));
+  const encodedPayload = base64Url(JSON.stringify(payload));
+  const signature = createHmac("sha256", secret).update(`${encodedHeader}.${encodedPayload}`).digest("base64url");
+
+  return `${encodedHeader}.${encodedPayload}.${signature}`;
+}
+
+async function setPhpAuthCookie(user: { id: string | number; type?: string | null; username?: string | null; sessionId?: string | null; operatingId?: number | null }) {
+  const value = createAuthCookieJwt(user);
+  if (!value) return;
+
+  try {
+    const cookieStore = await import("next/headers").then(h => h.cookies());
+    (await cookieStore).set("auth", value, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: AUTH_COOKIE_MAX_AGE,
+    });
+  } catch (error) {
+    console.error("Error setting PHP auth cookie:", error);
+  }
+}
+
+async function clearPhpAuthCookie() {
+  try {
+    const cookieStore = await import("next/headers").then(h => h.cookies());
+    (await cookieStore).delete("auth");
+  } catch (error) {
+    console.error("Error clearing PHP auth cookie:", error);
+  }
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -115,7 +177,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             });
           }
          } catch (error) {
-           console.error("Error creating manual session in jwt callback:", error);
+          console.error("Error creating manual session in jwt callback:", error);
+         }
+         if (user.id) {
+          await setPhpAuthCookie({
+            id: user.id,
+            type: (user as any).type,
+            username: (user as any).username,
+            sessionId,
+            operatingId: null,
+          });
          }
        }
        return token;
@@ -123,6 +194,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   events: {
     async signOut(data) {
+       await clearPhpAuthCookie();
        // Clean up audit session on logout if we can find it
        try {
          const cookieStore = await import('next/headers').then(h => h.cookies());
@@ -214,11 +286,33 @@ export async function switchProfile(targetId: number | null) {
       where: { sessionToken: sessionId },
       data: { operatingId: targetId }
     });
+    await setPhpAuthCookie({
+      id: session.user.id,
+      type: (session.user as any).type,
+      username: (session.user as any).username,
+      sessionId,
+      operatingId: targetId,
+    });
     return true;
   } catch (error) {
     console.error("Error switching profile:", error);
     return false;
   }
+}
+
+export async function syncPhpAuthCookieFromSession() {
+  const session = await auth();
+  if (!session?.user?.id) return false;
+
+  await setPhpAuthCookie({
+    id: session.user.id,
+    type: (session.user as any).type,
+    username: (session.user as any).username,
+    sessionId: (session.user as any).sessionId,
+    operatingId: (session.user as any).operatingId ?? null,
+  });
+
+  return true;
 }
 
 /**

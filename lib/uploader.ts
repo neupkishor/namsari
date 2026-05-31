@@ -1,20 +1,7 @@
-const DEFAULT_UPLOADER_BASE_URL = '/api/upload';
-const UPLOAD_SIGNATURE_ENDPOINT = '/api/upload/sign';
-
+const DEFAULT_UPLOADER_BASE_URL = '/uploader/upload.php';
+const AUTH_COOKIE_SYNC_ENDPOINT = '/api/auth/php-cookie';
 export function getUploaderBaseUrl() {
     const configuredUrl = process.env.NEXT_PUBLIC_UPLOADER_URL || DEFAULT_UPLOADER_BASE_URL;
-
-    if (typeof window !== 'undefined' && configuredUrl.startsWith('http')) {
-        const configured = new URL(configuredUrl);
-        const currentHost = window.location.hostname;
-        const isLocalTesting = currentHost === 'localhost' || currentHost === '127.0.0.1';
-        const isSameDomain = configured.hostname === currentHost;
-
-        if (isLocalTesting || isSameDomain) {
-            return DEFAULT_UPLOADER_BASE_URL;
-        }
-    }
-
     return configuredUrl;
 }
 
@@ -30,11 +17,6 @@ export function buildUploaderUrl(type: string, fileField = 'file') {
     }
 
     return `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}${query}`;
-}
-
-function buildSignedUploaderUrl(type: string, fileField = 'file') {
-    const query = new URLSearchParams({ type, file: fileField }).toString();
-    return `${DEFAULT_UPLOADER_BASE_URL}?${query}`;
 }
 
 export function resolveUploadedFileUrl(path?: string, url?: string) {
@@ -88,27 +70,11 @@ export async function createUploadIntent(file: File): Promise<UploadIntent> {
     };
 }
 
-async function getUploadToken(uploadType: string, fileField: string, file: File) {
+async function buildUploadFormData(formData: FormData | undefined, fileField: string, file: File) {
     const intent = await createUploadIntent(file);
-    const response = await fetch(UPLOAD_SIGNATURE_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: uploadType, fileField, intent }),
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok || !data.token) {
-        throw new Error(data.error || data.message || 'Unable to prepare upload');
-    }
-
-    return { token: data.token as string, intent };
-}
-
-function buildSignedFormData(formData: FormData | undefined, fileField: string, file: File, token: string, intent: UploadIntent) {
     const signedForm = formData || new FormData();
     signedForm.set(fileField, file);
     signedForm.set('platform', String(signedForm.get('platform') || 'namsari'));
-    signedForm.set('upload_token', token);
     signedForm.set('upload_signature', intent.sha256);
     signedForm.set('upload_size', String(intent.size));
     signedForm.set('upload_name', intent.name);
@@ -117,17 +83,29 @@ function buildSignedFormData(formData: FormData | undefined, fileField: string, 
     return signedForm;
 }
 
+async function ensurePhpAuthCookie() {
+    const response = await fetch(AUTH_COOKIE_SYNC_ENDPOINT, {
+        method: 'POST',
+        credentials: 'include',
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+        throw new Error(data.error || 'Unauthorized');
+    }
+}
+
 export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
     const fileField = options.fileField || 'file';
     options.onStatusChange?.('preparing');
-    const { token, intent } = await getUploadToken(options.type, fileField, options.file);
-    const formData = buildSignedFormData(options.formData, fileField, options.file, token, intent);
+    await ensurePhpAuthCookie();
+    const formData = await buildUploadFormData(options.formData, fileField, options.file);
     options.onStatusChange?.('uploading');
 
     if (options.onProgress) {
         return new Promise<any>((resolve, reject) => {
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', buildSignedUploaderUrl(options.type, fileField));
+            xhr.open('POST', buildUploaderUrl(options.type, fileField));
+            xhr.withCredentials = true;
 
             xhr.upload.onprogress = (event) => {
                 if (!event.lengthComputable) return;
@@ -147,14 +125,15 @@ export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
                 }
             };
 
-            xhr.onerror = () => reject(new Error(`Upload request failed for ${buildSignedUploaderUrl(options.type, fileField)}`));
+            xhr.onerror = () => reject(new Error(`Upload request failed for ${buildUploaderUrl(options.type, fileField)}`));
             xhr.send(formData);
         });
     }
 
-    const response = await fetch(buildSignedUploaderUrl(options.type, fileField), {
+    const response = await fetch(buildUploaderUrl(options.type, fileField), {
         method: 'POST',
         body: formData,
+        credentials: 'include',
     });
     const data = await response.json();
     if (!response.ok) {

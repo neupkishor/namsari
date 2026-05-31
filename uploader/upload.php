@@ -2,6 +2,12 @@
 require_once __DIR__ . '/bootstrap.php';
 
 header('Content-Type: application/json; charset=utf-8');
+phpAppSendCorsHeaders();
+
+if (strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET')) === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
 
 $uploadsRoot = '';
 phpAppRequirePostMethod();
@@ -15,21 +21,14 @@ if ($uploadsRoot === '') {
     phpAppError('Unable to resolve uploads root', 500);
 }
 
-$privateKey = phpAppGetPrivateKey();
-if ($privateKey === '') {
-    phpAppError('PRIVATE_KEY is missing from the shared .env file', 500);
-}
-
-$providedKey = phpAppGetRequestKey();
-if ($providedKey === '' || !hash_equals($privateKey, $providedKey)) {
-    phpAppError('Unauthorized', 403);
-}
-
 $type = isset($_REQUEST['type']) && is_string($_REQUEST['type']) ? $_REQUEST['type'] : 'users';
 $type = preg_replace('/[^A-Za-z0-9_-]/', '', $type);
 if ($type === '') {
     $type = 'users';
 }
+
+$authenticatedUser = phpAppRequireAuthenticatedUser();
+phpAppRequireUploadPermission($authenticatedUser, $type);
 
 $fileField = isset($_REQUEST['file']) && is_string($_REQUEST['file']) && $_REQUEST['file'] !== '' ? $_REQUEST['file'] : 'file';
 if (!isset($_FILES[$fileField])) {
@@ -55,6 +54,23 @@ switch ($file['error']) {
 
 if (!is_uploaded_file($file['tmp_name'])) {
     phpAppError('Possible file upload attack', 400);
+}
+
+$providedSignature = isset($_POST['upload_signature']) && is_string($_POST['upload_signature']) ? $_POST['upload_signature'] : '';
+$providedSize = isset($_POST['upload_size']) ? (int) $_POST['upload_size'] : 0;
+$providedName = isset($_POST['upload_name']) && is_string($_POST['upload_name']) ? $_POST['upload_name'] : '';
+
+if ($providedName !== (string) $file['name']) {
+    phpAppError('Upload name does not match request metadata', 403);
+}
+
+if ($providedSize !== (int) $file['size']) {
+    phpAppError('Upload size does not match request metadata', 403);
+}
+
+$actualSignature = hash_file('sha256', $file['tmp_name']);
+if (!is_string($actualSignature) || $providedSignature !== $actualSignature) {
+    phpAppError('Upload signature does not match file contents', 403);
 }
 
 $originalName = $file['name'];
