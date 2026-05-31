@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { createErrorLog } from '@/lib/error-logger';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -35,6 +36,49 @@ function readEnvValue(key: string) {
 
 function getUploaderSecret() {
     return process.env.PRIVATE_KEY || readEnvValue('PRIVATE_KEY');
+}
+
+function getSigningSecret() {
+    return process.env.UPLOAD_SIGNING_SECRET || getUploaderSecret();
+}
+
+function signPayload(payload: string, secret: string) {
+    return createHmac('sha256', secret).update(payload).digest('base64url');
+}
+
+function safeEqual(a: string, b: string) {
+    const left = Buffer.from(a);
+    const right = Buffer.from(b);
+    return left.length === right.length && timingSafeEqual(left, right);
+}
+
+async function getFileSha256(file: File) {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    return createHash('sha256').update(buffer).digest('hex');
+}
+
+function verifyUploadToken(token: FormDataEntryValue | null, secret: string) {
+    if (typeof token !== 'string') {
+        throw new Error('Upload token is missing');
+    }
+
+    const [payload, signature, extra] = token.split('.');
+    if (!payload || !signature || extra) {
+        throw new Error('Upload token is malformed');
+    }
+
+    const expectedSignature = signPayload(payload, secret);
+    if (!safeEqual(signature, expectedSignature)) {
+        throw new Error('Upload token signature is invalid');
+    }
+
+    const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+    const now = Math.floor(Date.now() / 1000);
+    if (decoded.aud !== 'namsari-upload' || !decoded.exp || decoded.exp < now) {
+        throw new Error('Upload token is expired or invalid');
+    }
+
+    return decoded;
 }
 
 function getConfiguredUploaderUrl() {
@@ -82,6 +126,7 @@ export async function POST(request: Request) {
         const session = await auth();
         const publicRequestUrl = getPublicRequestUrl(request);
         const privateKey = getUploaderSecret();
+        const signingSecret = getSigningSecret();
         if (!privateKey) {
             await createErrorLog({
                 message: 'Uploader secret is missing',
@@ -94,6 +139,9 @@ export async function POST(request: Request) {
                 }
             });
             return NextResponse.json({ error: 'Uploader secret is missing' }, { status: 500 });
+        }
+        if (!signingSecret) {
+            return NextResponse.json({ error: 'Upload signing secret is missing' }, { status: 500 });
         }
 
         const incomingUrl = new URL(request.url);
@@ -111,6 +159,40 @@ export async function POST(request: Request) {
                 log: { type, fileField, reason: 'missing_file' }
             });
             return NextResponse.json({ error: `No file uploaded with field name: ${fileField}` }, { status: 400 });
+        }
+        if (!(file instanceof File)) {
+            return NextResponse.json({ error: `Invalid upload for field name: ${fileField}` }, { status: 400 });
+        }
+
+        try {
+            const token = verifyUploadToken(formData.get('upload_token'), signingSecret);
+            const expectedSignature = formData.get('upload_signature');
+            const expectedSize = Number(formData.get('upload_size'));
+
+            if (token.type !== type || token.fileField !== fileField) {
+                throw new Error('Upload token does not match this upload endpoint');
+            }
+            if (token.intent?.size !== file.size || expectedSize !== file.size) {
+                throw new Error('Upload size does not match signed intent');
+            }
+            if (token.intent?.type !== (file.type || 'application/octet-stream')) {
+                throw new Error('Upload MIME type does not match signed intent');
+            }
+
+            const actualSignature = await getFileSha256(file);
+            if (token.intent?.sha256 !== actualSignature || expectedSignature !== actualSignature) {
+                throw new Error('Upload signature does not match file contents');
+            }
+        } catch (error) {
+            const err = error instanceof Error ? error : new Error(String(error));
+            await createErrorLog({
+                message: err.message,
+                source: 'upload',
+                page: publicRequestUrl,
+                userId: session?.user?.id ? Number(session.user.id) : null,
+                log: { type, fileField, reason: 'invalid_upload_signature' }
+            });
+            return NextResponse.json({ error: err.message }, { status: 403 });
         }
 
         const targetUrl = getUploadTargetUrl(request);

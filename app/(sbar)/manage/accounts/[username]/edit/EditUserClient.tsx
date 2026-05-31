@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { updateUser } from '@/actions/user-admin';
 import imageCompression from 'browser-image-compression';
 import { useRouter } from 'next/navigation';
-import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
+import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
 import { logUploadError } from '@/lib/client-error-logger';
 
 interface EditUserClientProps {
@@ -35,11 +35,7 @@ export default function EditUserClient({ user }: EditUserClientProps) {
             formData.append('file', compressedFile);
             formData.append('platform', 'namsari');
 
-                const res = await fetch(buildUploaderUrl('users'), {
-                method: 'POST',
-                body: formData,
-            });
-            const data = await res.json();
+            const data = await uploadFileWithIntent({ type: 'users', file: compressedFile, formData });
 
             if (data.success) {
                     const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);

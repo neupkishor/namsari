@@ -3,7 +3,7 @@
 import React, { useState, useTransition } from 'react';
 import { createAdvertisement, toggleAdvertisementStatus, deleteAdvertisement } from '@/actions/advertisements';
 import imageCompression from 'browser-image-compression';
-import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
+import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
 import { logUploadError } from '@/lib/client-error-logger';
 
 export default function AdvertisementManager({ initialAds }: { initialAds: any[] }) {
@@ -29,11 +29,7 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
             formData.append('file', compressedFile);
             formData.append('platform', 'namsari');
 
-            const res = await fetch(buildUploaderUrl('ads'), {
-                method: 'POST',
-                body: formData,
-            });
-            const data = await res.json();
+            const data = await uploadFileWithIntent({ type: 'ads', file: compressedFile, formData });
 
             if (data.success) {
                 const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);

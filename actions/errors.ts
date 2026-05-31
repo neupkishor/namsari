@@ -32,3 +32,13 @@ export async function deleteErrorLog(id: string) {
     await prisma.errorLog.delete({ where: { id } });
     revalidatePath("/manage/errors");
 }
+
+export async function deleteAllErrorLogs() {
+    const user = await getCurrentUser();
+    if (!isAdminUser(user) || user?.operatingId) {
+        throw new Error("Unauthorized");
+    }
+
+    await prisma.errorLog.deleteMany();
+    revalidatePath("/manage/errors");
+}

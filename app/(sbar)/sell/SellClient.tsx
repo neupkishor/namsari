@@ -10,7 +10,7 @@ import { NearbyLocationInformation } from './components/NearbyLocationInformatio
 import { PropertyInformation } from './components/PropertyInformation';
 
 import { Header } from '@/components/menu/Header';
-import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
+import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
 import { logUploadError } from '@/lib/client-error-logger';
 
 type UploadProgress = {
@@ -273,31 +273,13 @@ export default function SellClient({ currentUser, initialPurpose }: { currentUse
             setUploading(true);
             setUploadProgress(prev => prev ? { ...prev, progress: 0, status: 'uploading' } : prev);
 
-            const data = await new Promise<any>((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', buildUploaderUrl('properties'));
-
-                xhr.upload.onprogress = (event) => {
-                    if (!event.lengthComputable) return;
-                    const progress = Math.round((event.loaded / event.total) * 100);
+            const data = await uploadFileWithIntent({
+                type: 'properties',
+                file,
+                formData,
+                onProgress: (progress) => {
                     setUploadProgress(prev => prev ? { ...prev, progress, status: 'uploading' } : prev);
-                };
-
-                xhr.onload = () => {
-                    try {
-                        const parsed = JSON.parse(xhr.responseText);
-                        if (xhr.status >= 200 && xhr.status < 300) {
-                            resolve(parsed);
-                        } else {
-                            reject(new Error(parsed.message || parsed.error || `Upload failed with status ${xhr.status}`));
-                        }
-                    } catch {
-                        reject(new Error(xhr.responseText || `Upload failed with status ${xhr.status}`));
-                    }
-                };
-
-                xhr.onerror = () => reject(new Error(`Upload request failed for ${buildUploaderUrl('properties')}`));
-                xhr.send(formData);
+                }
             });
 
             if (data.success) {

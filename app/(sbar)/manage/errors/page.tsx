@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/actions/auth";
 import { deleteErrorLog } from "@/actions/errors";
 import { PaginationControl } from "@/components/ui";
+import { DeleteAllErrorLogsButton } from "./DeleteAllErrorLogsButton";
 
 export default async function ErrorLogsPage({ searchParams }: { searchParams: Promise<{ page?: string; source?: string }> }) {
     const user = await getCurrentUser();
@@ -67,6 +68,7 @@ export default async function ErrorLogsPage({ searchParams }: { searchParams: Pr
                 </div>
 
                 <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "flex-end" }}>
+                    <DeleteAllErrorLogsButton disabled={totalCount === 0} />
                     <Link href="/manage/errors" style={{ textDecoration: "none", color: !source ? "white" : "var(--color-primary)", background: !source ? "var(--color-primary)" : "white", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "8px 12px", fontSize: "0.85rem", fontWeight: 700 }}>
                         All
                     </Link>

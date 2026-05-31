@@ -5,7 +5,7 @@ import { addPropertyImage, removePropertyImage, reorderPropertyImages, updatePro
 import { useRouter } from 'next/navigation';
 
 import imageCompression from 'browser-image-compression';
-import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
+import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
 import { logUploadError } from '@/lib/client-error-logger';
 
 interface PropertyManageClientProps {
@@ -42,11 +42,7 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
             formData.append('platform', 'namsari');
 
             setUploading(true);
-            const res = await fetch(buildUploaderUrl('properties'), {
-                method: 'POST',
-                body: formData,
-            });
-            const data = await res.json();
+            const data = await uploadFileWithIntent({ type: 'properties', file, formData });
 
             if (data.success) {
                 const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);

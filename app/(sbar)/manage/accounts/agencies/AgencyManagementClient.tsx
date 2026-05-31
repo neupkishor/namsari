@@ -6,7 +6,7 @@ import { createAgency, deleteAgency, toggleAgencyVerification } from '@/actions/
 import imageCompression from 'browser-image-compression';
 
 import { PaginationControl } from '@/components/ui';
-import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
+import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
 import { logUploadError } from '@/lib/client-error-logger';
 
 interface AgencyManagementClientProps {
@@ -96,11 +96,7 @@ export default function AgencyManagementClient({ yourAgencies, allAgencies, show
             formData.append('platform', 'namsari');
 
             setUploading(true);
-            const res = await fetch(buildUploaderUrl('agencies'), {
-                method: 'POST',
-                body: formData,
-            });
-            const data = await res.json();
+            const data = await uploadFileWithIntent({ type: 'agencies', file, formData });
 
             if (data.success) {
                 setProfilePic(resolveUploadedFileUrl(data.path || data.file, data.url));

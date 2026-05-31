@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createAd, getAdRates } from '@/actions/ads';
 import imageCompression from 'browser-image-compression';
-import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
+import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
 import { logUploadError } from '@/lib/client-error-logger';
 
 export default function CreateAdForm() {
@@ -76,11 +76,7 @@ export default function CreateAdForm() {
             formData.append('file', compressedFile);
             formData.append('platform', 'namsari');
 
-            const res = await fetch(buildUploaderUrl('ads'), {
-                method: 'POST',
-                body: formData,
-            });
-            const data = await res.json();
+            const data = await uploadFileWithIntent({ type: 'ads', file: compressedFile, formData });
 
             if (data.success) {
                 const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
