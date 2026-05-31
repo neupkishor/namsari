@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Input } from '@/components/ui';
 import {
     FormGrid,
@@ -49,14 +49,21 @@ const ALL_DISTRICTS = [
 ];
 
 const PROVINCES = [
-    "Koshi Province",
-    "Madhesh Province",
-    "Bagmati Province",
-    "Gandaki Province",
-    "Lumbini Province",
-    "Karnali Province",
-    "Sudurpashchim Province"
+    "Koshi",
+    "Madhesh",
+    "Bagmati",
+    "Gandaki",
+    "Lumbini",
+    "Karnali",
+    "Sudurpashchim"
 ];
+
+type LocationRow = {
+    id: number;
+    name: string;
+    type: string;
+    parentId: number | null;
+};
 
 export const LocationInformation: React.FC<LocationInformationProps> = ({
     unlocked,
@@ -83,15 +90,138 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
     errors,
     setErrors
 }) => {
-    if (!unlocked) return null;
+    const [locationRows, setLocationRows] = useState<LocationRow[]>([]);
+    const [locationLoadError, setLocationLoadError] = useState('');
+
+    useEffect(() => {
+        let mounted = true;
+
+        const loadLocations = async () => {
+            try {
+                const response = await fetch('/api/locations');
+                if (!response.ok) {
+                    throw new Error('Unable to load locations');
+                }
+                const data = await response.json();
+                if (mounted) {
+                    setLocationRows(Array.isArray(data.locations) ? data.locations : []);
+                    setLocationLoadError('');
+                }
+            } catch (error) {
+                if (mounted) {
+                    setLocationRows([]);
+                    setLocationLoadError('Unable to load location suggestions.');
+                }
+            }
+        };
+
+        loadLocations();
+
+        return () => {
+            mounted = false;
+        };
+    }, []);
+
+    const provinceList = useMemo(() => {
+        const apiProvinces = locationRows.filter(item => item.type === 'province').map(item => item.name);
+        return apiProvinces.length > 0 ? apiProvinces : PROVINCES;
+    }, [locationRows]);
+
+    const districtList = useMemo(() => {
+        const apiDistricts = locationRows.filter(item => item.type === 'district').map(item => item.name);
+        return apiDistricts.length > 0 ? apiDistricts : ALL_DISTRICTS;
+    }, [locationRows]);
+
+    const cityList = useMemo(() => {
+        const apiCities = locationRows.filter(item => item.type === 'city').map(item => item.name);
+        return apiCities;
+    }, [locationRows]);
+
+    const locationById = useMemo(() => {
+        return new Map(locationRows.map(item => [item.id, item] as const));
+    }, [locationRows]);
+
+    const normalizedDistrictMap = useMemo(() => {
+        const map = new Map<string, string>();
+        districtList.forEach(districtName => {
+            const match = locationRows.find(item => item.type === 'district' && item.name.toLowerCase() === districtName.toLowerCase());
+            if (match?.parentId) {
+                const parent = locationById.get(match.parentId);
+                if (parent?.name) {
+                    map.set(districtName.toLowerCase(), parent.name);
+                }
+            }
+        });
+        return map;
+    }, [districtList, locationById, locationRows]);
+
+    const normalizedCityMap = useMemo(() => {
+        const map = new Map<string, { district: string; province: string }>();
+        cityList.forEach(cityName => {
+            const match = locationRows.find(item => item.type === 'city' && item.name.toLowerCase() === cityName.toLowerCase());
+            const districtRow = match?.parentId ? locationById.get(match.parentId) : undefined;
+            const provinceRow = districtRow?.parentId ? locationById.get(districtRow.parentId) : undefined;
+            if (districtRow?.name && provinceRow?.name) {
+                map.set(cityName.toLowerCase(), { district: districtRow.name, province: provinceRow.name });
+            }
+        });
+        return map;
+    }, [cityList, locationById, locationRows]);
 
     const filteredProvinces = province
-        ? PROVINCES.filter(p => p.toLowerCase().includes(province.toLowerCase()))
-        : PROVINCES;
+        ? provinceList.filter(p => p.toLowerCase().includes(province.toLowerCase()))
+        : provinceList;
 
     const filteredDistricts = district
-        ? ALL_DISTRICTS.filter(d => d.toLowerCase().includes(district.toLowerCase()))
-        : ALL_DISTRICTS;
+        ? districtList.filter(d => d.toLowerCase().includes(district.toLowerCase()))
+        : districtList;
+
+    const filteredCities = cityVillage
+        ? cityList.filter(city => city.toLowerCase().includes(cityVillage.toLowerCase()))
+        : cityList;
+
+    const chipStyle: React.CSSProperties = {
+        padding: '6px 14px',
+        background: '#f1f5f9',
+        border: '1px solid #e2e8f0',
+        borderRadius: '20px',
+        fontSize: '0.8rem',
+        fontWeight: '500',
+        color: '#475569',
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+        flexShrink: 0
+    };
+
+    const clearProvince = () => {
+        setProvince('');
+        setDistrict('');
+        setCityVillage('');
+        setErrors(prev => ({ ...prev, province: '', district: '' }));
+    };
+
+    const clearDistrict = () => {
+        setDistrict('');
+        setCityVillage('');
+        setErrors(prev => ({ ...prev, district: '' }));
+    };
+
+    const syncProvinceFromDistrict = (districtName: string) => {
+        const nextProvince = normalizedDistrictMap.get(districtName.trim().toLowerCase());
+        if (nextProvince) {
+            setProvince(nextProvince);
+        }
+    };
+
+    const syncProvinceAndDistrictFromCity = (cityName: string) => {
+        const match = normalizedCityMap.get(cityName.trim().toLowerCase());
+        if (match) {
+            setProvince(match.province);
+            setDistrict(match.district);
+        }
+    };
+
+    if (!unlocked) return null;
 
     return (
         <div id="section-2" style={{ padding: '0 0 60px 0', marginBottom: '60px' }}>
@@ -111,6 +241,8 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
                             value={province}
                             onChange={(e) => {
                                 setProvince(e.target.value);
+                                setDistrict('');
+                                setCityVillage('');
                                 setErrors(prev => ({ ...prev, province: '' }));
                             }}
                             error={errors.province}
@@ -120,6 +252,7 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
                                 className="hide-scrollbar"
                                 style={{
                                     display: 'flex',
+                                    alignItems: 'center',
                                     overflowX: 'auto',
                                     gap: '8px',
                                     marginTop: '8px',
@@ -129,23 +262,33 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
                                     scrollbarWidth: 'none'
                                 }}
                             >
+                                {province && (
+                                    <button
+                                        type="button"
+                                        onClick={clearProvince}
+                                        style={{
+                                            ...chipStyle,
+                                            background: '#fff7ed',
+                                            borderColor: '#fdba74',
+                                            color: '#9a3412'
+                                        }}
+                                        onMouseOver={(e) => { e.currentTarget.style.background = '#ffedd5'; e.currentTarget.style.borderColor = '#fb923c'; }}
+                                        onMouseOut={(e) => { e.currentTarget.style.background = '#fff7ed'; e.currentTarget.style.borderColor = '#fdba74'; }}
+                                    >
+                                        Clear
+                                    </button>
+                                )}
                                 {filteredProvinces.map(p => (
                                     <button
                                         key={p}
                                         type="button"
-                                        onClick={() => setProvince(p)}
-                                        style={{
-                                            padding: '6px 14px',
-                                            background: '#f1f5f9',
-                                            border: '1px solid #e2e8f0',
-                                            borderRadius: '20px',
-                                            fontSize: '0.8rem',
-                                            fontWeight: '500',
-                                            color: '#475569',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s',
-                                            flexShrink: 0
+                                        onClick={() => {
+                                            setProvince(p);
+                                            setDistrict('');
+                                            setCityVillage('');
+                                            setErrors(prev => ({ ...prev, province: '' }));
                                         }}
+                                        style={chipStyle}
                                         onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.borderColor = 'var(--color-primary)'; }}
                                         onMouseOut={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                                     >
@@ -163,8 +306,12 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
                             required
                             value={district}
                             onChange={(e) => {
-                                setDistrict(e.target.value);
+                                const nextDistrict = e.target.value;
+                                setDistrict(nextDistrict);
                                 setErrors(prev => ({ ...prev, district: '' }));
+                                if (nextDistrict.trim()) {
+                                    syncProvinceFromDistrict(nextDistrict);
+                                }
                             }}
                             error={errors.district}
                         />
@@ -173,6 +320,7 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
                                 className="hide-scrollbar"
                                 style={{
                                     display: 'flex',
+                                    alignItems: 'center',
                                     overflowX: 'auto',
                                     gap: '8px',
                                     marginTop: '8px',
@@ -182,23 +330,32 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
                                     scrollbarWidth: 'none'
                                 }}
                             >
+                                {district && (
+                                    <button
+                                        type="button"
+                                        onClick={clearDistrict}
+                                        style={{
+                                            ...chipStyle,
+                                            background: '#fff7ed',
+                                            borderColor: '#fdba74',
+                                            color: '#9a3412'
+                                        }}
+                                        onMouseOver={(e) => { e.currentTarget.style.background = '#ffedd5'; e.currentTarget.style.borderColor = '#fb923c'; }}
+                                        onMouseOut={(e) => { e.currentTarget.style.background = '#fff7ed'; e.currentTarget.style.borderColor = '#fdba74'; }}
+                                    >
+                                        Clear
+                                    </button>
+                                )}
                                 {filteredDistricts.map(d => (
                                     <button
                                         key={d}
                                         type="button"
-                                        onClick={() => setDistrict(d)}
-                                        style={{
-                                            padding: '6px 14px',
-                                            background: '#f1f5f9',
-                                            border: '1px solid #e2e8f0',
-                                            borderRadius: '20px',
-                                            fontSize: '0.8rem',
-                                            fontWeight: '500',
-                                            color: '#475569',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s',
-                                            flexShrink: 0
+                                        onClick={() => {
+                                            setDistrict(d);
+                                            syncProvinceFromDistrict(d);
+                                            setErrors(prev => ({ ...prev, district: '' }));
                                         }}
+                                        style={chipStyle}
                                         onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.borderColor = 'var(--color-primary)'; }}
                                         onMouseOut={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                                     >
@@ -208,7 +365,76 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
                             </div>
                         )}
                     </div>
-                    <Input label="City/Village" name="cityVillage" placeholder="City/Village" required value={cityVillage} onChange={(e) => { setCityVillage(e.target.value); setErrors(prev => ({ ...prev, cityVillage: '' })); }} error={errors.cityVillage} />
+                    <div style={{ position: 'relative' }}>
+                        <Input
+                            label="City/Village"
+                            name="cityVillage"
+                            placeholder="City/Village"
+                            required
+                            value={cityVillage}
+                            onChange={(e) => {
+                                const nextCity = e.target.value;
+                                setCityVillage(nextCity);
+                                setErrors(prev => ({ ...prev, cityVillage: '' }));
+                                if (nextCity.trim()) {
+                                    syncProvinceAndDistrictFromCity(nextCity);
+                                }
+                            }}
+                            error={errors.cityVillage}
+                        />
+                        {filteredCities.length > 0 && (
+                            <div
+                                className="hide-scrollbar"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    overflowX: 'auto',
+                                    gap: '8px',
+                                    marginTop: '8px',
+                                    paddingBottom: '4px',
+                                    whiteSpace: 'nowrap',
+                                    msOverflowStyle: 'none',
+                                    scrollbarWidth: 'none'
+                                }}
+                            >
+                                {cityVillage && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setCityVillage('');
+                                            setErrors(prev => ({ ...prev, cityVillage: '' }));
+                                        }}
+                                        style={{
+                                            ...chipStyle,
+                                            background: '#fff7ed',
+                                            borderColor: '#fdba74',
+                                            color: '#9a3412'
+                                        }}
+                                        onMouseOver={(e) => { e.currentTarget.style.background = '#ffedd5'; e.currentTarget.style.borderColor = '#fb923c'; }}
+                                        onMouseOut={(e) => { e.currentTarget.style.background = '#fff7ed'; e.currentTarget.style.borderColor = '#fdba74'; }}
+                                    >
+                                        Clear
+                                    </button>
+                                )}
+                                {filteredCities.map(city => (
+                                    <button
+                                        key={city}
+                                        type="button"
+                                        onClick={() => {
+                                            setCityVillage(city);
+                                            syncProvinceAndDistrictFromCity(city);
+                                            setErrors(prev => ({ ...prev, cityVillage: '' }));
+                                        }}
+                                        style={chipStyle}
+                                        onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.borderColor = 'var(--color-primary)'; }}
+                                        onMouseOut={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                                    >
+                                        {city}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                     <Input label="Area" name="area" placeholder="Area" required value={area} onChange={(e) => { setArea(e.target.value); setErrors(prev => ({ ...prev, area: '' })); }} error={errors.area} />
                     <Input label="Ward Number" name="ward" placeholder="e.g. 8" value={ward} onChange={(e) => setWard(e.target.value)} />
                     <Input label="Landmark" name="landmark" placeholder="e.g. Behind Big Mart" value={landmark} onChange={(e) => setLandmark(e.target.value)} />
@@ -228,6 +454,12 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
                     />
                 </div>
             </div>
+
+            {locationLoadError && (
+                <div style={{ marginTop: '12px', color: '#b91c1c', fontSize: '0.9rem' }}>
+                    {locationLoadError}
+                </div>
+            )}
 
             <div style={{ marginTop: '32px', display: 'flex', justifyContent: 'flex-end' }}>
                 <button type="button" onClick={onComplete} style={{ padding: '16px 40px', background: 'var(--color-primary)', color: 'white', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer', fontSize: '1rem' }}>Continue to Nearby Location →</button>

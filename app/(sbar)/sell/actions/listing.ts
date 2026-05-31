@@ -117,6 +117,18 @@ export async function createListing(formData: FormData) {
             roadType,
             roadSize,
             facingDirection,
+            locationData: {
+                country: 'Nepal',
+                province,
+                district,
+                cityVillage,
+                area,
+                ward,
+                landmark,
+                distanceFrom,
+                latitude,
+                longitude
+            },
             location: {
                 province,
                 latitude,

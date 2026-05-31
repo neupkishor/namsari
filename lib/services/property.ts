@@ -44,6 +44,7 @@ export interface CreatePropertyInput {
         landmark?: string;
         distanceFrom?: string;
     };
+    locationData?: Record<string, unknown>;
 
     // Amenities
     amenities?: Array<{
@@ -177,6 +178,7 @@ export function generatePropertyImageFilename(propertyTitle: string, imageOf: st
 export async function createPropertyListing(input: CreatePropertyInput) {
     const {
         location,
+        locationData,
         pricing,
         openHouse,
         features,
@@ -275,6 +277,7 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                 } : undefined,
                 media: mediaPayload,
                 mainMedia,
+                locationData,
             },
             include: {
                 location: true,

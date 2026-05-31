@@ -231,6 +231,7 @@ model Property {
   // Core metadata
   title                  String
   slug                   String?
+  locationData           Json?
   created_on             DateTime @default(now())
   updated_at             DateTime @updatedAt
 
