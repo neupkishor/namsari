@@ -8,6 +8,8 @@ import { discardPropertyDraft, savePropertyDraft } from './actions/drafts';
 import { BasicInformation } from './components/BasicInformation';
 import { LocationInformation } from './components/LocationInformation';
 import { NearbyLocationInformation } from './components/NearbyLocationInformation';
+import { PricingInformation } from './components/PricingInformation';
+import { PublishingReviewInformation } from './components/PublishingReviewInformation';
 import { PropertyInformation } from './components/PropertyInformation';
 import { PropertyDraftChanges, normalizePropertyDraftChanges } from './draft-utils';
 
@@ -204,8 +206,9 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
             if (!province.trim()) newErrors.province = "Province is required.";
             if (!district.trim()) newErrors.district = "District is required.";
             if (!cityVillage.trim()) newErrors.cityVillage = "City/Village is required.";
-        } else if (section === 4) {
+        } else if (section === 5) {
             if (!price.trim()) newErrors.price = "Please enter a Price.";
+        } else if (section === 6) {
             if (!title.trim()) newErrors.title = "Please enter a Property Title.";
         }
 
@@ -215,12 +218,12 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
 
     const handleCompleteSection = (section: number) => {
         if (validateSection(section)) {
-            const nextUnlockedSections = unlockedSections.includes(section + 1) || section >= 4
+            const nextUnlockedSections = unlockedSections.includes(section + 1) || section >= 6
                 ? unlockedSections
                 : [...unlockedSections, section + 1];
 
             // Unlock the next section if not already unlocked
-            if (!unlockedSections.includes(section + 1) && section < 4) {
+            if (!unlockedSections.includes(section + 1) && section < 6) {
                 setUnlockedSections(nextUnlockedSections);
             }
 
@@ -586,20 +589,6 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
                     <PropertyInformation
                         unlocked={unlockedSections.includes(4)}
                         selectedTypes={selectedTypes}
-                        title={title}
-                        setTitle={setTitle}
-                        setIsTitleEdited={setIsTitleEdited}
-                        pricingType={pricingType}
-                        setPricingType={setPricingType}
-                        pricingUnit={pricingUnit}
-                        setPricingUnit={setPricingUnit}
-                        price={price}
-                        setPrice={setPrice}
-                        priceNegotiable={priceNegotiable}
-                        setPriceNegotiable={setPriceNegotiable}
-                        rentPrice={rentPrice}
-                        setRentPrice={setRentPrice}
-                        getPriceInWords={getPriceInWords}
                         uploadedImages={uploadedImages}
                         uploading={uploading}
                         uploadProgress={uploadProgress}
@@ -640,6 +629,48 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
                         setWaterSupply={setWaterSupply}
                         electricity={electricity}
                         setElectricity={setElectricity}
+                    />
+
+                    <PricingInformation
+                        unlocked={unlockedSections.includes(5)}
+                        onComplete={() => handleCompleteSection(5)}
+                        pricingType={pricingType}
+                        setPricingType={setPricingType}
+                        pricingUnit={pricingUnit}
+                        setPricingUnit={setPricingUnit}
+                        price={price}
+                        setPrice={setPrice}
+                        priceNegotiable={priceNegotiable}
+                        setPriceNegotiable={setPriceNegotiable}
+                        rentPrice={rentPrice}
+                        setRentPrice={setRentPrice}
+                        getPriceInWords={getPriceInWords}
+                        errors={errors}
+                        setErrors={setErrors}
+                    />
+
+                    <PublishingReviewInformation
+                        unlocked={unlockedSections.includes(6)}
+                        title={title}
+                        setTitle={setTitle}
+                        setIsTitleEdited={setIsTitleEdited}
+                        selectedTypes={selectedTypes}
+                        selectedPurposes={selectedPurposes}
+                        selectedNatures={selectedNatures}
+                        province={province}
+                        district={district}
+                        cityVillage={cityVillage}
+                        area={area}
+                        ward={ward}
+                        landmark={landmark}
+                        nearbyLocations={nearbyLocations}
+                        pricingType={pricingType}
+                        pricingUnit={pricingUnit}
+                        price={price}
+                        priceNegotiable={priceNegotiable}
+                        rentPrice={rentPrice}
+                        uploadedImages={uploadedImages}
+                        getPriceInWords={getPriceInWords}
                         errors={errors}
                         setErrors={setErrors}
                     />
