@@ -5,6 +5,7 @@ import imageCompression from 'browser-image-compression';
 import { useRouter } from 'next/navigation';
 import { updateUserCoverImage } from '@/actions/profile-client';
 import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
+import { logUploadError } from '@/lib/client-error-logger';
 
 interface ProfileCoverUploadButtonProps {
     userId: number;
@@ -42,10 +43,23 @@ export default function ProfileCoverUploadButton({ userId }: ProfileCoverUploadB
                 await updateUserCoverImage(userId, fileUrl);
                 router.refresh();
             } else {
+                logUploadError(new Error(data.message || 'Upload failed'), {
+                    fileName: originalFile.name,
+                    uploadType: 'users',
+                    imageType: 'cover',
+                    userId,
+                    response: data
+                });
                 alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (error) {
             console.error(error);
+            logUploadError(error, {
+                fileName: originalFile.name,
+                uploadType: 'users',
+                imageType: 'cover',
+                userId
+            });
             alert('Failed to upload cover image');
         } finally {
             setCompressing(false);

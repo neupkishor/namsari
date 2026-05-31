@@ -3,10 +3,12 @@
 import { AppProgressBar as ProgressBar } from 'next-nprogress-bar';
 import { Suspense } from 'react';
 import { SessionProvider } from 'next-auth/react';
+import { ClientErrorReporter } from '@/components/ClientErrorReporter';
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
     return (
         <SessionProvider>
+            <ClientErrorReporter />
             {children}
             <Suspense fallback={null}>
                 <ProgressBar

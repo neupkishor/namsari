@@ -5,6 +5,7 @@ import { updateUser } from '@/actions/user-admin';
 import imageCompression from 'browser-image-compression';
 import { useRouter } from 'next/navigation';
 import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
+import { logUploadError } from '@/lib/client-error-logger';
 
 interface EditUserClientProps {
     user: any;
@@ -45,10 +46,23 @@ export default function EditUserClient({ user }: EditUserClientProps) {
                 if (type === 'profile') setProfilePic(fileUrl);
                 else setCoverImg(fileUrl);
             } else {
+                logUploadError(new Error(data.message || 'Upload failed'), {
+                    fileName: file.name,
+                    uploadType: 'users',
+                    imageType: type,
+                    targetUsername: user.username,
+                    response: data
+                });
                 alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
             console.error(err);
+            logUploadError(err, {
+                fileName: file.name,
+                uploadType: 'users',
+                imageType: type,
+                targetUsername: user.username
+            });
             alert('Failed to upload image');
         } finally {
             if (type === 'profile') setUploadingProfile(false);

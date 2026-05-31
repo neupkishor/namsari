@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import imageCompression from 'browser-image-compression';
 import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
+import { logUploadError } from '@/lib/client-error-logger';
 
 interface PropertyManageClientProps {
     property: any;
@@ -52,10 +53,23 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
                 await addPropertyImage(property.id, fileUrl, type);
                 router.refresh();
             } else {
+                logUploadError(new Error(data.message || 'Upload failed'), {
+                    fileName: originalFile.name,
+                    uploadType: 'properties',
+                    imageType: type,
+                    propertyId: property.id,
+                    response: data
+                });
                 alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
             console.error(err);
+            logUploadError(err, {
+                fileName: originalFile.name,
+                uploadType: 'properties',
+                imageType: type,
+                propertyId: property.id
+            });
             alert('Failed to upload image');
         } finally {
             setCompressing(false);

@@ -11,6 +11,7 @@ import { PropertyInformation } from './components/PropertyInformation';
 
 import { Header } from '@/components/menu/Header';
 import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
+import { logUploadError } from '@/lib/client-error-logger';
 
 type UploadProgress = {
     fileName: string;
@@ -303,10 +304,21 @@ export default function SellClient({ currentUser, initialPurpose }: { currentUse
                 const fileUrl = resolveUploadedFileUrl(data.path, data.url);
                 setUploadedImages(prev => [...prev, { url: fileUrl, type: imageType }]);
             } else {
+                logUploadError(new Error(data.message || 'Upload failed'), {
+                    imageType,
+                    fileName: originalFile.name,
+                    uploadType: 'properties',
+                    response: data
+                });
                 alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
             console.error(err);
+            logUploadError(err, {
+                imageType,
+                fileName: originalFile.name,
+                uploadType: 'properties'
+            });
             alert(err instanceof Error ? err.message : 'Failed to upload image');
         } finally {
             URL.revokeObjectURL(previewUrl);

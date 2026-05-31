@@ -5,6 +5,7 @@ import imageCompression from 'browser-image-compression';
 import { updateUserProfilePicture } from '@/actions/profile-client';
 import { useRouter } from 'next/navigation';
 import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
+import { logUploadError } from '@/lib/client-error-logger';
 
 interface ProfileImageUploadProps {
     userId: number;
@@ -45,10 +46,23 @@ export default function ProfileImageUploadClient({ userId, currentImage, userNam
                 await updateUserProfilePicture(userId, fileUrl);
                 router.refresh();
             } else {
+                logUploadError(new Error(data.message || 'Upload failed'), {
+                    fileName: originalFile.name,
+                    uploadType: 'users',
+                    imageType: 'profile',
+                    userId,
+                    response: data
+                });
                 alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
             console.error(err);
+            logUploadError(err, {
+                fileName: originalFile.name,
+                uploadType: 'users',
+                imageType: 'profile',
+                userId
+            });
             alert('Failed to upload image');
         } finally {
             setCompressing(false);

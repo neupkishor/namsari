@@ -4,6 +4,7 @@ import React, { useState, useTransition } from 'react';
 import { createAdvertisement, toggleAdvertisementStatus, deleteAdvertisement } from '@/actions/advertisements';
 import imageCompression from 'browser-image-compression';
 import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
+import { logUploadError } from '@/lib/client-error-logger';
 
 export default function AdvertisementManager({ initialAds }: { initialAds: any[] }) {
     const [isPending, startTransition] = useTransition();
@@ -38,10 +39,19 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
                 const fileUrl = resolveUploadedFileUrl(data.path, data.url);
                 setImage(fileUrl);
             } else {
+                logUploadError(new Error(data.message || 'Upload failed'), {
+                    fileName: file.name,
+                    uploadType: 'ads',
+                    response: data
+                });
                 alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
             console.error(err);
+            logUploadError(err, {
+                fileName: file.name,
+                uploadType: 'ads'
+            });
             alert('Failed to upload image');
         } finally {
             setUploading(false);

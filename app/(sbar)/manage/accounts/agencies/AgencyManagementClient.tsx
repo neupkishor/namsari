@@ -7,6 +7,7 @@ import imageCompression from 'browser-image-compression';
 
 import { PaginationControl } from '@/components/ui';
 import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
+import { logUploadError } from '@/lib/client-error-logger';
 
 interface AgencyManagementClientProps {
     yourAgencies: any[];
@@ -104,10 +105,19 @@ export default function AgencyManagementClient({ yourAgencies, allAgencies, show
             if (data.success) {
                 setProfilePic(resolveUploadedFileUrl(data.path, data.url));
             } else {
+                logUploadError(new Error(data.message || 'Upload failed'), {
+                    fileName: originalFile.name,
+                    uploadType: 'agencies',
+                    response: data
+                });
                 alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
             console.error(err);
+            logUploadError(err, {
+                fileName: originalFile.name,
+                uploadType: 'agencies'
+            });
             alert('Failed to upload image');
         } finally {
             setUploading(false);
