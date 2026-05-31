@@ -137,6 +137,7 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
                 { label: 'Careers', icon: '/icons/info.svg', href: '/manage/careers' },
                 { label: 'Support', icon: '/icons/info.svg', href: '/manage/support' },
                 { label: 'Blog', icon: '/icons/note.svg', href: '/manage/blog' },
+                { label: 'Errors', icon: '/icons/info.svg', href: '/manage/errors' },
             ]
         });
     }

@@ -45,6 +45,7 @@ model User {
   
   // Notifications
   notifications  Notification[]
+  errorLogs      ErrorLog[]
 
   // Reviews
   reviews_received Review[] @relation("ReviewReceiver")
@@ -752,4 +753,23 @@ model ActivityLog {
   ip_address      String?
   user_agent      String?
   device_type     String? // mobile, tablet, desktop
+}
+
+model ErrorLog {
+  id          String   @id @default(cuid())
+  message     String
+  source      String
+  page        String?
+  stack       String?
+  log         Json?
+  occurred_at DateTime @default(now())
+  created_at  DateTime @default(now())
+
+  userId      Int?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([occurred_at])
+  @@index([source])
+  @@index([userId])
+  @@map("errors")
 }
