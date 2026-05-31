@@ -1,4 +1,4 @@
-const DEFAULT_UPLOADER_BASE_URL = 'https://namsari.com/uploader/upload.php';
+const DEFAULT_UPLOADER_BASE_URL = 'https://namsari.com/uploader_php_app/upload.php';
 
 export function getUploaderBaseUrl() {
     return process.env.NEXT_PUBLIC_UPLOADER_URL || DEFAULT_UPLOADER_BASE_URL;

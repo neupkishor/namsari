@@ -1,34 +1,50 @@
 # Uploader Guide
 
-This project uses a small PHP upload service for all file uploads such as:
+This project uses a PHP upload service for media such as profile pictures, property images, ad images, and agency images.
 
-- profile pictures
-- property images
-- ad images
-- agency images
-- any other future media uploads
+The design is:
 
-The uploader is designed to save files locally under a typed folder structure and return a web path that the main application can store in the database.
+- main app: `main_app/*`
+- PHP uploader app: `main_app/uploader_php_app/*`
+- uploads storage: `main_app/../uploads`
+
+The uploads directory lives one level outside the main repository.
 
 Production endpoint:
 
 ```text
-https://namsari.com/uploader/upload.php
+https://namsari.com/uploader_php_app/upload.php
 ```
+
+## Environment Files
+
+Main app `.env`:
+
+```ini
+NEXT_PUBLIC_UPLOADER_URL=https://namsari.com/uploader_php_app/upload.php
+```
+
+Uploader PHP app `.env`:
+
+```ini
+PRIVATE_KEY=change-this-to-a-long-random-secret
+UPLOADS_ROOT=../../uploads
+```
+
+The main app uses `NEXT_PUBLIC_UPLOADER_URL` to send files to the PHP uploader.
+The PHP uploader uses `PRIVATE_KEY` to protect rename, move, and delete actions.
+The `UPLOADS_ROOT` path points to the sibling uploads folder outside the repository.
 
 ## Requirements
 
 - PHP 8.0+ recommended
-- A web server that can execute PHP, such as:
-  - nginx + PHP-FPM
-  - Apache + mod_php or PHP-FPM
-  - PHP built-in server for local development
-- Writable `uploads/` directory at the project root
-- The main app must POST multipart form data to the uploader
+- A web server that can execute PHP, such as nginx + PHP-FPM or Apache + PHP-FPM
+- Writable uploads directory outside the repository, for example `/Users/neupkishor/Code/clients/uploads`
+- The main app must POST multipart form data to the uploader endpoint
 
 ## Folder Structure
 
-The uploader saves files under:
+Files are stored under the external uploads root like this:
 
 ```text
 /uploads/{type}/{originalName}.{randomId}.{extension}
@@ -46,19 +62,19 @@ The `type` value becomes the subfolder name.
 
 ## Request Contract
 
-The main application should send:
+The main app should send:
 
-- `type` - folder name such as `users`, `properties`, `ads`, `agencies`
+- `type` - folder name such as `users`, `properties`, `ads`, or `agencies`
 - `file` - the multipart file field name by default
 
 Example request:
 
 ```http
-POST https://namsari.com/uploader/upload.php?type=users&file=file
+POST https://namsari.com/uploader_php_app/upload.php?type=users&file=file
 Content-Type: multipart/form-data
 ```
 
-The file field must match the `file` query value. If `file` is omitted, the PHP service defaults to `file`.
+If `file` is omitted, the PHP service defaults to `file`.
 
 ## Response Contract
 
@@ -84,25 +100,50 @@ Failure response:
 }
 ```
 
+## File Manager
+
+The protected file manager lives at:
+
+```text
+https://namsari.com/uploader_php_app/file-manager.php
+```
+
+It supports:
+
+- `action=rename`
+- `action=move`
+- `action=delete`
+
+It requires:
+
+- `key` - must match `PRIVATE_KEY` from `uploader_php_app/.env`
+- `file` - the relative path inside `/uploads`
+
+Examples:
+
+```http
+POST https://namsari.com/uploader_php_app/file-manager.php?action=rename&file=users/old.jpg&new_name=new.jpg&key=YOUR_PRIVATE_KEY
+POST https://namsari.com/uploader_php_app/file-manager.php?action=move&file=users/old.jpg&destination=properties&key=YOUR_PRIVATE_KEY
+POST https://namsari.com/uploader_php_app/file-manager.php?action=delete&file=users/old.jpg&key=YOUR_PRIVATE_KEY
+```
+
 ## How the ID Works
 
-The uploaded filename includes a 16 character ID that combines:
+The uploaded filename includes a 16 character ID that combines timestamp data and random bytes.
 
-- timestamp information
-- random bytes
-
-This helps avoid collisions and makes the name easier to trace later.
+This helps avoid collisions and keeps file names unique.
 
 ## Local Development Setup
 
-### 1. Ensure the folders exist
+### 1. Create the external uploads folder
 
-The repository should contain:
+The uploads directory should live beside the repository:
 
-- `uploader/upload.php`
-- `uploads/`
+```text
+/Users/neupkishor/Code/clients/uploads
+```
 
-If `uploads/` is missing, create it and make sure PHP can write to it.
+Make sure it exists and PHP can write to it.
 
 ### 2. Start a PHP server
 
@@ -116,7 +157,7 @@ php -S localhost:8001 -t .
 This makes the uploader available at:
 
 ```text
-http://localhost:8001/uploader/upload.php
+http://localhost:8001/uploader_php_app/upload.php
 ```
 
 ### 3. Test with curl
@@ -124,7 +165,7 @@ http://localhost:8001/uploader/upload.php
 ```bash
 curl -v \
   -F "file=@/path/to/image.jpg" \
-  "http://localhost:8001/uploader/upload.php?type=users&file=file"
+  "http://localhost:8001/uploader_php_app/upload.php?type=users&file=file"
 ```
 
 If the upload works, the response should include a `path` value under `/uploads/...`.
@@ -134,7 +175,7 @@ If the upload works, the response should include a `path` value under `/uploads/
 If you want nginx to serve the Next.js app and also execute PHP uploads, use a split setup:
 
 - Next.js runs on one port, for example `3000`
-- PHP-FPM handles `upload.php`
+- PHP-FPM handles the uploader app
 - nginx proxies requests to the correct backend
 
 ### Example nginx server block
@@ -161,11 +202,11 @@ server {
     }
 
     # PHP uploader
-    location ^~ /uploader/ {
-        try_files $uri $uri/ /uploader/upload.php?$query_string;
+    location ^~ /uploader_php_app/ {
+        try_files $uri $uri/ /uploader_php_app/upload.php?$query_string;
     }
 
-    location ~ ^/uploader/.*\.php$ {
+    location ~ ^/uploader_php_app/.*\.php$ {
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         fastcgi_pass 127.0.0.1:9000;
@@ -183,13 +224,13 @@ server {
 
 ## PHP-FPM Notes
 
-Your PHP-FPM pool must allow the web server user to write to the `uploads/` directory.
+The PHP-FPM pool must allow the web server user to write to the sibling uploads directory.
 
 Useful checks:
 
 ```bash
-sudo chown -R www-data:www-data /Users/neupkishor/Code/clients/namsari/uploads
-sudo chmod -R 755 /Users/neupkishor/Code/clients/namsari/uploads
+sudo chown -R www-data:www-data /Users/neupkishor/Code/clients/uploads
+sudo chmod -R 755 /Users/neupkishor/Code/clients/uploads
 ```
 
 If your system uses a different web server user, replace `www-data` accordingly.
@@ -216,7 +257,7 @@ You may also want to enforce a max file size.
 The frontend should POST to the uploader like this:
 
 ```ts
-const res = await fetch('https://namsari.com/uploader/upload.php?type=properties&file=file', {
+const res = await fetch('https://namsari.com/uploader_php_app/upload.php?type=properties&file=file', {
   method: 'POST',
   body: formData,
 });
@@ -233,9 +274,9 @@ const fileUrl = data.path ? `${window.location.origin}${data.path}` : data.url;
 
 ## Troubleshooting
 
-### 404 on `/uploader/upload.php`
+### 404 on `/uploader_php_app/upload.php`
 
-- nginx is not routing `/uploader/` to PHP-FPM
+- nginx is not routing `/uploader_php_app/` to PHP-FPM
 - the PHP file is not in the expected path
 - the app is being served by Next.js alone without PHP enabled
 
@@ -263,8 +304,9 @@ memory_limit = 256M
 
 ## Summary
 
-- Use `uploader/upload.php` as the upload endpoint.
+- Use `uploader_php_app/upload.php` as the upload endpoint.
+- Store private access control in `uploader_php_app/.env`.
+- Keep the uploads directory outside the main repository.
 - Send multipart form data with `type` and `file`.
-- Save uploads under `/uploads/{type}/...`.
 - Configure nginx/PHP-FPM so PHP executes correctly.
-- Make sure `uploads/` is writable and served safely.
+- Make sure the external `uploads/` directory is writable and served safely.

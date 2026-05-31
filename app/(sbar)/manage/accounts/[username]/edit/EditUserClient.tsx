@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { updateUser } from '@/actions/user-admin';
 import imageCompression from 'browser-image-compression';
 import { useRouter } from 'next/navigation';
+import { buildUploaderUrl, resolveUploadedFileUrl } from '@/lib/uploader';
 
 interface EditUserClientProps {
     user: any;
