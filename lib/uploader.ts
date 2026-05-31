@@ -86,8 +86,27 @@ export async function ensurePhpAuthCookie() {
 
 async function recordUploadedMedia(uploadType: string, file: File, originalFile: File, intent: UploadIntent, data: any, folderId?: number | null) {
     const path = data?.path || data?.file || '';
-    const url = resolveUploadedFileUrl(path, data?.url);
-    if (!url) return null;
+    const pathStr = path || '';
+
+    // Build a stable public URL for uploaded assets. Prefer provider `url` when present,
+    // otherwise expose via the `/assets` prefix as requested.
+    let url = data?.url || '';
+    if (!url && pathStr) {
+        const assetsBase = (typeof process !== 'undefined' && process.env && process.env.NEXT_PUBLIC_ASSETS_URL)
+            ? String(process.env.NEXT_PUBLIC_ASSETS_URL)
+            : undefined;
+        if (assetsBase) {
+            url = `${assetsBase.replace(/\/$/, '')}${pathStr}`;
+        } else if (typeof window !== 'undefined' && window.location?.origin) {
+            url = `${window.location.origin.replace(/\/$/, '')}/assets${pathStr}`;
+        } else {
+            url = pathStr;
+        }
+    }
+
+    if (!url) {
+        throw new Error('Unable to determine uploaded file URL');
+    }
 
     const response = await fetch('/api/media', {
         method: 'POST',
@@ -95,10 +114,10 @@ async function recordUploadedMedia(uploadType: string, file: File, originalFile:
         credentials: 'include',
         body: JSON.stringify({
             url,
-            path: path || null,
+            path: pathStr || null,
             uploadType,
             originalName: originalFile.name,
-            fileName: data?.name || path.split('/').filter(Boolean).pop() || file.name,
+            fileName: data?.name || pathStr.split('/').filter(Boolean).pop() || file.name,
             mime: data?.mime || file.type || null,
             originalSize: originalFile.size,
             compressedSize: file.size,
@@ -109,7 +128,12 @@ async function recordUploadedMedia(uploadType: string, file: File, originalFile:
         }),
     });
 
-    return response.ok ? response.json().catch(() => null) : null;
+    const body = await response.json().catch(() => null);
+    if (!response.ok) {
+        throw new Error(body?.error || body?.message || `Failed to record media (status ${response.status})`);
+    }
+
+    return body;
 }
 
 export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
@@ -146,8 +170,14 @@ export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
                 try {
                     const parsed = JSON.parse(xhr.responseText);
                     if (xhr.status >= 200 && xhr.status < 300) {
-                        recordUploadedMedia(options.type, options.file, originalFile, intent, parsed, options.folderId)
-                            .finally(() => resolve(parsed));
+                        (async () => {
+                            try {
+                                await recordUploadedMedia(options.type, options.file, originalFile, intent, parsed, options.folderId);
+                                resolve(parsed);
+                            } catch (err) {
+                                reject(err instanceof Error ? err : new Error(String(err)));
+                            }
+                        })();
                     } else {
                         reject(new Error(parsed.message || parsed.error || `Upload failed with status ${xhr.status}`));
                     }

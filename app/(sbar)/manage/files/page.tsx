@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/actions/auth";
+import { deleteMedia as deleteMediaAction, deleteMediaFolder } from '@/actions/media';
 import { PaginationControl } from "@/components/ui";
 import { FilesManagerClient } from "./FilesManagerClient";
 
@@ -20,7 +21,7 @@ function formatBytes(bytes?: number | null) {
     return `${value.toFixed(value >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
 }
 
-export default async function ManageFilesPage({ searchParams }: { searchParams: Promise<{ page?: string; type?: string; folder?: string }> }) {
+export default async function ManageFilesPage({ searchParams }: { searchParams: Promise<{ page?: string; type?: string; folder?: string; q?: string }> }) {
     const user = await getCurrentUser();
     if (!user) {
         redirect("/auth/login");
@@ -36,17 +37,26 @@ export default async function ManageFilesPage({ searchParams }: { searchParams: 
         redirect("/manage");
     }
 
-    const { page: pageParam, type, folder: folderParam } = await searchParams;
+    const { page: pageParam, type, folder: folderParam, q: qParam } = await searchParams;
     const page = Number(pageParam) || 1;
     const limit = 48;
     const skip = (page - 1) * limit;
+    const q = qParam ? String(qParam).trim() : '';
     const currentFolderId = folderParam ? Number(folderParam) : null;
     const currentFolder = currentFolderId
         ? await prisma.mediaFolder.findUnique({ where: { id: currentFolderId } })
         : null;
-    const mediaWhere = {
+    // Determine folder IDs to include in file search: current folder and its descendants
+    const allFoldersRaw = await prisma.mediaFolder.findMany({ select: { id: true, fullPath: true } });
+    const currentFolderFullPath = currentFolder?.fullPath || 'files';
+    const descendantFolderIds = allFoldersRaw
+        .filter(f => f.fullPath === currentFolderFullPath || f.fullPath.startsWith(`${currentFolderFullPath}/`))
+        .map(f => f.id);
+
+    const mediaWhere: any = {
         ...(type ? { uploadType: type } : {}),
-        folderId: currentFolder?.id || null,
+        ...(currentFolder ? { folderId: { in: descendantFolderIds.length ? descendantFolderIds : [currentFolder.id] } } : { folderId: null }),
+        ...(q ? { OR: [ { fileName: { contains: q, mode: 'insensitive' } }, { originalName: { contains: q, mode: 'insensitive' } } ] } : {}),
     };
 
     const [media, totalCount, uploadTypes, allFolders, childFolders] = await Promise.all([
@@ -116,7 +126,7 @@ export default async function ManageFilesPage({ searchParams }: { searchParams: 
             <FilesManagerClient
                 currentFolderId={currentFolder?.id || null}
                 currentFolderPath={currentFolder?.fullPath || "files"}
-                folders={allFolders}
+                folders={childFolders}
                 media={media.map(item => ({
                     id: item.id,
                     fileName: item.fileName,
@@ -141,66 +151,9 @@ export default async function ManageFilesPage({ searchParams }: { searchParams: 
                 )}
             </div>
 
-            {childFolders.length > 0 && (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "12px", marginBottom: "20px" }}>
-                    {childFolders.map(folder => (
-                        <Link key={folder.id} href={`/manage/files?folder=${folder.id}`} style={{ border: "1px solid #e2e8f0", borderRadius: "8px", padding: "14px", textDecoration: "none", color: "#0f172a", background: "#fff", fontWeight: 800 }}>
-                            <div style={{ fontSize: "1.4rem", marginBottom: "6px" }}>Folder</div>
-                            <div>{folder.name}</div>
-                            <div style={{ color: "#94a3b8", fontSize: "0.78rem", marginTop: "4px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{folder.fullPath}</div>
-                        </Link>
-                    ))}
-                </div>
-            )}
+            {/* Folders are rendered inside the client component (folders prop) */}
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "16px" }}>
-                {media.map(item => (
-                    <article key={item.id} style={{ border: "1px solid #e2e8f0", borderRadius: "8px", overflow: "hidden", background: "white" }}>
-                        <a href={item.url} target="_blank" rel="noreferrer" style={{ display: "block", height: "170px", background: "#f8fafc" }}>
-                            {item.mime?.startsWith("image/") ? (
-                                <img src={item.url} alt={item.originalName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                            ) : (
-                                <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", fontWeight: 800 }}>
-                                    {item.mime || "File"}
-                                </div>
-                            )}
-                        </a>
-
-                        <div style={{ padding: "14px", display: "grid", gap: "10px" }}>
-                            <div>
-                                <div title={item.originalName} style={{ fontWeight: 800, color: "#0f172a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                    {item.originalName}
-                                </div>
-                                <div title={item.fileName} style={{ color: "#64748b", fontSize: "0.8rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                    {item.fileName}
-                                </div>
-                            </div>
-
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.82rem", color: "#334155" }}>
-                                <div><strong>Original:</strong> {formatBytes(item.originalSize)}</div>
-                                <div><strong>Compressed:</strong> {formatBytes(item.compressedSize)}</div>
-                                <div><strong>Stored:</strong> {formatBytes(item.storedSize)}</div>
-                                <div><strong>Type:</strong> {item.uploadType}</div>
-                            </div>
-
-                            <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: "10px", fontSize: "0.82rem", color: "#475569" }}>
-                                Uploaded by{" "}
-                                <strong>{item.uploader.name || item.uploader.username || item.uploader.email || `User ${item.uploader.id}`}</strong>
-                                <span style={{ color: "#94a3b8" }}> · {item.uploader.type}</span>
-                                <div style={{ color: "#94a3b8", marginTop: "4px" }}>
-                                    {item.createdAt.toLocaleString()}
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-                ))}
-            </div>
-
-            {media.length === 0 && (
-                <div style={{ border: "1px dashed #cbd5e1", borderRadius: "8px", padding: "40px", textAlign: "center", color: "#64748b", background: "#f8fafc" }}>
-                    No uploaded files found.
-                </div>
-            )}
+            {/* Media listing moved into the client component (FilesManagerClient) */}
 
             {totalPages > 1 && (
                 <div style={{ marginTop: "24px" }}>

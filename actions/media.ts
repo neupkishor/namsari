@@ -168,3 +168,18 @@ export async function deleteMedia(mediaId: number) {
     await prisma.media.delete({ where: { id: mediaId } });
     revalidatePath('/manage/files');
 }
+
+export async function deleteMediaFolder(folderId: number) {
+    await requireAdmin();
+    const folder = await prisma.mediaFolder.findUnique({ where: { id: folderId } });
+    if (!folder?.fullPath) throw new Error('Folder not found');
+
+    // Ask the file manager to delete the folder. The PHP side only deletes empty folders.
+    await callFileManager({
+        action: 'delete_folder',
+        file: folder.fullPath,
+    });
+
+    await prisma.mediaFolder.delete({ where: { id: folderId } });
+    revalidatePath('/manage/files');
+}

@@ -161,4 +161,44 @@ if ($action === 'move') {
     ]);
 }
 
+if ($action === 'delete_folder') {
+    $relative = rtrim($source, '/');
+    $targetDir = $uploadsRoot . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, ltrim($relative, '/'));
+
+    if (!is_dir($targetDir)) {
+        phpAppError('Folder not found', 404);
+    }
+
+    $targetReal = realpath($targetDir);
+    $uploadsReal = realpath($uploadsRoot);
+    if ($targetReal === false || $uploadsReal === false) {
+        phpAppError('Unable to resolve paths', 500);
+    }
+
+    $uploadsPrefix = rtrim($uploadsReal, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+    if (strpos($targetReal, $uploadsPrefix) !== 0 && $targetReal !== $uploadsReal) {
+        phpAppError('Folder is outside uploads directory', 403);
+    }
+
+    // Only allow deletion of empty folders for safety
+    $entries = array_diff(scandir($targetReal), array('.', '..'));
+    if (!empty($entries)) {
+        phpAppError('Folder is not empty', 400);
+    }
+
+    if (!rmdir($targetReal)) {
+        phpAppError('Failed to delete folder', 500);
+    }
+
+    $relativeNewPath = str_replace($uploadsReal . DIRECTORY_SEPARATOR, '', $targetReal);
+    $relativeNewPath = str_replace(DIRECTORY_SEPARATOR, '/', $relativeNewPath);
+    $relativeNewPath = phpAppFileManagerNormalizePublicFilePath($relativeNewPath);
+
+    phpAppFileManagerRespond([
+        'success' => true,
+        'action' => 'delete_folder',
+        'folder' => $relativeNewPath,
+    ]);
+}
+
 phpAppError('Unsupported action', 400);
