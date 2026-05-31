@@ -284,6 +284,10 @@ function phpAppRequireUploadPermission(array $user, string $type): void {
     if ($type === 'agencies' && !$user['isAgency'] && !$user['isOwner']) {
         phpAppError('Unauthorized for agency uploads', 403);
     }
+
+    if ($type === 'files') {
+        phpAppError('Unauthorized for file-manager uploads', 403);
+    }
 }
 
 function phpAppCorsOrigin(): string {

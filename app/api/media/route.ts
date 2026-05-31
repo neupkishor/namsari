@@ -33,6 +33,17 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'url, originalName, and fileName are required' }, { status: 400 });
     }
 
+    if (uploadType === 'files') {
+        const user = await prisma.user.findUnique({
+            where: { id: Number(session.user.id) },
+            include: { role: true },
+        });
+        const isAdmin = user?.type === 'admin' || user?.role?.role?.toLowerCase().includes('admin');
+        if (!isAdmin) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+        }
+    }
+
     const media = await prisma.media.create({
         data: {
             uploaderId: Number(session.user.id),

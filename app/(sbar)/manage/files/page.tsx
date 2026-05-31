@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/actions/auth";
 import { PaginationControl } from "@/components/ui";
-import { FilesUploadClient } from "./FilesUploadClient";
+import { FilesManagerClient } from "./FilesManagerClient";
 
 function formatBytes(bytes?: number | null) {
     if (!bytes || bytes <= 0) return "n/a";
@@ -20,7 +20,7 @@ function formatBytes(bytes?: number | null) {
     return `${value.toFixed(value >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
 }
 
-export default async function ManageFilesPage({ searchParams }: { searchParams: Promise<{ page?: string; type?: string }> }) {
+export default async function ManageFilesPage({ searchParams }: { searchParams: Promise<{ page?: string; type?: string; folder?: string }> }) {
     const user = await getCurrentUser();
     if (!user) {
         redirect("/auth/login");
@@ -36,15 +36,22 @@ export default async function ManageFilesPage({ searchParams }: { searchParams: 
         redirect("/manage");
     }
 
-    const { page: pageParam, type } = await searchParams;
+    const { page: pageParam, type, folder: folderParam } = await searchParams;
     const page = Number(pageParam) || 1;
     const limit = 48;
     const skip = (page - 1) * limit;
-    const where = type ? { uploadType: type } : {};
+    const currentFolderId = folderParam ? Number(folderParam) : null;
+    const currentFolder = currentFolderId
+        ? await prisma.mediaFolder.findUnique({ where: { id: currentFolderId } })
+        : null;
+    const mediaWhere = {
+        ...(type ? { uploadType: type } : {}),
+        folderId: currentFolder?.id || null,
+    };
 
-    const [media, totalCount, uploadTypes] = await Promise.all([
+    const [media, totalCount, uploadTypes, allFolders, childFolders] = await Promise.all([
         prisma.media.findMany({
-            where,
+            where: mediaWhere,
             include: {
                 uploader: {
                     select: {
@@ -60,15 +67,25 @@ export default async function ManageFilesPage({ searchParams }: { searchParams: 
             skip,
             take: limit,
         }),
-        prisma.media.count({ where }),
+        prisma.media.count({ where: mediaWhere }),
         prisma.media.findMany({
             distinct: ["uploadType"],
             orderBy: { uploadType: "asc" },
             select: { uploadType: true },
         }),
+        prisma.mediaFolder.findMany({
+            orderBy: [{ fullPath: "asc" }],
+            select: { id: true, name: true, fullPath: true, parentId: true },
+        }),
+        prisma.mediaFolder.findMany({
+            where: { parentId: currentFolder?.id || null },
+            orderBy: { name: "asc" },
+            select: { id: true, name: true, fullPath: true, parentId: true },
+        }),
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);
+    const parentFolder = currentFolder?.parentId ? allFolders.find(folder => folder.id === currentFolder.parentId) : null;
 
     return (
         <div style={{ padding: "24px" }}>
@@ -96,7 +113,45 @@ export default async function ManageFilesPage({ searchParams }: { searchParams: 
                 </div>
             </header>
 
-            <FilesUploadClient />
+            <FilesManagerClient
+                currentFolderId={currentFolder?.id || null}
+                currentFolderPath={currentFolder?.fullPath || "files"}
+                folders={allFolders}
+                media={media.map(item => ({
+                    id: item.id,
+                    fileName: item.fileName,
+                    originalName: item.originalName,
+                    folderId: item.folderId,
+                }))}
+            />
+
+            <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap", marginBottom: "16px", color: "#64748b", fontSize: "0.9rem" }}>
+                <Link href="/manage/files" style={{ color: "var(--color-primary)", fontWeight: 800, textDecoration: "none" }}>files</Link>
+                {currentFolder && (
+                    <>
+                        <span>/</span>
+                        <span style={{ fontWeight: 800, color: "#0f172a" }}>{currentFolder.name}</span>
+                    </>
+                )}
+                {parentFolder && (
+                    <Link href={`/manage/files?folder=${parentFolder.id}`} style={{ marginLeft: "auto", color: "#64748b", fontWeight: 700, textDecoration: "none" }}>Up one folder</Link>
+                )}
+                {currentFolder && !parentFolder && (
+                    <Link href="/manage/files" style={{ marginLeft: "auto", color: "#64748b", fontWeight: 700, textDecoration: "none" }}>Back to root</Link>
+                )}
+            </div>
+
+            {childFolders.length > 0 && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "12px", marginBottom: "20px" }}>
+                    {childFolders.map(folder => (
+                        <Link key={folder.id} href={`/manage/files?folder=${folder.id}`} style={{ border: "1px solid #e2e8f0", borderRadius: "8px", padding: "14px", textDecoration: "none", color: "#0f172a", background: "#fff", fontWeight: 800 }}>
+                            <div style={{ fontSize: "1.4rem", marginBottom: "6px" }}>Folder</div>
+                            <div>{folder.name}</div>
+                            <div style={{ color: "#94a3b8", fontSize: "0.78rem", marginTop: "4px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{folder.fullPath}</div>
+                        </Link>
+                    ))}
+                </div>
+            )}
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "16px" }}>
                 {media.map(item => (

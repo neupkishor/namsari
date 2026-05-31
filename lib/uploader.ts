@@ -73,7 +73,7 @@ export async function createUploadIntent(file: File): Promise<UploadIntent> {
     };
 }
 
-async function ensurePhpAuthCookie() {
+export async function ensurePhpAuthCookie() {
     const response = await fetch(AUTH_COOKIE_SYNC_ENDPOINT, {
         method: 'POST',
         credentials: 'include',
