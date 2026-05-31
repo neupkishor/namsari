@@ -15,6 +15,7 @@ import { Header } from '@/components/menu/Header';
 import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
 import { logUploadError } from '@/lib/client-error-logger';
 import { getConfiguredDefaultUnit, mergeDraftDefaults } from '@/lib/agency-config';
+import styles from './SellClient.module.css';
 
 type UploadProgress = {
     fileName: string;
@@ -86,7 +87,9 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
     const [draftStatus, setDraftStatus] = useState<'draft' | 'published' | 'discarded'>(initialDraft?.status || 'draft');
     const [showDraftBanner, setShowDraftBanner] = useState(Boolean(initialDraft));
     const [lastSavedAt, setLastSavedAt] = useState<string | null>(initialDraft?.updated_at ? new Date(initialDraft.updated_at).toLocaleString() : null);
-    const autosaveTimerRef = useRef<number | null>(null);
+    const saveInFlightRef = useRef(false);
+    const pendingSaveRef = useRef(false);
+    const lastSavedSnapshotRef = useRef<string>('');
     const didHydrateDraftRef = useRef(false);
 
     useEffect(() => {
@@ -115,79 +118,11 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
     }, [selectedNatures, selectedTypes, selectedPurposes, isTitleEdited]);
 
     useEffect(() => {
-        if (!draftId) return;
+        if (!draftId || didHydrateDraftRef.current) return;
 
-        if (!didHydrateDraftRef.current) {
-            didHydrateDraftRef.current = true;
-            return;
-        }
-
-        if (draftStatus === 'published') return;
-
-        if (autosaveTimerRef.current) {
-            window.clearTimeout(autosaveTimerRef.current);
-        }
-
-        autosaveTimerRef.current = window.setTimeout(async () => {
-            try {
-                const snapshot = buildDraftSnapshot();
-
-                const response = await savePropertyDraft(draftId, snapshot, initialDraft?.doing || 'creation');
-                setDraftStatus('draft');
-                setLastSavedAt(new Date(response.updated_at).toLocaleString());
-            } catch (error) {
-                console.error('Failed to save property draft:', error);
-            }
-        }, 700);
-
-        return () => {
-            if (autosaveTimerRef.current) {
-                window.clearTimeout(autosaveTimerRef.current);
-            }
-        };
-    }, [
-        draftId,
-        draftStatus,
-        selectedTypes,
-        selectedPurposes,
-        selectedNatures,
-        pricingType,
-        pricingUnit,
-        uploadedImages,
-        price,
-        priceNegotiable,
-        rentPrice,
-        coords,
-        locationSource,
-        title,
-        province,
-        district,
-        cityVillage,
-        area,
-        ward,
-        landmark,
-        nearbyLocations,
-        roadType,
-        roadSize,
-        facingDirection,
-        furnishing,
-        builtUpAreaUnit,
-        bedrooms,
-        bathrooms,
-        kitchens,
-        livingRooms,
-        floorNumber,
-        totalFloors,
-        builtUpArea,
-        parkingAvailable,
-        elevator,
-        security,
-        waterSupply,
-        electricity,
-        unlockedSections,
-        isTitleEdited,
-        initialDraft,
-    ]);
+        lastSavedSnapshotRef.current = JSON.stringify(buildDraftSnapshot());
+        didHydrateDraftRef.current = true;
+    }, [draftId]);
 
     const amenitiyOptions = [
         'hospital', 'gym', 'park', 'pokhara', 'woda office', 'public transport',
@@ -259,9 +194,6 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
         );
     };
 
-    // Track which sections are unlocked/visible
-    const [unlockedSections, setUnlockedSections] = useState<number[]>([1]);
-
     const validateSection = (section: number) => {
         const newErrors: Record<string, string> = {};
 
@@ -283,10 +215,17 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
 
     const handleCompleteSection = (section: number) => {
         if (validateSection(section)) {
+            const nextUnlockedSections = unlockedSections.includes(section + 1) || section >= 4
+                ? unlockedSections
+                : [...unlockedSections, section + 1];
+
             // Unlock the next section if not already unlocked
             if (!unlockedSections.includes(section + 1) && section < 4) {
-                setUnlockedSections(prev => [...prev, section + 1]);
+                setUnlockedSections(nextUnlockedSections);
             }
+
+            void saveDraftSnapshot({ unlockedSections: nextUnlockedSections });
+
             // Scroll to next section smoothly
             setTimeout(() => {
                 const nextSection = document.getElementById(`section-${section + 1}`);
@@ -320,8 +259,10 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
             (position) => {
                 const lat = position.coords.latitude.toString();
                 const lng = position.coords.longitude.toString();
+                const nextCoords = { lat, lng };
                 setCoords({ lat, lng });
                 setLocationSource(`${lat}, ${lng}`);
+                void saveDraftSnapshot({ coords: nextCoords, locationSource: `${lat}, ${lng}` });
                 setFetchingCoords(false);
             },
             (error) => {
@@ -392,7 +333,9 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
 
             if (data.success) {
                 const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
-                setUploadedImages(prev => [...prev, { url: fileUrl, type: imageType }]);
+                const nextUploadedImages = [...uploadedImages, { url: fileUrl, type: imageType }];
+                setUploadedImages(nextUploadedImages);
+                void saveDraftSnapshot({ uploadedImages: nextUploadedImages });
             } else {
                 logUploadError(new Error(data.message || 'Upload failed'), {
                     imageType,
@@ -420,7 +363,11 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
     };
 
     const removeImage = (index: number) => {
-        setUploadedImages(prev => prev.filter((_, i) => i !== index));
+        setUploadedImages(prev => {
+            const nextUploadedImages = prev.filter((_, i) => i !== index);
+            void saveDraftSnapshot({ uploadedImages: nextUploadedImages });
+            return nextUploadedImages;
+        });
     };
 
     const buildDraftSnapshot = (): PropertyDraftChanges => ({
@@ -465,6 +412,43 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
         doing: initialDraft?.doing || 'creation',
     });
 
+    const saveDraftSnapshot = async (overrides?: Partial<PropertyDraftChanges>) => {
+        if (!draftId || draftStatus === 'published') return;
+
+        const snapshot = {
+            ...buildDraftSnapshot(),
+            ...(overrides || {}),
+        };
+        const serializedSnapshot = JSON.stringify(snapshot);
+
+        if (lastSavedSnapshotRef.current === serializedSnapshot) {
+            return;
+        }
+
+        if (saveInFlightRef.current) {
+            pendingSaveRef.current = true;
+            return;
+        }
+
+        saveInFlightRef.current = true;
+
+        try {
+            const response = await savePropertyDraft(draftId, snapshot, initialDraft?.doing || 'creation');
+            setDraftStatus('draft');
+            setLastSavedAt(new Date(response.updated_at).toLocaleString());
+            lastSavedSnapshotRef.current = serializedSnapshot;
+        } catch (error) {
+            console.error('Failed to save property draft:', error);
+        } finally {
+            saveInFlightRef.current = false;
+
+            if (pendingSaveRef.current) {
+                pendingSaveRef.current = false;
+                void saveDraftSnapshot();
+            }
+        }
+    };
+
     const handleResumeDraft = async () => {
         if (!draftId) return;
 
@@ -491,44 +475,44 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
     };
 
     return (
-        <main style={{ backgroundColor: '#f8fafc', minHeight: '100vh', paddingBottom: '100px' }}>
+        <main className={styles.page}>
             <Header user={currentUser} />
 
-            <div className="layout-container" style={{ maxWidth: '900px', paddingTop: '60px' }}>
-                <div style={{ marginBottom: '40px' }}>
-                    <h1 style={{ fontSize: '2.5rem', fontWeight: '700', color: 'var(--color-primary-light)', marginBottom: '12px' }}>List New Property</h1>
-                    <p style={{ fontSize: '1rem', color: '#64748b' }}>Fill out the form below to list your property. Complete each section to unlock the next.</p>
+            <div className={styles.container}>
+                <div className={styles.heading}>
+                    <h1 className={styles.title}>List New Property</h1>
+                    <p className={styles.description}>Fill out the form below to list your property. Complete each section to unlock the next.</p>
                 </div>
 
                 {showDraftBanner && draftStatus !== 'published' && (
-                    <div style={{ marginBottom: '28px', padding: '20px 22px', borderRadius: '18px', border: '1px solid rgba(10,107,255,0.18)', background: 'linear-gradient(180deg, rgba(10,107,255,0.08), rgba(10,107,255,0.03))' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                            <div style={{ maxWidth: '640px' }}>
-                                <div style={{ fontSize: '0.78rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--color-primary)', marginBottom: '6px' }}>
+                    <div className={styles.banner}>
+                        <div className={styles.bannerContent}>
+                            <div className={styles.bannerInfo}>
+                                <div className={styles.bannerLabel}>
                                     {draftStatus === 'discarded' ? 'Discarded draft' : 'Saved draft'}
                                 </div>
-                                <div style={{ fontSize: '1.05rem', fontWeight: '800', color: '#0f172a', marginBottom: '4px' }}>
+                                <div className={styles.bannerTitle}>
                                     You can continue editing from your last stage.
                                 </div>
-                                <div style={{ fontSize: '0.92rem', color: '#64748b', lineHeight: 1.6 }}>
+                                <div className={styles.bannerDescription}>
                                     {draftStatus === 'discarded'
                                         ? 'This draft was discarded previously, but your changes can be resumed from this point.'
                                         : 'Your progress is being saved automatically so refreshes do not reset the form.'}
                                     {lastSavedAt ? ` Last saved ${lastSavedAt}.` : ''}
                                 </div>
                             </div>
-                            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                            <div className={styles.bannerActions}>
                                 <button
                                     type="button"
                                     onClick={handleResumeDraft}
-                                    style={{ padding: '12px 18px', borderRadius: '999px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: '700', cursor: 'pointer' }}
+                                    className={styles.primaryButton}
                                 >
                                     Edit from last session
                                 </button>
                                 <button
                                     type="button"
                                     onClick={handleDiscardDraft}
-                                    style={{ padding: '12px 18px', borderRadius: '999px', border: '1px solid #dbe4f0', background: 'white', color: '#334155', fontWeight: '700', cursor: 'pointer' }}
+                                    className={styles.secondaryButton}
                                 >
                                     Discard
                                 </button>
@@ -537,7 +521,17 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
                     </div>
                 )}
 
-                <form action={createListing} style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                <form action={createListing} className={styles.form} onBlurCapture={(event) => {
+                    const target = event.target as HTMLElement | null;
+                    if (!target) return;
+
+                    const tagName = target.tagName;
+                    if (tagName !== 'INPUT' && tagName !== 'TEXTAREA' && tagName !== 'SELECT') {
+                        return;
+                    }
+
+                    void saveDraftSnapshot();
+                }}>
                     <input type="hidden" name="draftId" value={draftId ?? ''} />
 
                     <BasicInformation
