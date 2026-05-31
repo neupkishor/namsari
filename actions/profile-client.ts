@@ -62,8 +62,30 @@ async function ensureProfileOwner(userId: number) {
     }
 }
 
+async function canAgentUpdateInfo(userId: number) {
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { type: true, agency_id: true },
+    });
+
+    if (!user || user.type !== 'agent' || !user.agency_id) {
+        return true;
+    }
+
+    const config = await prisma.agencyConfig.findUnique({
+        where: { agencyId: user.agency_id },
+        select: { canAgentChangeInfo: true },
+    });
+
+    return config?.canAgentChangeInfo !== false;
+}
+
 export async function updateUserProfilePicture(userId: number, url: string) {
     await ensureProfileOwner(userId);
+
+    if (!(await canAgentUpdateInfo(userId))) {
+        return { success: false, message: 'This agency does not allow agents to update profile details.' };
+    }
 
     const currentUser = await prisma.user.findUnique({
         where: { id: userId },
@@ -89,6 +111,10 @@ export async function updateUserProfilePicture(userId: number, url: string) {
 export async function updateUserCoverImage(userId: number, url: string) {
     await ensureProfileOwner(userId);
 
+    if (!(await canAgentUpdateInfo(userId))) {
+        return { success: false, message: 'This agency does not allow agents to update profile details.' };
+    }
+
     const currentUser = await prisma.user.findUnique({
         where: { id: userId },
         select: { cover_image: true }
@@ -112,6 +138,10 @@ export async function updateUserCoverImage(userId: number, url: string) {
 
 export async function updateProfile(userId: number, formData: FormData) {
     await ensureProfileOwner(userId);
+
+    if (!(await canAgentUpdateInfo(userId))) {
+        return { success: false, message: 'This agency does not allow agents to update profile details.' };
+    }
 
     const name = formData.get('name') as string;
     const bio = formData.get('bio') as string;
@@ -169,6 +199,10 @@ export async function updateProfile(userId: number, formData: FormData) {
 export async function beginSensitiveProfileUpdate(userId: number, kind: 'email' | 'phone' | 'password', currentPassword: string) {
     await ensureProfileOwner(userId);
 
+    if ((kind === 'email' || kind === 'phone') && !(await canAgentUpdateInfo(userId))) {
+        return { success: false, message: 'This agency does not allow agents to update profile details.' };
+    }
+
     if (!currentPassword || !currentPassword.trim()) {
         return { success: false, message: 'Current password is required' };
     }
@@ -202,6 +236,10 @@ export async function completeSensitiveProfileUpdate(
     payload: { email?: string; phone?: string; password?: string; confirmPassword?: string; }
 ) {
     await ensureProfileOwner(userId);
+
+    if ((kind === 'email' || kind === 'phone') && !(await canAgentUpdateInfo(userId))) {
+        return { success: false, message: 'This agency does not allow agents to update profile details.' };
+    }
 
     if (!token || !verifySensitiveUpdateToken(token, userId, kind)) {
         return { success: false, message: 'Verification expired. Please confirm your current password again.' };

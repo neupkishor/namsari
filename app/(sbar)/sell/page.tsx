@@ -13,6 +13,8 @@ import {
     getLatestPropertyDraftForUser,
     getPropertyDraftById,
 } from './actions/drafts';
+import { getAgencyConfigByAgencyId } from '@/actions/agency-config';
+import { resolveActiveAgencyId, mergeDraftDefaults } from '@/lib/agency-config';
 
 export default async function SellPage({ searchParams }: { searchParams: Promise<{ purpose?: string; id?: string }> }) {
     const { purpose, id } = await searchParams;
@@ -32,6 +34,9 @@ export default async function SellPage({ searchParams }: { searchParams: Promise
     if (!user) {
         redirect('/auth/login');
     }
+
+    const activeAgencyId = resolveActiveAgencyId(user, session.operatingId);
+    const agencyConfig = activeAgencyId ? await getAgencyConfigByAgencyId(activeAgencyId) : null;
 
     const db = prisma as any;
     const draftId = id ? Number(id) : NaN;
@@ -64,7 +69,7 @@ export default async function SellPage({ searchParams }: { searchParams: Promise
             if (canSeedFromProperty) {
                 draft = await db.propertyDraft.create({
                     data: {
-                        changes: createPropertyDraftChangesFromProperty(property, purpose),
+                        changes: mergeDraftDefaults(createPropertyDraftChangesFromProperty(property, purpose), agencyConfig),
                         doing: 'edit',
                         status: 'draft',
                         created_by: userId,
@@ -86,7 +91,7 @@ export default async function SellPage({ searchParams }: { searchParams: Promise
 
         draft = await db.propertyDraft.create({
             data: {
-                changes: createBlankPropertyDraftChanges(purpose),
+                changes: createBlankPropertyDraftChanges(purpose, agencyConfig),
                 doing: 'creation',
                 status: 'draft',
                 created_by: userId,
@@ -111,6 +116,7 @@ export default async function SellPage({ searchParams }: { searchParams: Promise
             currentUser={user}
             initialPurpose={purpose}
             initialDraft={initialDraft}
+            agencyConfig={agencyConfig}
         />
     );
 }

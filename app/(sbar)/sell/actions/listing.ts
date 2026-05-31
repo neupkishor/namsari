@@ -6,6 +6,8 @@ import { getSession } from '@/lib/auth';
 import { createPropertyListing } from '@/lib/services/property';
 import { logActivity } from '@/lib/activity';
 import { publishPropertyDraft } from './drafts';
+import { getAgencyConfigByAgencyId } from '@/actions/agency-config';
+import { formatRoadSizeValue, getConfiguredDefaultUnit, normalizeAgencyConfig, resolveActiveAgencyId } from '@/lib/agency-config';
 
 export async function createListing(formData: FormData) {
     const session = await getSession();
@@ -14,6 +16,14 @@ export async function createListing(formData: FormData) {
     }
 
     const userId = Number(session.id);
+    const currentUser = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { role: true },
+    });
+
+    const agencyId = resolveActiveAgencyId(currentUser, session.operatingId);
+    const agencyConfig = agencyId ? await getAgencyConfigByAgencyId(agencyId) : null;
+    const normalizedAgencyConfig = normalizeAgencyConfig(agencyConfig);
 
     // 1. Basic Details
     const title = formData.get('title') as string;
@@ -27,24 +37,25 @@ export async function createListing(formData: FormData) {
 
     // 3. Road and Entrance
     const roadType = formData.get('roadType') as string || undefined;
-    const roadSize = formData.get('roadSize') as string || undefined;
+    const roadSize = formatRoadSizeValue(formData.get('roadSize') as string || '', agencyConfig) || undefined;
     const facingDirection = formData.get('facingDirection') as string || undefined;
 
     // 4. Location Information
-    const province = formData.get('province') as string;
+    const defaultLocation = normalizedAgencyConfig?.defaultLocation || {};
+    const province = (formData.get('province') as string) || defaultLocation.province || '';
     const latitude = formData.get('latitude') ? parseFloat(formData.get('latitude') as string) : undefined;
     const longitude = formData.get('longitude') ? parseFloat(formData.get('longitude') as string) : undefined;
-    const district = formData.get('district') as string;
-    const cityVillage = formData.get('cityVillage') as string;
-    const area = formData.get('area') as string;
-    const ward = formData.get('ward') as string || undefined;
-    const landmark = formData.get('landmark') as string || undefined;
+    const district = (formData.get('district') as string) || defaultLocation.district || '';
+    const cityVillage = (formData.get('cityVillage') as string) || defaultLocation.cityVillage || '';
+    const area = (formData.get('area') as string) || defaultLocation.area || '';
+    const ward = (formData.get('ward') as string) || defaultLocation.ward || undefined;
+    const landmark = (formData.get('landmark') as string) || defaultLocation.landmark || undefined;
     const distanceFrom = formData.get('distanceFrom') as string || undefined;
 
     // 5. Pricing Details
     const negotiable = formData.get('negotiable') === 'on' || formData.get('negotiable') === null;
     const pricingType = formData.get('pricingType') as string; // flat, perUnit
-    const unit = formData.get('unit') as string || undefined;
+    const unit = (formData.get('unit') as string) || getConfiguredDefaultUnit(agencyConfig, 'pricing') || undefined;
 
     // 6. Open House
     const markOpenHouse = formData.get('markOpenHouse') === 'on';
@@ -75,6 +86,59 @@ export async function createListing(formData: FormData) {
         imageOf: imageOfs[index] || 'other',
         filename: `${title.toLowerCase().replace(/\s+/g, '-')}-${imageOfs[index] || 'other'}-${Date.now()}-${index}`
     }));
+
+    const status = normalizedAgencyConfig?.reviewRequired ? 'pending' : 'approved';
+
+    if (normalizedAgencyConfig?.minPhotoCount && images.length < normalizedAgencyConfig.minPhotoCount) {
+        throw new Error(`Minimum ${normalizedAgencyConfig.minPhotoCount} photos are required for this agency.`);
+    }
+
+    const requiredFieldValues: Record<string, unknown> = {
+        propertyType: types,
+        propertyPurpose: purposes,
+        propertyNature: natures,
+        title,
+        province,
+        district,
+        cityVillage,
+        area,
+        ward,
+        landmark,
+        roadType,
+        roadSize,
+        facingDirection,
+        pricingType,
+        unit,
+        price,
+        priceNegotiable,
+        rentPrice,
+        bedrooms: formData.get('bedrooms'),
+        bathrooms: formData.get('bathrooms'),
+        kitchens: formData.get('kitchens'),
+        livingRooms: formData.get('livingRooms'),
+        floorNumber: formData.get('floorNumber'),
+        totalFloors: formData.get('totalFloors'),
+        builtUpArea: formData.get('builtUpArea'),
+        builtUpAreaUnit: formData.get('builtUpAreaUnit') || getConfiguredDefaultUnit(agencyConfig, 'builtUpArea'),
+        image_url: imageUrls,
+    };
+
+    const missingFields = (normalizedAgencyConfig?.compulsoryFields || []).filter((field) => {
+        const scalarValue = requiredFieldValues[field];
+        if (Array.isArray(scalarValue)) {
+            return scalarValue.length === 0;
+        }
+
+        if (scalarValue === null || scalarValue === undefined) {
+            return true;
+        }
+
+        return String(scalarValue).trim().length === 0;
+    });
+
+    if (missingFields.length > 0) {
+        throw new Error(`Missing compulsory fields: ${missingFields.join(', ')}`);
+    }
 
     // Helper to parse numeric values safely
     const parseNum = (val: any) => (val && val !== '') ? Number(val) : undefined;
@@ -161,6 +225,7 @@ export async function createListing(formData: FormData) {
             features
         });
 
+            status,
         await logActivity({
             activity_type: 'create_property',
             description: `Created property listing: ${title}`,

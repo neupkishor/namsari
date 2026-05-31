@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/auth';
+import { getAgencyConfigByAgencyId } from '@/actions/agency-config';
 
 // Helper to verify property access
 async function checkPropertyAccess(propertyId: number): Promise<boolean> {
@@ -140,4 +141,54 @@ export async function updateSoldStatus(propertyId: number, soldStatus: string) {
         data: { soldStatus }
     });
     revalidatePath(`/manage/properties/[slugAndId]`, 'page');
+}
+
+export async function deletePropertyListing(propertyId: number) {
+    const session = await getSession();
+    if (!session?.id) {
+        throw new Error('Unauthorized');
+    }
+
+    const currentUser = await prisma.user.findUnique({
+        where: { id: parseInt(session.id) },
+        include: { role: true },
+    });
+
+    if (!currentUser) {
+        throw new Error('Unauthorized');
+    }
+
+    const property = await prisma.property.findUnique({
+        where: { id: propertyId },
+        include: { listedBy: true },
+    });
+
+    if (!property) {
+        throw new Error('Property not found');
+    }
+
+    const roleName = currentUser.role?.role?.toLowerCase() || '';
+    const isAdmin = currentUser.type === 'admin' || roleName.includes('admin');
+    const isAgencyOwner = currentUser.type === 'agency' && (property?.listedBy as any)?.agency_id === currentUser.id;
+    const isOwnProperty = property.listedById === currentUser.id;
+    const isAgent = currentUser.type === 'agent';
+
+    if (!isAdmin && !isAgencyOwner && !isOwnProperty) {
+        throw new Error('Unauthorized');
+    }
+
+    if (isAgent && currentUser.agency_id) {
+        const agencyConfig = await getAgencyConfigByAgencyId(currentUser.agency_id);
+        if (agencyConfig && agencyConfig.canAgentDelete === false) {
+            throw new Error('This agency does not allow agents to delete listings.');
+        }
+    }
+
+    await prisma.property.delete({
+        where: { id: propertyId },
+    });
+
+    revalidatePath('/manage/properties');
+    revalidatePath('/manage/properties/[slugAndId]', 'page');
+    revalidatePath('/');
 }

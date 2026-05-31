@@ -1,7 +1,9 @@
+import { getConfiguredDefaultUnit, mergeDraftDefaults } from '@/lib/agency-config';
+
 export type PropertyDraftChanges = Record<string, any>;
 
-export function createBlankPropertyDraftChanges(initialPurpose?: string): PropertyDraftChanges {
-    return {
+export function createBlankPropertyDraftChanges(initialPurpose?: string, agencyConfig?: any): PropertyDraftChanges {
+    const base = {
         selectedTypes: [],
         selectedPurposes: initialPurpose === 'sale' || initialPurpose === 'rent' ? [initialPurpose] : [],
         selectedNatures: [],
@@ -41,6 +43,11 @@ export function createBlankPropertyDraftChanges(initialPurpose?: string): Proper
         unlockedSections: [1],
         isTitleEdited: false,
     };
+
+    return mergeDraftDefaults({
+        ...base,
+        builtUpAreaUnit: getConfiguredDefaultUnit(agencyConfig, 'builtUpArea') || base.builtUpAreaUnit,
+    }, agencyConfig);
 }
 
 export function createPropertyDraftChangesFromProperty(property: any, initialPurpose?: string): PropertyDraftChanges {

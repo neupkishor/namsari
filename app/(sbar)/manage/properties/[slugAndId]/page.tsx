@@ -3,6 +3,9 @@ import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import PropertyManageClient from '@/app/(sbar)/manage/properties/[slugAndId]/PropertyManageClient';
+import { getSession } from '@/lib/auth';
+import { getAgencyConfigByAgencyId } from '@/actions/agency-config';
+import { resolveActiveAgencyId } from '@/lib/agency-config';
 
 export default async function ManagePropertyDetailPage({ params }: { params: Promise<{ slugAndId: string }> }) {
     const resolvedParams = await params;
@@ -32,6 +35,22 @@ export default async function ManagePropertyDetailPage({ params }: { params: Pro
 
     if (!property) return notFound();
 
+    const session = await getSession();
+    const currentUser = session?.id
+        ? await prisma.user.findUnique({
+            where: { id: Number(session.id) },
+            include: { role: true },
+        })
+        : null;
+
+    const activeAgencyId = currentUser ? resolveActiveAgencyId(currentUser, session?.operatingId) : null;
+    const agencyConfig = activeAgencyId ? await getAgencyConfigByAgencyId(activeAgencyId) : null;
+    const isAdmin = Boolean(currentUser && (currentUser.type === 'admin' || currentUser.role?.role?.toLowerCase().includes('admin')));
+    const isAgencyOwner = Boolean(currentUser && currentUser.type === 'agency' && (property?.listedBy as any)?.agency_id === currentUser.id);
+    const isOwnProperty = Boolean(currentUser && property.listedById === currentUser.id);
+    const isAgent = Boolean(currentUser && currentUser.type === 'agent');
+    const canDelete = Boolean(currentUser && (isAdmin || isAgencyOwner || isOwnProperty || (isAgent && agencyConfig?.canAgentDelete !== false)));
+
     return (
         <div style={{ paddingBottom: '100px' }}>
             <header style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -59,7 +78,7 @@ export default async function ManagePropertyDetailPage({ params }: { params: Pro
                 </Link>
             </header>
 
-            <PropertyManageClient property={property} />
+            <PropertyManageClient property={property} canDelete={canDelete} />
         </div>
     );
 }

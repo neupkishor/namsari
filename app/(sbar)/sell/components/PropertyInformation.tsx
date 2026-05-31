@@ -27,6 +27,7 @@ interface PropertyInformationProps {
     setFurnishing: (val: string) => void;
     builtUpAreaUnit: string;
     setBuiltUpAreaUnit: (val: string) => void;
+    roadSizeUnit: string;
     roadSize: string;
     setRoadSize: (val: string) => void;
     bedrooms: string;
@@ -95,6 +96,7 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
     setFurnishing,
     builtUpAreaUnit,
     setBuiltUpAreaUnit,
+    roadSizeUnit,
     roadSize,
     setRoadSize,
     bedrooms,
@@ -161,7 +163,8 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
                 </div>
 
                 <div style={{ marginBottom: '24px' }}>
-                    <Input label="Road Size" name="roadSize" placeholder="e.g. 13 ft" value={roadSize} onChange={(e) => setRoadSize(e.target.value)} />
+                    <Input label="Road Size" name="roadSize" placeholder={`e.g. 13 ${roadSizeUnit || 'ft'}`} value={roadSize} onChange={(e) => setRoadSize(e.target.value)} />
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>Default unit: {roadSizeUnit || 'ft'}</div>
                 </div>
 
                 <div style={{ marginBottom: '24px' }}>

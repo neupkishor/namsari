@@ -149,6 +149,9 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
     if (isUserAdmin && !isSwitchedAccount) {
         configItems.push({ label: 'Permissions', icon: '/icons/info.svg', href: '/manage/permissions' });
     }
+    if (isAgency || isSwitchedAccount) {
+        configItems.push({ label: 'Agency Config', icon: '/icons/info.svg', href: '/manage/config' });
+    }
     
     if (configItems.length > 0) {
         groups.push({

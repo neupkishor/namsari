@@ -35,6 +35,17 @@ export async function updateUser(username: string, formData: FormData) {
     const isSelf = currentUser.id === targetUser.id;
     const isAgencyOwner = currentUser.type === 'agency' && targetUser.agency_id === currentUser.id;
 
+    if (isSelf && targetUser.type === 'agent' && targetUser.agency_id) {
+        const agencyConfig = await prisma.agencyConfig.findUnique({
+            where: { agencyId: targetUser.agency_id },
+            select: { canAgentChangeInfo: true },
+        });
+
+        if (agencyConfig?.canAgentChangeInfo === false) {
+            return { success: false, message: 'This agency does not allow agents to update profile details.' };
+        }
+    }
+
     if (!isOwner && !isAdmin && !isSelf && !isAgencyOwner) {
         return { success: false, message: 'Forbidden' };
     }

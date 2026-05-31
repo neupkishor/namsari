@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { addPropertyImage, removePropertyImage, reorderPropertyImages, updatePropertyStatus, updateSoldStatus } from '@/actions/properties';
+import { addPropertyImage, deletePropertyListing, removePropertyImage, reorderPropertyImages, updatePropertyStatus, updateSoldStatus } from '@/actions/properties';
 import { useRouter } from 'next/navigation';
 
 import imageCompression from 'browser-image-compression';
@@ -10,9 +10,10 @@ import { logUploadError } from '@/lib/client-error-logger';
 
 interface PropertyManageClientProps {
     property: any;
+    canDelete?: boolean;
 }
 
-export default function PropertyManageClient({ property }: PropertyManageClientProps) {
+export default function PropertyManageClient({ property, canDelete }: PropertyManageClientProps) {
     const router = useRouter();
     const [uploading, setUploading] = useState(false);
     const [compressing, setCompressing] = useState(false);
@@ -21,6 +22,7 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
     const [images, setImages] = useState<any[]>(property.images || []);
     const [draggingImageId, setDraggingImageId] = useState<number | null>(null);
     const [savingOrder, setSavingOrder] = useState(false);
+    const [deletingProperty, setDeletingProperty] = useState(false);
 
     const stats = [
         { label: 'Total Views', value: property.views || 0, icon: '👁️', color: '#10b981' },
@@ -130,6 +132,22 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
             alert('Failed to save image order');
         } finally {
             setSavingOrder(false);
+        }
+    };
+
+    const handleDeleteProperty = async () => {
+        if (!confirm('Delete this property listing permanently?')) return;
+
+        try {
+            setDeletingProperty(true);
+            await deletePropertyListing(property.id);
+            router.push('/manage/properties');
+            router.refresh();
+        } catch (error) {
+            console.error(error);
+            alert(error instanceof Error ? error.message : 'Failed to delete property');
+        } finally {
+            setDeletingProperty(false);
         }
     };
 
@@ -277,6 +295,19 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
                                 </select>
                             </div>
                         </div>
+
+                        {canDelete && (
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
+                                <button
+                                    type="button"
+                                    onClick={handleDeleteProperty}
+                                    disabled={deletingProperty}
+                                    style={{ padding: '10px 16px', borderRadius: '8px', border: '1px solid #fecaca', background: '#fff1f2', color: '#be123c', fontWeight: '700', cursor: deletingProperty ? 'not-allowed' : 'pointer' }}
+                                >
+                                    {deletingProperty ? 'Deleting...' : 'Delete Listing'}
+                                </button>
+                            </div>
+                        )}
 
                         <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '32px' }}>
                             <h4 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '20px' }}>Information Overview</h4>

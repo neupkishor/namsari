@@ -50,6 +50,7 @@ model User {
   mediaFolders   MediaFolder[]
   propertyDraftsCreated PropertyDraft[] @relation("PropertyDraftCreatedBy")
   propertyDraftsAccount PropertyDraft[] @relation("PropertyDraftAccount")
+  agencyConfig   AgencyConfig? @relation("AgencyConfig")
 
   // Reviews
   reviews_received Review[] @relation("ReviewReceiver")
@@ -83,6 +84,23 @@ model PropertyDraft {
   @@index([account_id, status])
   @@index([created_by])
   @@map("property_drafts")
+}
+
+model AgencyConfig {
+  id                 Int      @id @default(autoincrement())
+  agencyId           Int      @unique @map("agency_id")
+  agency             User     @relation("AgencyConfig", fields: [agencyId], references: [id], onDelete: Cascade)
+  compulsoryFields   Json?    @map("compulsory_fields")
+  defUnits           Json?    @map("def_units")
+  reviewRequired     Boolean? @map("review_required")
+  defaultLocation    Json?    @map("default_location")
+  minPhotoCount      Int?     @map("min_photo_count")
+  canAgentChangeInfo Boolean? @map("can_agent_change_info")
+  canAgentDelete     Boolean? @map("can_agent_delete")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@map("agency_config")
 }
 
 model Account {

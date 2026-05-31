@@ -14,6 +14,7 @@ import { PropertyDraftChanges, normalizePropertyDraftChanges } from './draft-uti
 import { Header } from '@/components/menu/Header';
 import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
 import { logUploadError } from '@/lib/client-error-logger';
+import { getConfiguredDefaultUnit, mergeDraftDefaults } from '@/lib/agency-config';
 
 type UploadProgress = {
     fileName: string;
@@ -22,8 +23,8 @@ type UploadProgress = {
     status: 'compressing' | 'preparing' | 'uploading';
 } | null;
 
-export default function SellClient({ currentUser, initialPurpose, initialDraft }: { currentUser?: any, initialPurpose?: string, initialDraft?: any }) {
-    const draftValues = normalizePropertyDraftChanges(initialDraft?.changes, initialPurpose);
+export default function SellClient({ currentUser, initialPurpose, initialDraft, agencyConfig }: { currentUser?: any, initialPurpose?: string, initialDraft?: any, agencyConfig?: any }) {
+    const draftValues = mergeDraftDefaults(normalizePropertyDraftChanges(initialDraft?.changes, initialPurpose), agencyConfig);
 
     const [selectedTypes, setSelectedTypes] = useState<string[]>(draftValues.selectedTypes || []);
     const [selectedPurposes, setSelectedPurposes] = useState<string[]>(draftValues.selectedPurposes || []);
@@ -64,6 +65,7 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft }
     // Property Details
     const [roadType, setRoadType] = useState(String(draftValues.roadType || 'Blacktopped'));
     const [roadSize, setRoadSize] = useState(String(draftValues.roadSize || ''));
+    const roadSizeUnit = getConfiguredDefaultUnit(agencyConfig, 'roadSize') || 'ft';
     const [facingDirection, setFacingDirection] = useState(String(draftValues.facingDirection || 'East'));
     const [furnishing, setFurnishing] = useState(String(draftValues.furnishing || 'Unfurnished'));
     const [builtUpAreaUnit, setBuiltUpAreaUnit] = useState(String(draftValues.builtUpAreaUnit || 'sqft'));
@@ -617,6 +619,7 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft }
                         setFurnishing={setFurnishing}
                         builtUpAreaUnit={builtUpAreaUnit}
                         setBuiltUpAreaUnit={setBuiltUpAreaUnit}
+                        roadSizeUnit={roadSizeUnit}
                         roadSize={roadSize}
                         setRoadSize={setRoadSize}
                         bedrooms={bedrooms}
