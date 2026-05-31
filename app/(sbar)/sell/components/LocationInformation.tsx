@@ -68,6 +68,56 @@ const DISTRICTS_BY_PROVINCE: Record<string, string[]> = {
     Sudurpashchim: ["Achham", "Baitadi", "Bajhang", "Bajura", "Dadeldhura", "Darchula", "Doti", "Kailali", "Kanchanpur"]
 };
 
+const CITY_VILLAGES_BY_DISTRICT: Record<string, string[]> = {
+    Arghakhanchi: ["Sandhikharka Municipality", "Bhumikasthan Municipality", "Sitganga Municipality", "Chhatradev Rural Municipality", "Panini Rural Municipality", "Malarani Rural Municipality"],
+    Banke: ["Nepalgunj Sub-Metropolitan City", "Kohalpur Municipality", "Khajura Rural Municipality", "Janaki Rural Municipality", "Duduwa Rural Municipality", "Narainapur Rural Municipality", "Rapti Sonari Rural Municipality", "Baijanath Rural Municipality"],
+    Bardiya: ["Gulariya Municipality", "Rajapur Municipality", "Madhuwan Municipality", "Thakurbaba Municipality", "Bansgadhi Municipality", "Barbardiya Municipality", "Geruwa Rural Municipality", "Badhaiyatal Rural Municipality"],
+    Dang: ["Ghorahi Sub-Metropolitan City", "Tulsipur Sub-Metropolitan City", "Lamahi Municipality", "Gadhawa Rural Municipality", "Rajpur Rural Municipality", "Rapti Rural Municipality", "Shantinagar Rural Municipality", "Banglachuli Rural Municipality", "Dangisharan Rural Municipality", "Babai Rural Municipality"],
+    Gulmi: ["Tamghas (Resunga) Municipality", "Musikot Municipality", "Resunga Municipality", "Isma Rural Municipality", "Kaligandaki Rural Municipality", "Gulmidarbar Rural Municipality", "Chandrakot Rural Municipality", "Satyawati Rural Municipality", "Chhatrakot Rural Municipality", "Dhurkot Rural Municipality", "Madane Rural Municipality", "Malika Rural Municipality"],
+    Kapilvastu: ["Kapilvastu (Taulihawa) Municipality", "Banganga Municipality", "Buddhabhumi Municipality", "Shivaraj Municipality", "Krishnanagar Municipality", "Maharajgunj Municipality", "Mayadevi Rural Municipality", "Yashodhara Rural Municipality", "Bijayanagar Rural Municipality", "Suddhodhan Rural Municipality", "Shuddhodhan Rural Municipality"],
+    Rupandehi: ["Butwal Sub-Metropolitan City", "Siddharthanagar Municipality", "Tilottama Municipality", "Devdaha Municipality", "Lumbini Sanskritik Municipality", "Sainamaina Municipality", "Kanchan Rural Municipality", "Rohini Rural Municipality", "Mayadevi Rural Municipality", "Om Satiya Rural Municipality", "Sammarimai Rural Municipality", "Marchawari Rural Municipality"],
+    "Nawalparasi West": ["Ramgram Municipality", "Sunwal Municipality", "Bardaghat Municipality", "Sarawal Rural Municipality", "Pratappur Rural Municipality", "Palhinandan Rural Municipality"],
+    "Nawalparasi West (West of Bardaghat Susta)": ["Ramgram Municipality", "Sunwal Municipality", "Bardaghat Municipality", "Sarawal Rural Municipality", "Pratappur Rural Municipality", "Palhinandan Rural Municipality"],
+    Parasi: ["Ramgram Municipality", "Sunwal Municipality", "Bardaghat Municipality", "Sarawal Rural Municipality", "Pratappur Rural Municipality", "Palhinandan Rural Municipality"],
+    Palpa: ["Tansen Municipality", "Rampur Municipality", "Rainadevi Chhahara Rural Municipality", "Rambha Rural Municipality", "Mathagadhi Rural Municipality", "Tinau Rural Municipality", "Nisdi Rural Municipality", "Ribdikot Rural Municipality", "Jaldhara Rural Municipality"],
+    Pyuthan: ["Pyuthan Municipality", "Swargadwari Municipality", "Ayirabati Rural Municipality", "Gaumukhi Rural Municipality", "Mandavi Rural Municipality", "Sarumarani Rural Municipality", "Jhimruk Rural Municipality", "Naubahini Rural Municipality", "Mallarani Rural Municipality"],
+    Rolpa: ["Liwang Municipality", "Sunil Smriti Rural Municipality", "Runtigadhi Rural Municipality", "Triveni Rural Municipality", "Madi Rural Municipality", "Sunchhahari Rural Municipality", "Thawang Rural Municipality", "Paribartan Rural Municipality", "Gangadev Rural Municipality", "Lungri Rural Municipality"],
+    "Eastern Rukum": ["Rukumkot Municipality", "Sisne Rural Municipality", "Bhume Rural Municipality", "Putha Uttarganga Rural Municipality", "Syalakhadi Area Rural Municipality"],
+    "Eastern Rukum (Rukum East)": ["Rukumkot Municipality", "Sisne Rural Municipality", "Bhume Rural Municipality", "Putha Uttarganga Rural Municipality", "Syalakhadi Area Rural Municipality"],
+    "Rukum East": ["Rukumkot Municipality", "Sisne Rural Municipality", "Bhume Rural Municipality", "Putha Uttarganga Rural Municipality", "Syalakhadi Area Rural Municipality"],
+    Surkhet: ["Birendranagar Sub-Metropolitan City", "Gurbhakot Municipality", "Bheriganga Municipality", "Panchapuri Municipality", "Lekbeshi Municipality", "Barahatal Rural Municipality", "Chaukune Rural Municipality", "Simta Rural Municipality", "Chingad Rural Municipality"],
+    Dailekh: ["Narayan Municipality", "Dullu Municipality", "Aathabis Municipality", "Chamunda Bindrasaini Municipality", "Bhagawatimai Rural Municipality", "Mahabu Rural Municipality", "Thantikandh Rural Municipality", "Naumule Rural Municipality", "Bhairabi Rural Municipality", "Dungeshwor Rural Municipality", "Gurans Rural Municipality"],
+    Jajarkot: ["Bheri Municipality", "Chhedagad Municipality", "Nalgad Municipality", "Barekot Rural Municipality", "Kushe Rural Municipality", "Junichande Rural Municipality", "Shivalaya Rural Municipality"],
+    Salyan: ["Sharada Municipality", "Bangad Kupinde Municipality", "Bagchaur Municipality", "Siddha Kumakh Rural Municipality", "Kumakh Rural Municipality", "Kalimati Rural Municipality", "Chhatreshwari Rural Municipality", "Tribeni Rural Municipality", "Kapurkot Rural Municipality", "Darma Rural Municipality"],
+    "Rukum West": ["Musikot Municipality", "Chaurjahari Municipality", "Aathbiskot Municipality", "Sanibheri Rural Municipality", "Banfikot Rural Municipality", "Tribeni Rural Municipality"],
+    "Western Rukum": ["Musikot Municipality", "Chaurjahari Municipality", "Aathbiskot Municipality", "Sanibheri Rural Municipality", "Banfikot Rural Municipality", "Tribeni Rural Municipality"],
+    "Western Rukum (Rukum West)": ["Musikot Municipality", "Chaurjahari Municipality", "Aathbiskot Municipality", "Sanibheri Rural Municipality", "Banfikot Rural Municipality", "Tribeni Rural Municipality"],
+    Dolpa: ["Thuli Bheri Municipality", "Tripura Sundari Municipality", "Shey Phoksundo Rural Municipality", "Jagadulla Rural Municipality", "Dolpo Buddha Rural Municipality", "Mudkechula Rural Municipality", "Kaike Rural Municipality", "Chharka Tangsong Rural Municipality"],
+    Jumla: ["Chandannath Municipality", "Patarasi Rural Municipality", "Guthichaur Rural Municipality", "Tatopani Rural Municipality", "Tila Rural Municipality", "Hima Rural Municipality", "Sinja Rural Municipality", "Kanakasundari Rural Municipality"],
+    Kalikot: ["Khandachakra Municipality", "Raskot Municipality", "Tilagupha Municipality", "Pachaljharana Rural Municipality", "Sanni Triveni Rural Municipality", "Narharinath Rural Municipality", "Shubha Kalika Rural Municipality", "Mahawai Rural Municipality", "Palata Rural Municipality"],
+    Mugu: ["Chhayanath Rara Municipality", "Soru Rural Municipality", "Khatyad Rural Municipality", "Mugu Karmarong Rural Municipality"],
+    Humla: ["Simikot Rural Municipality", "Namkha Rural Municipality", "Sarkegad Rural Municipality", "Kharpunath Rural Municipality", "Chankheli Rural Municipality", "Adanchuli Rural Municipality", "Tajakot Rural Municipality"],
+    Kailali: ["Dhangadhi Sub-Metropolitan City", "Tikapur Municipality", "Lamki-Chuha Municipality", "Bhajani Municipality", "Ghodaghodi Municipality", "Godawari Municipality", "Janaki Rural Municipality", "Joshipur Rural Municipality", "Bardagoriya Rural Municipality", "Mohanyal Rural Municipality", "Kailari Rural Municipality", "Chure Rural Municipality"],
+    Kanchanpur: ["Bhimdatta Municipality", "Bedkot Municipality", "Shuklaphanta Municipality", "Belauri Municipality", "Punarbas Municipality", "Krishnapur Municipality", "Laljhadi Rural Municipality", "Beldandi Rural Municipality"],
+    Dadeldhura: ["Amargadhi Municipality", "Parshuram Municipality", "Aalingar Rural Municipality", "Ajaymeru Rural Municipality", "Bhageshwar Rural Municipality", "Ganyapdhura Rural Municipality", "Nawadurga Rural Municipality"],
+    Baitadi: ["Dasharathchand Municipality", "Patan Municipality", "Melauli Municipality", "Purchaudi Municipality", "Pancheshwar Rural Municipality", "Sigas Rural Municipality", "Shivanath Rural Municipality", "Dogdakedar Rural Municipality", "Dilasaini Rural Municipality", "Sunarya Rural Municipality", "Surnaya Rural Municipality"],
+    Doti: ["Dipayal Silgadhi Municipality", "Shikhar Municipality", "Purbichauki Rural Municipality", "Jorayal Rural Municipality", "Adarsha Rural Municipality", "Badikedar Rural Municipality", "Sayal Rural Municipality", "Bogatan Phudsil Rural Municipality", "Kimdada Rural Municipality"],
+    Achham: ["Mangalsen Municipality", "Kamalbazar Municipality", "Sanphebagar Municipality", "Panchadewal Binayak Municipality", "Bannigadhi Jayagadh Rural Municipality", "Chaurpati Rural Municipality", "Turmakhand Rural Municipality", "Mellekh Rural Municipality", "Dhakari Rural Municipality", "Ramaroshan Rural Municipality"],
+    Bajura: ["Budhinanda Municipality", "Triveni Municipality", "Badimalika Municipality", "Khaptad Chhededaha Rural Municipality", "Swamikartik Khapar Rural Municipality", "Jagannath Rural Municipality", "Gaumul Rural Municipality", "Himali Rural Municipality", "Budhiganga Municipality"],
+    Bajhang: ["Jaya Prithvi Municipality", "Bungal Municipality", "Kedarsyu Rural Municipality", "Saipal Rural Municipality", "Talkot Rural Municipality", "Thalara Rural Municipality", "Masta Rural Municipality", "Chhabis Pathibhara Rural Municipality", "Khaptadchhanna Rural Municipality", "Surma Rural Municipality", "Durgathali Rural Municipality", "Bitthadchir Rural Municipality"],
+    Darchula: ["Mahakali Municipality", "Shailyashikhar Municipality", "Malikarjun Rural Municipality", "Apihimal Rural Municipality", "Duhun Rural Municipality", "Naugad Rural Municipality", "Marma Rural Municipality", "Lekam Rural Municipality", "Byas Rural Municipality"]
+};
+
+const mergeUnique = (...groups: string[][]) => {
+    const seen = new Set<string>();
+    return groups.flat().filter(item => {
+        const key = item.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+};
+
 type LocationRow = {
     id: number;
     name: string;
@@ -164,6 +214,7 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
     }, [district, locationRows]);
 
     const selectedProvinceName = selectedProvinceRow?.name || provinceList.find(p => p.toLowerCase() === province.trim().toLowerCase()) || '';
+    const selectedDistrictName = selectedDistrictRow?.name || districtList.find(d => d.toLowerCase() === district.trim().toLowerCase()) || '';
     const normalizedDistrictMap = useMemo(() => {
         const map = new Map<string, string>();
         districtList.forEach(districtName => {
@@ -195,8 +246,17 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
                 map.set(cityName.toLowerCase(), { district: districtRow.name, province: provinceRow.name });
             }
         });
+        Object.entries(CITY_VILLAGES_BY_DISTRICT).forEach(([districtName, cityNames]) => {
+            const provinceName = normalizedDistrictMap.get(districtName.toLowerCase());
+            if (!provinceName) return;
+            cityNames.forEach(cityName => {
+                if (!map.has(cityName.toLowerCase())) {
+                    map.set(cityName.toLowerCase(), { district: districtName, province: provinceName });
+                }
+            });
+        });
         return map;
-    }, [cityList, locationById, locationRows]);
+    }, [cityList, locationById, locationRows, normalizedDistrictMap]);
 
     const filteredProvinces = province
         ? provinceList.filter(p => p.toLowerCase().includes(province.toLowerCase()))
@@ -223,22 +283,30 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
 
     const cityOptions = useMemo(() => {
         if (selectedDistrictRow) {
-            return locationRows
+            const apiCities = locationRows
                 .filter(item => item.type === 'city' && item.parentId === selectedDistrictRow.id)
                 .map(item => item.name);
+            return mergeUnique(apiCities, CITY_VILLAGES_BY_DISTRICT[selectedDistrictRow.name] || []);
         }
 
         if (selectedProvinceRow) {
             const districtIds = new Set(locationRows
                 .filter(item => item.type === 'district' && item.parentId === selectedProvinceRow.id)
                 .map(item => item.id));
-            return locationRows
+            const apiCities = locationRows
                 .filter(item => item.type === 'city' && item.parentId !== null && districtIds.has(item.parentId))
                 .map(item => item.name);
+            const fallbackCities = districtOptions.flatMap(districtName => CITY_VILLAGES_BY_DISTRICT[districtName] || []);
+            return mergeUnique(apiCities, fallbackCities);
+        }
+
+        const selectedDistrictFallback = CITY_VILLAGES_BY_DISTRICT[selectedDistrictName];
+        if (selectedDistrictFallback) {
+            return selectedDistrictFallback;
         }
 
         return cityList;
-    }, [cityList, locationRows, selectedDistrictRow, selectedProvinceRow]);
+    }, [cityList, districtOptions, locationRows, selectedDistrictName, selectedDistrictRow, selectedProvinceRow]);
 
     const filteredCities = cityVillage
         ? cityOptions.filter(city => city.toLowerCase().includes(cityVillage.toLowerCase()))
