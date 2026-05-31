@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/actions/auth";
 import { PaginationControl } from "@/components/ui";
+import { FilesUploadClient } from "./FilesUploadClient";
 
 function formatBytes(bytes?: number | null) {
     if (!bytes || bytes <= 0) return "n/a";
@@ -94,6 +95,8 @@ export default async function ManageFilesPage({ searchParams }: { searchParams: 
                     ))}
                 </div>
             </header>
+
+            <FilesUploadClient />
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "16px" }}>
                 {media.map(item => (

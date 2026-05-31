@@ -59,7 +59,8 @@ export const sidebarMenuGroups = (user: any): MenuGroup[] => [
 ];
 
 export const managementMenuGroups = (user: any): MenuGroup[] => {
-    const isUserAdmin = user?.type === 'admin' || user?.role?.name?.toLowerCase().includes('admin');
+    const roleName = user?.role?.role || user?.role?.name || '';
+    const isUserAdmin = user?.type === 'admin' || roleName.toLowerCase().includes('admin');
     const isAgency = user?.type === 'agency';
     const isAgent = user?.type === 'agent';
     const isBank = user?.type === 'bank';
@@ -137,6 +138,7 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
                 { label: 'Careers', icon: '/icons/info.svg', href: '/manage/careers' },
                 { label: 'Support', icon: '/icons/info.svg', href: '/manage/support' },
                 { label: 'Blog', icon: '/icons/note.svg', href: '/manage/blog' },
+                { label: 'Files', icon: '/icons/note.svg', href: '/manage/files' },
                 { label: 'Errors', icon: '/icons/info.svg', href: '/manage/errors' },
             ]
         });
