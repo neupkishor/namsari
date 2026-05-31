@@ -103,7 +103,7 @@ export default function AgencyManagementClient({ yourAgencies, allAgencies, show
             const data = await res.json();
 
             if (data.success) {
-                setProfilePic(resolveUploadedFileUrl(data.path, data.url));
+                setProfilePic(resolveUploadedFileUrl(data.path || data.file, data.url));
             } else {
                 logUploadError(new Error(data.message || 'Upload failed'), {
                     fileName: originalFile.name,

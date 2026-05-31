@@ -1,6 +1,14 @@
 const DEFAULT_UPLOADER_BASE_URL = '/api/upload';
 
 export function getUploaderBaseUrl() {
+    if (
+        typeof window !== 'undefined' &&
+        window.location.hostname === 'localhost' &&
+        process.env.NEXT_PUBLIC_UPLOADER_URL?.startsWith('http')
+    ) {
+        return DEFAULT_UPLOADER_BASE_URL;
+    }
+
     return process.env.NEXT_PUBLIC_UPLOADER_URL || DEFAULT_UPLOADER_BASE_URL;
 }
 

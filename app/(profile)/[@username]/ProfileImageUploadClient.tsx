@@ -42,7 +42,7 @@ export default function ProfileImageUploadClient({ userId, currentImage, userNam
             const data = await res.json();
 
             if (data.success) {
-                const fileUrl = resolveUploadedFileUrl(data.path, data.url);
+                const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
                 await updateUserProfilePicture(userId, fileUrl);
                 router.refresh();
             } else {

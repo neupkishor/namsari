@@ -8,7 +8,18 @@ function getUploaderSecret() {
     return process.env.PRIVATE_KEY || '';
 }
 
-function getPhpUploadUrl(request: Request) {
+function getUploadTargetUrl(request: Request) {
+    const configuredUrl = process.env.NEXT_PUBLIC_UPLOADER_URL || '';
+
+    if (configuredUrl.startsWith('http://') || configuredUrl.startsWith('https://')) {
+        const requestUrl = new URL(request.url);
+        const targetUrl = new URL(configuredUrl);
+
+        if (targetUrl.origin !== requestUrl.origin) {
+            return targetUrl;
+        }
+    }
+
     return new URL('/uploader/upload.php', request.url);
 }
 
@@ -44,7 +55,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: `No file uploaded with field name: ${fileField}` }, { status: 400 });
         }
 
-        const targetUrl = getPhpUploadUrl(request);
+        const targetUrl = getUploadTargetUrl(request);
         targetUrl.searchParams.set('type', type);
         targetUrl.searchParams.set('file', fileField);
 
@@ -74,6 +85,7 @@ export async function POST(request: Request) {
                         type,
                         fileField,
                         status: response.status,
+                        target: targetUrl.origin,
                         payload
                     }
                 });
@@ -92,6 +104,7 @@ export async function POST(request: Request) {
                     type,
                     fileField,
                     status: response.status,
+                    target: targetUrl.origin,
                     response: text.slice(0, 4000)
                 }
             });

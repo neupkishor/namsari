@@ -39,7 +39,7 @@ export default function ProfileCoverUploadButton({ userId }: ProfileCoverUploadB
             const data = await res.json();
 
             if (data.success) {
-                const fileUrl = resolveUploadedFileUrl(data.path, data.url);
+                const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
                 await updateUserCoverImage(userId, fileUrl);
                 router.refresh();
             } else {

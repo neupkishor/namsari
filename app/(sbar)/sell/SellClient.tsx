@@ -289,19 +289,19 @@ export default function SellClient({ currentUser, initialPurpose }: { currentUse
                         if (xhr.status >= 200 && xhr.status < 300) {
                             resolve(parsed);
                         } else {
-                            reject(new Error(parsed.message || parsed.error || 'Upload failed'));
+                            reject(new Error(parsed.message || parsed.error || `Upload failed with status ${xhr.status}`));
                         }
                     } catch {
-                        reject(new Error('Upload failed'));
+                        reject(new Error(xhr.responseText || `Upload failed with status ${xhr.status}`));
                     }
                 };
 
-                xhr.onerror = () => reject(new Error('Upload failed'));
+                xhr.onerror = () => reject(new Error(`Upload request failed for ${buildUploaderUrl('properties')}`));
                 xhr.send(formData);
             });
 
             if (data.success) {
-                const fileUrl = resolveUploadedFileUrl(data.path, data.url);
+                const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
                 setUploadedImages(prev => [...prev, { url: fileUrl, type: imageType }]);
             } else {
                 logUploadError(new Error(data.message || 'Upload failed'), {

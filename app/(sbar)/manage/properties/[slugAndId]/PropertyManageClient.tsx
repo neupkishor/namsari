@@ -49,7 +49,7 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
             const data = await res.json();
 
             if (data.success) {
-                const fileUrl = resolveUploadedFileUrl(data.path, data.url);
+                const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
                 await addPropertyImage(property.id, fileUrl, type);
                 router.refresh();
             } else {

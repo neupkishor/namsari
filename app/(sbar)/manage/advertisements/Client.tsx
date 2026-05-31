@@ -36,7 +36,7 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
             const data = await res.json();
 
             if (data.success) {
-                const fileUrl = resolveUploadedFileUrl(data.path, data.url);
+                const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
                 setImage(fileUrl);
             } else {
                 logUploadError(new Error(data.message || 'Upload failed'), {

@@ -83,7 +83,7 @@ export default function CreateAdForm() {
             const data = await res.json();
 
             if (data.success) {
-                const fileUrl = resolveUploadedFileUrl(data.path, data.url);
+                const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
                 setImageUrl(fileUrl);
             } else {
                 logUploadError(new Error(data.message || 'Upload failed'), {

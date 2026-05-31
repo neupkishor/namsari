@@ -42,7 +42,7 @@ export default function EditUserClient({ user }: EditUserClientProps) {
             const data = await res.json();
 
             if (data.success) {
-                    const fileUrl = resolveUploadedFileUrl(data.path, data.url);
+                    const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
                 if (type === 'profile') setProfilePic(fileUrl);
                 else setCoverImg(fileUrl);
             } else {
