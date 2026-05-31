@@ -10,29 +10,27 @@ The design is:
 
 The uploads directory lives one level outside the main repository.
 
-Production endpoint:
+Browser uploads go to the Next.js proxy:
 
 ```text
-https://namsari.com/uploader_php_app/upload.php
+/api/upload
 ```
+
+The Next.js server forwards the upload to the PHP uploader and adds the private key header.
 
 ## Environment Files
 
-Main app `.env`:
-
-```ini
-NEXT_PUBLIC_UPLOADER_URL=https://namsari.com/uploader_php_app/upload.php
-```
-
-Uploader PHP app `.env`:
+Shared `.env` at the repo root:
 
 ```ini
 PRIVATE_KEY=change-this-to-a-long-random-secret
 UPLOADS_ROOT=../../uploads
+NEXT_PUBLIC_UPLOADER_URL=/api/upload
 ```
 
-The main app uses `NEXT_PUBLIC_UPLOADER_URL` to send files to the PHP uploader.
-The PHP uploader uses `PRIVATE_KEY` to protect rename, move, and delete actions.
+The main app uses `NEXT_PUBLIC_UPLOADER_URL` for browser uploads.
+The Next.js upload route reads `PRIVATE_KEY` and forwards it to the PHP uploader in a server-side request.
+The PHP uploader uses the same `PRIVATE_KEY` to protect upload, rename, move, and delete actions.
 The `UPLOADS_ROOT` path points to the sibling uploads folder outside the repository.
 
 ## Requirements
@@ -62,7 +60,9 @@ The `type` value becomes the subfolder name.
 
 ## Request Contract
 
-The main app should send:
+The browser sends multipart form data to `/api/upload`, and the server forwards it to PHP.
+
+The upload request still includes:
 
 - `type` - folder name such as `users`, `properties`, `ads`, or `agencies`
 - `file` - the multipart file field name by default
@@ -70,7 +70,7 @@ The main app should send:
 Example request:
 
 ```http
-POST https://namsari.com/uploader_php_app/upload.php?type=users&file=file
+POST /api/upload?type=users&file=file
 Content-Type: multipart/form-data
 ```
 
@@ -116,7 +116,7 @@ It supports:
 
 It requires:
 
-- `key` - must match `PRIVATE_KEY` from `uploader_php_app/.env`
+- `key` - must match `PRIVATE_KEY` from the shared root `.env`
 - `file` - the relative path inside `/uploads`
 
 Examples:
@@ -145,19 +145,28 @@ The uploads directory should live beside the repository:
 
 Make sure it exists and PHP can write to it.
 
-### 2. Start a PHP server
+### 2. Start the Next.js app and PHP server
 
-For quick local testing, you can use PHP's built-in server from the project root:
+For quick local testing, you can run the Next.js app and a PHP server side by side.
+
+Start Next.js:
+
+```bash
+cd /Users/neupkishor/Code/clients/namsari
+npm run dev
+```
+
+Start PHP from the project root so it can read the shared `.env` and write to the sibling uploads folder:
 
 ```bash
 cd /Users/neupkishor/Code/clients/namsari
 php -S localhost:8001 -t .
 ```
 
-This makes the uploader available at:
+The upload proxy will be available at:
 
 ```text
-http://localhost:8001/uploader_php_app/upload.php
+http://localhost:3000/api/upload
 ```
 
 ### 3. Test with curl
@@ -165,7 +174,7 @@ http://localhost:8001/uploader_php_app/upload.php
 ```bash
 curl -v \
   -F "file=@/path/to/image.jpg" \
-  "http://localhost:8001/uploader_php_app/upload.php?type=users&file=file"
+  "http://localhost:3000/api/upload?type=users&file=file"
 ```
 
 If the upload works, the response should include a `path` value under `/uploads/...`.
@@ -254,10 +263,10 @@ You may also want to enforce a max file size.
 
 ## Frontend Usage
 
-The frontend should POST to the uploader like this:
+The frontend should POST to the shared upload proxy like this:
 
 ```ts
-const res = await fetch('https://namsari.com/uploader_php_app/upload.php?type=properties&file=file', {
+const res = await fetch('/api/upload?type=properties&file=file', {
   method: 'POST',
   body: formData,
 });
@@ -273,6 +282,12 @@ const fileUrl = data.path ? `${window.location.origin}${data.path}` : data.url;
 ```
 
 ## Troubleshooting
+
+### 404 on `/api/upload`
+
+- Next.js is not running
+- the upload route file is missing
+- the server-side proxy cannot reach the PHP uploader
 
 ### 404 on `/uploader_php_app/upload.php`
 
@@ -304,8 +319,8 @@ memory_limit = 256M
 
 ## Summary
 
-- Use `uploader_php_app/upload.php` as the upload endpoint.
-- Store private access control in `uploader_php_app/.env`.
+- Use `/api/upload` as the browser-facing upload endpoint.
+- Store private access control in the shared root `.env`.
 - Keep the uploads directory outside the main repository.
 - Send multipart form data with `type` and `file`.
 - Configure nginx/PHP-FPM so PHP executes correctly.

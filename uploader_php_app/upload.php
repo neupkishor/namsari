@@ -9,6 +9,16 @@ try {
     phpAppError($exception->getMessage(), 500);
 }
 
+$privateKey = phpAppGetPrivateKey();
+if ($privateKey === '') {
+    phpAppError('PRIVATE_KEY is missing from the shared .env file', 500);
+}
+
+$providedKey = phpAppGetRequestKey();
+if ($providedKey === '' || !hash_equals($privateKey, $providedKey)) {
+    phpAppError('Unauthorized', 403);
+}
+
 $type = isset($_REQUEST['type']) && is_string($_REQUEST['type']) ? $_REQUEST['type'] : 'users';
 $type = preg_replace('/[^A-Za-z0-9_-]/', '', $type);
 if ($type === '') {

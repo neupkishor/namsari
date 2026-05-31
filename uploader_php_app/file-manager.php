@@ -15,7 +15,7 @@ try {
 
 $privateKey = phpAppGetPrivateKey();
 if ($privateKey === '') {
-    phpAppError('PRIVATE_KEY is missing from uploader_php_app/.env', 500);
+    phpAppError('PRIVATE_KEY is missing from the shared .env file', 500);
 }
 
 $providedKey = (string) ($_REQUEST['key'] ?? '');

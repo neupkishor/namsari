@@ -70,6 +70,11 @@ function phpAppResolvePath(string $baseDir, string $path): string {
 }
 
 function phpAppGetAppEnvPath(): string {
+    $parentEnv = dirname(__DIR__) . DIRECTORY_SEPARATOR . '.env';
+    if (is_file($parentEnv)) {
+        return $parentEnv;
+    }
+
     return __DIR__ . DIRECTORY_SEPARATOR . '.env';
 }
 
@@ -102,6 +107,15 @@ function phpAppGetUploadsRoot(): string {
 function phpAppGetPrivateKey(): string {
     $env = phpAppLoadEnvFile(phpAppGetAppEnvPath());
     return trim((string) ($env['PRIVATE_KEY'] ?? ''));
+}
+
+function phpAppGetRequestKey(): string {
+    $header = (string) ($_SERVER['HTTP_X_NAMSARI_UPLOAD_KEY'] ?? '');
+    if ($header !== '') {
+        return trim($header);
+    }
+
+    return trim((string) ($_REQUEST['key'] ?? ''));
 }
 
 function phpAppBuildUploadsWebPath(string $relativePath): string {
