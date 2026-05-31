@@ -46,7 +46,7 @@ interface PropertyInformationProps {
         fileName: string;
         previewUrl: string;
         progress: number;
-        status: 'compressing' | 'uploading';
+        status: 'compressing' | 'preparing' | 'uploading';
     } | null;
     handleFileChange: (e: React.ChangeEvent<HTMLInputElement>, imageType: string) => void;
     removeImage: (index: number) => void;
@@ -199,7 +199,11 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
                             <div style={{ height: '92px', position: 'relative', background: '#f1f5f9' }}>
                                 <img src={uploadProgress.previewUrl} alt={uploadProgress.fileName} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.72 }} />
                                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.75rem', fontWeight: '800', textShadow: '0 1px 4px rgba(0,0,0,0.45)' }}>
-                                    {uploadProgress.status === 'compressing' ? 'Compressing...' : `${uploadProgress.progress}%`}
+                                    {uploadProgress.status === 'compressing'
+                                        ? 'Compressing...'
+                                        : uploadProgress.status === 'preparing'
+                                            ? 'Preparing...'
+                                            : `${uploadProgress.progress}%`}
                                 </div>
                             </div>
                             <div style={{ padding: '8px' }}>
@@ -207,7 +211,7 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
                                     {uploadProgress.fileName}
                                 </div>
                                 <div style={{ height: '6px', borderRadius: '999px', background: '#e2e8f0', overflow: 'hidden' }}>
-                                    <div style={{ height: '100%', width: `${uploadProgress.status === 'compressing' ? 12 : uploadProgress.progress}%`, borderRadius: '999px', background: 'var(--color-primary)', transition: 'width 0.2s ease' }} />
+                                    <div style={{ height: '100%', width: `${uploadProgress.status === 'compressing' || uploadProgress.status === 'preparing' ? 12 : uploadProgress.progress}%`, borderRadius: '999px', background: 'var(--color-primary)', transition: 'width 0.2s ease' }} />
                                 </div>
                             </div>
                         </div>

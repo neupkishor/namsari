@@ -20,6 +20,8 @@ interface AgencyManagementClientProps {
 export default function AgencyManagementClient({ yourAgencies, allAgencies, showAllAgencies, canCreateAgency, totalPages }: AgencyManagementClientProps) {
     const [showForm, setShowForm] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState('');
+    const [uploadProgress, setUploadProgress] = useState(0);
     const [profilePic, setProfilePic] = useState('');
 
     const normalizeAgencies = (list: any[]) => {
@@ -87,6 +89,8 @@ export default function AgencyManagementClient({ yourAgencies, allAgencies, show
         if (!originalFile) return;
 
         try {
+            setUploadStatus('Compressing image...');
+            setUploadProgress(0);
             const options = { maxSizeMB: 0.5, maxWidthOrHeight: 800, useWebWorker: true };
             const compressedBlob = await imageCompression(originalFile, options);
             const file = new File([compressedBlob], originalFile.name, { type: compressedBlob.type });
@@ -96,7 +100,13 @@ export default function AgencyManagementClient({ yourAgencies, allAgencies, show
             formData.append('platform', 'namsari');
 
             setUploading(true);
-            const data = await uploadFileWithIntent({ type: 'agencies', file, formData });
+            const data = await uploadFileWithIntent({
+                type: 'agencies',
+                file,
+                formData,
+                onStatusChange: status => setUploadStatus(status === 'preparing' ? 'Preparing secure upload...' : 'Uploading image...'),
+                onProgress: setUploadProgress,
+            });
 
             if (data.success) {
                 setProfilePic(resolveUploadedFileUrl(data.path || data.file, data.url));
@@ -117,6 +127,8 @@ export default function AgencyManagementClient({ yourAgencies, allAgencies, show
             alert('Failed to upload image');
         } finally {
             setUploading(false);
+            setUploadStatus('');
+            setUploadProgress(0);
         }
     };
 
@@ -181,7 +193,7 @@ export default function AgencyManagementClient({ yourAgencies, allAgencies, show
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                     <input type="file" onChange={handleImageUpload} style={{ display: 'none' }} id="agency-pic" />
                                     <label htmlFor="agency-pic" style={{ padding: '10px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>
-                                        {uploading ? 'Uploading...' : 'Upload Image'}
+                                        {uploading ? `${uploadStatus || 'Uploading image...'} ${uploadProgress ? `${uploadProgress}%` : ''}` : 'Upload Image'}
                                     </label>
                                     {profilePic && <img src={profilePic} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} alt="Preview" />}
                                 </div>

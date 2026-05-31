@@ -14,6 +14,8 @@ interface ProfileCoverUploadButtonProps {
 export default function ProfileCoverUploadButton({ userId }: ProfileCoverUploadButtonProps) {
     const [uploading, setUploading] = useState(false);
     const [compressing, setCompressing] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState('');
+    const [uploadProgress, setUploadProgress] = useState(0);
     const router = useRouter();
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,7 +34,15 @@ export default function ProfileCoverUploadButton({ userId }: ProfileCoverUploadB
             formData.append('platform', 'namsari');
 
             setUploading(true);
-            const data = await uploadFileWithIntent({ type: 'users', file, formData });
+            setUploadStatus('Preparing secure upload...');
+            setUploadProgress(0);
+            const data = await uploadFileWithIntent({
+                type: 'users',
+                file,
+                formData,
+                onStatusChange: status => setUploadStatus(status === 'preparing' ? 'Preparing secure upload...' : 'Uploading cover...'),
+                onProgress: setUploadProgress,
+            });
 
             if (data.success) {
                 const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
@@ -60,6 +70,8 @@ export default function ProfileCoverUploadButton({ userId }: ProfileCoverUploadB
         } finally {
             setCompressing(false);
             setUploading(false);
+            setUploadStatus('');
+            setUploadProgress(0);
             e.target.value = '';
         }
     };
@@ -88,7 +100,7 @@ export default function ProfileCoverUploadButton({ userId }: ProfileCoverUploadB
                 accept="image/*"
             />
             <span>📷</span>
-            <span>{compressing ? 'Compressing...' : uploading ? 'Uploading...' : 'Edit Cover'}</span>
+            <span>{compressing ? 'Compressing...' : uploading ? `${uploadStatus || 'Uploading cover...'} ${uploadProgress ? `${uploadProgress}%` : ''}` : 'Edit Cover'}</span>
         </label>
     );
 }

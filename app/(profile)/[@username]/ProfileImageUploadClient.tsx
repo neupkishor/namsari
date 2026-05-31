@@ -18,6 +18,8 @@ interface ProfileImageUploadProps {
 export default function ProfileImageUploadClient({ userId, currentImage, userName, isOwner, shape = '50%' }: ProfileImageUploadProps) {
     const [uploading, setUploading] = useState(false);
     const [compressing, setCompressing] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState('');
+    const [uploadProgress, setUploadProgress] = useState(0);
     const router = useRouter();
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,7 +37,15 @@ export default function ProfileImageUploadClient({ userId, currentImage, userNam
             formData.append('platform', 'namsari');
 
             setUploading(true);
-            const data = await uploadFileWithIntent({ type: 'users', file, formData });
+            setUploadStatus('Preparing secure upload...');
+            setUploadProgress(0);
+            const data = await uploadFileWithIntent({
+                type: 'users',
+                file,
+                formData,
+                onStatusChange: status => setUploadStatus(status === 'preparing' ? 'Preparing secure upload...' : 'Uploading image...'),
+                onProgress: setUploadProgress,
+            });
 
             if (data.success) {
                 const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
@@ -63,6 +73,8 @@ export default function ProfileImageUploadClient({ userId, currentImage, userNam
         } finally {
             setCompressing(false);
             setUploading(false);
+            setUploadStatus('');
+            setUploadProgress(0);
         }
     };
 
@@ -102,7 +114,14 @@ export default function ProfileImageUploadClient({ userId, currentImage, userNam
                         textAlign: 'center',
                         padding: '10px'
                     }}>
-                        {compressing ? '⌛...' : '⬆️...'}
+                        <div style={{ width: '100%' }}>
+                            <div>{compressing ? 'Compressing...' : uploadProgress ? `${uploadProgress}%` : uploadStatus || 'Uploading...'}</div>
+                            {!compressing && (
+                                <div style={{ height: '5px', width: '100%', background: 'rgba(255,255,255,0.35)', borderRadius: '999px', overflow: 'hidden', marginTop: '8px' }}>
+                                    <div style={{ height: '100%', width: `${uploadProgress || 12}%`, background: 'white', borderRadius: '999px', transition: 'width 0.2s ease' }} />
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>

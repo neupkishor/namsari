@@ -16,6 +16,10 @@ export default function EditUserClient({ user }: EditUserClientProps) {
     const [loading, setLoading] = useState(false);
     const [uploadingProfile, setUploadingProfile] = useState(false);
     const [uploadingCover, setUploadingCover] = useState(false);
+    const [profileUploadStatus, setProfileUploadStatus] = useState('');
+    const [coverUploadStatus, setCoverUploadStatus] = useState('');
+    const [profileUploadProgress, setProfileUploadProgress] = useState(0);
+    const [coverUploadProgress, setCoverUploadProgress] = useState(0);
 
     // State for image previews
     const [profilePic, setProfilePic] = useState(user.profile_picture || '');
@@ -26,6 +30,10 @@ export default function EditUserClient({ user }: EditUserClientProps) {
         try {
             if (type === 'profile') setUploadingProfile(true);
             else setUploadingCover(true);
+            const setStatus = type === 'profile' ? setProfileUploadStatus : setCoverUploadStatus;
+            const setProgress = type === 'profile' ? setProfileUploadProgress : setCoverUploadProgress;
+            setStatus('Compressing image...');
+            setProgress(0);
 
             const options = { maxSizeMB: 0.5, maxWidthOrHeight: type === 'profile' ? 400 : 1200, useWebWorker: true };
             const compressedBlob = await imageCompression(file, options);
@@ -35,7 +43,13 @@ export default function EditUserClient({ user }: EditUserClientProps) {
             formData.append('file', compressedFile);
             formData.append('platform', 'namsari');
 
-            const data = await uploadFileWithIntent({ type: 'users', file: compressedFile, formData });
+            const data = await uploadFileWithIntent({
+                type: 'users',
+                file: compressedFile,
+                formData,
+                onStatusChange: status => setStatus(status === 'preparing' ? 'Preparing secure upload...' : 'Uploading image...'),
+                onProgress: setProgress,
+            });
 
             if (data.success) {
                     const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
@@ -63,6 +77,13 @@ export default function EditUserClient({ user }: EditUserClientProps) {
         } finally {
             if (type === 'profile') setUploadingProfile(false);
             else setUploadingCover(false);
+            if (type === 'profile') {
+                setProfileUploadStatus('');
+                setProfileUploadProgress(0);
+            } else {
+                setCoverUploadStatus('');
+                setCoverUploadProgress(0);
+            }
         }
     };
 
@@ -102,7 +123,7 @@ export default function EditUserClient({ user }: EditUserClientProps) {
                         onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'cover')}
                     />
                     <label htmlFor="cover-upload" style={{ background: 'rgba(0,0,0,0.6)', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '0.85rem', cursor: 'pointer', fontWeight: '600' }}>
-                        {uploadingCover ? 'Uploading...' : 'Change Cover'}
+                        {uploadingCover ? `${coverUploadStatus || 'Uploading...'} ${coverUploadProgress ? `${coverUploadProgress}%` : ''}` : 'Change Cover'}
                     </label>
                 </div>
             </div>
@@ -128,8 +149,13 @@ export default function EditUserClient({ user }: EditUserClientProps) {
                             onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'profile')}
                         />
                         <label htmlFor="profile-upload" style={{ background: 'var(--color-primary)', color: 'white', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
-                            {uploadingProfile ? '...' : '✎'}
+                            {uploadingProfile ? (profileUploadProgress ? `${profileUploadProgress}%` : '...') : '✎'}
                         </label>
+                        {uploadingProfile && (
+                            <div style={{ position: 'absolute', left: '50%', bottom: '-24px', transform: 'translateX(-50%)', whiteSpace: 'nowrap', fontSize: '0.75rem', fontWeight: '700', color: 'var(--color-primary)' }}>
+                                {profileUploadStatus || 'Uploading...'}
+                            </div>
+                        )}
                     </div>
                 </div>
 

@@ -10,6 +10,8 @@ export default function CreateAdForm() {
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState('');
+    const [uploadProgress, setUploadProgress] = useState(0);
     const [imageUrl, setImageUrl] = useState('');
     
     // New Fields
@@ -68,6 +70,8 @@ export default function CreateAdForm() {
 
         try {
             setUploading(true);
+            setUploadStatus('Compressing image...');
+            setUploadProgress(0);
             const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
             const compressedBlob = await imageCompression(file, options);
             const compressedFile = new File([compressedBlob], file.name, { type: compressedBlob.type });
@@ -76,7 +80,13 @@ export default function CreateAdForm() {
             formData.append('file', compressedFile);
             formData.append('platform', 'namsari');
 
-            const data = await uploadFileWithIntent({ type: 'ads', file: compressedFile, formData });
+            const data = await uploadFileWithIntent({
+                type: 'ads',
+                file: compressedFile,
+                formData,
+                onStatusChange: status => setUploadStatus(status === 'preparing' ? 'Preparing secure upload...' : 'Uploading image...'),
+                onProgress: setUploadProgress,
+            });
 
             if (data.success) {
                 const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
@@ -98,6 +108,8 @@ export default function CreateAdForm() {
             alert('Failed to upload image');
         } finally {
             setUploading(false);
+            setUploadStatus('');
+            setUploadProgress(0);
         }
     };
 
@@ -172,7 +184,12 @@ export default function CreateAdForm() {
                             />
                             <label htmlFor="ad-image-upload" style={{ cursor: uploading ? 'not-allowed' : 'pointer', display: 'block' }}>
                                 {uploading ? (
-                                    <span style={{ color: 'var(--color-primary)' }}>Uploading...</span>
+                                    <div style={{ color: 'var(--color-primary)', fontWeight: '700' }}>
+                                        <div>{uploadStatus || 'Uploading image...'}</div>
+                                        <div style={{ height: '6px', width: '100%', background: '#e2e8f0', borderRadius: '999px', overflow: 'hidden', marginTop: '10px' }}>
+                                            <div style={{ height: '100%', width: `${uploadProgress || 12}%`, background: 'var(--color-primary)', borderRadius: '999px', transition: 'width 0.2s ease' }} />
+                                        </div>
+                                    </div>
                                 ) : (
                                     <>
                                         <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🖼️</div>

@@ -17,7 +17,7 @@ type UploadProgress = {
     fileName: string;
     previewUrl: string;
     progress: number;
-    status: 'compressing' | 'uploading';
+    status: 'compressing' | 'preparing' | 'uploading';
 } | null;
 
 export default function SellClient({ currentUser, initialPurpose }: { currentUser?: any, initialPurpose?: string }) {
@@ -277,6 +277,9 @@ export default function SellClient({ currentUser, initialPurpose }: { currentUse
                 type: 'properties',
                 file,
                 formData,
+                onStatusChange: (status) => {
+                    setUploadProgress(prev => prev ? { ...prev, status, progress: status === 'preparing' ? 0 : prev.progress } : prev);
+                },
                 onProgress: (progress) => {
                     setUploadProgress(prev => prev ? { ...prev, progress, status: 'uploading' } : prev);
                 }

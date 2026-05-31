@@ -9,6 +9,8 @@ import { logUploadError } from '@/lib/client-error-logger';
 export default function AdvertisementManager({ initialAds }: { initialAds: any[] }) {
     const [isPending, startTransition] = useTransition();
     const [uploading, setUploading] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState('');
+    const [uploadProgress, setUploadProgress] = useState(0);
     const [image, setImage] = useState('');
     const [takesTo, setTakesTo] = useState('');
     const [postedBy, setPostedBy] = useState('');
@@ -21,6 +23,8 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
 
         try {
             setUploading(true);
+            setUploadStatus('Compressing image...');
+            setUploadProgress(0);
             const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
             const compressedBlob = await imageCompression(file, options);
             const compressedFile = new File([compressedBlob], file.name, { type: compressedBlob.type });
@@ -29,7 +33,13 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
             formData.append('file', compressedFile);
             formData.append('platform', 'namsari');
 
-            const data = await uploadFileWithIntent({ type: 'ads', file: compressedFile, formData });
+            const data = await uploadFileWithIntent({
+                type: 'ads',
+                file: compressedFile,
+                formData,
+                onStatusChange: status => setUploadStatus(status === 'preparing' ? 'Preparing secure upload...' : 'Uploading image...'),
+                onProgress: setUploadProgress,
+            });
 
             if (data.success) {
                 const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
@@ -51,6 +61,8 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
             alert('Failed to upload image');
         } finally {
             setUploading(false);
+            setUploadStatus('');
+            setUploadProgress(0);
         }
     };
 
@@ -137,7 +149,7 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
                                         fontWeight: '500'
                                     }}
                                 >
-                                    {uploading ? 'Uploading...' : 'Upload Image'}
+                                    {uploading ? `${uploadStatus || 'Uploading image...'} ${uploadProgress ? `${uploadProgress}%` : ''}` : 'Upload Image'}
                                     <input
                                         type="file"
                                         accept="image/*"
@@ -146,6 +158,11 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
                                         disabled={uploading}
                                     />
                                 </label>
+                                {uploading && (
+                                    <div style={{ width: '160px', height: '6px', background: '#e2e8f0', borderRadius: '999px', overflow: 'hidden' }}>
+                                        <div style={{ height: '100%', width: `${uploadProgress || 12}%`, background: 'var(--color-primary)', borderRadius: '999px', transition: 'width 0.2s ease' }} />
+                                    </div>
+                                )}
                             </div>
                         </div>
 

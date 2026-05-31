@@ -16,6 +16,8 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
     const router = useRouter();
     const [uploading, setUploading] = useState(false);
     const [compressing, setCompressing] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState('');
+    const [uploadProgress, setUploadProgress] = useState(0);
     const [images, setImages] = useState<any[]>(property.images || []);
     const [draggingImageId, setDraggingImageId] = useState<number | null>(null);
     const [savingOrder, setSavingOrder] = useState(false);
@@ -32,6 +34,8 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
         if (!originalFile) return;
 
         setCompressing(true);
+        setUploadStatus('Compressing image...');
+        setUploadProgress(0);
         try {
             const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
             const compressedBlob = await imageCompression(originalFile, options);
@@ -42,7 +46,13 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
             formData.append('platform', 'namsari');
 
             setUploading(true);
-            const data = await uploadFileWithIntent({ type: 'properties', file, formData });
+            const data = await uploadFileWithIntent({
+                type: 'properties',
+                file,
+                formData,
+                onStatusChange: status => setUploadStatus(status === 'preparing' ? 'Preparing secure upload...' : 'Uploading image...'),
+                onProgress: setUploadProgress,
+            });
 
             if (data.success) {
                 const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
@@ -70,6 +80,8 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
         } finally {
             setCompressing(false);
             setUploading(false);
+            setUploadStatus('');
+            setUploadProgress(0);
         }
     };
 
@@ -222,7 +234,14 @@ export default function PropertyManageClient({ property }: PropertyManageClientP
                             }}>
                                 <input type="file" style={{ display: 'none' }} onChange={(e) => handleUpload(e, 'other')} disabled={uploading} />
                                 <span style={{ fontSize: '1.5rem' }}>{(uploading || compressing) ? '⌛' : '➕'}</span>
-                                <span style={{ fontSize: '0.75rem', fontWeight: '700', marginTop: '8px' }}>{compressing ? 'Compressing...' : uploading ? 'Uploading...' : 'Add Image'}</span>
+                                <span style={{ fontSize: '0.75rem', fontWeight: '700', marginTop: '8px' }}>
+                                    {compressing ? 'Compressing...' : uploading ? `${uploadProgress ? `${uploadProgress}%` : uploadStatus || 'Uploading...'}` : 'Add Image'}
+                                </span>
+                                {(uploading || compressing) && (
+                                    <div style={{ width: '72%', height: '5px', background: '#e2e8f0', borderRadius: '999px', overflow: 'hidden', marginTop: '8px' }}>
+                                        <div style={{ height: '100%', width: `${compressing ? 12 : uploadProgress || 12}%`, background: 'var(--color-primary)', borderRadius: '999px', transition: 'width 0.2s ease' }} />
+                                    </div>
+                                )}
                             </label>
                         </div>
                     </div>

@@ -67,6 +67,7 @@ type UploadWithIntentOptions = {
     formData?: FormData;
     fileField?: string;
     onProgress?: (progress: number) => void;
+    onStatusChange?: (status: 'preparing' | 'uploading') => void;
 };
 
 function arrayBufferToHex(buffer: ArrayBuffer) {
@@ -118,8 +119,10 @@ function buildSignedFormData(formData: FormData | undefined, fileField: string, 
 
 export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
     const fileField = options.fileField || 'file';
+    options.onStatusChange?.('preparing');
     const { token, intent } = await getUploadToken(options.type, fileField, options.file);
     const formData = buildSignedFormData(options.formData, fileField, options.file, token, intent);
+    options.onStatusChange?.('uploading');
 
     if (options.onProgress) {
         return new Promise<any>((resolve, reject) => {
