@@ -80,7 +80,7 @@ function phpAppGetAppEnvPath(): string {
 
 function phpAppGetUploadsRoot(): string {
     $env = phpAppLoadEnvFile(phpAppGetAppEnvPath());
-    $configured = trim((string) ($env['UPLOADS_ROOT'] ?? '../../uploads'));
+    $configured = trim((string) ($env['UPLOADS_ROOT'] ?? '../uploads'));
 
     $resolved = phpAppResolvePath(__DIR__, $configured);
     if ($resolved === '') {

@@ -3,10 +3,15 @@ require_once __DIR__ . '/bootstrap.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
+$uploadsRoot = '';
 try {
     $uploadsRoot = phpAppGetUploadsRoot();
 } catch (RuntimeException $exception) {
     phpAppError($exception->getMessage(), 500);
+}
+
+if ($uploadsRoot === '') {
+    phpAppError('Unable to resolve uploads root', 500);
 }
 
 $privateKey = phpAppGetPrivateKey();

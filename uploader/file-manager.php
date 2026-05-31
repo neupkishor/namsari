@@ -7,10 +7,15 @@ function phpAppFileManagerRespond(array $payload, int $status = 200): void {
     phpAppSendJson($payload, $status);
 }
 
+$uploadsRoot = '';
 try {
     $uploadsRoot = phpAppGetUploadsRoot();
 } catch (RuntimeException $exception) {
     phpAppError($exception->getMessage(), 500);
+}
+
+if ($uploadsRoot === '') {
+    phpAppError('Unable to resolve uploads root', 500);
 }
 
 $privateKey = phpAppGetPrivateKey();
@@ -18,7 +23,7 @@ if ($privateKey === '') {
     phpAppError('PRIVATE_KEY is missing from the shared .env file', 500);
 }
 
-$providedKey = (string) ($_REQUEST['key'] ?? '');
+$providedKey = phpAppGetRequestKey();
 if ($providedKey === '' || !hash_equals($privateKey, $providedKey)) {
     phpAppError('Unauthorized', 403);
 }

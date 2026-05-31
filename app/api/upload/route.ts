@@ -7,7 +7,7 @@ function getUploaderSecret() {
 }
 
 function getPhpUploadUrl(request: Request) {
-    return new URL('/uploader_php_app/upload.php', request.url);
+    return new URL('/uploader/upload.php', request.url);
 }
 
 export async function POST(request: Request) {
