@@ -241,7 +241,8 @@ model Property {
   location               PropertyLocation?
   
   // Pricing Details
-  pricing                PropertyPricing?
+  price                  Json?
+  detailedPrice          Json?
 
   // Open House
   openHouse              PropertyOpenHouse?
@@ -354,21 +355,6 @@ model Location {
   @@index([parentId])
   @@unique([name, type, parentId])
   @@map("location")
-}
-
-model PropertyPricing {
-  id               Int      @id @default(autoincrement())
-  propertyId       Int      @unique
-  property         Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  negotiable       Boolean  @default(true)
-  pricingType      String   // flat, perUnit
-  unit             String?  // meterSquare, aana
-  price            Float
-  priceInWords     String?
-  priceNegotiable  Float?
-  priceNegotiableInWords String?
-  rentPrice        Float?
 }
 
 model PropertyOpenHouse {
