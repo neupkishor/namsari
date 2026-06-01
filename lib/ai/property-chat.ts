@@ -93,6 +93,11 @@ export const propertyChatInputSchema = z.object({
     messages: z.array(propertyChatMessageSchema),
     draft: propertyChatDraftSchema.optional(),
     defaultRate: propertyPriceRateSchema.optional(),
+    audio: z.object({
+        dataUrl: z.string(),
+        mimeType: z.string(),
+        durationSeconds: z.number().max(60).optional(),
+    }).optional(),
     userContext: z.object({
         user: z.object({
             id: z.number(),
@@ -206,11 +211,23 @@ export async function runPropertyChatTurn(input: z.infer<typeof propertyChatInpu
         `Logged-in user context: ${JSON.stringify(input.userContext || null)}`,
         `Conversation: ${JSON.stringify(input.messages)}`,
         `Current draft: ${JSON.stringify(normalizedDraft)}`,
+        input.audio ? 'The user also attached a voice note. Transcribe it mentally, extract property details from it, and answer using the same structured output.' : '',
     ].join('\n');
+    const promptContent = input.audio
+        ? [
+            { text: prompt },
+            {
+                media: {
+                    url: input.audio.dataUrl,
+                    contentType: input.audio.mimeType,
+                },
+            },
+        ]
+        : [{ text: prompt }];
 
     const { output } = await ai.generate({
-        model: googleAI.model('gemini-2.5-flash', { temperature: 0.2 }),
-        prompt,
+        model: googleAI.model('gemini-3.1-flash-lite', { temperature: 0.2 }),
+        messages: [{ role: 'user', content: promptContent }],
         output: { schema: propertyChatOutputSchema },
     });
 

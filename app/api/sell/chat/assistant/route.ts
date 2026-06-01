@@ -4,10 +4,39 @@ import prisma from '@/lib/prisma';
 import { getDefaultPropertyPriceRate } from '@/lib/pricing';
 import { AI_AGENT_OCCUPIED_MESSAGE, runPropertyChatTurn } from '@/lib/ai/property-chat';
 
+const MAX_AUDIO_BYTES = 12 * 1024 * 1024;
+
 function normalizeNumber(value: unknown) {
     if (value === null || value === undefined || value === '') return undefined;
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function parseAudioInput(value: any) {
+    if (!value) return undefined;
+    const dataUrl = typeof value.dataUrl === 'string' ? value.dataUrl : '';
+    const mimeType = typeof value.mimeType === 'string' ? value.mimeType : '';
+    const durationSeconds = Number(value.durationSeconds);
+    const base64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : '';
+    const approxBytes = Math.ceil((base64.length * 3) / 4);
+
+    if (!dataUrl.startsWith('data:audio/') || !mimeType.startsWith('audio/') || approxBytes <= 0) {
+        throw new Error('Invalid audio recording');
+    }
+
+    if (Number.isFinite(durationSeconds) && durationSeconds > 60) {
+        throw new Error('Audio recording must be 1 minute or less');
+    }
+
+    if (approxBytes > MAX_AUDIO_BYTES) {
+        throw new Error('Audio recording is too large');
+    }
+
+    return {
+        dataUrl,
+        mimeType,
+        durationSeconds: Number.isFinite(durationSeconds) ? durationSeconds : undefined,
+    };
 }
 
 function formatPriceForTitle(value: unknown) {
@@ -123,12 +152,21 @@ export async function POST(request: Request) {
     const messages = Array.isArray(body.messages) ? body.messages : [];
     const draft = body.draft || {};
     const defaultRate = body.defaultRate || getDefaultPropertyPriceRate(draft.types || [], draft.purposes || []);
+    let audio: ReturnType<typeof parseAudioInput> | undefined;
+
+    try {
+        audio = parseAudioInput(body.audio);
+    } catch (audioError) {
+        return NextResponse.json({ error: audioError instanceof Error ? audioError.message : 'Invalid audio recording' }, { status: 400 });
+    }
+
     const userContext = await getPropertyChatUserContext(userId);
 
     const response = await runPropertyChatTurn({
         messages,
         draft,
         defaultRate,
+        audio,
         userContext,
     }).catch(() => null);
 

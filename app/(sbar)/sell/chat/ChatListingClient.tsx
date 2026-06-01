@@ -125,7 +125,13 @@ export default function ChatListingClient({
     const [error, setError] = useState<string | null>(null);
     const [createdId, setCreatedId] = useState<number | null>(null);
     const [createdPath, setCreatedPath] = useState<string | null>(null);
+    const [recording, setRecording] = useState(false);
+    const [recordingSeconds, setRecordingSeconds] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioChunksRef = useRef<Blob[]>([]);
+    const recordingStartedAtRef = useRef<number>(0);
+    const recordingTimerRef = useRef<ReturnType<typeof window.setInterval> | null>(null);
 
     const defaultRate = useMemo(() => localPriceRateFromDraft(draft), [draft]);
 
@@ -134,6 +140,13 @@ export default function ChatListingClient({
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [messages, loading, creating]);
+
+    useEffect(() => {
+        return () => {
+            if (recordingTimerRef.current) window.clearInterval(recordingTimerRef.current);
+            mediaRecorderRef.current?.stream.getTracks().forEach((track) => track.stop());
+        };
+    }, []);
 
     const appendAssistant = (content: string) => {
         setMessages((prev) => [...prev, { role: 'assistant', content: formatMessageText(content), createdAt: new Date().toISOString() }]);
@@ -167,7 +180,7 @@ export default function ChatListingClient({
         }
     };
 
-    const askAssistant = async (conversation: ChatMessage[], nextDraft: ChatDraft) => {
+    const askAssistant = async (conversation: ChatMessage[], nextDraft: ChatDraft, audio?: { dataUrl: string; mimeType: string; durationSeconds: number }) => {
         setLoading(true);
         setError(null);
 
@@ -179,6 +192,7 @@ export default function ChatListingClient({
                     messages: conversation.map(({ role, content }) => ({ role, content })),
                     draft: nextDraft,
                     defaultRate,
+                    audio,
                 }),
             });
 
@@ -209,6 +223,85 @@ export default function ChatListingClient({
 
         const conversation: ChatMessage[] = [...messages, { role: 'user', content, createdAt: new Date().toISOString() }];
         await askAssistant(conversation, draft);
+    };
+
+    const stopRecordingTimer = () => {
+        if (recordingTimerRef.current) {
+            window.clearInterval(recordingTimerRef.current);
+            recordingTimerRef.current = null;
+        }
+    };
+
+    const blobToDataUrl = (blob: Blob) => new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(new Error('Failed to read audio recording'));
+        reader.readAsDataURL(blob);
+    });
+
+    const startRecording = async () => {
+        if (loading || creating || recording) return;
+        setError(null);
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const recorder = new MediaRecorder(stream);
+            audioChunksRef.current = [];
+            recordingStartedAtRef.current = Date.now();
+            mediaRecorderRef.current = recorder;
+
+            recorder.ondataavailable = (event) => {
+                if (event.data.size > 0) audioChunksRef.current.push(event.data);
+            };
+
+            recorder.onstop = async () => {
+                stopRecordingTimer();
+                setRecording(false);
+                stream.getTracks().forEach((track) => track.stop());
+
+                const durationSeconds = Math.min(60, Math.max(1, Math.round((Date.now() - recordingStartedAtRef.current) / 1000)));
+                const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
+                audioChunksRef.current = [];
+
+                if (blob.size === 0) {
+                    setError('No audio was recorded.');
+                    return;
+                }
+
+                try {
+                    const dataUrl = await blobToDataUrl(blob);
+                    const userContent = `Voice note (${durationSeconds}s)`;
+                    appendUser(userContent);
+                    const conversation: ChatMessage[] = [...messages, { role: 'user', content: userContent, createdAt: new Date().toISOString() }];
+                    await askAssistant(conversation, draft, {
+                        dataUrl,
+                        mimeType: blob.type || 'audio/webm',
+                        durationSeconds,
+                    });
+                } catch (recordingError) {
+                    setError(recordingError instanceof Error ? recordingError.message : 'Failed to send audio recording');
+                }
+            };
+
+            recorder.start();
+            setRecording(true);
+            setRecordingSeconds(0);
+            recordingTimerRef.current = window.setInterval(() => {
+                const elapsed = Math.round((Date.now() - recordingStartedAtRef.current) / 1000);
+                setRecordingSeconds(Math.min(60, elapsed));
+                if (elapsed >= 60 && mediaRecorderRef.current?.state === 'recording') {
+                    mediaRecorderRef.current.stop();
+                }
+            }, 500);
+        } catch {
+            setError('Microphone access is needed to send an audio note.');
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current?.state === 'recording') {
+            mediaRecorderRef.current.stop();
+        }
     };
 
     const quickType = (value: string) => {
@@ -277,7 +370,17 @@ export default function ChatListingClient({
                         <button type="button" onClick={() => void handleSend()} disabled={loading || creating || !input.trim()} className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">
                             Send
                         </button>
+                        <button
+                            type="button"
+                            onClick={() => recording ? stopRecording() : void startRecording()}
+                            disabled={loading || creating}
+                            className={`rounded-2xl px-5 py-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${recording ? 'bg-red-600 text-white hover:bg-red-500' : 'border border-slate-300 text-slate-800 hover:border-slate-900 hover:bg-slate-50'}`}
+                        >
+                            {recording ? `Stop ${recordingSeconds}s` : 'Audio'}
+                        </button>
                     </div>
+
+                    <div className="mt-2 text-xs text-slate-500">Audio notes can be up to 1 minute.</div>
 
                     {error && <div className="mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 
