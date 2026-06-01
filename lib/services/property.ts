@@ -292,8 +292,6 @@ export async function createPropertyListing(input: CreatePropertyInput) {
             },
             include: {
                 location: true,
-                price: true,
-                detailedPrice: true,
                 openHouse: true,
                 features: true,
                 images: true,

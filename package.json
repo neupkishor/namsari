@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
+    "@genkit-ai/google-genai": "^1.36.0",
     "@google/generative-ai": "^0.24.1",
     "@prisma/client": "^5.22.0",
     "@types/bcryptjs": "^2.4.6",
@@ -21,6 +22,7 @@
     "bikram-sambat": "^1.8.0",
     "browser-image-compression": "^2.0.2",
     "date-fns": "^4.1.0",
+    "genkit": "^1.36.0",
     "leaflet": "^1.9.4",
     "leaflet-geosearch": "^4.2.2",
     "next": "^16.2.3",
