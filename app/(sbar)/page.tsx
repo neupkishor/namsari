@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma';
 import { getActiveAdvertisements } from '@/actions/advertisements';
 import { getPropertyTypeCounts, getSiteSettings } from '@/actions/settings';
 import { getCachedListingStats } from '@/actions/listing-stats';
+import { legacyPricingFromPrice } from '@/lib/pricing';
 
 export default async function HomePage() {
     const session = await getSession();
@@ -44,7 +45,6 @@ export default async function HomePage() {
             include: {
                 listedBy: true,
                 location: true,
-                pricing: true,
                 images: true,
                 types: true,
                 features: true
@@ -68,6 +68,10 @@ export default async function HomePage() {
     ]);
 
     const exploreCategoryStats = cachedListingStats.stats;
+    const featuredPropertiesWithLegacyPricing = featuredProperties.map((property: any) => ({
+        ...property,
+        pricing: legacyPricingFromPrice(property.price as any),
+    }));
 
     const categories = propertyTypes.map(pt => ({
         id: String(pt.id),
@@ -80,7 +84,7 @@ export default async function HomePage() {
         user={user}
         featuredCollections={featuredCollections}
         trendingSearches={trendingSearches}
-        featuredProperties={featuredProperties}
+        featuredProperties={featuredPropertiesWithLegacyPricing}
         featuredAgencies={featuredAgencies}
         advertisements={advertisements}
         categories={categories}

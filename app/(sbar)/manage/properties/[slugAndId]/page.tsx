@@ -6,6 +6,7 @@ import PropertyManageClient from '@/app/(sbar)/manage/properties/[slugAndId]/Pro
 import { getSession } from '@/lib/auth';
 import { getAgencyConfigByAgencyId } from '@/actions/agency-config';
 import { resolveActiveAgencyId } from '@/lib/agency-config';
+import { legacyPricingFromPrice } from '@/lib/pricing';
 
 export default async function ManagePropertyDetailPage({ params }: { params: Promise<{ slugAndId: string }> }) {
     const resolvedParams = await params;
@@ -21,7 +22,6 @@ export default async function ManagePropertyDetailPage({ params }: { params: Pro
         where: { id },
         include: {
             listedBy: true,
-            pricing: true,
             location: true,
             images: {
                 orderBy: { id: 'asc' }
@@ -34,6 +34,11 @@ export default async function ManagePropertyDetailPage({ params }: { params: Pro
     });
 
     if (!property) return notFound();
+
+    const propertyWithLegacyPricing = {
+        ...property,
+        pricing: legacyPricingFromPrice(property.price as any),
+    } as any;
 
     const session = await getSession();
     const currentUser = session?.id
@@ -78,7 +83,7 @@ export default async function ManagePropertyDetailPage({ params }: { params: Pro
                 </Link>
             </header>
 
-            <PropertyManageClient property={property} canDelete={canDelete} />
+            <PropertyManageClient property={propertyWithLegacyPricing} canDelete={canDelete} />
         </div>
     );
 }

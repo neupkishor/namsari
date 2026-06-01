@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { removePropertyFromCollectionWithSlug } from '@/actions/collections';
 import { LoginPromptCard } from '@/components/cards/LoginPromptCard';
+import { legacyPricingFromPrice } from '@/lib/pricing';
 
 export default async function CollectionManagePage(props: { params: Promise<{ slug: string }> }) {
     const params = await props.params;
@@ -32,7 +33,6 @@ export default async function CollectionManagePage(props: { params: Promise<{ sl
                     property: {
                         include: {
                             location: true,
-                            pricing: true,
                             images: {
                                 take: 1,
                                 orderBy: { id: 'asc' }
@@ -50,6 +50,17 @@ export default async function CollectionManagePage(props: { params: Promise<{ sl
     if (!collection) {
         notFound();
     }
+
+    const collectionWithLegacyPricing = {
+        ...collection,
+        properties: collection.properties.map((item: any) => ({
+            ...item,
+            property: {
+                ...item.property,
+                pricing: legacyPricingFromPrice(item.property.price as any),
+            }
+        }))
+    } as any;
 
     // Helper to format currency
     const formatPrice = (price: number) => {
@@ -120,7 +131,7 @@ export default async function CollectionManagePage(props: { params: Promise<{ sl
 
             {/* Properties List */}
             <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-                {collection.properties.length === 0 ? (
+                {collectionWithLegacyPricing.properties.length === 0 ? (
                     <div style={{ padding: '60px', textAlign: 'center', color: '#94a3b8' }}>
                         <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🏠</div>
                         <p style={{ fontSize: '1.1rem', fontWeight: '600', color: '#64748b' }}>This collection is empty.</p>
@@ -141,7 +152,7 @@ export default async function CollectionManagePage(props: { params: Promise<{ sl
                             </tr>
                         </thead>
                         <tbody>
-                            {collection.properties.map(({ property, added_at }: any) => (
+                            {collectionWithLegacyPricing.properties.map(({ property, added_at }: any) => (
                                 <tr key={property.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                                     <td style={{ padding: '16px 24px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>

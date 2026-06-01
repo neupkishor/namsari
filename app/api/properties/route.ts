@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { legacyPricingFromPrice } from '@/lib/pricing';
 
 import { Property, User } from '@prisma/client';
 
@@ -38,7 +39,6 @@ export async function GET(request: Request) {
                     }
                 },
                 location: true,
-                pricing: true,
                 images: true,
                 types: true,
                 features: true,
@@ -88,6 +88,7 @@ export async function GET(request: Request) {
 
             return {
                 ...p,
+                pricing: legacyPricingFromPrice(p.price as any),
                 price: formattedPrice,
                 location: locationStr,
                 latitude: p.location?.latitude,

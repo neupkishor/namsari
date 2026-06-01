@@ -54,7 +54,6 @@ export default async function SellPage({ searchParams }: { searchParams: Promise
                     purposes: true,
                     natures: true,
                     location: true,
-                    pricing: true,
                     features: true,
                     images: true,
                 },

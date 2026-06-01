@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import { notFound, redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import { SavedPropertyCard } from '@/components/cards/SavedPropertyCard';
+import { legacyPricingFromPrice } from '@/lib/pricing';
 
 interface PageProps {
     params: Promise<{
@@ -52,7 +53,6 @@ export default async function ProfileSavedPage({ params }: PageProps) {
                     images: true,
                     types: true,
                     location: true,
-                    pricing: true,
                     features: true,
                     property_likes: true // Count likes
                 }
@@ -82,6 +82,7 @@ export default async function ProfileSavedPage({ params }: PageProps) {
 
         return {
             ...p,
+            pricing: legacyPricingFromPrice(p.price as any),
             slug: p.slug || undefined,
             price: formattedPrice,
             location: locationStr,

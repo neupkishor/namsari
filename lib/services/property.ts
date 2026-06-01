@@ -2,11 +2,18 @@ import prisma from '@/lib/prisma';
 import {
     Property,
     PropertyLocation,
-    PropertyPricing,
     PropertyOpenHouse,
     PropertyImage,
     PropertyVideo
 } from '@prisma/client';
+import {
+    LegacyPricingInput,
+    PropertyPriceInput,
+    getDefaultPropertyPriceRate,
+    legacyPricingFromPrice,
+    normalizeDetailedPropertyPrices,
+    normalizePropertyPriceInput,
+} from '@/lib/pricing';
 
 export interface CreatePropertyInput {
     // General Details
@@ -54,16 +61,9 @@ export interface CreatePropertyInput {
     }>;
 
     // Pricing Details
-    pricing: {
-        negotiable?: boolean;
-        pricingType: string; // flat, perUnit
-        unit?: string; // meterSquare, aana
-        price: number;
-        priceInWords?: string;
-        priceNegotiable?: number;
-        priceNegotiableInWords?: string;
-        rentPrice?: number;
-    };
+    price?: PropertyPriceInput;
+    detailedPrice?: PropertyPriceInput[];
+    pricing?: LegacyPricingInput;
 
     // Open House
     openHouse?: {
@@ -171,12 +171,14 @@ export function generatePropertyImageFilename(propertyTitle: string, imageOf: st
 
 /**
  * Property listing method to save property information through join operations.
- * Handles creation across multiple tables: Property, Location, Pricing, OpenHouse, Image, Video, Amenity, Features.
+ * Handles creation across multiple tables: Property, Location, OpenHouse, Image, Video, Amenity, Features.
  */
 export async function createPropertyListing(input: CreatePropertyInput) {
     const {
         location,
         locationData,
+        price,
+        detailedPrice,
         pricing,
         openHouse,
         features,
@@ -194,12 +196,25 @@ export async function createPropertyListing(input: CreatePropertyInput) {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '');
 
-    // 2. Automatically generate price in words if not provided
-    const finalPricing = {
-        ...pricing,
-        priceInWords: pricing.priceInWords || numberToWords(pricing.price),
-        priceNegotiableInWords: pricing.priceNegotiable ? (pricing.priceNegotiableInWords || numberToWords(pricing.priceNegotiable)) : undefined
-    };
+    const legacyPrice = pricing
+        ? normalizePropertyPriceInput({
+            price: Number(pricing.price || pricing.rentPrice || 0),
+            rate: pricing.pricingType === 'flat'
+                ? 'total'
+                : getDefaultPropertyPriceRate(types, purposes),
+            unit: pricing.unit,
+            totalUnit: pricing.pricingType === 'flat' ? Number(pricing.price || pricing.rentPrice || 0) : undefined,
+            totalPrice: pricing.pricingType === 'flat' ? Number(pricing.price || pricing.rentPrice || 0) : undefined,
+        })
+        : null;
+
+    const primaryPrice = normalizePropertyPriceInput(price || legacyPrice || {
+        price: 0,
+        rate: getDefaultPropertyPriceRate(types, purposes),
+    });
+
+    const detailedPrices = normalizeDetailedPropertyPrices(detailedPrice);
+
     const mediaPayload = {
         images: (images || []).map((img, idx) => ({
             kind: 'image',
@@ -247,10 +262,8 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                 location: {
                     create: location
                 },
-                // Nested create for pricing
-                pricing: {
-                    create: finalPricing
-                },
+                price: primaryPrice,
+                detailedPrice: detailedPrices,
                 // Nested create for open house if provided
                 openHouse: openHouse ? {
                     create: openHouse
@@ -279,7 +292,8 @@ export async function createPropertyListing(input: CreatePropertyInput) {
             },
             include: {
                 location: true,
-                pricing: true,
+                price: true,
+                detailedPrice: true,
                 openHouse: true,
                 features: true,
                 images: true,

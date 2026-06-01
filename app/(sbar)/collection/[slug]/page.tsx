@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import { SocialCollectionView } from './views/SocialCollectionView';
+import { legacyPricingFromPrice } from '@/lib/pricing';
 
 export default async function CollectionPublicPage(props: { params: Promise<{ slug: string }>, searchParams: Promise<{ view?: string }> }) {
     const params = await props.params;
@@ -27,7 +28,6 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
                     property: {
                         include: {
                             location: true,
-                            pricing: true,
                             images: { take: 5, orderBy: { id: 'asc' } }, // Take more images for social view
                             types: true,
                             features: true
@@ -40,6 +40,17 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
     });
 
     if (!collection) return notFound();
+
+    const collectionWithLegacyPricing = {
+        ...collection,
+        properties: collection.properties.map((item: any) => ({
+            ...item,
+            property: {
+                ...item.property,
+                pricing: legacyPricingFromPrice(item.property.price as any),
+            }
+        }))
+    } as any;
 
     // Access Control: If private, only owner can view
     if (!collection.is_public) {
@@ -96,7 +107,7 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
 
             {/* Content Section */}
             <div className="layout-container" style={{ marginTop: '0px' }}>
-                <SocialCollectionView properties={collection.properties} user={collection.user} />
+                <SocialCollectionView properties={collectionWithLegacyPricing.properties} user={collection.user} />
             </div>
         </div>
     );

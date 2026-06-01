@@ -52,7 +52,7 @@ export function createBlankPropertyDraftChanges(initialPurpose?: string, agencyC
 
 export function createPropertyDraftChangesFromProperty(property: any, initialPurpose?: string): PropertyDraftChanges {
     const location = property.location || {};
-    const pricing = property.pricing || {};
+    const pricing = property.pricing || property.price || {};
     const features = property.features || {};
 
     return {

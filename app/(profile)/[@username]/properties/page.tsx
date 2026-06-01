@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { PropertyCard } from '@/components/cards/PropertyCard';
+import { legacyPricingFromPrice } from '@/lib/pricing';
 
 interface PageProps {
     params: Promise<{
@@ -32,7 +33,6 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
         orderBy: { created_on: 'desc' },
         include: {
             listedBy: true,
-            pricing: true,
             location: true,
             images: true,
             types: true,
@@ -60,6 +60,7 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
 
         return {
             ...p,
+            pricing: legacyPricingFromPrice(p.price as any),
             slug: p.slug || undefined,
             price: formattedPrice,
             location: locationStr,

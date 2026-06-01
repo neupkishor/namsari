@@ -12,6 +12,7 @@ import { RecommendedProperties } from '@/components/sections/RecommendedProperti
 import { PropertyEmiSection } from '@/components/sections/PropertyEmiSection';
 import { SectionTitleFeed } from '@/components/sections/SectionTitleFeed';
 import { AutoScrollCarousel } from '@/components/ui/AutoScrollCarousel';
+import { legacyPricingFromPrice } from '@/lib/pricing';
 
 function isAmenity(value: unknown): value is Amenity {
     if (!value || typeof value !== 'object') return false;
@@ -39,7 +40,6 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         where: { id },
         include: {
             listedBy: true,
-            pricing: true,
             location: true,
             images: true,
             types: true,
@@ -53,6 +53,11 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     });
 
     if (!property) return notFound();
+
+    const propertyWithLegacyPricing = {
+        ...property,
+        pricing: legacyPricingFromPrice(property.price as any),
+    } as any;
 
     // Increment view count asynchronously
     await prisma.property.update({
@@ -70,7 +75,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     const locationStr = property.location
         ? `${property.location.area}, ${property.location.district}`
         : 'Unspecified';
-    const priceValue = property.pricing?.price || 0;
+    const priceValue = propertyWithLegacyPricing.pricing?.price || 0;
     const formattedPrice = new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(priceValue).replace('NPR', 'Rs.');
     const formatDevanagariPrice = (value: number) => {
         if (!Number.isFinite(value) || value <= 0) return 'Price on request';
@@ -127,10 +132,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         include: {
             images: true,
             location: true,
-            pricing: true,
             features: true
         }
-    });
+    })).map((item: any) => ({
+        ...item,
+        pricing: legacyPricingFromPrice(item.price as any),
+    }));
     const collectionPresets = [
         'house for sale under 2 crore',
         'house for sale under 3 crore',
@@ -1075,7 +1082,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                             <div className="price-display">
                                 {formattedPrice}
                                 <span style={{ fontSize: '1rem', color: '#6b7280', fontWeight: '500', marginLeft: '5px' }}>
-                                    {property.pricing?.negotiable ? '(Negotiable)' : ''}
+                                    {propertyWithLegacyPricing.pricing?.negotiable ? '(Negotiable)' : ''}
                                 </span>
                             </div>
 

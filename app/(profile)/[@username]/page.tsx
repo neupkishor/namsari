@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { PropertyCard } from '@/components/cards/PropertyCard';
 import Link from 'next/link';
 import { AutoScrollCarousel } from '@/components/ui/AutoScrollCarousel';
+import { legacyPricingFromPrice } from '@/lib/pricing';
 
 interface PageProps {
     params: Promise<{
@@ -40,7 +41,6 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
         take: 3,
         include: {
             listedBy: true,
-            pricing: true,
             location: true,
             images: true,
             types: true,
@@ -68,6 +68,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
 
         return {
             ...p,
+            pricing: legacyPricingFromPrice(p.price as any),
             price: formattedPrice,
             location: locationStr,
             images: p.images.map((img: any) => img.url),

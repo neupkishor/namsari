@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import { legacyPricingFromPrice } from '@/lib/pricing';
 
 export async function getBrowseProperties(limit = 60, options?: { onlyMappable?: boolean }) {
     const onlyMappable = options?.onlyMappable === true;
@@ -32,7 +33,6 @@ export async function getBrowseProperties(limit = 60, options?: { onlyMappable?:
             },
             location: true,
             openHouse: true,
-            pricing: true,
             images: true,
             types: true,
             features: true,
@@ -67,6 +67,7 @@ export async function getBrowseProperties(limit = 60, options?: { onlyMappable?:
 
         return {
             ...property,
+            pricing: legacyPricingFromPrice(property.price as any),
             price: formattedPrice,
             location: locationStr,
             latitude,

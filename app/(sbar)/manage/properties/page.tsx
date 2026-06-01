@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { PaginationControl } from '@/components/ui';
 import { getCurrentUser } from '@/actions/auth';
 import { redirect } from 'next/navigation';
+import { legacyPricingFromPrice } from '@/lib/pricing';
 
 export default async function ManagePropertiesPage({ searchParams }: { searchParams: Promise<{ page?: string; view?: string }> }) {
     const user = await getCurrentUser();
@@ -52,7 +53,6 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
             where: whereClause,
             include: {
                 listedBy: true,
-                pricing: true,
                 location: true,
                 images: true,
                 types: true
@@ -67,7 +67,11 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
     const totalPages = Math.ceil(totalCount / limit);
 
     const enrichedProperties = properties.map((p: any) => {
-        const priceValue = p.pricing?.price || 0;
+        const property = {
+            ...p,
+            pricing: legacyPricingFromPrice(p.price as any),
+        };
+        const priceValue = property.pricing?.price || 0;
         const formattedPrice = new Intl.NumberFormat('en-NP', {
             style: 'currency',
             currency: 'NPR',
@@ -83,7 +87,7 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
             : 'Other';
 
         return {
-            ...p,
+            ...property,
             price: formattedPrice,
             location: locationStr,
             author_name: p.listedBy?.name || 'Unknown',
