@@ -270,7 +270,7 @@ export default function ChatListingClient({
                                     void handleSend();
                                 }
                             }}
-                            placeholder="Tell me the property details in any order"
+                            placeholder="Share everything you have in mind about the property"
                             className="min-h-12 flex-1 rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-900"
                             disabled={loading || creating}
                         />
@@ -356,7 +356,7 @@ export default function ChatListingClient({
                 )}
 
                 <div className="rounded-3xl border border-dashed border-slate-300 p-4 text-sm text-slate-600">
-                    Ask however you want, for example: “3 ropani land in Pokhara for sale, 25 lakhs per aana, add a rental reference too.” The assistant will normalize the transcript into JSON.
+                    Start with whatever you know. The assistant will ask only for missing essentials like location and price, then generate the listing title and description.
                 </div>
             </aside>
         </div>

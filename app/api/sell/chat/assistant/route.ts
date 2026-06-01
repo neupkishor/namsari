@@ -2,12 +2,44 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { getDefaultPropertyPriceRate } from '@/lib/pricing';
-import { runPropertyChatTurn } from '@/lib/ai/property-chat';
+import { AI_AGENT_OCCUPIED_MESSAGE, runPropertyChatTurn } from '@/lib/ai/property-chat';
 
 function normalizeNumber(value: unknown) {
     if (value === null || value === undefined || value === '') return undefined;
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function formatPriceForTitle(value: unknown) {
+    const price = normalizeNumber(value);
+    if (!price) return '';
+    if (price >= 10000000) return `${price / 10000000} crore`;
+    if (price >= 100000) return `${price / 100000} lakh`;
+    return `NPR ${price}`;
+}
+
+function buildGeneratedListingTitle(draft: any) {
+    const type = Array.isArray(draft.types) && draft.types[0] ? String(draft.types[0]) : 'Property';
+    const purpose = Array.isArray(draft.purposes) && draft.purposes[0] ? String(draft.purposes[0]) : '';
+    const location = [draft.location?.cityVillage, draft.location?.district].filter(Boolean).join(', ');
+    const purposeLabel = purpose === 'rent' ? 'for Rent' : purpose === 'sale' ? 'for Sale' : '';
+
+    return [type, purposeLabel, location ? `in ${location}` : ''].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+}
+
+function buildGeneratedRemarks(draft: any) {
+    const title = buildGeneratedListingTitle(draft);
+    const price = formatPriceForTitle(draft.price?.price);
+    const rate = draft.price?.rate ? String(draft.price.rate) : '';
+    const unit = draft.price?.unit ? ` per ${draft.price.unit}` : '';
+    const location = [draft.location?.area, draft.location?.cityVillage, draft.location?.district].filter(Boolean).join(', ');
+    const details = [
+        title,
+        location ? `Located at ${location}.` : '',
+        price ? `Price: ${price}${unit}${rate ? ` (${rate})` : ''}.` : '',
+    ].filter(Boolean);
+
+    return details.join(' ');
 }
 
 async function getPropertyChatUserContext(userId: number) {
@@ -98,19 +130,31 @@ export async function POST(request: Request) {
         draft,
         defaultRate,
         userContext,
-    });
+    }).catch(() => null);
+
+    if (!response) {
+        return NextResponse.json({
+            assistantMessage: AI_AGENT_OCCUPIED_MESSAGE,
+            draft,
+            missingFields: [],
+            readyToCreate: false,
+            createPayload: null,
+        });
+    }
     const responseDefaultRate = getDefaultPropertyPriceRate(response.draft.types || [], response.draft.purposes || []);
+    const generatedTitle = String(response.draft.title || '').trim() || buildGeneratedListingTitle(response.draft);
+    const generatedRemarks = response.draft.remarks || buildGeneratedRemarks(response.draft);
 
     const createPayload = response.readyToCreate
         ? {
-            title: String(response.draft.title || '').trim(),
+            title: generatedTitle || 'Property Listing',
             types: Array.isArray(response.draft.types) ? response.draft.types : [],
             purposes: Array.isArray(response.draft.purposes) ? response.draft.purposes : [],
             natures: Array.isArray(response.draft.natures) && response.draft.natures.length > 0
                 ? response.draft.natures
                 : undefined,
             isPrivate: Boolean(response.draft.isPrivate),
-            remarks: response.draft.remarks || undefined,
+            remarks: generatedRemarks || undefined,
             roadType: response.draft.roadType || undefined,
             roadSize: response.draft.roadSize || undefined,
             facingDirection: response.draft.facingDirection || undefined,

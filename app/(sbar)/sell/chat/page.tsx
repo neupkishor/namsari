@@ -3,7 +3,8 @@ import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { LoginPromptCard } from '@/components/cards/LoginPromptCard';
 import ChatListingClient from './ChatListingClient';
-import { getInitialPropertyChatPrompt } from '@/lib/ai/property-chat';
+import { AI_AGENT_OCCUPIED_MESSAGE, runPropertyChatTurn } from '@/lib/ai/property-chat';
+import { getDefaultPropertyPriceRate } from '@/lib/pricing';
 
 export default async function SellChatPage() {
     const session = await getSession();
@@ -59,11 +60,38 @@ export default async function SellChatPage() {
         }),
     ]);
 
+    const initialTurn = await runPropertyChatTurn({
+        messages: [],
+        draft: {},
+        defaultRate: getDefaultPropertyPriceRate(),
+        userContext: {
+            user: {
+                id: user.id,
+                name: user.name,
+                username: user.username,
+                type: user.type,
+            },
+            properties: recentProperties.map((property) => ({
+                id: property.id,
+                title: property.title,
+                status: property.status,
+                district: property.location?.district || null,
+                cityVillage: property.location?.cityVillage || null,
+            })),
+            requirements: recentRequirements,
+        },
+    }).catch(() => ({
+        assistantMessage: AI_AGENT_OCCUPIED_MESSAGE,
+        draft: {},
+        missingFields: [],
+        readyToCreate: false,
+    }));
+
     return (
         <ChatListingClient
             currentUser={user}
-            initialAssistantMessage={getInitialPropertyChatPrompt()}
-            initialDraft={{}}
+            initialAssistantMessage={initialTurn.assistantMessage}
+            initialDraft={initialTurn.draft}
             contextSummary={{
                 propertyCount,
                 requirementCount,

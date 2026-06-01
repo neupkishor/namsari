@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     const location = body.location || {};
     const primaryRate = String(body.price?.rate || getDefaultPropertyPriceRate(types, purposes));
 
-    if (!title || types.length === 0 || purposes.length === 0 || !String(location.district || '').trim() || !String(location.cityVillage || '').trim() || !String(location.province || '').trim()) {
+    if (!title || types.length === 0 || purposes.length === 0 || !String(location.district || '').trim() || !String(location.cityVillage || '').trim()) {
         return NextResponse.json({ error: 'Missing required listing information' }, { status: 400 });
     }
 
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
         facingDirection: body.facingDirection || undefined,
         location: {
             country: String(location.country || 'Nepal'),
-            province: String(location.province),
+            province: String(location.province || ''),
             district: String(location.district),
             cityVillage: String(location.cityVillage),
             area: location.area || undefined,
