@@ -93,13 +93,6 @@ const COMMON_TYPES = [
     'commercial space',
 ];
 
-const CHAT_CAPABILITY_NOTE = [
-    'Chat edit rules:',
-    'Can edit: amenities, property title, property details, and adding images.',
-    'Cannot edit via chat: property listing transfer/change, deleting the property, approval/publishing, and removing images.',
-    'Cannot be edited at all: views, likes, comments, and shares.',
-].join('\n');
-
 function MicrophoneIcon({ active = false }: { active?: boolean }) {
     return (
         <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -161,7 +154,6 @@ export default function ChatListingClient({
 }) {
     const [messages, setMessages] = useState<ChatMessage[]>([
         { role: 'assistant', content: initialAssistantMessage, createdAt: new Date().toISOString() },
-        { role: 'assistant', content: CHAT_CAPABILITY_NOTE, createdAt: new Date().toISOString() },
     ]);
     const [input, setInput] = useState('');
     const [draft, setDraft] = useState<ChatDraft>(initialDraft || {});

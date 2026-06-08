@@ -304,15 +304,17 @@ export async function syncPhpAuthCookieFromSession() {
   const session = await auth();
   if (!session?.user?.id) return false;
 
-  await setPhpAuthCookie({
+  const tokenUser = {
     id: session.user.id,
     type: (session.user as any).type,
     username: (session.user as any).username,
     sessionId: (session.user as any).sessionId,
     operatingId: (session.user as any).operatingId ?? null,
-  });
+  };
 
-  return true;
+  await setPhpAuthCookie(tokenUser);
+
+  return createAuthCookieJwt(tokenUser);
 }
 
 /**

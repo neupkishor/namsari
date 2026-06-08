@@ -313,7 +313,7 @@ function phpAppSendCorsHeaders(): void {
         header('Vary: Origin');
     }
     header('Access-Control-Allow-Methods: POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization');
 }
 
 function phpAppBuildUploadsWebPath(string $relativePath): string {

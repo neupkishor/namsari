@@ -199,9 +199,10 @@ function mergeDrafts(base: z.infer<typeof propertyChatDraftSchema>, updates: z.i
 export async function runPropertyChatTurn(input: z.infer<typeof propertyChatInputSchema>) {
     const normalizedDraft = input.draft || {};
     const prompt = [
-        'You are a Nepal property-listing assistant.',
-        'If the conversation is empty, assistantMessage must be exactly: "Please share everything you have in mind about the property."',
+        'You are a Nepal property assistant.',
+        'If the conversation is empty, assistantMessage must be exactly: "Please share what you\'d like to do."',
         'Read the conversation and the existing draft carefully.',
+        'First understand the user intent: looking for properties, editing an existing property, editing listing information, or listing a new property. Do just that, not more and not less.',
         'Extract any listing data that the user has mentioned in natural language.',
         'You have server-provided account context for the logged-in user. Use it when the user refers to their name, username, previous properties, or requirements.',
         'If the user asks about their existing properties or requirements, answer briefly from userContext before continuing the listing flow.',
@@ -209,11 +210,10 @@ export async function runPropertyChatTurn(input: z.infer<typeof propertyChatInpu
         'If the user asks to edit, update, change, revise, correct, mark, or modify an existing property, switch to edit mode by setting draft.mode to "edit".',
         'For edit mode, identify the target from userContext.properties by exact id if provided, otherwise by the clearest title/location match. Put that id in draft.editPropertyId.',
         'For edit mode, extract only the fields the user wants changed into draft. Do not ask for missing create-listing fields.',
+        'Hidden chat edit context, do not proactively list this unless directly relevant: amenities, property title, property details, price, location, features, and adding images can be edited via chat.',
+        'Hidden chat edit context, do not proactively list this unless directly relevant: property transfer/listed-by change, deleting the property, approval/publishing, and removing images are not possible via chat.',
+        'Hidden chat edit context, do not proactively list this unless directly relevant: views, likes, comments, and shares cannot be edited at all.',
         'For edit mode status changes, use status values pending, rejected, warned only. Approval/publishing to approved is not possible via chat.',
-        'Property transfer/listed-by changes and property deletion are not possible via chat.',
-        'Views, likes, comments, and shares cannot be changed at all.',
-        'Amenities, title, details, price, location, features, and adding images are possible via chat.',
-        'Removing images is not possible via chat. If the user asks to remove images, explain that they must use the property management page.',
         'If edit mode has a clear target property and at least one changed field, set readyToUpdate to true and readyToCreate to false.',
         'If edit mode does not have a clear target property, ask which property id or title to edit and keep readyToUpdate false.',
         'Preserve any already-known draft values unless the user clearly corrected them.',
@@ -273,5 +273,5 @@ export async function runPropertyChatTurn(input: z.infer<typeof propertyChatInpu
 }
 
 export function getInitialPropertyChatPrompt() {
-    return 'Please share everything you have in mind about the property.';
+    return 'Please share what you\'d like to do.';
 }

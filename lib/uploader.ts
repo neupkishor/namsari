@@ -82,6 +82,8 @@ export async function ensurePhpAuthCookie() {
     if (!response.ok) {
         throw new Error(data.error || 'Unauthorized');
     }
+
+    return typeof data.token === 'string' ? data.token : '';
 }
 
 async function recordUploadedMedia(uploadType: string, file: File, originalFile: File, intent: UploadIntent, data: any, folderId?: number | null) {
@@ -140,7 +142,7 @@ export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
     const fileField = options.fileField || 'file';
     const originalFile = options.originalFile || options.file;
     options.onStatusChange?.('preparing');
-    await ensurePhpAuthCookie();
+    const authToken = await ensurePhpAuthCookie();
     const intent = await createUploadIntent(options.file);
     const formData = options.formData || new FormData();
     formData.set(fileField, options.file);
@@ -160,6 +162,9 @@ export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', buildUploaderUrl(options.type, fileField));
             xhr.withCredentials = true;
+            if (authToken) {
+                xhr.setRequestHeader('Authorization', `Bearer ${authToken}`);
+            }
 
             xhr.upload.onprogress = (event) => {
                 if (!event.lengthComputable) return;
@@ -193,6 +198,7 @@ export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
 
     const response = await fetch(buildUploaderUrl(options.type, fileField), {
         method: 'POST',
+        headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
         body: formData,
         credentials: 'include',
     });
