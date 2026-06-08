@@ -93,6 +93,13 @@ export async function createListing(formData: FormData) {
         throw new Error(`Minimum ${normalizedAgencyConfig.minPhotoCount} photos are required for this agency.`);
     }
 
+    // Helper to parse numeric values safely
+    const parseNum = (val: any) => (val && val !== '') ? Number(val) : undefined;
+    const parseFloatNum = (val: any) => (val && val !== '') ? parseFloat(val.toString().replace(/[^0-9.-]+/g, "")) : undefined;
+    const price = parseFloatNum(formData.get('price')) || 0;
+    const priceNegotiable = parseFloatNum(formData.get('priceNegotiable'));
+    const rentPrice = parseFloatNum(formData.get('rentPrice'));
+
     const requiredFieldValues: Record<string, unknown> = {
         propertyType: types,
         propertyPurpose: purposes,
@@ -140,10 +147,6 @@ export async function createListing(formData: FormData) {
         throw new Error(`Missing compulsory fields: ${missingFields.join(', ')}`);
     }
 
-    // Helper to parse numeric values safely
-    const parseNum = (val: any) => (val && val !== '') ? Number(val) : undefined;
-    const parseFloatNum = (val: any) => (val && val !== '') ? parseFloat(val.toString().replace(/[^0-9.-]+/g, "")) : undefined;
-
     // 9. Features (Varying by type)
     const features = {
         bedrooms: parseNum(formData.get('bedrooms')),
@@ -163,9 +166,6 @@ export async function createListing(formData: FormData) {
     };
 
     // Pricing Details Refinement
-    const price = parseFloatNum(formData.get('price')) || 0;
-    const priceNegotiable = parseFloatNum(formData.get('priceNegotiable'));
-    const rentPrice = parseFloatNum(formData.get('rentPrice'));
     const draftIdValue = formData.get('draftId');
     const draftId = draftIdValue ? Number(draftIdValue) : null;
 
@@ -220,12 +220,12 @@ export async function createListing(formData: FormData) {
                 longitude
             } : undefined,
             listedById: userId,
+            status,
             amenities,
             images,
             features
         });
 
-            status,
         await logActivity({
             activity_type: 'create_property',
             description: `Created property listing: ${title}`,

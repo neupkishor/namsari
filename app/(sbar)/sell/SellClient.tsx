@@ -588,6 +588,7 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
 
                     <PropertyInformation
                         unlocked={unlockedSections.includes(4)}
+                        onComplete={() => handleCompleteSection(4)}
                         selectedTypes={selectedTypes}
                         uploadedImages={uploadedImages}
                         uploading={uploading}

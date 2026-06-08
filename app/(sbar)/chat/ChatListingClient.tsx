@@ -176,7 +176,7 @@ export default function ChatListingClient({
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
     const recordingStartedAtRef = useRef<number>(0);
-    const recordingTimerRef = useRef<ReturnType<typeof window.setInterval> | null>(null);
+    const recordingTimerRef = useRef<number | null>(null);
 
     const defaultRate = useMemo(() => localPriceRateFromDraft(draft), [draft]);
     const understoodItems = useMemo(() => {

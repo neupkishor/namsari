@@ -40,7 +40,7 @@ export default async function ManageStatPage() {
                         <div className="mt-3 space-y-2 text-sm text-slate-700">
                             <div className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2"><span>House</span><strong className="text-[color:var(--color-primary)]">{stats.forSale.house}</strong></div>
                             <div className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2"><span>Land</span><strong className="text-[color:var(--color-primary)]">{stats.forSale.land}</strong></div>
-                            <div className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2"><span>Building</span><strong className="text-[color:var(--color-primary)]">{stats.forSale.building}</strong></div>
+                            <div className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2"><span>Apartment</span><strong className="text-[color:var(--color-primary)]">{stats.forSale.apartment}</strong></div>
                         </div>
                     </div>
 

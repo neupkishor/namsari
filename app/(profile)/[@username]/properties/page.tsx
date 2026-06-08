@@ -43,7 +43,8 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
 
     // Enriched properties for the view
     const enrichedProperties = properties.map((p) => {
-        const priceValue = p.pricing?.price || 0;
+        const pricing = legacyPricingFromPrice(p.price as any);
+        const priceValue = pricing?.price || 0;
         const formattedPrice = new Intl.NumberFormat('en-NP', {
             style: 'currency',
             currency: 'NPR',
@@ -60,7 +61,7 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
 
         return {
             ...p,
-            pricing: legacyPricingFromPrice(p.price as any),
+            pricing,
             slug: p.slug || undefined,
             price: formattedPrice,
             location: locationStr,

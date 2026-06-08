@@ -122,7 +122,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     ).slice(0, 8);
 
     // Fetch recommended properties
-    const recommendedProperties = await prisma.property.findMany({
+    const recommendedProperties = (await prisma.property.findMany({
         where: {
             id: { not: id },
             types: { some: { id: { in: property.types.map((t) => t.id) } } }
@@ -1169,7 +1169,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         listedAt: p.created_on,
                         location: p.location ? `${p.location.area}, ${p.location.district}` : 'Unspecified',
                         specs: `${p.features?.bedrooms || 0} beds • ${p.features?.bathrooms || 0} baths`,
-                        images: p.images.map((img) => img.url)
+                        images: p.images.map((img: { url: string }) => img.url)
                     }))}
                 />
 

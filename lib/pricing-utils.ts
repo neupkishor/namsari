@@ -24,7 +24,7 @@ export function getDefaultPricing(propertyTypes: string[], purposes: string[]): 
     if (isRent) {
         if (isHouse) return { price: 0, rate: 'perMonth', negotiable: true };
         if (isLand) return { price: 0, rate: 'perUnitPerMonth', unit: 'aana', negotiable: true };
-        if (isCommercial) return { price: 0, rate: 'perMonthPerUnit', unit: 'sqft', negotiable: true }; // Commercial rent per sqft per month
+        if (isCommercial) return { price: 0, rate: 'perUnitPerMonth', unit: 'sqft', negotiable: true }; // Commercial rent per sqft per month
     }
 
     // Default fallback

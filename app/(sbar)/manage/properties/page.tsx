@@ -138,63 +138,78 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
                 )}
             </header>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+            <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
                 {enrichedProperties.length === 0 ? (
-                    <div style={{ gridColumn: '1 / -1', padding: '60px', textAlign: 'center', color: 'var(--color-text-muted)', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ padding: '60px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
                         No properties found.
                     </div>
                 ) : (
-                    enrichedProperties.map((p: any) => (
-                        <div key={p.id} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', transition: 'all 0.2s', display: 'flex', flexDirection: 'column' }}>
-                            <div style={{ height: '200px', width: '100%', background: '#f1f5f9', position: 'relative' }}>
-                                {p.images && p.images[0] ? (
-                                    <img src={p.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.title} />
-                                ) : (
-                                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', color: '#cbd5e1' }}>🏠</div>
-                                )}
-                                <div style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(255,255,255,0.9)', padding: '4px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '700', color: 'var(--color-primary)' }}>
-                                    {p.main_category}
-                                </div>
-                                <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(0,0,0,0.7)', color: 'white', padding: '4px 10px', borderRadius: '8px', fontSize: '0.9rem', fontWeight: '700' }}>
-                                    {p.price}
-                                </div>
-                            </div>
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '940px' }}>
+                            <thead style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                                <tr>
+                                    <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Property</th>
+                                    <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Owner</th>
+                                    <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Status</th>
+                                    <th style={{ padding: '14px 18px', textAlign: 'right', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Price</th>
+                                    <th style={{ padding: '14px 18px', textAlign: 'left', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Listed</th>
+                                    <th style={{ padding: '14px 18px', textAlign: 'right', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {enrichedProperties.map((p: any) => {
+                                    const propertyPath = `${p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`;
+                                    const statusColor = p.status === 'approved' ? '#166534' : p.status === 'rejected' ? '#991b1b' : '#92400e';
+                                    const statusBg = p.status === 'approved' ? '#dcfce7' : p.status === 'rejected' ? '#fee2e2' : '#fef3c7';
 
-                            <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <div>
-                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-primary)', marginBottom: '4px', lineHeight: '1.4' }}>{p.title}</h3>
-                                    <p style={{ fontSize: '0.9rem', color: '#64748b' }}>📍 {p.location}</p>
-                                </div>
-
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
-                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--color-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', overflow: 'hidden' }}>
-                                        {typeof p.author_avatar === 'string' && p.author_avatar.startsWith('http') ? (
-                                            <img src={p.author_avatar} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.author_name} />
-                                        ) : (
-                                            p.author_avatar
-                                        )}
-                                    </div>
-                                    <div style={{ fontSize: '0.85rem', color: '#475569', fontWeight: '500' }}>
-                                        {p.author_name}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div style={{ background: '#f8fafc', padding: '12px 20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-                                    Listed {new Date(p.created_on).toLocaleDateString()}
-                                </div>
-                                <div style={{ display: 'flex', gap: '12px' }}>
-                                    <Link href={`/properties/${p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`} style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: '600', textDecoration: 'none' }}>
-                                        View
-                                    </Link>
-                                    <Link href={`/manage/properties/${p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`} style={{ color: 'var(--color-primary)', fontSize: '0.85rem', fontWeight: '600', textDecoration: 'none' }}>
-                                        Manage
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
-                    ))
+                                    return (
+                                        <tr key={p.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                            <td style={{ padding: '14px 18px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                                    <div style={{ width: '72px', height: '54px', borderRadius: '8px', background: '#f1f5f9', overflow: 'hidden', flexShrink: 0 }}>
+                                                        {p.images?.[0] ? (
+                                                            <img src={p.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.title} />
+                                                        ) : (
+                                                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 700 }}>No image</div>
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <Link href={`/manage/properties/${propertyPath}`} style={{ color: 'var(--color-primary-light)', fontWeight: 800, textDecoration: 'none', display: 'block', marginBottom: '4px' }}>
+                                                            {p.title}
+                                                        </Link>
+                                                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', color: '#64748b', fontSize: '0.82rem' }}>
+                                                            <span>#{p.propertyId || p.id}</span>
+                                                            <span>{p.main_category}</span>
+                                                            <span>{p.location}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '14px 18px', color: '#334155', fontWeight: 700 }}>{p.author_name}</td>
+                                            <td style={{ padding: '14px 18px' }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-start' }}>
+                                                    <span style={{ background: statusBg, color: statusColor, padding: '4px 9px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'capitalize' }}>{p.status}</span>
+                                                    <span style={{ color: '#64748b', fontSize: '0.78rem', textTransform: 'capitalize' }}>{p.soldStatus || 'unsold'}</span>
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '14px 18px', textAlign: 'right', color: 'var(--color-primary-light)', fontWeight: 800 }}>{p.price}</td>
+                                            <td style={{ padding: '14px 18px', color: '#64748b', fontSize: '0.88rem' }}>{new Date(p.created_on).toLocaleDateString()}</td>
+                                            <td style={{ padding: '14px 18px', textAlign: 'right' }}>
+                                                <div style={{ display: 'inline-flex', gap: '12px' }}>
+                                                    <Link href={`/properties/${propertyPath}`} style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 700, textDecoration: 'none' }}>
+                                                        View
+                                                    </Link>
+                                                    <Link href={`/manage/properties/${propertyPath}`} style={{ color: 'var(--color-primary)', fontSize: '0.85rem', fontWeight: 800, textDecoration: 'none' }}>
+                                                        Manage
+                                                    </Link>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </div>
 
