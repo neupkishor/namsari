@@ -6,7 +6,7 @@ import ChatListingClient from './ChatListingClient';
 import { AI_AGENT_OCCUPIED_MESSAGE, runPropertyChatTurn } from '@/lib/ai/property-chat';
 import { getDefaultPropertyPriceRate } from '@/lib/pricing';
 
-export default async function SellChatPage() {
+export default async function ChatPage() {
     const session = await getSession();
 
     if (!session?.id) {
