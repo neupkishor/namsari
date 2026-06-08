@@ -1071,13 +1071,26 @@ function PostPropertySection() {
         },
     ];
 
+    const groupedCards = [
+        {
+            key: 'property',
+            icon: '/icons/sack-dollar.svg',
+            actions: [cards[0], cards[1]],
+        },
+        {
+            key: 'requirement',
+            icon: '/icons/note.svg',
+            actions: [cards[2], cards[3]],
+        },
+    ];
+
     return (
         <section className="w-full">
             <div className="mb-5 space-y-1">
                 <h2 className="text-xl font-bold tracking-tight text-slate-900">Post Property or Requirement</h2>
                 <p className="text-sm text-slate-500">List your property for sale or rent, or post what you&apos;re looking for.</p>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 gap-2 min-[480px]:hidden">
                 {cards.map((card) => (
                     <Link
                         key={card.key}
@@ -1101,7 +1114,7 @@ function PostPropertySection() {
                             />
                         </div>
                         <div className="min-w-0 flex flex-col justify-center gap-0">
-                            <div className="text-[13px] font-semibold text-slate-800 group-hover:text-slate-900 transition-colors truncate">
+                            <div className="text-[13px] font-semibold text-slate-800 group-hover:text-[color:var(--color-primary)] transition-colors truncate">
                                 {card.title}
                             </div>
                             <div className="text-[12px] font-medium text-slate-500 group-hover:text-[color:var(--color-primary)] transition-colors truncate">
@@ -1109,6 +1122,47 @@ function PostPropertySection() {
                             </div>
                         </div>
                     </Link>
+                ))}
+            </div>
+            <div className="hidden grid-cols-1 gap-2 min-[480px]:grid md:grid-cols-2">
+                {groupedCards.map((group) => (
+                    <div
+                        key={group.key}
+                        className="flex items-stretch rounded-2xl border border-slate-200 bg-white pl-3 pr-2 py-2.5 shadow-sm"
+                    >
+                        <div className="flex w-9 shrink-0 items-center justify-center">
+                            <span
+                                aria-hidden="true"
+                                className="h-4 w-4 bg-[color:var(--color-primary)]"
+                                style={{
+                                    WebkitMaskImage: `url(${group.icon})`,
+                                    maskImage: `url(${group.icon})`,
+                                    WebkitMaskRepeat: 'no-repeat',
+                                    maskRepeat: 'no-repeat',
+                                    WebkitMaskPosition: 'center',
+                                    maskPosition: 'center',
+                                    WebkitMaskSize: 'contain',
+                                    maskSize: 'contain',
+                                }}
+                            />
+                        </div>
+                        <div className="ml-2.5 grid min-w-0 flex-1 grid-cols-2 divide-x divide-slate-200 border-l border-slate-200">
+                            {group.actions.map((card) => (
+                                <Link
+                                    key={card.key}
+                                    href={card.href}
+                                    className="group min-w-0 px-3 transition-colors hover:text-[color:var(--color-primary)]"
+                                >
+                                    <div className="truncate text-[13px] font-semibold text-slate-800 transition-colors group-hover:text-[color:var(--color-primary)]">
+                                        {card.title}
+                                    </div>
+                                    <div className="truncate text-[12px] font-medium text-slate-500 transition-colors group-hover:text-[color:var(--color-primary)]">
+                                        {card.subtitle}
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
                 ))}
             </div>
         </section>
