@@ -11,6 +11,8 @@ type ChatMessage = {
 };
 
 type ChatDraft = {
+    mode?: 'create' | 'edit';
+    editPropertyId?: number;
     title?: string;
     types?: string[];
     purposes?: string[];
@@ -42,6 +44,8 @@ type ChatDraft = {
         totalPrice?: number;
     }>;
     remarks?: string;
+    status?: string;
+    soldStatus?: string;
     roadType?: string;
     roadSize?: string;
     facingDirection?: string;
@@ -134,9 +138,11 @@ export default function ChatListingClient({
     const [draft, setDraft] = useState<ChatDraft>(initialDraft || {});
     const [loading, setLoading] = useState(false);
     const [creating, setCreating] = useState(false);
+    const [submittingAction, setSubmittingAction] = useState<'create' | 'update' | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [createdId, setCreatedId] = useState<number | null>(null);
     const [createdPath, setCreatedPath] = useState<string | null>(null);
+    const [updatedPath, setUpdatedPath] = useState<string | null>(null);
     const [recording, setRecording] = useState(false);
     const [recordingSeconds, setRecordingSeconds] = useState(0);
     const [summaryOpen, setSummaryOpen] = useState(false);
@@ -193,6 +199,7 @@ export default function ChatListingClient({
 
     const submitCreatePayload = async (payload: any) => {
         setCreating(true);
+        setSubmittingAction('create');
         setError(null);
 
         try {
@@ -207,11 +214,40 @@ export default function ChatListingClient({
                 throw new Error(data?.error || 'Failed to create property');
             }
 
+            setUpdatedPath(null);
             setCreatedId(data.property?.id || null);
             setCreatedPath(propertyManagePath(data.property || {}));
             appendAssistant(`Property created successfully${data.property?.id ? ` as #${data.property.id}` : ''}.`);
         } finally {
             setCreating(false);
+            setSubmittingAction(null);
+        }
+    };
+
+    const submitUpdatePayload = async (payload: any) => {
+        setCreating(true);
+        setSubmittingAction('update');
+        setError(null);
+
+        try {
+            const response = await fetch('/api/properties/chat', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data?.error || 'Failed to update property');
+            }
+
+            setCreatedId(null);
+            setCreatedPath(null);
+            setUpdatedPath(propertyManagePath(data.property || {}));
+            appendAssistant(`Property #${data.property?.id || payload.propertyId} updated successfully.`);
+        } finally {
+            setCreating(false);
+            setSubmittingAction(null);
         }
     };
 
@@ -241,6 +277,10 @@ export default function ChatListingClient({
 
             if (data.readyToCreate && data.createPayload) {
                 await submitCreatePayload(data.createPayload);
+            }
+
+            if (data.readyToUpdate && data.updatePayload) {
+                await submitUpdatePayload(data.updatePayload);
             }
         } catch (chatError) {
             setError(chatError instanceof Error ? chatError.message : 'Failed to process chat');
@@ -356,8 +396,8 @@ export default function ChatListingClient({
                 <div className="mx-auto flex max-w-6xl flex-col gap-3">
                     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                         <div>
-                            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Sell Chat</div>
-                            <h1 className="text-xl font-black text-slate-950 sm:text-2xl">Property listing assistant</h1>
+                            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Property Chat</div>
+                            <h1 className="text-xl font-black text-slate-950 sm:text-2xl">Property assistant</h1>
                         </div>
                         <button
                             type="button"
@@ -445,7 +485,9 @@ export default function ChatListingClient({
 
                     {creating && (
                         <div className="flex justify-start">
-                            <div className="rounded-3xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">Creating property from the completed JSON...</div>
+                            <div className="rounded-3xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                                {submittingAction === 'update' ? 'Updating property...' : 'Creating property from the completed JSON...'}
+                            </div>
                         </div>
                     )}
                 </div>
@@ -504,6 +546,12 @@ export default function ChatListingClient({
                     {createdId ? (
                         <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
                             Listing created successfully. <Link href={createdPath || '/manage/properties'} className="font-semibold underline">Open property</Link>
+                        </div>
+                    ) : null}
+
+                    {updatedPath ? (
+                        <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                            Listing updated successfully. <Link href={updatedPath} className="font-semibold underline">Open property</Link>
                         </div>
                     ) : null}
                 </div>

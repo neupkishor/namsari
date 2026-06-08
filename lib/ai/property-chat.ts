@@ -63,6 +63,8 @@ const propertyOpenHouseSchema = z.object({
 });
 
 const propertyChatDraftSchema = z.object({
+    mode: z.enum(['create', 'edit']).optional(),
+    editPropertyId: z.number().optional(),
     title: z.string().optional(),
     types: z.array(z.string()).optional(),
     purposes: z.array(z.string()).optional(),
@@ -71,6 +73,8 @@ const propertyChatDraftSchema = z.object({
     price: propertyPriceSchema.optional(),
     detailedPrice: z.array(propertyPriceSchema).optional(),
     remarks: z.string().optional(),
+    status: z.string().optional(),
+    soldStatus: z.string().optional(),
     roadType: z.string().optional(),
     roadSize: z.string().optional(),
     facingDirection: z.string().optional(),
@@ -138,6 +142,7 @@ export const propertyChatOutputSchema = z.object({
     draft: propertyChatDraftSchema,
     missingFields: z.array(z.string()),
     readyToCreate: z.boolean(),
+    readyToUpdate: z.boolean().optional(),
 });
 
 function normalizeText(value: unknown) {
@@ -148,6 +153,11 @@ function getMissingFields(draft: z.infer<typeof propertyChatDraftSchema>, defaul
     const missing: string[] = [];
     const location = draft.location || {};
     const price = draft.price || {};
+
+    if (draft.mode === 'edit') {
+        if (typeof draft.editPropertyId !== 'number') missing.push('property to edit');
+        return missing;
+    }
 
     if (!normalizeText(location.district) || !normalizeText(location.cityVillage)) missing.push('district and city');
     if (!Array.isArray(draft.purposes) || draft.purposes.length === 0) missing.push('purpose');
@@ -196,6 +206,12 @@ export async function runPropertyChatTurn(input: z.infer<typeof propertyChatInpu
         'You have server-provided account context for the logged-in user. Use it when the user refers to their name, username, previous properties, or requirements.',
         'If the user asks about their existing properties or requirements, answer briefly from userContext before continuing the listing flow.',
         'Only use userContext as reference. Do not copy an old property into the new draft unless the user clearly asks you to reuse specific details.',
+        'If the user asks to edit, update, change, revise, correct, mark, or modify an existing property, switch to edit mode by setting draft.mode to "edit".',
+        'For edit mode, identify the target from userContext.properties by exact id if provided, otherwise by the clearest title/location match. Put that id in draft.editPropertyId.',
+        'For edit mode, extract only the fields the user wants changed into draft. Do not ask for missing create-listing fields.',
+        'For edit mode status changes, use status values pending, approved, rejected, warned; use soldStatus values unsold, soldByUs, soldByOther.',
+        'If edit mode has a clear target property and at least one changed field, set readyToUpdate to true and readyToCreate to false.',
+        'If edit mode does not have a clear target property, ask which property id or title to edit and keep readyToUpdate false.',
         'Preserve any already-known draft values unless the user clearly corrected them.',
         'Never ask the user for a listing title or description. Generate title and remarks yourself from the available property details.',
         'Keep the chat simple. Ask one concise follow-up at a time except location, where you should ask for district and city together.',
@@ -238,7 +254,8 @@ export async function runPropertyChatTurn(input: z.infer<typeof propertyChatInpu
     const mergedDraft = mergeDrafts(normalizedDraft, output.draft || {});
     const effectiveDefaultRate = getDefaultPropertyPriceRate(mergedDraft.types || [], mergedDraft.purposes || []);
     const missingFields = getMissingFields(mergedDraft, effectiveDefaultRate);
-    const readyToCreate = missingFields.length === 0;
+    const readyToUpdate = mergedDraft.mode === 'edit' && missingFields.length === 0;
+    const readyToCreate = mergedDraft.mode === 'edit' ? false : missingFields.length === 0;
 
     return {
         assistantMessage: readyToCreate
@@ -247,6 +264,7 @@ export async function runPropertyChatTurn(input: z.infer<typeof propertyChatInpu
         draft: mergedDraft,
         missingFields,
         readyToCreate,
+        readyToUpdate,
     };
 }
 

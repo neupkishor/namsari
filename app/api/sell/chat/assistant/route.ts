@@ -71,6 +71,97 @@ function buildGeneratedRemarks(draft: any) {
     return details.join(' ');
 }
 
+function hasEditableDraftFields(draft: any) {
+    const hasPresentValue = (value: any) => Object.values(value || {}).some((entry) => entry !== undefined && entry !== null && entry !== '');
+
+    return Boolean(
+        String(draft.title || '').trim() ||
+        (Array.isArray(draft.types) && draft.types.length > 0) ||
+        (Array.isArray(draft.purposes) && draft.purposes.length > 0) ||
+        (Array.isArray(draft.natures) && draft.natures.length > 0) ||
+        hasPresentValue(draft.location) ||
+        hasPresentValue(draft.price) ||
+        (Array.isArray(draft.detailedPrice) && draft.detailedPrice.length > 0) ||
+        String(draft.remarks || '').trim() ||
+        String(draft.status || '').trim() ||
+        String(draft.soldStatus || '').trim() ||
+        String(draft.roadType || '').trim() ||
+        String(draft.roadSize || '').trim() ||
+        String(draft.facingDirection || '').trim() ||
+        typeof draft.isPrivate === 'boolean' ||
+        hasPresentValue(draft.features) ||
+        hasPresentValue(draft.openHouse) ||
+        (Array.isArray(draft.amenities) && draft.amenities.length > 0) ||
+        (Array.isArray(draft.images) && draft.images.length > 0)
+    );
+}
+
+function buildUpdatePayload(draft: any, userPropertyIds: Set<number>) {
+    const propertyId = normalizeNumber(draft.editPropertyId);
+    if (!propertyId || !userPropertyIds.has(propertyId) || !hasEditableDraftFields(draft)) return null;
+    const hasPresentValue = (value: any) => Object.values(value || {}).some((entry) => entry !== undefined && entry !== null && entry !== '');
+
+    return {
+        propertyId,
+        title: String(draft.title || '').trim() || undefined,
+        types: Array.isArray(draft.types) && draft.types.length > 0 ? draft.types : undefined,
+        purposes: Array.isArray(draft.purposes) && draft.purposes.length > 0 ? draft.purposes : undefined,
+        natures: Array.isArray(draft.natures) && draft.natures.length > 0 ? draft.natures : undefined,
+        isPrivate: typeof draft.isPrivate === 'boolean' ? draft.isPrivate : undefined,
+        remarks: draft.remarks || undefined,
+        status: draft.status || undefined,
+        soldStatus: draft.soldStatus || undefined,
+        roadType: draft.roadType || undefined,
+        roadSize: draft.roadSize || undefined,
+        facingDirection: draft.facingDirection || undefined,
+        location: hasPresentValue(draft.location)
+            ? {
+                country: draft.location.country || undefined,
+                province: draft.location.province || undefined,
+                district: draft.location.district || undefined,
+                cityVillage: draft.location.cityVillage || undefined,
+                area: draft.location.area || undefined,
+                ward: draft.location.ward || undefined,
+                landmark: draft.location.landmark || undefined,
+                distanceFrom: draft.location.distanceFrom || undefined,
+                latitude: normalizeNumber(draft.location.latitude),
+                longitude: normalizeNumber(draft.location.longitude),
+            }
+            : undefined,
+        price: hasPresentValue(draft.price)
+            ? {
+                price: normalizeNumber(draft.price.price),
+                rate: draft.price.rate || undefined,
+                unit: draft.price.unit || undefined,
+                totalUnit: normalizeNumber(draft.price.totalUnit),
+                totalPrice: normalizeNumber(draft.price.totalPrice),
+            }
+            : undefined,
+        detailedPrice: Array.isArray(draft.detailedPrice)
+            ? draft.detailedPrice.map((entry: any) => ({
+                price: normalizeNumber(entry.price) || 0,
+                rate: entry.rate || 'total',
+                unit: entry.unit || undefined,
+                totalUnit: normalizeNumber(entry.totalUnit),
+                totalPrice: normalizeNumber(entry.totalPrice),
+            }))
+            : undefined,
+        amenities: Array.isArray(draft.amenities) ? draft.amenities : undefined,
+        images: Array.isArray(draft.images) ? draft.images : undefined,
+        features: hasPresentValue(draft.features) ? draft.features : undefined,
+        openHouse: hasPresentValue(draft.openHouse)
+            ? {
+                markOpenHouse: typeof draft.openHouse.markOpenHouse === 'boolean' ? draft.openHouse.markOpenHouse : undefined,
+                date: draft.openHouse.date,
+                startTime: draft.openHouse.startTime || undefined,
+                endTime: draft.openHouse.endTime || undefined,
+                latitude: normalizeNumber(draft.openHouse.latitude),
+                longitude: normalizeNumber(draft.openHouse.longitude),
+            }
+            : undefined,
+    };
+}
+
 async function getPropertyChatUserContext(userId: number) {
     const [user, properties, requirements] = await Promise.all([
         prisma.user.findUnique({
@@ -179,6 +270,8 @@ export async function POST(request: Request) {
             createPayload: null,
         });
     }
+    const userPropertyIds = new Set((userContext.properties || []).map((property) => property.id));
+    const updatePayload = response.readyToUpdate ? buildUpdatePayload(response.draft, userPropertyIds) : null;
     const responseDefaultRate = getDefaultPropertyPriceRate(response.draft.types || [], response.draft.purposes || []);
     const generatedTitle = String(response.draft.title || '').trim() || buildGeneratedListingTitle(response.draft);
     const generatedRemarks = response.draft.remarks || buildGeneratedRemarks(response.draft);
@@ -259,6 +352,8 @@ export async function POST(request: Request) {
         draft: response.draft,
         missingFields: response.missingFields,
         readyToCreate: response.readyToCreate,
+        readyToUpdate: Boolean(updatePayload),
+        updatePayload,
         createPayload,
     });
 }
