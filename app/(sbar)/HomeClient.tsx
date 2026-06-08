@@ -992,20 +992,51 @@ type HomeClientProps = {
         forSale: {
             house: number;
             land: number;
-            building: number;
+            apartment: number;
+            business: number;
+            building?: number;
         };
         forRent: {
             flat: number;
             house: number;
             apartment: number;
+            commercialSpace: number;
+            officeSpace: number;
+            business: number;
             totalRent: number;
         };
         requirements: {
             total: number;
             rental: number;
             purchase: number;
+            purchaseByType?: {
+                house: number;
+                land: number;
+                apartment: number;
+                business: number;
+            };
+            rentalByType?: {
+                flat: number;
+                house: number;
+                apartment: number;
+                commercialSpace: number;
+                officeSpace: number;
+                business: number;
+            };
         };
     };
+};
+
+type ExploreCategoryItem = {
+    icon: string;
+    label: string;
+    count: number;
+    href: string;
+};
+
+type ExploreCategoryGroup = {
+    label: string;
+    items: ExploreCategoryItem[];
 };
 
 function PostPropertySection() {
@@ -1089,87 +1120,127 @@ function ExploreCategoriesSection({
 }: {
     stats: NonNullable<HomeClientProps['exploreCategoryStats']>;
 }) {
-    // Show three sub-categories: For Sale, For Rent, Active Requirements
-    const groups = [
+    const propertyGroups: ExploreCategoryGroup[] = [
         {
             label: 'For Sale',
-            href: '/search?purposes=sale',
             items: [
                 { icon: '/icons/house-chimney.svg', label: 'House', count: stats.forSale.house ?? 0, href: '/search?purposes=sale&types=house' },
                 { icon: '/icons/land-location.svg', label: 'Land', count: stats.forSale.land ?? 0, href: '/search?purposes=sale&types=land' },
-                { icon: '/icons/apartment.svg', label: 'Apartment', count: stats.forSale.building ?? 0, href: '/search?purposes=sale&types=apartment' },
-                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: stats.forSale.building ?? 0, href: '/search?purposes=sale&types=business' },
+                { icon: '/icons/apartment.svg', label: 'Apartment', count: stats.forSale.apartment ?? stats.forSale.building ?? 0, href: '/search?purposes=sale&types=apartment' },
+                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: stats.forSale.business ?? 0, href: '/search?purposes=sale&types=business' },
             ],
         },
         {
             label: 'For Rent',
-            href: '/search?purposes=rent',
             items: [
                 { icon: '/icons/apartment.svg', label: 'Flat', count: stats.forRent.flat ?? 0, href: '/search?purposes=rent&types=flat' },
                 { icon: '/icons/house-chimney.svg', label: 'House', count: stats.forRent.house ?? 0, href: '/search?purposes=rent&types=house' },
                 { icon: '/icons/apartment.svg', label: 'Apartment', count: stats.forRent.apartment ?? 0, href: '/search?purposes=rent&types=apartment' },
-                { icon: '/icons/apartment.svg', label: 'Commercial Space', count: 0, href: '/search?purposes=rent&types=commercial-space' },
-                { icon: '/icons/note.svg', label: 'Office Space', count: 0, href: '/search?purposes=rent&types=office-space' },
-                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: stats.forRent.totalRent ?? 0, href: '/search?purposes=rent&types=business' },
-            ],
-        },
-        {
-            label: 'Active Requirements',
-            href: '/requirements',
-            items: [
-                { icon: '/icons/sack-dollar.svg', label: 'Purchase', count: stats.requirements.purchase ?? 0, href: '/requirements?purpose=sale' },
-                { icon: '/icons/note.svg', label: 'Rental', count: stats.requirements.rental ?? 0, href: '/requirements?purpose=rent' },
+                { icon: '/icons/apartment.svg', label: 'Commercial Space', count: stats.forRent.commercialSpace ?? 0, href: '/search?purposes=rent&types=commercial-space' },
+                { icon: '/icons/note.svg', label: 'Office Space', count: stats.forRent.officeSpace ?? 0, href: '/search?purposes=rent&types=office-space' },
+                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: stats.forRent.business ?? 0, href: '/search?purposes=rent&types=business' },
             ],
         },
     ];
 
+    const requirementGroups: ExploreCategoryGroup[] = [
+        {
+            label: 'For Sale',
+            items: [
+                { icon: '/icons/house-chimney.svg', label: 'House', count: stats.requirements.purchaseByType?.house ?? 0, href: '/?tab=requirements&purpose=sale&type=house' },
+                { icon: '/icons/land-location.svg', label: 'Land', count: stats.requirements.purchaseByType?.land ?? 0, href: '/?tab=requirements&purpose=sale&type=land' },
+                { icon: '/icons/apartment.svg', label: 'Apartment', count: stats.requirements.purchaseByType?.apartment ?? 0, href: '/?tab=requirements&purpose=sale&type=apartment' },
+                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: stats.requirements.purchaseByType?.business ?? 0, href: '/?tab=requirements&purpose=sale&type=business' },
+            ],
+        },
+        {
+            label: 'For Rent',
+            items: [
+                { icon: '/icons/apartment.svg', label: 'Flat', count: stats.requirements.rentalByType?.flat ?? 0, href: '/?tab=requirements&purpose=rent&type=flat' },
+                { icon: '/icons/house-chimney.svg', label: 'House', count: stats.requirements.rentalByType?.house ?? 0, href: '/?tab=requirements&purpose=rent&type=house' },
+                { icon: '/icons/apartment.svg', label: 'Apartment', count: stats.requirements.rentalByType?.apartment ?? 0, href: '/?tab=requirements&purpose=rent&type=apartment' },
+                { icon: '/icons/apartment.svg', label: 'Commercial Space', count: stats.requirements.rentalByType?.commercialSpace ?? 0, href: '/?tab=requirements&purpose=rent&type=commercial-space' },
+                { icon: '/icons/note.svg', label: 'Office Space', count: stats.requirements.rentalByType?.officeSpace ?? 0, href: '/?tab=requirements&purpose=rent&type=office-space' },
+                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: stats.requirements.rentalByType?.business ?? 0, href: '/?tab=requirements&purpose=rent&type=business' },
+            ],
+        },
+    ];
+
+    const renderGroups = (
+        groups: ExploreCategoryGroup[],
+        noun: 'property' | 'requirement',
+    ) => (
+        <div className="space-y-3">
+            {groups.map((group) => (
+                <div key={group.label} className="space-y-2">
+                    <h3 className="text-sm font-bold text-slate-700">{group.label}</h3>
+                    <div className="overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                        <div className="inline-flex min-w-max gap-2">
+                            {group.items.map((item) => {
+                                const desktopNoun = noun === 'property'
+                                    ? (item.count === 1 ? 'property' : 'properties')
+                                    : (item.count === 1 ? noun : `${noun}s`);
+                                const mobileNoun = noun === 'property'
+                                    ? (item.count === 1 ? 'prop' : 'props')
+                                    : desktopNoun;
+
+                                return (
+                                    <Link
+                                        key={`${group.label}-${item.label}`}
+                                        href={item.href}
+                                        className="group flex w-fit items-stretch gap-2.5 rounded-2xl border border-slate-200 bg-white py-2.5 pl-3 pr-4 shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[color:var(--color-primary)]/35 hover:shadow-md"
+                                    >
+                                        <div className="flex w-9 shrink-0 items-center justify-center">
+                                            <span
+                                                aria-hidden="true"
+                                                className="h-4 w-4 bg-[color:var(--color-primary)]"
+                                                style={{
+                                                    WebkitMaskImage: `url(${item.icon})`,
+                                                    maskImage: `url(${item.icon})`,
+                                                    WebkitMaskRepeat: 'no-repeat',
+                                                    maskRepeat: 'no-repeat',
+                                                    WebkitMaskPosition: 'center',
+                                                    maskPosition: 'center',
+                                                    WebkitMaskSize: 'contain',
+                                                    maskSize: 'contain',
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="flex min-w-0 flex-col justify-center gap-0">
+                                            <div className="whitespace-nowrap text-[13px] font-semibold text-slate-800 transition-colors group-hover:text-slate-900">
+                                                {item.label}
+                                            </div>
+                                            <div className="whitespace-nowrap text-[12px] font-medium text-slate-500 transition-colors group-hover:text-[color:var(--color-primary)]">
+                                                {item.count}{' '}
+                                                <span className="sm:hidden">{mobileNoun}</span>
+                                                <span className="hidden sm:inline">{desktopNoun}</span>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+
     return (
-        <section className="w-full">
+        <section className="w-full space-y-10">
             <div className="mb-5 space-y-0.5">
                 <h2 className="text-lg font-bold text-slate-900">Browse by category</h2>
                 <p className="text-sm text-slate-400">Find what you&apos;re looking for.</p>
             </div>
-            <div className="flex flex-col gap-1">
-                {groups.map((group) => (
-                    <div key={group.label}>
-                        <div className="overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                            <div className="inline-flex gap-1.5 min-w-max">
-                            {group.items.map((item) => (
-                                <Link
-                                    key={item.label}
-                                    href={item.href}
-                                    className="group flex items-stretch gap-2.5 rounded-2xl border border-slate-200 bg-white pl-3 pr-4 py-2 shadow-sm transition-all duration-200 hover:border-[color:var(--color-primary)]/35 hover:shadow-md hover:-translate-y-px"
-                                >
-                                    <div className="flex w-9 items-center justify-center shrink-0">
-                                        <span
-                                            aria-hidden="true"
-                                            className="h-4 w-4 bg-[color:var(--color-primary)]"
-                                            style={{
-                                                WebkitMaskImage: `url(${item.icon})`,
-                                                maskImage: `url(${item.icon})`,
-                                                WebkitMaskRepeat: 'no-repeat',
-                                                maskRepeat: 'no-repeat',
-                                                WebkitMaskPosition: 'center',
-                                                maskPosition: 'center',
-                                                WebkitMaskSize: 'contain',
-                                                maskSize: 'contain',
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="min-w-0 flex flex-col justify-center gap-0">
-                                        <div className="text-[13px] font-semibold text-slate-800 group-hover:text-slate-900 transition-colors truncate">
-                                            {item.label}
-                                        </div>
-                                        <div className="text-[12px] font-medium text-slate-500 group-hover:text-[color:var(--color-primary)] transition-colors">
-                                            {typeof item.count === 'number' ? `${item.count} ${item.count === 1 ? 'property' : 'properties'}` : group.label}
-                                        </div>
-                                    </div>
-                                </Link>
-                            ))}
-                            </div>
-                        </div>
-                    </div>
-                ))}
+
+            {renderGroups(propertyGroups, 'property')}
+
+            <div className="space-y-5">
+                <div className="space-y-0.5">
+                    <h2 className="text-lg font-bold text-slate-900">See what people are looking for</h2>
+                    <p className="text-sm text-slate-400">Browse active buyer and renter requirements.</p>
+                </div>
+                {renderGroups(requirementGroups, 'requirement')}
             </div>
         </section>
     );

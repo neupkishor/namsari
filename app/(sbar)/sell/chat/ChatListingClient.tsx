@@ -86,6 +86,18 @@ const COMMON_TYPES = [
     'commercial space',
 ];
 
+function MicrophoneIcon({ active = false }: { active?: boolean }) {
+    return (
+        <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+            <path d="M12 19v3" />
+            <path d="M8 22h8" />
+            {active ? <circle cx="18" cy="6" r="3" fill="currentColor" stroke="none" /> : null}
+        </svg>
+    );
+}
+
 function localPriceRateFromDraft(draft: ChatDraft): PropertyPriceRate {
     return getDefaultPropertyPriceRate(draft.types || [], draft.purposes || []);
 }
@@ -127,6 +139,9 @@ export default function ChatListingClient({
     const [createdPath, setCreatedPath] = useState<string | null>(null);
     const [recording, setRecording] = useState(false);
     const [recordingSeconds, setRecordingSeconds] = useState(0);
+    const [summaryOpen, setSummaryOpen] = useState(false);
+    const [recordingLimitNotice, setRecordingLimitNotice] = useState(false);
+    const discardRecordingRef = useRef(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
@@ -134,6 +149,26 @@ export default function ChatListingClient({
     const recordingTimerRef = useRef<ReturnType<typeof window.setInterval> | null>(null);
 
     const defaultRate = useMemo(() => localPriceRateFromDraft(draft), [draft]);
+    const understoodItems = useMemo(() => {
+        const location = [draft.location?.area, draft.location?.cityVillage, draft.location?.district].filter(Boolean).join(', ');
+        const features = draft.features || {};
+        const featureSummary = [
+            typeof features.bedrooms === 'number' ? `${features.bedrooms} bed` : '',
+            typeof features.bathrooms === 'number' ? `${features.bathrooms} bath` : '',
+            typeof features.builtUpArea === 'number' ? `${features.builtUpArea} ${features.builtUpAreaUnit || ''}`.trim() : '',
+        ].filter(Boolean).join(' · ');
+
+        return [
+            { label: 'Location', value: location },
+            { label: 'Purpose', value: draft.purposes?.join(', ') },
+            { label: 'Property', value: draft.types?.join(', ') },
+            { label: 'Price', value: typeof draft.price?.price === 'number' ? `${draft.price.price}${draft.price.unit ? ` / ${draft.price.unit}` : ''}` : '' },
+            { label: 'Rate', value: draft.price?.rate || defaultRate },
+            { label: 'Road', value: [draft.roadSize, draft.roadType].filter(Boolean).join(' ') },
+            { label: 'Facing', value: draft.facingDirection },
+            { label: 'Features', value: featureSummary },
+        ].filter((item) => item.value);
+    }, [defaultRate, draft]);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -263,6 +298,12 @@ export default function ChatListingClient({
                 const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
                 audioChunksRef.current = [];
 
+                if (discardRecordingRef.current) {
+                    discardRecordingRef.current = false;
+                    setRecordingLimitNotice(true);
+                    return;
+                }
+
                 if (blob.size === 0) {
                     setError('No audio was recorded.');
                     return;
@@ -290,6 +331,7 @@ export default function ChatListingClient({
                 const elapsed = Math.round((Date.now() - recordingStartedAtRef.current) / 1000);
                 setRecordingSeconds(Math.min(60, elapsed));
                 if (elapsed >= 60 && mediaRecorderRef.current?.state === 'recording') {
+                    discardRecordingRef.current = true;
                     mediaRecorderRef.current.stop();
                 }
             }, 500);
@@ -309,18 +351,87 @@ export default function ChatListingClient({
     };
 
     return (
-        <div className="grid gap-6 xl:grid-cols-[1.3fr_0.9fr]">
-            <section className="overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-                <div className="border-b border-slate-200 bg-[linear-gradient(135deg,#0f172a_0%,#1e293b_48%,#334155_100%)] px-6 py-5 text-white">
-                    <div className="text-xs uppercase tracking-[0.3em] text-slate-300">Sell Chat</div>
-                    <h1 className="mt-2 text-3xl font-black">Property listing assistant</h1>
-                    <p className="mt-2 max-w-2xl text-sm text-slate-300">Chat naturally. Genkit extracts the details, asks for what is missing, and creates the listing when the JSON is complete.</p>
-                </div>
+        <div className="-mx-4 -my-6 flex min-h-[calc(100vh-var(--header-height))] flex-col bg-slate-50 lg:-mx-5 xl:-mx-6">
+            <div className="sticky top-[var(--header-height)] z-20 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
+                <div className="mx-auto flex max-w-6xl flex-col gap-3">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Sell Chat</div>
+                            <h1 className="text-xl font-black text-slate-950 sm:text-2xl">Property listing assistant</h1>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setSummaryOpen((value) => !value)}
+                            className="self-start rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-900 hover:bg-slate-50 md:self-auto"
+                        >
+                            {summaryOpen ? 'Hide context' : 'Show context'}
+                        </button>
+                    </div>
 
-                <div ref={scrollRef} className="space-y-4 px-4 py-5 sm:px-6 overflow-y-auto max-h-[65vh]">
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                        <div className="mb-2 flex items-center justify-between gap-3">
+                            <div className="text-sm font-bold text-slate-900">Understood so far</div>
+                            <div className="text-xs font-semibold text-slate-500">{understoodItems.length} fields</div>
+                        </div>
+                        {understoodItems.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                                {understoodItems.map((item) => (
+                                    <div key={item.label} className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-700">
+                                        <span className="font-semibold text-slate-950">{item.label}:</span> {item.value}
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-sm text-slate-500">Waiting for property details.</div>
+                        )}
+                    </div>
+
+                    {summaryOpen && (
+                        <div className="grid gap-3 md:grid-cols-[1fr_1fr_1.2fr]">
+                            <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                                <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Account</div>
+                                <div className="mt-1 text-sm font-bold text-slate-900">{currentUser?.name || currentUser?.username || 'Logged in user'}</div>
+                                <div className="mt-2 flex gap-2 text-xs text-slate-600">
+                                    <span className="rounded-full bg-slate-100 px-2 py-1">{contextSummary.propertyCount} properties</span>
+                                    <span className="rounded-full bg-slate-100 px-2 py-1">{contextSummary.requirementCount} requirements</span>
+                                </div>
+                            </div>
+                            <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                                <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Draft</div>
+                                <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-slate-700">
+                                    <span>District: <b>{draft.location?.district || '-'}</b></span>
+                                    <span>City: <b>{draft.location?.cityVillage || '-'}</b></span>
+                                    <span>Purpose: <b>{draft.purposes?.[0] || '-'}</b></span>
+                                    <span>Type: <b>{draft.types?.[0] || '-'}</b></span>
+                                </div>
+                            </div>
+                            <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                                <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Recent context</div>
+                                <div className="mt-2 space-y-1 text-xs text-slate-600">
+                                    {[...contextSummary.recentProperties.slice(0, 1), ...contextSummary.recentRequirements.slice(0, 1)].length > 0
+                                        ? (
+                                            <>
+                                                {contextSummary.recentProperties.slice(0, 1).map((property) => (
+                                                    <div key={`property-${property.id}`} className="truncate">Property: {property.title}</div>
+                                                ))}
+                                                {contextSummary.recentRequirements.slice(0, 1).map((requirement) => (
+                                                    <div key={`requirement-${requirement.id}`} className="truncate">Requirement: {requirement.content || requirement.propertyTypes || 'Requirement'}</div>
+                                                ))}
+                                            </>
+                                        )
+                                        : <div>No recent context yet.</div>}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <section className="mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col px-4 py-5 sm:px-6">
+                <div ref={scrollRef} className="min-h-0 flex-1 space-y-4 overflow-y-auto rounded-2xl border border-slate-200 bg-white px-4 py-5 shadow-sm sm:px-6">
                     {messages.map((message, index) => (
                         <div key={`${message.role}-${index}-${message.createdAt}`} className={`flex ${message.role === 'assistant' ? 'justify-start' : 'justify-end'}`}>
-                            <div className={`max-w-[85%] rounded-3xl px-4 py-3 text-sm leading-6 shadow-sm ${message.role === 'assistant' ? 'bg-slate-100 text-slate-800' : 'bg-slate-900 text-white'}`}>
+                            <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm ${message.role === 'assistant' ? 'bg-slate-100 text-slate-800' : 'bg-slate-900 text-white'}`}>
                                 {message.content}
                             </div>
                         </div>
@@ -339,7 +450,7 @@ export default function ChatListingClient({
                     )}
                 </div>
 
-                <div className="border-t border-slate-200 px-4 py-4 sm:px-6">
+                <div className="mt-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-6">
                     <div className="mb-3 flex flex-wrap gap-2">
                         {COMMON_TYPES.map((type) => (
                             <button
@@ -374,15 +485,21 @@ export default function ChatListingClient({
                             type="button"
                             onClick={() => recording ? stopRecording() : void startRecording()}
                             disabled={loading || creating}
-                            className={`rounded-2xl px-5 py-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${recording ? 'bg-red-600 text-white hover:bg-red-500' : 'border border-slate-300 text-slate-800 hover:border-slate-900 hover:bg-slate-50'}`}
+                            title={recording ? `Stop recording (${recordingSeconds}s)` : 'Record voice note'}
+                            aria-label={recording ? `Stop recording, ${recordingSeconds} seconds` : 'Record voice note'}
+                            className={`flex min-h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${recording ? 'bg-red-600 text-white hover:bg-red-500' : 'border border-slate-300 text-slate-800 hover:border-slate-900 hover:bg-slate-50'}`}
                         >
-                            {recording ? `Stop ${recordingSeconds}s` : 'Audio'}
+                            <MicrophoneIcon active={recording} />
                         </button>
                     </div>
 
-                    <div className="mt-2 text-xs text-slate-500">Audio notes can be up to 1 minute.</div>
-
                     {error && <div className="mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+
+                    {recordingLimitNotice && (
+                        <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+                            Please try to share your message in concise manner.
+                        </div>
+                    )}
 
                     {createdId ? (
                         <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
@@ -391,77 +508,6 @@ export default function ChatListingClient({
                     ) : null}
                 </div>
             </section>
-
-            <aside className="space-y-4 rounded-[32px] border border-slate-200 bg-white p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-                <div>
-                    <div className="text-xs uppercase tracking-[0.24em] text-slate-500">Active user</div>
-                    <div className="mt-2 text-xl font-black text-slate-900">{currentUser?.name || currentUser?.username || 'Logged in user'}</div>
-                    <div className="text-sm text-slate-500">The assistant can reference your account, properties, and requirements while creating this listing.</div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-3xl bg-slate-50 p-4">
-                        <div className="text-2xl font-black text-slate-900">{contextSummary.propertyCount}</div>
-                        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Properties</div>
-                    </div>
-                    <div className="rounded-3xl bg-slate-50 p-4">
-                        <div className="text-2xl font-black text-slate-900">{contextSummary.requirementCount}</div>
-                        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Requirements</div>
-                    </div>
-                </div>
-
-                <div className="rounded-3xl bg-slate-50 p-4">
-                    <div className="text-sm font-semibold text-slate-900">Draft summary</div>
-                    <dl className="mt-3 space-y-2 text-sm text-slate-700">
-                        <div className="flex justify-between gap-3"><dt>District</dt><dd className="text-right font-medium">{draft.location?.district || '—'}</dd></div>
-                        <div className="flex justify-between gap-3"><dt>City</dt><dd className="text-right font-medium">{draft.location?.cityVillage || '—'}</dd></div>
-                        <div className="flex justify-between gap-3"><dt>Province</dt><dd className="text-right font-medium">{draft.location?.province || '—'}</dd></div>
-                        <div className="flex justify-between gap-3"><dt>Purpose</dt><dd className="font-medium capitalize">{draft.purposes?.[0] || '—'}</dd></div>
-                        <div className="flex justify-between gap-3"><dt>Type</dt><dd className="font-medium capitalize">{draft.types?.[0] || '—'}</dd></div>
-                        <div className="flex justify-between gap-3"><dt>Primary rate</dt><dd className="font-medium capitalize">{draft.price?.rate || defaultRate}</dd></div>
-                    </dl>
-                </div>
-
-                {(contextSummary.recentProperties.length > 0 || contextSummary.recentRequirements.length > 0) && (
-                    <div className="rounded-3xl bg-slate-50 p-4">
-                        <div className="text-sm font-semibold text-slate-900">Assistant context</div>
-                        {contextSummary.recentProperties.length > 0 && (
-                            <div className="mt-3">
-                                <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Recent properties</div>
-                                <div className="mt-2 space-y-2">
-                                    {contextSummary.recentProperties.map((property) => (
-                                        <div key={property.id} className="text-sm text-slate-700">
-                                            <div className="font-semibold text-slate-900">{property.title}</div>
-                                            <div className="text-xs text-slate-500">
-                                                {[property.location?.cityVillage, property.location?.district, property.status].filter(Boolean).join(' · ')}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                        {contextSummary.recentRequirements.length > 0 && (
-                            <div className="mt-4">
-                                <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Recent requirements</div>
-                                <div className="mt-2 space-y-2">
-                                    {contextSummary.recentRequirements.map((requirement) => (
-                                        <div key={requirement.id} className="text-sm text-slate-700">
-                                            <div className="font-semibold text-slate-900">{requirement.content || requirement.propertyTypes || 'Requirement'}</div>
-                                            <div className="text-xs text-slate-500">
-                                                {[requirement.cityVillage, requirement.district, requirement.purposes, requirement.status].filter(Boolean).join(' · ')}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                <div className="rounded-3xl border border-dashed border-slate-300 p-4 text-sm text-slate-600">
-                    Start with whatever you know. The assistant will ask only for missing essentials like location and price, then generate the listing title and description.
-                </div>
-            </aside>
         </div>
     );
 }
