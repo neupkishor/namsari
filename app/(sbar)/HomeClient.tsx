@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { FeaturedProjects } from '@/components/cards/FeaturedProjects';
 import { TrendingSearches } from '@/components/cards/TrendingSearches';
-import { FeaturedCollectionsFeedItem } from '@/components/cards/FeaturedCollections';
 import { HeroCarouselAd, FeedAd } from '@/components/cards/AdvertisementCard';
 import { SectionTitleFeed } from '@/components/sections/SectionTitleFeed';
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
@@ -1169,6 +1168,44 @@ function PostPropertySection() {
     );
 }
 
+function PropertyCollectionsSection({ collections }: { collections?: any[] }) {
+    if (!collections || collections.length === 0) return null;
+
+    return (
+        <section className="w-full">
+            <div className="mb-5 space-y-0.5">
+                <h2 className="text-lg font-bold text-slate-900">Most Searched Categories</h2>
+                <p className="text-sm text-slate-400">Property collections that are most looked.</p>
+            </div>
+
+            <div className="overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                <div className="grid w-max auto-cols-max grid-flow-col grid-rows-2 gap-2">
+                    {collections.map((collection) => {
+                        const propertyCount = collection._count?.properties ?? collection.properties?.length ?? 0;
+
+                        return (
+                            <Link
+                                key={collection.id}
+                                href={`/collection/${collection.slug}`}
+                                className="group flex min-h-[62px] w-[230px] items-center rounded-2xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[color:var(--color-primary)]/35 hover:shadow-md"
+                            >
+                                <div className="min-w-0">
+                                    <div className="truncate text-[13px] font-semibold text-slate-800 transition-colors group-hover:text-[color:var(--color-primary)]">
+                                        {collection.name}
+                                    </div>
+                                    <div className="mt-0.5 truncate text-[12px] font-medium text-slate-500 transition-colors group-hover:text-[color:var(--color-primary)]">
+                                        {propertyCount} {propertyCount === 1 ? 'property' : 'properties'}
+                                    </div>
+                                </div>
+                            </Link>
+                        );
+                    })}
+                </div>
+            </div>
+        </section>
+    );
+}
+
 function ExploreCategoriesSection({
     stats,
 }: {
@@ -1474,6 +1511,10 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                         <div>
                             <PostPropertySection />
                         </div>
+
+                        {siteSettings?.show_property_collection !== false && featuredCollections && featuredCollections.length > 0 && (
+                            <PropertyCollectionsSection collections={featuredCollections} />
+                        )}
                     </div>
 
                     {/* Hero Carousel Ad */}
@@ -1676,9 +1717,8 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                 let propertyIndex = 0;
                                                 let insertionCount = 0;
 
-                                                const availableCardTypes = ['featured_collections', 'trending_searches', 'featured_projects'];
+                                                const availableCardTypes = ['trending_searches', 'featured_projects'];
                                                 const validCardTypes = availableCardTypes.filter(type => {
-                                                    if (type === 'featured_collections') return siteSettings?.show_property_collection !== false && featuredCollections && featuredCollections.length > 0;
                                                     if (type === 'trending_searches') return trendingSearches && trendingSearches.length > 0;
                                                     if (type === 'featured_projects') return siteSettings?.show_featured_properties !== false && featuredProperties && featuredProperties.length > 0;
                                                     return false;
@@ -1776,8 +1816,6 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                         );
                                                     } else if (item.type === 'ad') {
                                                         component = siteSettings?.show_feed_ad !== false ? <FeedAd ad={item.data} /> : null;
-                                                    } else if (item.type === 'featured_collections') {
-                                                        component = <FeaturedCollectionsFeedItem collections={featuredCollections || []} />;
                                                     } else if (item.type === 'trending_searches') {
                                                         component = <TrendingSearches searches={trendingSearches || []} />;
                                                     } else if (item.type === 'featured_projects') {

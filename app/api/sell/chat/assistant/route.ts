@@ -73,6 +73,8 @@ function buildGeneratedRemarks(draft: any) {
 
 function hasEditableDraftFields(draft: any) {
     const hasPresentValue = (value: any) => Object.values(value || {}).some((entry) => entry !== undefined && entry !== null && entry !== '');
+    const status = String(draft.status || '').trim();
+    const isAllowedChatStatus = ['pending', 'rejected', 'warned'].includes(status);
 
     return Boolean(
         String(draft.title || '').trim() ||
@@ -83,7 +85,7 @@ function hasEditableDraftFields(draft: any) {
         hasPresentValue(draft.price) ||
         (Array.isArray(draft.detailedPrice) && draft.detailedPrice.length > 0) ||
         String(draft.remarks || '').trim() ||
-        String(draft.status || '').trim() ||
+        isAllowedChatStatus ||
         String(draft.soldStatus || '').trim() ||
         String(draft.roadType || '').trim() ||
         String(draft.roadSize || '').trim() ||
@@ -109,7 +111,7 @@ function buildUpdatePayload(draft: any, userPropertyIds: Set<number>) {
         natures: Array.isArray(draft.natures) && draft.natures.length > 0 ? draft.natures : undefined,
         isPrivate: typeof draft.isPrivate === 'boolean' ? draft.isPrivate : undefined,
         remarks: draft.remarks || undefined,
-        status: draft.status || undefined,
+        status: ['pending', 'rejected', 'warned'].includes(String(draft.status || '')) ? draft.status : undefined,
         soldStatus: draft.soldStatus || undefined,
         roadType: draft.roadType || undefined,
         roadSize: draft.roadSize || undefined,

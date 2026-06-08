@@ -91,6 +91,7 @@ export async function POST(request: Request) {
         roadType: body.roadType || undefined,
         roadSize: body.roadSize || undefined,
         facingDirection: body.facingDirection || undefined,
+        status: 'pending',
         location: {
             country: String(location.country || 'Nepal'),
             province: String(location.province || ''),
@@ -200,20 +201,22 @@ export async function PATCH(request: Request) {
 
     const mediaPayload = images
         ? {
-            images: images.map((img: any, idx: number) => ({
-                kind: 'image',
-                url: img.url,
-                label: img.imageOf,
-                filename: img.filename,
-                sort: idx + 1,
-            })),
-            videos: [],
+            images: [
+                ...(((existing.media as any)?.images || []).filter((item: any) => item?.url)),
+                ...images.map((img: any, idx: number) => ({
+                    kind: 'image',
+                    url: img.url,
+                    label: img.imageOf,
+                    filename: img.filename,
+                    sort: ((existing.media as any)?.images?.length || 0) + idx + 1,
+                })),
+            ],
+            videos: ((existing.media as any)?.videos || []).filter((item: any) => item?.url),
         }
         : undefined;
 
     const updated = await prisma.$transaction(async (tx) => {
         if (images) {
-            await tx.propertyImage.deleteMany({ where: { propertyId } });
             if (images.length > 0) {
                 await tx.propertyImage.createMany({
                     data: images.map((img: any) => ({
@@ -232,7 +235,7 @@ export async function PATCH(request: Request) {
                 ? title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
                 : undefined,
             isPrivate: typeof body.isPrivate === 'boolean' ? body.isPrivate : undefined,
-            status: ['pending', 'approved', 'rejected', 'warned'].includes(String(body.status || '')) ? String(body.status) : undefined,
+            status: ['pending', 'rejected', 'warned'].includes(String(body.status || '')) ? String(body.status) : undefined,
             soldStatus: ['unsold', 'soldByUs', 'soldByOther'].includes(String(body.soldStatus || '')) ? String(body.soldStatus) : undefined,
             remarks: typeof body.remarks === 'string' ? body.remarks : undefined,
             roadType: typeof body.roadType === 'string' ? body.roadType : undefined,

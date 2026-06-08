@@ -25,9 +25,12 @@ export default async function HomePage() {
     const [featuredCollections, trendingSearches, featuredProperties, featuredAgencies, advertisements, propertyTypes, cachedListingStats, siteSettings] = await Promise.all([
         prisma.collection.findMany({
             where: { is_public: true },
-            take: 6,
+            take: 12,
             orderBy: { updated_at: 'desc' },
             include: {
+                _count: {
+                    select: { properties: true }
+                },
                 properties: {
                     take: 1,
                     include: {

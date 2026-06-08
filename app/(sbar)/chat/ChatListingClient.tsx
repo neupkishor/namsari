@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import Link from 'next/link';
+import imageCompression from 'browser-image-compression';
 import { getDefaultPropertyPriceRate, type PropertyPriceRate } from '@/lib/pricing';
+import { logUploadError } from '@/lib/client-error-logger';
+import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
 
 type ChatMessage = {
     role: 'assistant' | 'user';
@@ -90,6 +93,13 @@ const COMMON_TYPES = [
     'commercial space',
 ];
 
+const CHAT_CAPABILITY_NOTE = [
+    'Chat edit rules:',
+    'Can edit: amenities, property title, property details, and adding images.',
+    'Cannot edit via chat: property listing transfer/change, deleting the property, approval/publishing, and removing images.',
+    'Cannot be edited at all: views, likes, comments, and shares.',
+].join('\n');
+
 function MicrophoneIcon({ active = false }: { active?: boolean }) {
     return (
         <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -120,6 +130,24 @@ function propertyManagePath(property: { id?: number; slug?: string | null; title
     return `/manage/properties/${slug}-${property.id}`;
 }
 
+function uploadedFileNameFromUrl(url: string, fallback: string) {
+    return url.split('/').filter(Boolean).pop() || fallback;
+}
+
+function mergeDraftImages(draft: ChatDraft, images: Array<{ url: string; imageOf: string; filename: string }>): ChatDraft {
+    if (images.length === 0) return draft;
+
+    const imageByUrl = new Map<string, { url: string; imageOf: string; filename: string }>();
+    [...(draft.images || []), ...images].forEach((image) => {
+        if (image.url) imageByUrl.set(image.url, image);
+    });
+
+    return {
+        ...draft,
+        images: Array.from(imageByUrl.values()),
+    };
+}
+
 export default function ChatListingClient({
     currentUser,
     initialAssistantMessage,
@@ -133,6 +161,7 @@ export default function ChatListingClient({
 }) {
     const [messages, setMessages] = useState<ChatMessage[]>([
         { role: 'assistant', content: initialAssistantMessage, createdAt: new Date().toISOString() },
+        { role: 'assistant', content: CHAT_CAPABILITY_NOTE, createdAt: new Date().toISOString() },
     ]);
     const [input, setInput] = useState('');
     const [draft, setDraft] = useState<ChatDraft>(initialDraft || {});
@@ -144,6 +173,9 @@ export default function ChatListingClient({
     const [createdPath, setCreatedPath] = useState<string | null>(null);
     const [updatedPath, setUpdatedPath] = useState<string | null>(null);
     const [recording, setRecording] = useState(false);
+    const [uploadingImages, setUploadingImages] = useState(false);
+    const [attachedImages, setAttachedImages] = useState<Array<{ url: string; imageOf: string; filename: string }>>([]);
+    const [imageUploadProgress, setImageUploadProgress] = useState<{ fileName: string; progress: number; status: 'compressing' | 'preparing' | 'uploading' } | null>(null);
     const [recordingSeconds, setRecordingSeconds] = useState(0);
     const [summaryOpen, setSummaryOpen] = useState(false);
     const [recordingLimitNotice, setRecordingLimitNotice] = useState(false);
@@ -217,6 +249,8 @@ export default function ChatListingClient({
             setUpdatedPath(null);
             setCreatedId(data.property?.id || null);
             setCreatedPath(propertyManagePath(data.property || {}));
+            setAttachedImages([]);
+            setDraft((previous) => ({ ...previous, images: undefined }));
             appendAssistant(`Property created successfully${data.property?.id ? ` as #${data.property.id}` : ''}.`);
         } finally {
             setCreating(false);
@@ -244,6 +278,8 @@ export default function ChatListingClient({
             setCreatedId(null);
             setCreatedPath(null);
             setUpdatedPath(propertyManagePath(data.property || {}));
+            setAttachedImages([]);
+            setDraft((previous) => ({ ...previous, images: undefined }));
             appendAssistant(`Property #${data.property?.id || payload.propertyId} updated successfully.`);
         } finally {
             setCreating(false);
@@ -291,13 +327,14 @@ export default function ChatListingClient({
 
     const handleSend = async () => {
         const content = input.trim();
-        if (!content || loading || creating) return;
+        if (!content || loading || creating || uploadingImages) return;
 
         setInput('');
         appendUser(content);
 
         const conversation: ChatMessage[] = [...messages, { role: 'user', content, createdAt: new Date().toISOString() }];
-        await askAssistant(conversation, draft);
+        const nextDraft = mergeDraftImages(draft, attachedImages);
+        await askAssistant(conversation, nextDraft);
     };
 
     const stopRecordingTimer = () => {
@@ -315,7 +352,7 @@ export default function ChatListingClient({
     });
 
     const startRecording = async () => {
-        if (loading || creating || recording) return;
+        if (loading || creating || uploadingImages || recording) return;
         setError(null);
 
         try {
@@ -354,7 +391,8 @@ export default function ChatListingClient({
                     const userContent = `Voice note (${durationSeconds}s)`;
                     appendUser(userContent);
                     const conversation: ChatMessage[] = [...messages, { role: 'user', content: userContent, createdAt: new Date().toISOString() }];
-                    await askAssistant(conversation, draft, {
+                    const nextDraft = mergeDraftImages(draft, attachedImages);
+                    await askAssistant(conversation, nextDraft, {
                         dataUrl,
                         mimeType: blob.type || 'audio/webm',
                         durationSeconds,
@@ -388,6 +426,66 @@ export default function ChatListingClient({
 
     const quickType = (value: string) => {
         setInput(value);
+    };
+
+    const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(event.target.files || []);
+        if (files.length === 0 || loading || creating || uploadingImages) return;
+
+        setUploadingImages(true);
+        setError(null);
+
+        try {
+            const uploaded: Array<{ url: string; imageOf: string; filename: string }> = [];
+
+            for (const originalFile of files) {
+                setImageUploadProgress({ fileName: originalFile.name, progress: 0, status: 'compressing' });
+                const compressedBlob = await imageCompression(originalFile, {
+                    maxSizeMB: 1,
+                    maxWidthOrHeight: 1920,
+                    useWebWorker: true,
+                });
+                const file = new File([compressedBlob], originalFile.name, { type: compressedBlob.type || originalFile.type });
+
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('platform', 'namsari');
+
+                const data = await uploadFileWithIntent({
+                    type: 'properties',
+                    file,
+                    originalFile,
+                    formData,
+                    onStatusChange: (status) => {
+                        setImageUploadProgress((previous) => previous ? { ...previous, status, progress: status === 'preparing' ? 0 : previous.progress } : previous);
+                    },
+                    onProgress: (progress) => {
+                        setImageUploadProgress((previous) => previous ? { ...previous, progress, status: 'uploading' } : previous);
+                    },
+                });
+
+                const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
+                uploaded.push({
+                    url: fileUrl,
+                    imageOf: 'property',
+                    filename: data?.name || uploadedFileNameFromUrl(fileUrl, originalFile.name),
+                });
+            }
+
+            setAttachedImages((previous) => [...previous, ...uploaded]);
+            setDraft((previous) => mergeDraftImages(previous, uploaded));
+            appendAssistant(`${uploaded.length} image${uploaded.length === 1 ? '' : 's'} attached. Tell me which property to add them to, or continue the listing details.`);
+        } catch (uploadError) {
+            logUploadError(uploadError, {
+                uploadType: 'properties',
+                source: 'chat',
+            });
+            setError(uploadError instanceof Error ? uploadError.message : 'Failed to upload image');
+        } finally {
+            event.target.value = '';
+            setUploadingImages(false);
+            setImageUploadProgress(null);
+        }
     };
 
     return (
@@ -471,7 +569,7 @@ export default function ChatListingClient({
                 <div ref={scrollRef} className="min-h-0 flex-1 space-y-4 overflow-y-auto rounded-2xl border border-slate-200 bg-white px-4 py-5 shadow-sm sm:px-6">
                     {messages.map((message, index) => (
                         <div key={`${message.role}-${index}-${message.createdAt}`} className={`flex ${message.role === 'assistant' ? 'justify-start' : 'justify-end'}`}>
-                            <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm ${message.role === 'assistant' ? 'bg-slate-100 text-slate-800' : 'bg-slate-900 text-white'}`}>
+                            <div className={`max-w-[85%] whitespace-pre-line rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm ${message.role === 'assistant' ? 'bg-slate-100 text-slate-800' : 'bg-slate-900 text-white'}`}>
                                 {message.content}
                             </div>
                         </div>
@@ -518,15 +616,26 @@ export default function ChatListingClient({
                             }}
                             placeholder="Share everything you have in mind about the property"
                             className="min-h-12 flex-1 rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-900"
-                            disabled={loading || creating}
+                            disabled={loading || creating || uploadingImages}
                         />
-                        <button type="button" onClick={() => void handleSend()} disabled={loading || creating || !input.trim()} className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">
+                        <button type="button" onClick={() => void handleSend()} disabled={loading || creating || uploadingImages || !input.trim()} className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">
                             Send
                         </button>
+                        <label className={`flex min-h-12 shrink-0 cursor-pointer items-center justify-center rounded-2xl border border-slate-300 px-4 text-sm font-semibold text-slate-800 transition hover:border-slate-900 hover:bg-slate-50 ${loading || creating || uploadingImages ? 'pointer-events-none opacity-60' : ''}`}>
+                            Photos
+                            <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                className="hidden"
+                                onChange={(event) => void handleImageUpload(event)}
+                                disabled={loading || creating || uploadingImages}
+                            />
+                        </label>
                         <button
                             type="button"
                             onClick={() => recording ? stopRecording() : void startRecording()}
-                            disabled={loading || creating}
+                            disabled={loading || creating || uploadingImages}
                             title={recording ? `Stop recording (${recordingSeconds}s)` : 'Record voice note'}
                             aria-label={recording ? `Stop recording, ${recordingSeconds} seconds` : 'Record voice note'}
                             className={`flex min-h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${recording ? 'bg-red-600 text-white hover:bg-red-500' : 'border border-slate-300 text-slate-800 hover:border-slate-900 hover:bg-slate-50'}`}
@@ -534,6 +643,22 @@ export default function ChatListingClient({
                             <MicrophoneIcon active={recording} />
                         </button>
                     </div>
+
+                    {(attachedImages.length > 0 || imageUploadProgress) && (
+                        <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                            {imageUploadProgress ? (
+                                <div className="font-medium">
+                                    {imageUploadProgress.status === 'compressing' ? 'Preparing' : 'Uploading'} {imageUploadProgress.fileName}
+                                    {imageUploadProgress.status === 'uploading' ? ` (${imageUploadProgress.progress}%)` : ''}
+                                </div>
+                            ) : null}
+                            {attachedImages.length > 0 ? (
+                                <div className="mt-1 font-medium">
+                                    {attachedImages.length} photo{attachedImages.length === 1 ? '' : 's'} ready to add.
+                                </div>
+                            ) : null}
+                        </div>
+                    )}
 
                     {error && <div className="mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 
