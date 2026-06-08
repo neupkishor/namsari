@@ -26,6 +26,7 @@ export const sidebarMenuGroups = (user: any): MenuGroup[] => [
             { label: 'Houses', icon: '/icons/house-chimney.svg', href: '/find/houses' },
             { label: 'Commercial Buildings', icon: '/icons/apartment.svg', href: '/find/commercial-buildings' },
             { label: 'Agencies', icon: '/icons/land-location.svg', href: '/agencies' },
+            { label: 'Chat', icon: '/icons/note.svg', href: user ? '/chat' : '/auth/login' },
             { label: 'Favourites', icon: '/icons/note.svg', href: user ? `/@${user.username}/saved` : '/auth/login' },
             ...(user ? [{ label: 'Manage', icon: '/icons/info.svg', href: '/manage' }] : []),
         ]
@@ -77,6 +78,7 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
                 ...((isUserAdmin || isAgency || isAgent) ? [{ label: 'Properties', icon: '/icons/house-chimney.svg', href: '/manage/properties' }] : []),
                 // Requirements: Visible to Admin, Agency, Agent
                 ...((isUserAdmin || isAgency || isAgent) ? [{ label: 'Requirements', icon: '/icons/note.svg', href: '/manage/requirements' }] : []),
+                { label: 'Chat', icon: '/icons/note.svg', href: '/chat' },
                 { label: 'Notifications', icon: '/icons/info.svg', href: '/manage/notifications' },
             ]
         }
