@@ -16,6 +16,8 @@ type ChatMessage = {
 type ChatDraft = {
     mode?: 'create' | 'edit';
     editPropertyId?: number;
+    duplicatePropertyConfirmationId?: number;
+    duplicatePropertyDifferentiator?: string;
     title?: string;
     types?: string[];
     purposes?: string[];
@@ -82,6 +84,15 @@ type ChatContextSummary = {
     }>;
 };
 
+type StoredChatState = {
+    messages?: ChatMessage[];
+    draft?: ChatDraft;
+    attachedImages?: Array<{ url: string; imageOf: string; filename: string }>;
+    createdId?: number | null;
+    createdPath?: string | null;
+    updatedPath?: string | null;
+};
+
 const COMMON_TYPES = [
     'house',
     'bungalow',
@@ -123,6 +134,67 @@ function propertyManagePath(property: { id?: number; slug?: string | null; title
     return `/manage/properties/${slug}-${property.id}`;
 }
 
+const PROPERTY_MUTATION_ERROR_MESSAGES: Record<string, string> = {
+    property_image_required: 'Please upload at least one property photo before I create the listing.',
+    missing_required_listing_information: 'I still need the required listing details before I can create it. Please share the property type, purpose, district, and city or village.',
+    login_required: 'Please log in before creating or updating a property listing.',
+    user_not_found: 'I could not find your user account. Please log in again and try once more.',
+    property_id_required: 'Please tell me which property you want to update.',
+    property_not_found: 'I could not find that property. Please check the property and try again.',
+    unauthorized: 'You do not have permission to do that.',
+    duplicate_property_confirmation_required: 'This property looks very similar to one you have already listed. Please tell me what is different, or confirm that you want to create another listing with the same details.',
+};
+
+function normalizeApiErrorKey(value: unknown) {
+    return String(value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
+}
+
+function humanizeApiError(value: unknown) {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    if (!raw.includes('_')) return raw;
+
+    return raw
+        .split('_')
+        .filter(Boolean)
+        .join(' ');
+}
+
+function propertyMutationFailureMessage(action: 'create' | 'update', data: any, response: Response) {
+    if (typeof data?.assistantMessage === 'string' && data.assistantMessage.trim()) {
+        return data.assistantMessage.trim();
+    }
+
+    const rawError = data?.error || data?.code || data?.message;
+    const errorKey = normalizeApiErrorKey(rawError);
+    const mappedMessage = PROPERTY_MUTATION_ERROR_MESSAGES[errorKey];
+
+    if (mappedMessage) return mappedMessage;
+
+    const fallback = action === 'update'
+        ? 'I could not update the property from the current details.'
+        : 'I could not create the property from the current details.';
+    const readableError = humanizeApiError(rawError);
+
+    if (readableError) {
+        return `${fallback} ${readableError}`;
+    }
+
+    return response.ok ? fallback : `${fallback} Please try again.`;
+}
+
+async function readJsonResponse(response: Response) {
+    try {
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
 function uploadedFileNameFromUrl(url: string, fallback: string) {
     return url.split('/').filter(Boolean).pop() || fallback;
 }
@@ -139,6 +211,48 @@ function mergeDraftImages(draft: ChatDraft, images: Array<{ url: string; imageOf
         ...draft,
         images: Array.from(imageByUrl.values()),
     };
+}
+
+function chatSessionStorageKey(userId: unknown) {
+    return `namsari_property_chat_${String(userId || 'guest')}`;
+}
+
+function isStoredMessage(value: unknown): value is ChatMessage {
+    const message = value as ChatMessage;
+    return Boolean(
+        message &&
+        (message.role === 'assistant' || message.role === 'user') &&
+        typeof message.content === 'string' &&
+        typeof message.createdAt === 'string'
+    );
+}
+
+function readStoredChatState(key: string): StoredChatState | null {
+    try {
+        const raw = window.sessionStorage.getItem(key);
+        if (!raw) return null;
+
+        const parsed = JSON.parse(raw) as StoredChatState;
+        return {
+            ...parsed,
+            messages: Array.isArray(parsed.messages) ? parsed.messages.filter(isStoredMessage) : undefined,
+            draft: parsed.draft && typeof parsed.draft === 'object' ? parsed.draft : undefined,
+            attachedImages: Array.isArray(parsed.attachedImages) ? parsed.attachedImages : undefined,
+            createdId: typeof parsed.createdId === 'number' ? parsed.createdId : null,
+            createdPath: typeof parsed.createdPath === 'string' ? parsed.createdPath : null,
+            updatedPath: typeof parsed.updatedPath === 'string' ? parsed.updatedPath : null,
+        };
+    } catch {
+        return null;
+    }
+}
+
+function writeStoredChatState(key: string, state: StoredChatState) {
+    try {
+        window.sessionStorage.setItem(key, JSON.stringify(state));
+    } catch {
+        // Ignore storage errors so chat still works in private or restricted browser sessions.
+    }
 }
 
 export default function ChatListingClient({
@@ -177,6 +291,8 @@ export default function ChatListingClient({
     const audioChunksRef = useRef<Blob[]>([]);
     const recordingStartedAtRef = useRef<number>(0);
     const recordingTimerRef = useRef<number | null>(null);
+    const [storageHydrated, setStorageHydrated] = useState(false);
+    const storageKey = useMemo(() => chatSessionStorageKey(currentUser?.id), [currentUser?.id]);
 
     const defaultRate = useMemo(() => localPriceRateFromDraft(draft), [draft]);
     const understoodItems = useMemo(() => {
@@ -199,6 +315,34 @@ export default function ChatListingClient({
             { label: 'Features', value: featureSummary },
         ].filter((item) => item.value);
     }, [defaultRate, draft]);
+
+    useEffect(() => {
+        const stored = readStoredChatState(storageKey);
+
+        if (stored) {
+            if (stored.messages?.length) setMessages(stored.messages);
+            if (stored.draft) setDraft(stored.draft);
+            if (stored.attachedImages) setAttachedImages(stored.attachedImages);
+            setCreatedId(stored.createdId ?? null);
+            setCreatedPath(stored.createdPath ?? null);
+            setUpdatedPath(stored.updatedPath ?? null);
+        }
+
+        setStorageHydrated(true);
+    }, [storageKey]);
+
+    useEffect(() => {
+        if (!storageHydrated) return;
+
+        writeStoredChatState(storageKey, {
+            messages,
+            draft,
+            attachedImages,
+            createdId,
+            createdPath,
+            updatedPath,
+        });
+    }, [attachedImages, createdId, createdPath, draft, messages, storageHydrated, storageKey, updatedPath]);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -233,9 +377,15 @@ export default function ChatListingClient({
                 body: JSON.stringify(payload),
             });
 
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data?.error || 'Failed to create property');
+            const data = await readJsonResponse(response);
+            if (!response.ok || data?.success === false) {
+                appendAssistant(propertyMutationFailureMessage('create', data, response));
+                return;
+            }
+
+            if (!data?.property) {
+                appendAssistant('I could not create the property because the creation response did not include the new listing.');
+                return;
             }
 
             setUpdatedPath(null);
@@ -262,9 +412,15 @@ export default function ChatListingClient({
                 body: JSON.stringify(payload),
             });
 
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data?.error || 'Failed to update property');
+            const data = await readJsonResponse(response);
+            if (!response.ok || data?.success === false) {
+                appendAssistant(propertyMutationFailureMessage('update', data, response));
+                return;
+            }
+
+            if (!data?.property) {
+                appendAssistant('I could not update the property because the update response did not include the listing.');
+                return;
             }
 
             setCreatedId(null);

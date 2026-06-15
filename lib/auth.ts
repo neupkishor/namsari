@@ -5,6 +5,81 @@ import bcrypt from "bcryptjs";
 import { createHmac } from "node:crypto";
 
 const AUTH_COOKIE_MAX_AGE = 30 * 24 * 60 * 60;
+const OPERATING_ID_CACHE_TTL_MS = 5 * 60 * 1000;
+const OPERATING_ID_LOOKUP_TIMEOUT_MS = 250;
+
+type OperatingIdCacheEntry = {
+  operatingId: number | null;
+  expiresAt: number;
+};
+
+const globalForAuth = global as unknown as {
+  operatingIdCache?: Map<string, OperatingIdCacheEntry>;
+  operatingIdRequests?: Map<string, Promise<number | null>>;
+};
+
+const operatingIdCache = globalForAuth.operatingIdCache ?? new Map<string, OperatingIdCacheEntry>();
+const operatingIdRequests = globalForAuth.operatingIdRequests ?? new Map<string, Promise<number | null>>();
+
+if (process.env.NODE_ENV !== "production") {
+  globalForAuth.operatingIdCache = operatingIdCache;
+  globalForAuth.operatingIdRequests = operatingIdRequests;
+}
+
+function setCachedOperatingId(sessionId: string, operatingId: number | null) {
+  operatingIdCache.set(sessionId, {
+    operatingId,
+    expiresAt: Date.now() + OPERATING_ID_CACHE_TTL_MS,
+  });
+}
+
+function getCachedOperatingId(sessionId: string) {
+  const cached = operatingIdCache.get(sessionId);
+  if (!cached) return undefined;
+
+  if (cached.expiresAt <= Date.now()) {
+    operatingIdCache.delete(sessionId);
+    return undefined;
+  }
+
+  return cached.operatingId;
+}
+
+async function getOperatingIdForSession(sessionId: string, fallback: number | null = null) {
+  const cached = getCachedOperatingId(sessionId);
+  if (cached !== undefined) return cached;
+
+  const existingRequest = operatingIdRequests.get(sessionId);
+  if (existingRequest) {
+    return Promise.race([
+      existingRequest,
+      new Promise<number | null>((resolve) => setTimeout(() => resolve(fallback), OPERATING_ID_LOOKUP_TIMEOUT_MS)),
+    ]);
+  }
+
+  const request = prisma.session.findUnique({
+    where: { sessionToken: sessionId },
+    select: { operatingId: true },
+  })
+    .then((dbSession) => {
+      const operatingId = dbSession?.operatingId ?? null;
+      setCachedOperatingId(sessionId, operatingId);
+      return operatingId;
+    })
+    .catch((error) => {
+      console.error("Operating session lookup error:", error);
+      return fallback;
+    })
+    .finally(() => {
+      operatingIdRequests.delete(sessionId);
+    });
+
+  operatingIdRequests.set(sessionId, request);
+  return Promise.race([
+    request,
+    new Promise<number | null>((resolve) => setTimeout(() => resolve(fallback), OPERATING_ID_LOOKUP_TIMEOUT_MS)),
+  ]);
+}
 
 function base64Url(input: string | Buffer) {
   return Buffer.from(input).toString("base64url");
@@ -132,16 +207,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         (session.user as any).username = token.username;
         (session.user as any).sessionId = token.sessionId;
         
-        // Fetch operatingId from our manual session tracking
+        (session.user as any).operatingId = typeof token.operatingId === "number" ? token.operatingId : null;
+
+        // Fetch operatingId from manual tracking only when it is not already cached.
         if (token.sessionId) {
           try {
-            const dbSession = await prisma.session.findUnique({
-              where: { sessionToken: token.sessionId as string },
-              select: { operatingId: true }
-            });
-            if (dbSession) {
-              (session.user as any).operatingId = dbSession.operatingId;
-            }
+            (session.user as any).operatingId = await getOperatingIdForSession(
+              token.sessionId as string,
+              (session.user as any).operatingId
+            );
           } catch (error) {
             console.error("Session callback error:", error);
           }
@@ -158,6 +232,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
          // Create a unique session ID for manual tracking and revocation
          const sessionId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
          token.sessionId = sessionId;
+         token.operatingId = null;
 
          // Create the record in the database for manual session management
          try {
@@ -175,6 +250,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 userAgent: ua,
               }
             });
+            setCachedOperatingId(sessionId, null);
           }
          } catch (error) {
           console.error("Error creating manual session in jwt callback:", error);
@@ -286,6 +362,7 @@ export async function switchProfile(targetId: number | null) {
       where: { sessionToken: sessionId },
       data: { operatingId: targetId }
     });
+    setCachedOperatingId(sessionId, targetId);
     await setPhpAuthCookie({
       id: session.user.id,
       type: (session.user as any).type,

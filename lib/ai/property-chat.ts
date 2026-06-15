@@ -65,6 +65,8 @@ const propertyOpenHouseSchema = z.object({
 const propertyChatDraftSchema = z.object({
     mode: z.enum(['create', 'edit']).optional(),
     editPropertyId: z.number().optional(),
+    duplicatePropertyConfirmationId: z.number().optional(),
+    duplicatePropertyDifferentiator: z.string().optional(),
     title: z.string().optional(),
     types: z.array(z.string()).optional(),
     purposes: z.array(z.string()).optional(),
@@ -216,6 +218,9 @@ export async function runPropertyChatTurn(input: z.infer<typeof propertyChatInpu
         'For edit mode status changes, use status values pending, rejected, warned only. Approval/publishing to approved is not possible via chat.',
         'If edit mode has a clear target property and at least one changed field, set readyToUpdate to true and readyToCreate to false.',
         'If edit mode does not have a clear target property, ask which property id or title to edit and keep readyToUpdate false.',
+        'If a previous assistant message said the listing looks similar to an existing property and asked for confirmation, do not create it again unless the latest user clearly confirms they want a duplicate. When they clearly confirm, set draft.duplicatePropertyConfirmationId to the existing property id mentioned in that duplicate warning.',
+        'If the user responds to a duplicate warning by giving new differentiating information instead of clearly confirming, merge that detail into the draft, set draft.duplicatePropertyDifferentiator to the user-provided distinction, and keep draft.duplicatePropertyConfirmationId unset.',
+        'Duplicate differentiating information must come from the user. Do not invent draft.duplicatePropertyDifferentiator.',
         'Preserve any already-known draft values unless the user clearly corrected them.',
         'Never ask the user for a listing title or description. Generate title and remarks yourself from the available property details.',
         'Keep the chat simple. Ask one concise follow-up at a time except location, where you should ask for district and city together.',

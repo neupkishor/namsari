@@ -1218,7 +1218,7 @@ function ExploreCategoriesSection({
                 { icon: '/icons/house-chimney.svg', label: 'House', count: stats.forSale.house ?? 0, href: '/search?purposes=sale&types=house' },
                 { icon: '/icons/land-location.svg', label: 'Land', count: stats.forSale.land ?? 0, href: '/search?purposes=sale&types=land' },
                 { icon: '/icons/apartment.svg', label: 'Apartment', count: stats.forSale.apartment ?? stats.forSale.building ?? 0, href: '/search?purposes=sale&types=apartment' },
-                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: stats.forSale.business ?? 0, href: '/search?purposes=sale&types=business' },
+                { icon: '/icons/growth-chart-invest.svg', label: 'Commercial Buildings', count: stats.byTypePurpose.building.sale ?? 0, href: '/search?purposes=sale&types=building' },
             ],
         },
         {
@@ -1227,9 +1227,9 @@ function ExploreCategoriesSection({
                 { icon: '/icons/apartment.svg', label: 'Flat', count: stats.forRent.flat ?? 0, href: '/search?purposes=rent&types=flat' },
                 { icon: '/icons/house-chimney.svg', label: 'House', count: stats.forRent.house ?? 0, href: '/search?purposes=rent&types=house' },
                 { icon: '/icons/apartment.svg', label: 'Apartment', count: stats.forRent.apartment ?? 0, href: '/search?purposes=rent&types=apartment' },
-                { icon: '/icons/apartment.svg', label: 'Commercial Space', count: stats.forRent.commercialSpace ?? 0, href: '/search?purposes=rent&types=commercial-space' },
+                { icon: '/icons/land-location.svg', label: 'Land', count: stats.byTypePurpose.land.rent ?? 0, href: '/search?purposes=rent&types=land' },
                 { icon: '/icons/note.svg', label: 'Office Space', count: stats.forRent.officeSpace ?? 0, href: '/search?purposes=rent&types=office-space' },
-                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: stats.forRent.business ?? 0, href: '/search?purposes=rent&types=business' },
+                { icon: '/icons/growth-chart-invest.svg', label: 'Shop', count: stats.forRent.business ?? 0, href: '/search?purposes=rent&types=business' },
             ],
         },
     ];

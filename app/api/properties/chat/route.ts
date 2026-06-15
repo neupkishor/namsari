@@ -56,6 +56,155 @@ function propertyManagePath(property: { id: number; slug?: string | null; title?
     return `/manage/properties/${slug}-${property.id}`;
 }
 
+function normalizeText(value: unknown) {
+    return String(value || '').trim().toLowerCase();
+}
+
+function normalizeTextArray(value: unknown) {
+    return Array.isArray(value)
+        ? value.map(normalizeText).filter(Boolean).sort()
+        : [];
+}
+
+function arraysOverlap(left: string[], right: string[]) {
+    if (left.length === 0 || right.length === 0) return false;
+    const rightSet = new Set(right);
+    return left.some((item) => rightSet.has(item));
+}
+
+function comparableNumber(value: unknown) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function pricesAreSimilar(left: unknown, right: unknown) {
+    const leftPrice = comparableNumber((left as any)?.price);
+    const rightPrice = comparableNumber((right as any)?.price);
+    if (leftPrice === undefined || rightPrice === undefined) return false;
+    if (leftPrice === 0 || rightPrice === 0) return leftPrice === rightPrice;
+
+    const difference = Math.abs(leftPrice - rightPrice);
+    return difference / Math.max(leftPrice, rightPrice) <= 0.05;
+}
+
+function valuesMatch(left: unknown, right: unknown) {
+    const normalizedLeft = normalizeText(left);
+    const normalizedRight = normalizeText(right);
+    return Boolean(normalizedLeft && normalizedRight && normalizedLeft === normalizedRight);
+}
+
+function numericValuesMatch(left: unknown, right: unknown) {
+    const leftNumber = comparableNumber(left);
+    const rightNumber = comparableNumber(right);
+    return leftNumber !== undefined && rightNumber !== undefined && leftNumber === rightNumber;
+}
+
+function existingPropertySummary(property: any) {
+    const location = [property.location?.area, property.location?.cityVillage, property.location?.district].filter(Boolean).join(', ');
+    const types = property.types?.map((type: any) => type.name).filter(Boolean).join(', ');
+    const purposes = property.purposes?.map((purpose: any) => purpose.name).filter(Boolean).join(', ');
+    const price = comparableNumber(property.price?.price);
+
+    return [
+        property.title ? `#${property.id} ${property.title}` : `#${property.id}`,
+        location ? `at ${location}` : '',
+        types ? `(${[types, purposes].filter(Boolean).join(' / ')})` : '',
+        price !== undefined ? `priced at ${price}` : '',
+    ].filter(Boolean).join(' ');
+}
+
+function isLikelyDuplicateProperty(input: {
+    types: string[];
+    purposes: string[];
+    location: any;
+    price: any;
+    features: any;
+    roadType?: unknown;
+    roadSize?: unknown;
+    facingDirection?: unknown;
+}, existing: any) {
+    const existingTypes = normalizeTextArray(existing.types?.map((type: any) => type.name));
+    const existingPurposes = normalizeTextArray(existing.purposes?.map((purpose: any) => purpose.name));
+    const inputTypes = normalizeTextArray(input.types);
+    const inputPurposes = normalizeTextArray(input.purposes);
+
+    if (!arraysOverlap(inputTypes, existingTypes) || !arraysOverlap(inputPurposes, existingPurposes)) {
+        return false;
+    }
+
+    const sameDistrict = valuesMatch(input.location?.district, existing.location?.district);
+    const sameCity = valuesMatch(input.location?.cityVillage, existing.location?.cityVillage);
+    if (!sameDistrict || !sameCity) return false;
+
+    let matchingDetails = 0;
+    let knownDetails = 0;
+    let conflictingDetails = 0;
+
+    const compareDetail = (left: unknown, right: unknown, numeric = false) => {
+        if ((left === undefined || left === null || left === '') || (right === undefined || right === null || right === '')) return;
+        knownDetails += 1;
+        if (numeric ? numericValuesMatch(left, right) : valuesMatch(left, right)) {
+            matchingDetails += 1;
+        } else {
+            conflictingDetails += 1;
+        }
+    };
+
+    compareDetail(input.location?.area, existing.location?.area);
+    compareDetail(input.location?.ward, existing.location?.ward);
+    compareDetail(input.location?.landmark, existing.location?.landmark);
+    compareDetail(input.roadType, existing.roadType);
+    compareDetail(input.roadSize, existing.roadSize);
+    compareDetail(input.facingDirection, existing.facingDirection);
+    compareDetail(input.features?.bedrooms, existing.features?.bedrooms, true);
+    compareDetail(input.features?.bathrooms, existing.features?.bathrooms, true);
+    compareDetail(input.features?.kitchens, existing.features?.kitchens, true);
+    compareDetail(input.features?.livingRooms, existing.features?.livingRooms, true);
+    compareDetail(input.features?.floorNumber, existing.features?.floorNumber, true);
+    compareDetail(input.features?.totalFloors, existing.features?.totalFloors, true);
+    compareDetail(input.features?.builtUpArea, existing.features?.builtUpArea, true);
+    compareDetail(input.features?.builtUpAreaUnit, existing.features?.builtUpAreaUnit);
+
+    const similarPrice = pricesAreSimilar(input.price, existing.price);
+    if (similarPrice) matchingDetails += 1;
+
+    if (conflictingDetails > 0) return false;
+
+    const enoughSameDetails = matchingDetails >= 3;
+    const sparseButSame = knownDetails <= 2 && similarPrice;
+
+    return enoughSameDetails || sparseButSame;
+}
+
+async function findLikelyDuplicateProperty(input: {
+    listedById: number;
+    types: string[];
+    purposes: string[];
+    location: any;
+    price: any;
+    features: any;
+    roadType?: unknown;
+    roadSize?: unknown;
+    facingDirection?: unknown;
+}) {
+    const existingProperties = await prisma.property.findMany({
+        where: {
+            listedById: input.listedById,
+            soldStatus: { not: 'soldByUs' },
+        },
+        orderBy: { created_on: 'desc' },
+        take: 50,
+        include: {
+            location: true,
+            features: true,
+            types: true,
+            purposes: true,
+        },
+    });
+
+    return existingProperties.find((property) => isLikelyDuplicateProperty(input, property)) || null;
+}
+
 export async function POST(request: Request) {
     const session = await getSession();
 
@@ -79,6 +228,35 @@ export async function POST(request: Request) {
 
     if (!title || types.length === 0 || purposes.length === 0 || !String(location.district || '').trim() || !String(location.cityVillage || '').trim()) {
         return NextResponse.json({ error: 'Missing required listing information' }, { status: 400 });
+    }
+
+    const duplicate = await findLikelyDuplicateProperty({
+        listedById: userId,
+        types,
+        purposes,
+        location,
+        price: body.price,
+        features: body.features || {},
+        roadType: body.roadType,
+        roadSize: body.roadSize,
+        facingDirection: body.facingDirection,
+    });
+
+    const duplicateDifferentiator = String(body.duplicatePropertyDifferentiator || '').trim();
+
+    if (duplicate && Number(body.duplicatePropertyConfirmationId) !== duplicate.id && duplicateDifferentiator.length < 8) {
+        const duplicateSummary = existingPropertySummary(duplicate);
+
+        return NextResponse.json({
+            success: false,
+            error: 'duplicate_property_confirmation_required',
+            duplicateProperty: {
+                id: duplicate.id,
+                title: duplicate.title,
+                path: propertyManagePath(duplicate),
+            },
+            assistantMessage: `This looks very similar to your existing property ${duplicateSummary}. Please share what is different about this property. If it is truly a separate listing with the same details, reply "yes, create another listing for property #${duplicate.id}".`,
+        }, { status: 409 });
     }
 
     const created = await createPropertyListing({

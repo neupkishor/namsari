@@ -281,6 +281,8 @@ export async function POST(request: Request) {
     const createPayload = response.readyToCreate
         ? {
             title: generatedTitle || 'Property Listing',
+            duplicatePropertyConfirmationId: response.draft.duplicatePropertyConfirmationId,
+            duplicatePropertyDifferentiator: response.draft.duplicatePropertyDifferentiator,
             types: Array.isArray(response.draft.types) ? response.draft.types : [],
             purposes: Array.isArray(response.draft.purposes) ? response.draft.purposes : [],
             natures: Array.isArray(response.draft.natures) && response.draft.natures.length > 0
