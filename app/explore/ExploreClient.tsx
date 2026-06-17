@@ -7,6 +7,8 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Header } from '@/components/menu/Header';
 import { PropertyCard } from '@/components/cards/PropertyCard';
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
+import { convertAreaValue, normalizeAreaUnit } from '@/lib/area-units';
+import { matchesAnyLocationFilter, splitLocationFilterValues } from '@/lib/location-filters';
 
 // Dynamically import map to avoid SSR issues
 const MapComponent = dynamic(() => import('./MapComponent'), {
@@ -15,6 +17,8 @@ const MapComponent = dynamic(() => import('./MapComponent'), {
 });
 
 const AANA_TO_SQM = 31.796;
+const KATTHA_TO_SQM = 338.62644;
+const DHUR_TO_SQM = 16.931322;
 
 function toNumberOrNull(value: string | null): number | null {
     if (value === null || value === '') return null;
@@ -45,19 +49,16 @@ function normalizeAreaToSqm(area: number | null | undefined, unit?: string): num
 
 function convertRawAreaPriceParamsToModified(rawUnit: string, rawMinPrice: number | null, rawMaxPrice: number | null) {
     const normalizedUnit = rawUnit.toLowerCase().trim();
-
-    if (normalizedUnit === 'peraana' || normalizedUnit === 'perana' || normalizedUnit === 'per_aana') {
-        return {
-            modifiedUnit: 'persqm',
-            modifiedMinPrice: rawMinPrice === null ? null : rawMinPrice / AANA_TO_SQM,
-            modifiedMaxPrice: rawMaxPrice === null ? null : rawMaxPrice / AANA_TO_SQM,
-        };
-    }
+    const unitFactor =
+        normalizedUnit === 'peraana' || normalizedUnit === 'perana' || normalizedUnit === 'per_aana' ? AANA_TO_SQM :
+        normalizedUnit === 'perkattha' || normalizedUnit === 'kattha' || normalizedUnit === 'katta' ? KATTHA_TO_SQM :
+        normalizedUnit === 'perdhur' || normalizedUnit === 'dhur' ? DHUR_TO_SQM :
+        1;
 
     return {
         modifiedUnit: 'persqm',
-        modifiedMinPrice: rawMinPrice,
-        modifiedMaxPrice: rawMaxPrice,
+        modifiedMinPrice: rawMinPrice === null ? null : rawMinPrice / unitFactor,
+        modifiedMaxPrice: rawMaxPrice === null ? null : rawMaxPrice / unitFactor,
     };
 }
 
@@ -237,10 +238,7 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialT
         setMapBounds(bounds);
     };
 
-    const selectedLocations = (searchParams.get('locations') || '')
-        .split(',')
-        .map((location) => location.trim())
-        .filter(Boolean);
+    const selectedLocations = splitLocationFilterValues(searchParams.get('locations'));
 
     const listedByFilter = (searchParams.get('listedBy') || '').toLowerCase().trim();
 
@@ -260,33 +258,10 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialT
 
     const sizeMinParam = searchParams.get('sizeMin');
     const sizeMaxParam = searchParams.get('sizeMax');
-    const sizeUnitParam = (searchParams.get('sizeUnit') || '').toLowerCase();
+    const sizeUnitParam = normalizeAreaUnit(searchParams.get('sizeUnit'));
 
     const sizeMin = sizeMinParam !== null && sizeMinParam !== '' ? Number(sizeMinParam) : null;
     const sizeMax = sizeMaxParam !== null && sizeMaxParam !== '' ? Number(sizeMaxParam) : null;
-
-    const normalizeArea = (area: number | null | undefined, unit?: string) => {
-        if (area === null || area === undefined || Number.isNaN(Number(area))) return null;
-
-        const numericArea = Number(area);
-        const normalizedUnit = (unit || '').toLowerCase();
-
-        if (sizeUnitParam === 'sqft') {
-            if (normalizedUnit.includes('m')) {
-                return numericArea * 10.7639;
-            }
-            return numericArea;
-        }
-
-        if (sizeUnitParam === 'm2' || sizeUnitParam === 'm²' || !sizeUnitParam) {
-            if (normalizedUnit.includes('sqft')) {
-                return numericArea / 10.7639;
-            }
-            return numericArea;
-        }
-
-        return numericArea;
-    };
 
     const getLocationLabel = (property: any) => {
         if (!property.location) return '';
@@ -300,12 +275,15 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialT
     const filteredProperties = properties.filter(p => {
         const query = searchQuery.toLowerCase();
         const locationLabel = getLocationLabel(p).toLowerCase();
+        const locationParts = locationLabel.split(',').map((item: string) => item.trim()).filter(Boolean);
         const propertyPrice = Number(p.pricing?.price || p.price || NaN);
         const propertyAreaSqm = normalizeAreaToSqm(p.features?.builtUpArea, p.features?.builtUpAreaUnit);
         const propertyPerSqmPrice = Number.isFinite(propertyPrice) && propertyAreaSqm && propertyAreaSqm > 0
             ? propertyPrice / propertyAreaSqm
             : null;
-        const propertyArea = normalizeArea(p.features?.builtUpArea, p.features?.builtUpAreaUnit);
+        const propertyArea = Number.isFinite(Number(p.features?.builtUpArea))
+            ? convertAreaValue(Number(p.features?.builtUpArea), p.features?.builtUpAreaUnit, sizeUnitParam)
+            : null;
         const sellerType = (p.listedBy?.type || '').toLowerCase();
 
         const matchesQuery = (p.title?.toLowerCase().includes(query) ||
@@ -313,7 +291,7 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialT
             p.price?.toString().toLowerCase().includes(query) ||
             p.property_types?.some((t: string) => t.toLowerCase().includes(query)));
 
-        const matchesLocation = selectedLocations.length === 0 || selectedLocations.some((location) => locationLabel.includes(location.toLowerCase()));
+        const matchesLocation = matchesAnyLocationFilter(locationParts, selectedLocations);
 
         const matchesListedBy = !listedByFilter || sellerType === listedByFilter;
 

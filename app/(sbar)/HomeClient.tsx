@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
@@ -9,7 +9,9 @@ import { TrendingSearches } from '@/components/cards/TrendingSearches';
 import { HeroCarouselAd, FeedAd } from '@/components/cards/AdvertisementCard';
 import { SectionTitleFeed } from '@/components/sections/SectionTitleFeed';
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
+import { AreaUnit, areaUnitLabel } from '@/lib/area-units';
 import { formatNPR } from '@/lib/formatters';
+import { matchesAnyLocationFilter } from '@/lib/location-filters';
 import { setBackgroundScrollLocked, setPopupActive } from '@/lib/ui/popup-visibility';
 
 const FEATURED_FALLBACK_IMAGES = [
@@ -104,11 +106,7 @@ function includesAny(source: string[], filters: string[]): boolean {
 }
 
 function matchesLocationParts(parts: Array<string | null | undefined>, filters: string[]): boolean {
-    if (filters.length === 0) return true;
-    const values = parts
-        .filter(Boolean)
-        .map((item) => String(item).trim().toLowerCase());
-    return filters.some((filter) => values.some((value) => value.includes(filter) || filter.includes(value)));
+    return matchesAnyLocationFilter(parts, filters);
 }
 
 function matchesPriceRange(value: number | null | undefined, minPrice?: number | null, maxPrice?: number | null): boolean {
@@ -189,44 +187,47 @@ function FeaturedSmallCard({ property }: { property: any }) {
 type HomeSearchPanel = 'type' | 'price' | 'location' | 'size' | 'listedBy' | 'category' | null;
 type CategoryType = 'residential' | 'commercial' | 'semi-commercial';
 type ListedByType = 'owner' | 'agent' | 'agency';
-type AreaPriceUnit = 'peraana' | 'persqm';
+type AreaPriceUnit = 'peraana' | 'persqm' | 'perkattha' | 'perdhur';
 type PropertyTypeOption = 'house' | 'land' | 'apartment' | 'business' | 'flat' | 'commercial space' | 'office space';
+type LocationRow = {
+    id: number;
+    name: string;
+    type: string;
+    parentId: number | null;
+};
+type LocationOption = {
+    id: number;
+    districtName: string;
+    cityName: string;
+    label: string;
+    searchText: string;
+};
 
 const AANA_TO_SQM = 31.796;
+const KATTHA_TO_SQM = 338.62644;
+const DHUR_TO_SQM = 16.931322;
+const AREA_PRICE_UNIT_LABELS: Record<AreaPriceUnit, string> = {
+    peraana: 'per aana',
+    persqm: 'per m2',
+    perkattha: 'per kattha',
+    perdhur: 'per dhoor',
+};
+const AREA_PRICE_UNIT_FACTORS: Record<AreaPriceUnit, number> = {
+    peraana: AANA_TO_SQM,
+    persqm: 1,
+    perkattha: KATTHA_TO_SQM,
+    perdhur: DHUR_TO_SQM,
+};
 
-const HOME_LOCATION_OPTIONS = [
-    'Kathmandu',
-    'Lalitpur',
-    'Bhaktapur',
-    'Pokhara',
-    'Bharatpur',
-    'Butwal',
-    'Biratnagar',
-    'Dharan',
-];
-
-const HOME_PRICE_PRESETS_SALE = [
-    { label: 'Any budget', min: '', max: '' },
-    { label: 'Under 50 Lakh', min: '0', max: '5000000' },
-    { label: '50L – 1 Crore', min: '5000000', max: '10000000' },
-    { label: '1 – 3 Crore', min: '10000000', max: '30000000' },
-    { label: 'Above 3 Crore', min: '30000000', max: '' },
-];
-
-const HOME_PRICE_PRESETS_RENT = [
-    { label: 'Any budget', min: '', max: '' },
-    { label: 'Under 20k', min: '0', max: '20000' },
-    { label: '20k – 40k', min: '20000', max: '40000' },
-    { label: '40k – 60k', min: '40000', max: '60000' },
-    { label: 'Above 60k', min: '60000', max: '' },
-];
-
-const HOME_SIZE_PRESETS = [
-    { label: 'Any size', min: '', max: '' },
-    { label: 'Under 500 m²', min: '0', max: '500' },
-    { label: '500 - 2,000 m²', min: '500', max: '2000' },
-    { label: 'Above 2,000 m²', min: '2000', max: '' },
-];
+type SizeUnit = AreaUnit;
+const SIZE_UNIT_LABELS: Record<SizeUnit, string> = {
+    sqm: 'm2',
+    sqft: 'sq.ft.',
+    aana: 'aana',
+    kattha: 'kattha',
+    dhur: 'dhoor',
+    ropani: 'ropani',
+};
 
 const HOME_LISTED_BY_OPTIONS: Array<{ value: ListedByType; label: string }> = [
     { value: 'owner', label: 'owners' },
@@ -298,19 +299,12 @@ function formatNumberShort(n: number): string {
 function convertAreaPriceToModified(unit: AreaPriceUnit, minPrice?: string, maxPrice?: string) {
     const rawMin = minPrice && minPrice !== '' ? Number(minPrice) : null;
     const rawMax = maxPrice && maxPrice !== '' ? Number(maxPrice) : null;
-
-    if (unit === 'peraana') {
-        return {
-            modifiedUnit: 'persqm',
-            modifiedMinPrice: rawMin !== null && Number.isFinite(rawMin) ? String(rawMin / AANA_TO_SQM) : '',
-            modifiedMaxPrice: rawMax !== null && Number.isFinite(rawMax) ? String(rawMax / AANA_TO_SQM) : '',
-        };
-    }
+    const factor = AREA_PRICE_UNIT_FACTORS[unit] || 1;
 
     return {
         modifiedUnit: 'persqm',
-        modifiedMinPrice: rawMin !== null && Number.isFinite(rawMin) ? String(rawMin) : '',
-        modifiedMaxPrice: rawMax !== null && Number.isFinite(rawMax) ? String(rawMax) : '',
+        modifiedMinPrice: rawMin !== null && Number.isFinite(rawMin) ? String(rawMin / factor) : '',
+        modifiedMaxPrice: rawMax !== null && Number.isFinite(rawMax) ? String(rawMax / factor) : '',
     };
 }
 
@@ -476,9 +470,67 @@ function HomeSearchHero() {
     const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
     const [selectedPropertyType, setSelectedPropertyType] = useState<PropertyTypeOption | null>(null);
     const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+    const [locationRows, setLocationRows] = useState<LocationRow[]>([]);
+    const [locationSearch, setLocationSearch] = useState('');
+    const [locationLoadError, setLocationLoadError] = useState('');
     const [sizeMin, setSizeMin] = useState('');
     const [sizeMax, setSizeMax] = useState('');
-    const [sizeUnit, setSizeUnit] = useState<'m2' | 'sqft'>('m2');
+    const [sizeUnit, setSizeUnit] = useState<SizeUnit>('sqm');
+
+    useEffect(() => {
+        let mounted = true;
+
+        const loadLocations = async () => {
+            try {
+                const response = await fetch('/api/locations');
+                if (!response.ok) throw new Error('Unable to load locations');
+
+                const data = await response.json();
+                if (!mounted) return;
+
+                setLocationRows(Array.isArray(data.locations) ? data.locations : []);
+                setLocationLoadError('');
+            } catch {
+                if (!mounted) return;
+
+                setLocationRows([]);
+                setLocationLoadError('Unable to load location suggestions.');
+            }
+        };
+
+        loadLocations();
+
+        return () => {
+            mounted = false;
+        };
+    }, []);
+
+    const locationById = useMemo(() => new Map(locationRows.map((item) => [item.id, item] as const)), [locationRows]);
+
+    const locationOptions = useMemo<LocationOption[]>(() => {
+        return locationRows
+            .filter((item) => item.type === 'city')
+            .map((item) => {
+                const districtRow = item.parentId ? locationById.get(item.parentId) : undefined;
+                const districtName = districtRow?.name || 'Unknown district';
+                const cityName = item.name;
+
+                return {
+                    id: item.id,
+                    districtName,
+                    cityName,
+                    label: `${districtName} > ${cityName}`,
+                    searchText: `${districtName} ${cityName}`.toLowerCase(),
+                };
+            })
+            .sort((a, b) => a.districtName.localeCompare(b.districtName) || a.cityName.localeCompare(b.cityName));
+    }, [locationById, locationRows]);
+
+    const filteredLocationOptions = useMemo(() => {
+        const q = locationSearch.trim().toLowerCase();
+        if (!q) return locationOptions;
+        return locationOptions.filter((option) => option.searchText.includes(q));
+    }, [locationOptions, locationSearch]);
 
     const openModal = (panel: Exclude<HomeSearchPanel, null>) => {
         setActivePanel(panel);
@@ -508,7 +560,7 @@ function HomeSearchHero() {
     }, [activePanel]);
 
     const currentPriceLabel = priceMin || priceMax
-        ? `${priceMin ? formatDevanagariComma(priceMin) : 'Any'} - ${priceMax ? formatDevanagariComma(priceMax) : 'Any'}${(purposes.has('rent') && !purposes.has('sale')) ? '/mo' : ` (${areaPriceUnit === 'peraana' ? 'per aana' : 'per m²'})`}`
+        ? `${priceMin ? formatDevanagariComma(priceMin) : 'Any'} - ${priceMax ? formatDevanagariComma(priceMax) : 'Any'}${(purposes.has('rent') && !purposes.has('sale')) ? '/mo' : ` (${AREA_PRICE_UNIT_LABELS[areaPriceUnit]})`}`
         : 'Any budget';
 
     const currentPriceLabelShort = (() => {
@@ -527,7 +579,7 @@ function HomeSearchHero() {
         : 'Any location';
 
     const currentSizeLabel = sizeMin || sizeMax
-        ? `${sizeMin || 'Any'} - ${sizeMax || 'Any'} ${sizeUnit === 'm2' ? 'm²' : 'sq.ft.'}`
+        ? `${sizeMin || 'Any'} - ${sizeMax || 'Any'} ${areaUnitLabel(sizeUnit)}`
         : 'Any size';
 
     const currentCategoryLabel = selectedCategory
@@ -540,7 +592,6 @@ function HomeSearchHero() {
         ? selectedPropertyType.charAt(0).toUpperCase() + selectedPropertyType.slice(1)
         : 'Any type';
 
-    const HOME_PRICE_PRESETS = purposes.has('rent') && !purposes.has('sale') ? HOME_PRICE_PRESETS_RENT : HOME_PRICE_PRESETS_SALE;
     const HOME_PROPERTY_TYPE_OPTIONS = purposes.has('rent') && !purposes.has('sale')
         ? HOME_PROPERTY_TYPE_OPTIONS_RENT
         : HOME_PROPERTY_TYPE_OPTIONS_SALE;
@@ -631,26 +682,16 @@ function HomeSearchHero() {
                             )}
                         </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                        {HOME_PRICE_PRESETS.map((preset) => (
-                            <button
-                                key={preset.label}
-                                type="button"
-                                onClick={() => {
-                                    setPriceMin(preset.min);
-                                    setPriceMax(preset.max);
-                                }}
-                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[13px] font-bold text-slate-700 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
-                            >
-                                {preset.label}
-                            </button>
-                        ))}
-                    </div>
                     {(purposes.has('sale') || purposes.size === 0) && (
                         <div className="space-y-2">
                             <div className="text-[13px] font-bold text-slate-600">Unit</div>
                             <div className="flex gap-2">
-                                {([['peraana', 'per aana'], ['persqm', 'per m²']] as [AreaPriceUnit, string][]).map(([val, lbl]) => (
+                                {([
+                                    ['peraana', 'per aana'],
+                                    ['persqm', 'per m2'],
+                                    ['perkattha', 'per kattha'],
+                                    ['perdhur', 'per dhoor'],
+                                ] as [AreaPriceUnit, string][]).map(([val, lbl]) => (
                                     <button
                                         key={val}
                                         type="button"
@@ -670,28 +711,55 @@ function HomeSearchHero() {
         if (panel === 'location') {
             return (
                 <div className="space-y-4">
-                    <div>
-                        <h3 className="text-[15px] font-black text-slate-900">Select one or more locations</h3>
-                        <p className="text-[13px] text-slate-500">Choose the areas you want to search in.</p>
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-slate-400">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                            <input
+                                value={locationSearch}
+                                onChange={(e) => setLocationSearch(e.target.value)}
+                                placeholder="Search district or city"
+                                className="w-full bg-transparent text-[14px] font-semibold text-slate-900 outline-none placeholder:text-slate-400"
+                            />
+                        </div>
+                        {locationLoadError && (
+                            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-[13px] font-medium text-amber-800">
+                                {locationLoadError}
+                            </div>
+                        )}
                     </div>
                     <div className="max-h-[46vh] overflow-y-auto pr-1">
-                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                        {HOME_LOCATION_OPTIONS.map((location) => {
-                            const isSelected = selectedLocations.includes(location);
+                        <div className="space-y-3">
+                            <div>
+                                <h3 className="text-[15px] font-black text-slate-900">Select one or more locations</h3>
+                                <p className="text-[13px] text-slate-500">Choose the areas you want to search in.</p>
+                            </div>
+                            {filteredLocationOptions.length > 0 ? (
+                                <div className="grid gap-2">
+                                    {filteredLocationOptions.map((location) => {
+                                        const isSelected = selectedLocations.includes(location.label);
 
-                            return (
-                                <button
-                                    key={location}
-                                    type="button"
-                                    onClick={() => toggleLocation(location)}
-                                    className={`flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-[13px] font-bold transition-all duration-200 ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/6 text-[color:var(--color-primary)]' : 'border-[color:var(--color-primary)]/12 bg-white text-slate-700 hover:border-[color:var(--color-primary)]/35'}`}
-                                >
-                                    <span>{location}</span>
-                                    <span className={`h-5 w-5 rounded-full border ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]' : 'border-slate-300 bg-white'}`} />
-                                </button>
-                            );
-                        })}
-                    </div>
+                                        return (
+                                            <button
+                                                key={location.id}
+                                                type="button"
+                                                onClick={() => toggleLocation(location.label)}
+                                                className={`flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-[13px] font-bold transition-all duration-200 ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/6 text-[color:var(--color-primary)]' : 'border-[color:var(--color-primary)]/12 bg-white text-slate-700 hover:border-[color:var(--color-primary)]/35'}`}
+                                            >
+                                                <span className="pr-3">{location.label}</span>
+                                                <span className={`h-5 w-5 rounded-full border ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]' : 'border-slate-300 bg-white'}`} />
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-6 text-center text-[13px] text-slate-500">
+                                    No matching locations found.
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             );
@@ -701,10 +769,10 @@ function HomeSearchHero() {
             return (
                 <div className="space-y-4">
                     <div>
-                        <h3 className="text-[15px] font-black text-slate-900">Set area range</h3>
-                        <p className="text-[13px] text-slate-500">Filter by built-up area from one value to another.</p>
+                        <h3 className="text-[15px] font-black text-slate-900">Set area filter</h3>
+                        <p className="text-[13px] text-slate-500">Enter a minimum and maximum using the unit you want.</p>
                     </div>
-                    <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto]">
+                    <div className="grid gap-4 md:grid-cols-2">
                         <label className="space-y-2 text-[13px] font-bold text-slate-600">
                             Minimum area
                             <input
@@ -727,32 +795,24 @@ function HomeSearchHero() {
                                 className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
                             />
                         </label>
-                        <label className="space-y-2 text-[13px] font-bold text-slate-600">
-                            Unit
-                            <select
-                                value={sizeUnit}
-                                onChange={(e) => setSizeUnit(e.target.value as 'm2' | 'sqft')}
-                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-semibold text-slate-900 outline-none transition-colors focus:border-[color:var(--color-primary)]"
-                            >
-                                <option value="m2">m²</option>
-                                <option value="sqft">sq.ft.</option>
-                            </select>
-                        </label>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                        {HOME_SIZE_PRESETS.map((preset) => (
-                            <button
-                                key={preset.label}
-                                type="button"
-                                onClick={() => {
-                                    setSizeMin(preset.min);
-                                    setSizeMax(preset.max);
-                                }}
-                                className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[13px] font-bold text-slate-700 transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
-                            >
-                                {preset.label}
-                            </button>
-                        ))}
+                    <div className="space-y-3">
+                        <div className="text-[13px] font-bold text-slate-600">Unit</div>
+                        <div className="flex flex-wrap gap-2">
+                            {(['sqm', 'sqft', 'aana', 'kattha', 'dhur', 'ropani'] as SizeUnit[]).map((unit) => {
+                                const isActive = sizeUnit === unit;
+                                return (
+                                    <button
+                                        key={unit}
+                                        type="button"
+                                        onClick={() => setSizeUnit(unit)}
+                                        className={`rounded-full border px-4 py-2.5 text-[13px] font-semibold transition-all duration-150 ${isActive ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white shadow-[0_6px_16px_rgba(10,107,255,0.2)]' : 'border-slate-200 bg-white text-slate-700 hover:border-[color:var(--color-primary)]/40'}`}
+                                    >
+                                        {SIZE_UNIT_LABELS[unit]}
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
             );

@@ -59,7 +59,9 @@ export async function getBrowseProperties(limit = 60, options?: { onlyMappable?:
         }).format(Number(priceValue)).replace('NPR', 'NRs.');
 
         const locationStr = property.location
-            ? `${property.location.area}, ${property.location.district}`
+            ? [property.location.area, property.location.cityVillage, property.location.district]
+                .filter(Boolean)
+                .join(', ')
             : 'Unspecified';
 
         const specs = property.features

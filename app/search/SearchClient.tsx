@@ -7,6 +7,8 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
 import { TrendingSearches } from '@/components/cards/TrendingSearches';
 import { PopularCategories } from '@/components/cards/PopularCategories';
+import { convertAreaValue, normalizeAreaUnit } from '@/lib/area-units';
+import { matchesAnyLocationFilter, splitLocationFilterValues } from '@/lib/location-filters';
 
 function normalize(value: unknown) {
     return String(value || '').toLowerCase();
@@ -15,19 +17,6 @@ function normalize(value: unknown) {
 function splitFilters(value: string | null): string[] {
     if (!value) return [];
     return value.split(',').map((item) => item.trim().toLowerCase()).filter(Boolean);
-}
-
-function normalizeArea(area: number | null | undefined, unit?: string) {
-    if (area === null || area === undefined || Number.isNaN(Number(area))) return null;
-
-    const numericArea = Number(area);
-    const normalizedUnit = (unit || '').toLowerCase();
-
-    if (normalizedUnit.includes('sqft') || normalizedUnit.includes('sq.ft')) {
-        return numericArea / 10.7639;
-    }
-
-    return numericArea;
 }
 
 export default function SearchClient({ initialUser, initialQuery = '', initialProperties = [] }: { initialUser: any, initialQuery?: string, initialProperties?: any[] }) {
@@ -45,13 +34,13 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
 
     const filteredProperties = useMemo(() => {
         const q = query.trim().toLowerCase();
-        const selectedLocations = splitFilters(searchParams.get('locations'));
+        const selectedLocations = splitLocationFilterValues(searchParams.get('locations'));
         const listedByFilter = (searchParams.get('listedBy') || '').trim().toLowerCase();
         const typeFilters = splitFilters(searchParams.get('types'));
         const categoryFilter = (searchParams.get('category') || '').trim().toLowerCase();
         const sizeMin = searchParams.get('sizeMin');
         const sizeMax = searchParams.get('sizeMax');
-        const sizeUnit = (searchParams.get('sizeUnit') || '').toLowerCase();
+        const sizeUnit = normalizeAreaUnit(searchParams.get('sizeUnit'));
         const minSize = sizeMin ? Number(sizeMin) : null;
         const maxSize = sizeMax ? Number(sizeMax) : null;
         const rawMinPrice = searchParams.get('modifiedMinPrice') || searchParams.get('rawMinPrice');
@@ -74,13 +63,16 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
 
             const matchesQuery = !q || values.some((value) => value.includes(q));
             const locationLabel = normalize(property.location);
-            const matchesLocation = selectedLocations.length === 0 || selectedLocations.some((location) => locationLabel.includes(location));
+            const locationParts = locationLabel.split(',').map((item) => item.trim()).filter(Boolean);
+            const matchesLocation = matchesAnyLocationFilter(locationParts, selectedLocations);
             const matchesListedBy = !listedByFilter || normalize(property.listedBy?.type) === listedByFilter;
             const propertyTypes = (property.property_types || []).map((item: string) => normalize(item));
             const matchesType = typeFilters.length === 0 || typeFilters.some((type) => propertyTypes.some((item: string) => item.includes(type) || type.includes(item)));
             const propertyNatures = (property.property_natures || []).map((item: string) => normalize(item).replace(/\s+/g, '-'));
             const matchesCategory = !categoryFilter || propertyNatures.some((item: string) => item === categoryFilter);
-            const propertyArea = normalizeArea(property.features?.builtUpArea, property.features?.builtUpAreaUnit);
+            const propertyArea = Number.isFinite(Number(property.features?.builtUpArea))
+                ? convertAreaValue(Number(property.features?.builtUpArea), property.features?.builtUpAreaUnit, sizeUnit)
+                : null;
             const matchesSize = (minSize === null || propertyArea === null || propertyArea >= minSize) && (maxSize === null || propertyArea === null || propertyArea <= maxSize);
             const propertyPrice = Number(property.pricing?.price || property.price || NaN);
             const matchesPrice = (minPrice === null || Number.isNaN(propertyPrice) || propertyPrice >= minPrice) && (maxPrice === null || Number.isNaN(propertyPrice) || propertyPrice <= maxPrice);
