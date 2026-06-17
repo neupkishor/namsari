@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
+import { Prisma } from '@prisma/client';
 
 export interface ListingStats {
     byTypePurpose: {
@@ -137,6 +138,8 @@ interface CachedStatsRow {
     payload: string;
     updated_at: string;
 }
+
+const LISTING_STATS_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 const EMPTY_LISTING_STATS: ListingStats = {
     byTypePurpose: {
@@ -377,6 +380,49 @@ async function ensureListingStatsTable() {
             updated_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
     `);
+}
+
+async function saveListingStatsCache(stats: ListingStats) {
+    await ensureListingStatsTable();
+
+    await prisma.$executeRaw(
+        Prisma.sql`
+            INSERT INTO listing_stats_cache (id, payload, updated_at)
+            VALUES (1, ${JSON.stringify(stats)}, CURRENT_TIMESTAMP)
+            ON CONFLICT(id) DO UPDATE SET
+                payload = excluded.payload,
+                updated_at = CURRENT_TIMESTAMP
+        `
+    );
+}
+
+async function readListingStatsCache() {
+    await ensureListingStatsTable();
+
+    const rows = await prisma.$queryRawUnsafe<CachedStatsRow[]>(
+        `SELECT payload, updated_at FROM listing_stats_cache WHERE id = 1 LIMIT 1`
+    );
+
+    return rows && rows.length > 0 ? rows[0] : null;
+}
+
+function isCacheStale(updatedAt: string | null | undefined) {
+    if (!updatedAt) return true;
+    const timestamp = parseCacheTimestamp(updatedAt);
+    if (!Number.isFinite(timestamp)) return true;
+    return Date.now() - timestamp > LISTING_STATS_CACHE_TTL_MS;
+}
+
+function parseCacheTimestamp(value: string) {
+    const normalized = value.includes('T') ? value : value.replace(' ', 'T') + 'Z';
+    return new Date(normalized).getTime();
+}
+
+function formatCacheTimestamp(value: string | null | undefined) {
+    if (!value) return null;
+    const timestamp = parseCacheTimestamp(value);
+    if (!Number.isFinite(timestamp)) return null;
+    return new Date(timestamp).toISOString();
 }
 
 async function countPropertyByTypeAndPurpose(typeName: string, purposeName: string) {
@@ -666,18 +712,7 @@ export async function refreshAndCacheListingStats() {
     }
 
     const stats = await computeListingStats();
-    await ensureListingStatsTable();
-
-    await prisma.$executeRawUnsafe(
-        `
-        INSERT INTO listing_stats_cache (id, payload, updated_at)
-        VALUES (1, ?, CURRENT_TIMESTAMP)
-        ON CONFLICT(id) DO UPDATE SET
-            payload = excluded.payload,
-            updated_at = CURRENT_TIMESTAMP
-    `,
-        JSON.stringify(stats)
-    );
+    await saveListingStatsCache(stats);
 
     revalidatePath('/');
     revalidatePath('/manage/stat');
@@ -687,26 +722,32 @@ export async function refreshAndCacheListingStats() {
 
 export async function getCachedListingStats(): Promise<{ stats: ListingStats; updatedAt: string | null }> {
     try {
-        await ensureListingStatsTable();
-        const rows = await prisma.$queryRawUnsafe<CachedStatsRow[]>(
-            `SELECT payload, updated_at FROM listing_stats_cache WHERE id = 1 LIMIT 1`
-        );
+        const row = await readListingStatsCache();
 
-        if (!rows || rows.length === 0) {
-            return { stats: EMPTY_LISTING_STATS, updatedAt: null };
-        }
-
-        const parsed = JSON.parse(rows[0].payload) as ListingStats;
-        if (!parsed.byNatureTypePurpose) {
+        if (!row) {
             const stats = await computeListingStats();
+            await saveListingStatsCache(stats);
             return {
                 stats,
-                updatedAt: rows[0].updated_at || null,
+                updatedAt: new Date().toISOString(),
             };
         }
+
+        const parsed = JSON.parse(row.payload) as Partial<ListingStats>;
+        const shouldRefresh = isCacheStale(row.updated_at) || !parsed.byNatureTypePurpose;
+
+        if (shouldRefresh) {
+            const stats = await computeListingStats();
+            await saveListingStatsCache(stats);
+            return {
+                stats,
+                updatedAt: new Date().toISOString(),
+            };
+        }
+
         return {
             stats: normalizeListingStats(parsed),
-            updatedAt: rows[0].updated_at || null,
+            updatedAt: formatCacheTimestamp(row.updated_at),
         };
     } catch (error) {
         console.error('Failed to load cached listing stats:', error);

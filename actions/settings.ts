@@ -4,6 +4,8 @@ import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 
+const PROPERTY_TYPE_COUNT_TTL_MS = 24 * 60 * 60 * 1000;
+
 async function requireAdmin() {
     const session = await getSession();
     if (!session) throw new Error('Unauthorized');
@@ -11,10 +13,48 @@ async function requireAdmin() {
     if (user?.type !== 'admin') throw new Error('Unauthorized');
 }
 
-export async function getPropertyTypeCounts() {
-    return await prisma.propertyType.findMany({
+function isPropertyTypeCountStale(updatedAt: Date | null | undefined) {
+    if (!updatedAt) return true;
+    return Date.now() - updatedAt.getTime() > PROPERTY_TYPE_COUNT_TTL_MS;
+}
+
+async function refreshPropertyTypeCounts() {
+    const types = await prisma.propertyType.findMany({
         orderBy: { name: 'asc' }
     });
+
+    await Promise.all(
+        types.map(async (type) => {
+            const count = await prisma.property.count({
+                where: {
+                    status: 'approved',
+                    types: {
+                        some: { id: type.id }
+                    }
+                }
+            });
+
+            await prisma.propertyType.update({
+                where: { id: type.id },
+                data: { propertyCount: count }
+            });
+        })
+    );
+}
+
+export async function getPropertyTypeCounts() {
+    const propertyTypes = await prisma.propertyType.findMany({
+        orderBy: { name: 'asc' }
+    });
+
+    if (propertyTypes.some((type) => isPropertyTypeCountStale(type.updated_at))) {
+        await refreshPropertyTypeCounts();
+        return await prisma.propertyType.findMany({
+            orderBy: { name: 'asc' }
+        });
+    }
+
+    return propertyTypes;
 }
 
 export async function updatePropertyTypeCount(id: number, count: number) {
@@ -32,20 +72,7 @@ export async function updatePropertyTypeCount(id: number, count: number) {
 export async function syncPropertyTypeCounts() {
     await requireAdmin();
 
-    const types = await prisma.propertyType.findMany();
-
-    for (const type of types) {
-        const count = await prisma.property.count({
-            where: {
-                types: { some: { id: type.id } },
-                status: 'approved'
-            }
-        });
-        await prisma.propertyType.update({
-            where: { id: type.id },
-            data: { propertyCount: count }
-        });
-    }
+    await refreshPropertyTypeCounts();
 
     revalidatePath('/manage/settings');
     revalidatePath('/');
