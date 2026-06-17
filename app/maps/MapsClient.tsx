@@ -203,7 +203,7 @@ export default function MapsClient({ initialUser: _initialUser, initialQuery = '
                     <div className="space-y-3">
                         {loading ? (
                             Array.from({ length: 6 }).map((_, index) => (
-                                <div key={index} className="h-[102px] rounded-[1.5rem] border border-border bg-white animate-pulse" />
+                                <div key={index} className="h-[102px] rounded-[1.5rem] bg-white animate-pulse" />
                             ))
                         ) : visibleProperties.length > 0 ? (
                             <div className="rounded-[28px] border border-slate-300 bg-white shadow-[var(--shadow-card)] overflow-hidden">

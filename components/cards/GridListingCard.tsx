@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
 
 interface GridListingCardProps {
   properties: any[];
@@ -52,7 +53,7 @@ export function GridListingCard({ properties, title, className }: GridListingCar
 
       <div className="relative w-full pt-[75%]">
         <div className="absolute inset-0">
-            <Link href={propertyUrl} className="block w-full h-full relative group">
+            <InternalPropertyLink href={propertyUrl} className="block w-full h-full relative group">
                 <img 
                     src={mainImage} 
                     alt={currentProperty.title} 
@@ -71,7 +72,7 @@ export function GridListingCard({ properties, title, className }: GridListingCar
                         📍 {currentProperty.location}
                     </div>
                 </div>
-            </Link>
+            </InternalPropertyLink>
 
             {/* Navigation Controls */}
             {properties.length > 1 && (

@@ -1,7 +1,7 @@
  'use client';
 
 import React from 'react';
-import Link from 'next/link';
+import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
 import { formatPrice } from '@/lib/formatters';
 
 interface PropertyCardProps {
@@ -45,7 +45,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
     return (
         <div className="w-full bg-white rounded-[18px] border border-black/10 shadow-sm transition-colors duration-300 overflow-hidden flex flex-col h-full group/card relative hover:border-[color:var(--color-primary)]/25">
-            <Link href={propertyUrl} className="block relative h-56 overflow-hidden rounded-t-[14px] group/img">
+            <InternalPropertyLink href={propertyUrl} className="block relative h-56 overflow-hidden rounded-t-[14px] group/img">
                 <img
                     src={property.images?.[0] ? (typeof property.images[0] === 'string' ? property.images[0] : (property.images[0] as any).url) : 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=400&q=80'}
                     alt={property.title}
@@ -60,14 +60,14 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                 </div>
 
                 {/* subtle hover styling handled by card container; no large overlay */}
-            </Link>
+            </InternalPropertyLink>
 
             <div className="p-4 flex-1 flex flex-col gap-2">
-                <Link href={propertyUrl} className="no-underline text-inherit block group/title">
+                <InternalPropertyLink href={propertyUrl} className="no-underline text-inherit block group/title">
                     <h3 className="text-sm font-semibold mb-1 cursor-pointer leading-tight text-text-main group-hover/title:text-[color:var(--color-primary)] transition-colors line-clamp-2 tracking-tight">
                         {property.title}
                     </h3>
-                </Link>
+                </InternalPropertyLink>
 
                 <div className="flex items-baseline gap-2">
                     <span className="text-text-main font-bold text-xl tracking-tighter transition-colors group-hover/card:text-[color:var(--color-primary)]">

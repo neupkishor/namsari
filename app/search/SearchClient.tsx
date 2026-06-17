@@ -213,7 +213,7 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
                     <div className="space-y-4">
                         {loading ? (
                             Array.from({ length: 6 }).map((_, index) => (
-                                <div key={index} className="h-[190px] rounded-[1.5rem] border border-border bg-white/80 animate-pulse" />
+                                <div key={index} className="h-[190px] rounded-[1.5rem] bg-white/80 animate-pulse" />
                             ))
                         ) : filteredProperties.length > 0 ? (
                             <div className="rounded-[28px] border border-slate-300 bg-white shadow-[var(--shadow-card)] overflow-hidden">

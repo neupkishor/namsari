@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
 import { formatPrice } from '@/lib/formatters';
 
 // Fix for default marker icons in Leaflet with Next.js
@@ -367,12 +368,12 @@ export default function MapComponent({
                                             <span>📍</span> {p.location}
                                         </div>
                                         <div className="mt-3 pt-2 border-t border-slate-100">
-                                            <a
+                                            <InternalPropertyLink
                                                 href={`/properties/${p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`}
                                                 className="text-gold no-underline font-bold text-xs hover:text-gold/80 transition-colors"
                                             >
                                                 View Details →
-                                            </a>
+                                            </InternalPropertyLink>
                                         </div>
                                     </div>
                                 </Popup>

@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import { toggleLike, addComment } from '@/actions/social';
+import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
 
 export function SocialCollectionView({ properties, user }: { properties: any[], user: any }) {
     const [displayCount, setDisplayCount] = useState(10);
@@ -200,9 +201,9 @@ function CollectionFeedItem({ property, collectionUser }: { property: any, colle
                     </div>
                 </div>
                 
-                <Link href={propertyUrl} style={{ background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '20px', padding: '6px 14px', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer', textDecoration: 'none' }}>
+                <InternalPropertyLink href={propertyUrl} style={{ background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '20px', padding: '6px 14px', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer', textDecoration: 'none' }}>
                     View
-                </Link>
+                </InternalPropertyLink>
             </div>
 
             {/* Media Carousel */}

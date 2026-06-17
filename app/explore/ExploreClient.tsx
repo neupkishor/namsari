@@ -11,7 +11,7 @@ import { PropertyPost } from '@/components/cards/PropertyFeedCard';
 // Dynamically import map to avoid SSR issues
 const MapComponent = dynamic(() => import('./MapComponent'), {
     ssr: false,
-    loading: () => <div className="w-full h-full bg-surface animate-pulse rounded-3xl border border-border"></div>
+    loading: () => <div className="w-full h-full bg-surface animate-pulse rounded-3xl"></div>
 });
 
 const AANA_TO_SQM = 31.796;
@@ -426,7 +426,7 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialT
                         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-8 pb-32">
                             {isLoading ? (
                                 Array(12).fill(0).map((_, i) => (
-                                    <div key={i} className="h-[450px] rounded-[2rem] bg-surface animate-pulse border border-border"></div>
+                                    <div key={i} className="h-[450px] rounded-[2rem] bg-surface animate-pulse"></div>
                                 ))
                             ) : filteredProperties.map((p) => (
                                 <div
@@ -491,7 +491,7 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialT
                         {isLoading ? (
                             <div className="space-y-3">
                                 {Array(8).fill(0).map((_, i) => (
-                                    <div key={i} className="h-[170px] rounded-2xl bg-surface animate-pulse border border-border" />
+                                    <div key={i} className="h-[170px] rounded-2xl bg-surface animate-pulse" />
                                 ))}
                             </div>
                         ) : (

@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
 import { AutoScrollCarousel } from '@/components/ui';
 
 interface FeaturedProjectsProps {
@@ -53,7 +54,7 @@ export const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ properties =
                     const price = p.pricing?.price ? new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(p.pricing.price).replace('NPR', 'Rs.') : 'N/A';
 
                     return (
-                        <Link key={p.id} href={propertyUrl} className="no-underline h-full block group">
+                        <InternalPropertyLink key={p.id} href={propertyUrl} className="no-underline h-full block group">
                             <div className="relative rounded-2xl overflow-hidden h-full min-h-[240px] bg-slate-50 border border-gray-100 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col">
                                 <img
                                     src={imageUrl}
@@ -84,7 +85,7 @@ export const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ properties =
                                     </div>
                                 </div>
                             </div>
-                        </Link>
+                        </InternalPropertyLink>
                     );
                 })}
             </AutoScrollCarousel>

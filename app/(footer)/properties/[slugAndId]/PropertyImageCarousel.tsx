@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
+import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
 
 type PropertyImageCarouselProps = {
     images: string[];
@@ -23,7 +23,7 @@ export default function PropertyImageCarousel({ images, galleryHref }: PropertyI
 
     return (
         <div className="mobile-property-carousel">
-            <Link href={galleryHref} style={{ display: 'block', textDecoration: 'none' }}>
+            <InternalPropertyLink href={galleryHref} style={{ display: 'block', textDecoration: 'none' }}>
                 <div className="mobile-property-carousel-track" ref={scrollerRef} onScroll={handleScroll}>
                     {safeImages.map((src, idx) => (
                         <div key={`${src}-${idx}`} className="mobile-property-carousel-slide">
@@ -31,7 +31,7 @@ export default function PropertyImageCarousel({ images, galleryHref }: PropertyI
                         </div>
                     ))}
                 </div>
-            </Link>
+            </InternalPropertyLink>
 
             <div className="mobile-property-carousel-top">
                 <span className="mobile-property-carousel-count">

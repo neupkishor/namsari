@@ -5,6 +5,7 @@ import { PaginationControl } from '@/components/ui';
 import { getCurrentUser } from '@/actions/auth';
 import { redirect } from 'next/navigation';
 import { legacyPricingFromPrice } from '@/lib/pricing';
+import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
 
 export default async function ManagePropertiesPage({ searchParams }: { searchParams: Promise<{ page?: string; view?: string }> }) {
     const user = await getCurrentUser();
@@ -196,9 +197,9 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
                                             <td style={{ padding: '14px 18px', color: '#64748b', fontSize: '0.88rem' }}>{new Date(p.created_on).toLocaleDateString()}</td>
                                             <td style={{ padding: '14px 18px', textAlign: 'right' }}>
                                                 <div style={{ display: 'inline-flex', gap: '12px' }}>
-                                                    <Link href={`/properties/${propertyPath}`} style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 700, textDecoration: 'none' }}>
+                                                    <InternalPropertyLink href={`/properties/${propertyPath}`} style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 700, textDecoration: 'none' }}>
                                                         View
-                                                    </Link>
+                                                    </InternalPropertyLink>
                                                     <Link href={`/manage/properties/${propertyPath}`} style={{ color: 'var(--color-primary)', fontSize: '0.85rem', fontWeight: 800, textDecoration: 'none' }}>
                                                         Manage
                                                     </Link>

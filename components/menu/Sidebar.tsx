@@ -10,7 +10,7 @@ import { MenuIcon } from './MenuIcon';
 
 export function SidebarSkeleton() {
     return (
-        <aside className="w-[var(--sidebar-width)] shrink-0 hidden lg:block h-full min-h-0 overflow-hidden border-r border-border bg-white pt-6 pr-6 pb-6 pl-0">
+        <aside className="w-[var(--sidebar-width)] shrink-0 hidden lg:block h-full min-h-0 overflow-hidden bg-white pt-6 pr-6 pb-6 pl-0">
             <div className="flex flex-col gap-6">
                 {[1, 2, 3].map(group => (
                     <div key={group} className="flex flex-col gap-2">
@@ -61,7 +61,7 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
     };
 
     return (
-        <aside className="w-[var(--sidebar-width)] shrink-0 hidden lg:flex flex-col h-full min-h-0 overflow-hidden border-r border-border bg-white">
+        <aside className="w-[var(--sidebar-width)] shrink-0 hidden lg:flex flex-col h-full min-h-0 overflow-hidden border-r border-slate-200/60 bg-white">
             <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pt-6 pr-6 pb-24 pl-0">
                 <div className="flex flex-col gap-8">
                     {menuGroups.map((group, groupIdx) => (
@@ -113,7 +113,7 @@ export function Sidebar({ user, loading }: { user: any, loading?: boolean }) {
                         </div>
                     ))}
 
-                    <div className="pt-4 border-t border-border">
+                    <div className="pt-4 border-t border-slate-200/60">
                         <p className="pr-3 pl-0 text-[10px] text-text-muted leading-relaxed">
                             Namsari Estate &copy; 2026<br /> 
                             <span className="opacity-70">Designed by </span>

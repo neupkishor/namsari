@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
+import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
 
 interface SavedPropertyCardProps {
     property: {
@@ -37,7 +37,7 @@ export const SavedPropertyCard: React.FC<SavedPropertyCardProps> = ({ property }
             borderRadius: '24px'
         }}>
             {/* Image Section */}
-            <Link href={propertyUrl} style={{ flexShrink: 0 }}>
+            <InternalPropertyLink href={propertyUrl} style={{ flexShrink: 0 }}>
                 <div style={{ 
                     width: '120px', 
                     height: '120px', 
@@ -56,12 +56,12 @@ export const SavedPropertyCard: React.FC<SavedPropertyCardProps> = ({ property }
                         }}
                     />
                 </div>
-            </Link>
+            </InternalPropertyLink>
 
             {/* Content Section */}
             <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <Link href={propertyUrl} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <InternalPropertyLink href={propertyUrl} style={{ textDecoration: 'none', color: 'inherit' }}>
                         <h3 style={{ 
                             fontSize: '1.1rem', 
                             fontWeight: '700', 
@@ -71,7 +71,7 @@ export const SavedPropertyCard: React.FC<SavedPropertyCardProps> = ({ property }
                         }}>
                             {property.title}
                         </h3>
-                    </Link>
+                    </InternalPropertyLink>
                     {/* Optional: Add remove button or menu here if needed */}
                 </div>
 

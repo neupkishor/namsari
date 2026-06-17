@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import Link from 'next/link';
+import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
 
 
 interface PropertyPostProps {
@@ -237,7 +237,7 @@ export function PropertyPost({
           <div className={`w-[108px] sm:w-[132px] flex-shrink-0 self-stretch h-full ${hasSingleImage ? 'flex flex-col pb-0' : 'grid grid-rows-[auto_1fr] gap-1.5 pb-1 sm:pb-2'}`}>
 
             {/* MAIN IMAGE */}
-            <Link
+            <InternalPropertyLink
               href={propertyUrl}
               className={`relative overflow-hidden block ${hasSingleImage ? 'h-full min-h-[140px]' : 'aspect-square'} ${mainImageRadiusClass}`}
             >
@@ -252,7 +252,7 @@ export function PropertyPost({
                   No image
                 </div>
               )}
-            </Link>
+            </InternalPropertyLink>
 
             {/* THUMBNAILS */}
             {imageUrls.length > 1 && (
@@ -297,14 +297,14 @@ export function PropertyPost({
           {/* TOP SECTION: title, description, price+offer, location */}
           <div className="flex flex-col gap-0.5 min-w-0 pt-0.5 pb-1 flex-none">
             {/* Title + description — clickable */}
-            <Link href={propertyUrl} className="flex flex-col gap-0.5 min-w-0">
+            <InternalPropertyLink href={propertyUrl} className="flex flex-col gap-0.5 min-w-0">
               <h3 className="text-[13px] sm:text-[14px] font-semibold text-slate-900 line-clamp-2 leading-snug group-hover/card:text-[color:var(--color-primary)] transition-colors">
                 {property.title}
               </h3>
               <p className="text-[11px] sm:text-[12px] text-slate-400 line-clamp-1 sm:line-clamp-2 mt-0.5 leading-relaxed">
                 {property.remarks || 'This property offers a perfect blend of luxury and comfort, situated in a prime location with easy access to all essential amenities.'}
               </p>
-            </Link>
+            </InternalPropertyLink>
 
             {/* Price + Make Offer — NOT inside Link */}
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 mt-2">
@@ -320,9 +320,9 @@ export function PropertyPost({
             </div>
 
             {/* Location — clickable */}
-            <Link href={propertyUrl} className="text-[11px] sm:text-[12px] text-slate-500 mt-0.5">
+            <InternalPropertyLink href={propertyUrl} className="text-[11px] sm:text-[12px] text-slate-500 mt-0.5">
               {locationStr}
-            </Link>
+            </InternalPropertyLink>
           </div>
 
           {/* SEPARATOR */}
@@ -413,22 +413,22 @@ export function PropertyPost({
       >
         <div className="w-full max-w-[1040px] mx-auto px-5 py-4 flex gap-5 items-stretch">
           {hasAnyImage && (
-            <Link href={propertyUrl} className="w-[170px] shrink-0 rounded-[14px] overflow-hidden bg-slate-100">
+            <InternalPropertyLink href={propertyUrl} className="w-[170px] shrink-0 rounded-[14px] overflow-hidden bg-slate-100">
               {activeImage ? (
                 <img src={activeImage} alt={property.title} className="w-full h-full object-cover min-h-[140px]" />
               ) : (
                 <div className="w-full h-full min-h-[140px] flex items-center justify-center text-slate-300 text-xs">No image</div>
               )}
-            </Link>
+            </InternalPropertyLink>
           )}
 
           <div className="flex-1 min-w-0 flex flex-col justify-between">
             <div className="space-y-2">
-              <Link href={propertyUrl}>
+              <InternalPropertyLink href={propertyUrl}>
                 <h3 className="text-[18px] leading-tight font-bold text-slate-900 group-hover/card:text-[color:var(--color-primary)] transition-colors line-clamp-2">
                   {property.title}
                 </h3>
-              </Link>
+              </InternalPropertyLink>
               <p className="text-[14px] text-slate-500 leading-relaxed line-clamp-2">
                 {property.remarks || 'This property offers a perfect blend of luxury and comfort, situated in a prime location with easy access to all essential amenities.'}
               </p>

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
 import PropertyMap from './PropertyMap';
 import PropertyImageCarousel from './PropertyImageCarousel';
 import { NearbyAmenitiesSection } from './NearbyAmenitiesSection';
@@ -937,9 +938,9 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 }}>
                     <div className="gallery-main">
                         {images.length > 0 ? (
-                            <Link href={`/properties/${slugAndId}/gallery`} style={{ display: 'block', height: '100%', width: '100%' }}>
+                            <InternalPropertyLink href={`/properties/${slugAndId}/gallery`} style={{ display: 'block', height: '100%', width: '100%' }}>
                                 <img src={images[0]} className="gallery-item" alt="Main View" />
-                            </Link>
+                            </InternalPropertyLink>
                         ) : (
                             <div style={{ width: '100%', height: '100%', background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>No Image</div>
                         )}
@@ -950,20 +951,20 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                             gridTemplateRows: images.length === 2 ? '1fr' : '1fr 1fr'
                         }}>
                             <div style={{ position: 'relative', overflow: 'hidden', height: '100%' }}>
-                                <Link href={`/properties/${slugAndId}/gallery`} style={{ display: 'block', height: '100%', width: '100%' }}>
+                                <InternalPropertyLink href={`/properties/${slugAndId}/gallery`} style={{ display: 'block', height: '100%', width: '100%' }}>
                                     <img src={images[1]} className="gallery-item" alt="View 2" />
-                                </Link>
+                                </InternalPropertyLink>
                             </div>
                             {images.length > 2 && (
                                 <div style={{ position: 'relative', overflow: 'hidden', height: '100%' }}>
-                                    <Link href={`/properties/${slugAndId}/gallery`} style={{ display: 'block', height: '100%', width: '100%', position: 'relative' }}>
+                                    <InternalPropertyLink href={`/properties/${slugAndId}/gallery`} style={{ display: 'block', height: '100%', width: '100%', position: 'relative' }}>
                                         <img src={images[2]} className="gallery-item" alt="View 3" />
                                         {images.length > 3 && (
                                             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '700', fontSize: '1.25rem' }}>
                                                 +{images.length - 3} more
                                             </div>
                                         )}
-                                    </Link>
+                                    </InternalPropertyLink>
                                 </div>
                             )}
                         </div>

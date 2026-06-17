@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
 import { FeaturedProjects } from '@/components/cards/FeaturedProjects';
 import { TrendingSearches } from '@/components/cards/TrendingSearches';
 import { HeroCarouselAd, FeedAd } from '@/components/cards/AdvertisementCard';
@@ -126,7 +127,7 @@ function FeaturedSmallCard({ property }: { property: any }) {
     const priceLabel = formatNPR(property.pricing?.price || property.price);
     
     return (
-        <Link href={propertyUrl} className="group block h-full overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[var(--shadow-card)] transition-colors duration-300 hover:border-[color:var(--color-primary)]/40 hover:ring-1 hover:ring-[color:var(--color-primary)]/20">
+        <InternalPropertyLink href={propertyUrl} className="group block h-full overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[var(--shadow-card)] transition-colors duration-300 hover:border-[color:var(--color-primary)]/40 hover:ring-1 hover:ring-[color:var(--color-primary)]/20">
             <div className="aspect-[4/3] overflow-hidden relative border-b border-slate-200">
                 <img 
                     src={property._displayImage} 
@@ -181,7 +182,7 @@ function FeaturedSmallCard({ property }: { property: any }) {
                     </span>
                 </div>
             </div>
-        </Link>
+        </InternalPropertyLink>
     );
 }
 
@@ -361,6 +362,104 @@ function ShareIcon() {
             <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
             <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
         </svg>
+    );
+}
+
+function PropertyFeedSkeleton() {
+    return (
+        <div className="space-y-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="overflow-hidden rounded-[28px] border border-slate-200 bg-white">
+                    <div className="animate-pulse lg:hidden">
+                        <div className="flex items-stretch gap-2.5 px-3 pb-3 pt-3 sm:gap-4 sm:px-4 sm:pb-4 sm:pt-4">
+                            <div className="grid w-[108px] flex-shrink-0 grid-rows-[auto_1fr] gap-1.5 sm:w-[132px] sm:pb-2">
+                                <div className="aspect-square rounded-[16px_8px_8px_8px] bg-slate-100" />
+                                <div className="grid grid-cols-3 gap-1">
+                                    <div className="aspect-square rounded-[4px] bg-slate-100" />
+                                    <div className="aspect-square rounded-[4px] bg-slate-100" />
+                                    <div className="aspect-square rounded-[4px] bg-slate-100" />
+                                </div>
+                            </div>
+                            <div className="flex min-w-0 flex-1 flex-col justify-between">
+                                <div className="space-y-2 pt-0.5">
+                                    <div className="h-4 w-11/12 rounded-full bg-slate-100 sm:h-5" />
+                                    <div className="h-3.5 w-full rounded-full bg-slate-100" />
+                                    <div className="h-3.5 w-2/3 rounded-full bg-slate-100" />
+                                    <div className="flex flex-wrap gap-2 pt-1">
+                                        <div className="h-5 w-24 rounded-full bg-slate-100 sm:h-6 sm:w-28" />
+                                        <div className="h-4 w-16 rounded-full bg-slate-100 sm:w-20" />
+                                    </div>
+                                    <div className="h-3.5 w-1/2 rounded-full bg-slate-100" />
+                                </div>
+                                <div className="mt-2 flex items-center justify-between gap-2">
+                                    <div className="flex min-w-0 flex-1 items-center gap-2">
+                                        <div className="h-3.5 w-20 rounded-full bg-slate-100 sm:w-24" />
+                                        <div className="hidden h-3.5 w-24 rounded-full bg-slate-100 sm:block" />
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-8 w-8 rounded-lg bg-slate-100 sm:hidden" />
+                                        <div className="h-3.5 w-10 rounded-full bg-slate-100" />
+                                        <div className="h-8 w-8 rounded-lg bg-slate-100" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="hidden animate-pulse lg:block">
+                        <div className="mx-auto flex w-full max-w-[1040px] gap-5 px-5 py-4">
+                            <div className="h-[140px] w-[170px] flex-shrink-0 rounded-[14px] bg-slate-100" />
+                            <div className="flex min-w-0 flex-1 flex-col justify-between">
+                                <div className="space-y-3">
+                                    <div className="h-6 w-3/4 rounded-full bg-slate-100" />
+                                    <div className="h-4 w-full rounded-full bg-slate-100" />
+                                    <div className="h-4 w-2/3 rounded-full bg-slate-100" />
+                                    <div className="h-5 w-32 rounded-full bg-slate-100" />
+                                    <div className="h-4 w-40 rounded-full bg-slate-100" />
+                                </div>
+                                <div className="mt-4 flex items-center justify-between pt-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-4 w-24 rounded-full bg-slate-100" />
+                                        <div className="h-4 w-28 rounded-full bg-slate-100" />
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-8 w-8 rounded-lg bg-slate-100" />
+                                        <div className="h-4 w-20 rounded-full bg-slate-100" />
+                                        <div className="h-4 w-10 rounded-full bg-slate-100" />
+                                        <div className="h-8 w-8 rounded-lg bg-slate-100" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+function RequirementFeedSkeleton() {
+    return (
+        <div className="space-y-4 p-4 sm:p-5">
+            {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="rounded-[20px] border border-slate-200 bg-white p-4">
+                    <div className="animate-pulse space-y-3">
+                        <div className="flex items-center justify-between gap-3">
+                            <div className="h-4 w-2/3 rounded-full bg-slate-100" />
+                            <div className="h-6 w-20 rounded-full bg-slate-100" />
+                        </div>
+                        <div className="h-3.5 w-full rounded-full bg-slate-100" />
+                        <div className="h-3.5 w-5/6 rounded-full bg-slate-100" />
+                        <div className="h-4 w-28 rounded-full bg-slate-100" />
+                        <div className="h-px w-full bg-slate-100" />
+                        <div className="flex items-center justify-between gap-3">
+                            <div className="h-4 w-32 rounded-full bg-slate-100" />
+                            <div className="h-4 w-24 rounded-full bg-slate-100" />
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
     );
 }
 
@@ -1121,7 +1220,7 @@ type HomeClientProps = {
 type ExploreCategoryItem = {
     icon: string;
     label: string;
-    count: number;
+    count: number | null | undefined;
     href: string;
 };
 
@@ -1273,7 +1372,8 @@ function PropertyCollectionsSection({ collections }: { collections?: any[] }) {
             <div className="overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                 <div className="grid w-max auto-cols-max grid-flow-col grid-rows-2 gap-2">
                     {collections.map((collection) => {
-                        const propertyCount = collection._count?.properties ?? collection.properties?.length ?? 0;
+                        const propertyCount = collection._count?.properties ?? collection.properties?.length;
+                        const hasPropertyCount = typeof propertyCount === 'number';
 
                         return (
                             <Link
@@ -1286,7 +1386,7 @@ function PropertyCollectionsSection({ collections }: { collections?: any[] }) {
                                         {collection.name}
                                     </div>
                                     <div className="mt-0.5 truncate text-[12px] font-medium text-slate-500 transition-colors group-hover:text-[color:var(--color-primary)]">
-                                        {propertyCount} {propertyCount === 1 ? 'property' : 'properties'}
+                                        {hasPropertyCount ? `${propertyCount} ${propertyCount === 1 ? 'property' : 'properties'}` : '...'}
                                     </div>
                                 </div>
                             </Link>
@@ -1388,6 +1488,7 @@ function ExploreCategoriesSection({
                     <div className="overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                         <div className="inline-flex min-w-max gap-2">
                             {group.items.map((item) => {
+                                const hasCount = typeof item.count === 'number';
                                 const desktopNoun = noun === 'property'
                                     ? (item.count === 1 ? 'property' : 'properties')
                                     : (item.count === 1 ? noun : `${noun}s`);
@@ -1422,9 +1523,13 @@ function ExploreCategoriesSection({
                                                 {item.label}
                                             </div>
                                             <div className="whitespace-nowrap text-[12px] font-medium text-slate-500 transition-colors group-hover:text-[color:var(--color-primary)]">
-                                                {item.count}{' '}
-                                                <span className="sm:hidden">{mobileNoun}</span>
-                                                <span className="hidden sm:inline">{desktopNoun}</span>
+                                                {hasCount ? item.count : '...'}{' '}
+                                                {hasCount && (
+                                                    <>
+                                                        <span className="sm:hidden">{mobileNoun}</span>
+                                                        <span className="hidden sm:inline">{desktopNoun}</span>
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
                                     </Link>
@@ -1653,13 +1758,12 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
         router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     };
 
+    const showPropertySkeleton = isLoading;
+    const showRequirementSkeleton = isLoadingRequirements;
+
     return (
         <div className="min-h-screen bg-white">
-            {/* Check if the page is loading content */}
-            {isLoading ? (
-                <FeedSkeleton hasCarouselAds={carouselAds.length > 0} />
-            ) : (
-                <div className="w-full">
+            <div className="w-full">
                     <div className="mx-auto w-full max-w-[1400px] px-0.5 pt-3 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
                         <HomeSearchHero />
 
@@ -1745,8 +1849,8 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                         <div className="flex flex-col gap-6">
                                             {activeFeedTab === 'requirements' ? (
                                                 <div className="rounded-[28px] border border-slate-300 bg-white shadow-[var(--shadow-card)] overflow-hidden">
-                                                    {isLoadingRequirements ? (
-                                                        <div className="p-8 text-sm text-slate-500">Loading requirements...</div>
+                                                    {showRequirementSkeleton ? (
+                                                        <RequirementFeedSkeleton />
                                                     ) : requirements.length === 0 ? (
                                                         <div className="p-8 text-sm text-slate-500">No active requirements available right now.</div>
                                                     ) : filteredRequirements.length === 0 ? (
@@ -1877,6 +1981,10 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                 </div>
                                             ) : (
                                             (() => {
+                                                if (showPropertySkeleton) {
+                                                    return <PropertyFeedSkeleton />;
+                                                }
+
                                                 const feedItems: any[] = [];
                                                 let propertyIndex = 0;
                                                 let insertionCount = 0;
@@ -2026,78 +2134,198 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                         </div>
                     </div>
                 </div>
-            )}
-
-
         </div>
     );
 }
 
 function FeedSkeleton({ hasCarouselAds = true }: { hasCarouselAds?: boolean }) {
+    const propertySkeletonItems = Array.from({ length: 4 }, (_, index) => index);
+    const featuredSkeletonItems = Array.from({ length: 4 }, (_, index) => index);
+    const collectionSkeletonItems = Array.from({ length: 3 }, (_, index) => index);
+
     return (
-        <div className="w-full flex flex-col">
-            <div className="mx-auto w-full max-w-[1400px] px-0.5 pt-3 sm:px-6 lg:px-8">
-                <div className="h-[320px] rounded-[36px] bg-surface animate-pulse mb-6" />
-            </div>
+        <div className="w-full">
+            <div className="mx-auto w-full max-w-[1400px] space-y-8 px-0.5 pt-3 sm:space-y-12 sm:px-6 lg:px-8">
+                <section className="overflow-hidden rounded-[32px] bg-white">
+                    <div className="animate-pulse">
+                        <div className="h-[112px] bg-slate-100 sm:h-[132px] lg:h-[160px]" />
+                        <div className="space-y-5 px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+                            <div className="space-y-3">
+                                <div className="h-4 w-24 rounded-full bg-slate-100" />
+                                <div className="h-8 w-4/5 max-w-[560px] rounded-full bg-slate-100 sm:h-10" />
+                                <div className="h-4 w-full max-w-[620px] rounded-full bg-slate-100" />
+                                <div className="h-4 w-3/4 max-w-[460px] rounded-full bg-slate-100" />
+                            </div>
 
-            {/* Carousel Skeleton - Full Width */}
-            {hasCarouselAds && (
-                <div className="h-[400px] w-full bg-surface animate-pulse mb-8"></div>
-            )}
-            
-            <div className="max-w-[1440px] mx-auto px-2 sm:px-6 lg:px-8">
-                {/* Featured Properties Skeleton */}
-                <div className="w-full flex flex-col gap-6 mb-16">
-                    <div className="h-6 w-1/4 bg-surface rounded animate-pulse"></div>
-                    <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                        {[1, 2, 3, 4, 5].map(i => (
-                            <div key={i} className="aspect-square bg-surface animate-pulse rounded-xl"></div>
-                        ))}
-                    </div>
-                </div>
+                            <div className="flex flex-wrap gap-2 sm:gap-3">
+                                <div className="h-11 w-[110px] rounded-full bg-slate-100" />
+                                <div className="h-11 w-[110px] rounded-full bg-slate-100" />
+                                <div className="hidden h-11 w-[140px] rounded-full bg-slate-100 sm:block" />
+                            </div>
 
-                {/* Feed Area Skeleton */}
-                <div className="w-full mt-12 flex flex-col gap-10">
-                    {/* Property Feed Skeleton */}
-                    <div className="w-full flex flex-col">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="py-4 border-b border-slate-100 last:border-0 flex gap-4">
-                                {/* Left: Image Section Skeleton */}
-                                <div className="w-[120px] sm:w-[160px] flex-shrink-0 flex flex-col gap-2">
-                                    <div className="aspect-square bg-slate-100 animate-pulse rounded-lg"></div>
-                                    <div className="flex gap-1 overflow-hidden">
-                                        {[1, 2, 3].map(j => (
-                                            <div key={j} className="w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-slate-100 animate-pulse flex-shrink-0"></div>
-                                        ))}
+                            <div className="rounded-[28px] bg-slate-50 p-3 sm:p-4">
+                                <div className="grid gap-3 lg:grid-cols-[minmax(0,1.25fr)_repeat(4,minmax(0,0.75fr))]">
+                                    <div className="h-12 rounded-2xl bg-slate-100 sm:h-14" />
+                                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:contents">
+                                        <div className="h-12 rounded-2xl bg-slate-100 sm:h-14" />
+                                        <div className="h-12 rounded-2xl bg-slate-100 sm:h-14" />
+                                        <div className="h-12 rounded-2xl bg-slate-100 sm:h-14" />
+                                        <div className="h-12 rounded-2xl bg-slate-100 sm:h-14" />
                                     </div>
                                 </div>
-                                {/* Right: Content Section Skeleton */}
-                                <div className="flex-1 flex flex-col gap-2 py-1">
-                                    {/* Seller Name Skeleton at Top */}
-                                    <div className="h-3 w-32 bg-slate-100 animate-pulse rounded mb-1"></div>
-                                    
-                                    <div className="flex justify-between items-start">
-                                        <div className="h-5 w-3/4 bg-slate-100 animate-pulse rounded"></div>
-                                        <div className="h-5 w-5 bg-slate-100 animate-pulse rounded"></div>
+                                <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <div className="flex flex-wrap gap-2">
+                                        <div className="h-9 w-[92px] rounded-full bg-slate-100" />
+                                        <div className="h-9 w-[112px] rounded-full bg-slate-100" />
+                                        <div className="h-9 w-[96px] rounded-full bg-slate-100" />
                                     </div>
-                                    <div className="h-4 w-full bg-slate-100 animate-pulse rounded mt-1"></div>
-                                    <div className="h-4 w-2/3 bg-slate-100 animate-pulse rounded"></div>
-                                    <div className="flex gap-2 items-center mt-2">
-                                        <div className="h-6 w-24 bg-slate-100 animate-pulse rounded-full"></div>
-                                        <div className="h-4 w-16 bg-slate-100 animate-pulse rounded-full"></div>
+                                    <div className="h-11 w-full rounded-2xl bg-slate-100 sm:w-[220px]" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    {featuredSkeletonItems.map((item) => (
+                        <div key={`category-skeleton-${item}`} className="h-[138px] animate-pulse rounded-[28px] bg-white sm:h-[156px]">
+                            <div className="flex h-full flex-col justify-between p-5">
+                                <div className="h-11 w-11 rounded-2xl bg-slate-100" />
+                                <div className="space-y-2">
+                                    <div className="h-4 w-2/3 rounded-full bg-slate-100" />
+                                    <div className="h-3 w-1/3 rounded-full bg-slate-100" />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </section>
+
+                <div className="h-[112px] animate-pulse rounded-[28px] bg-white sm:h-[124px]" />
+
+                <section className="grid gap-4 lg:grid-cols-3">
+                    {collectionSkeletonItems.map((item) => (
+                        <div key={`collection-skeleton-${item}`} className="animate-pulse overflow-hidden rounded-[28px] bg-white">
+                            <div className="aspect-[16/10] bg-slate-100" />
+                            <div className="space-y-3 p-5">
+                                <div className="h-5 w-3/5 rounded-full bg-slate-100" />
+                                <div className="h-4 w-full rounded-full bg-slate-100" />
+                                <div className="h-4 w-2/3 rounded-full bg-slate-100" />
+                            </div>
+                        </div>
+                    ))}
+                </section>
+            </div>
+
+            {hasCarouselAds && (
+                <div className="mx-auto mt-8 w-full max-w-[1400px] px-0.5 sm:mt-12 sm:px-6 lg:px-8">
+                    <div className="mb-5 space-y-2">
+                        <div className="h-6 w-40 animate-pulse rounded-full bg-slate-100" />
+                        <div className="h-4 w-full max-w-[360px] animate-pulse rounded-full bg-slate-100" />
+                    </div>
+                    <div className="h-[220px] w-full animate-pulse rounded-[32px] bg-slate-100 sm:h-[280px] lg:h-[340px]" />
+                </div>
+            )}
+
+            <div className="mx-auto mt-8 flex w-full max-w-[1400px] flex-col gap-8 px-0.5 sm:mt-12 sm:gap-12 sm:px-6 lg:px-8">
+                <section className="space-y-5">
+                    <div className="space-y-2">
+                        <div className="h-7 w-52 animate-pulse rounded-full bg-slate-100" />
+                        <div className="h-4 w-full max-w-[380px] animate-pulse rounded-full bg-slate-100" />
+                    </div>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                        {featuredSkeletonItems.map((item) => (
+                            <div key={`featured-property-skeleton-${item}`} className="animate-pulse overflow-hidden rounded-[28px] bg-white">
+                                <div className="aspect-[4/3] bg-slate-100" />
+                                <div className="space-y-3 p-4">
+                                    <div className="h-5 w-3/4 rounded-full bg-slate-100" />
+                                    <div className="h-4 w-full rounded-full bg-slate-100" />
+                                    <div className="h-4 w-2/3 rounded-full bg-slate-100" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+                <section className="space-y-6">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                            <div className="h-7 w-28 animate-pulse rounded-full bg-slate-100" />
+                            <div className="h-7 w-32 animate-pulse rounded-full bg-slate-100" />
+                        </div>
+                        <div className="h-4 w-full max-w-[520px] animate-pulse rounded-full bg-slate-100" />
+                    </div>
+
+                    <div className="overflow-hidden rounded-[28px] bg-white">
+                        {propertySkeletonItems.map((item) => (
+                            <div key={`property-feed-skeleton-${item}`} className="overflow-hidden">
+                                <div className="animate-pulse lg:hidden">
+                                    <div className="flex items-stretch gap-2.5 px-3 pb-3 pt-3 sm:gap-4 sm:px-4 sm:pb-4 sm:pt-4">
+                                        <div className="grid w-[108px] flex-shrink-0 grid-rows-[auto_1fr] gap-1.5 sm:w-[132px] sm:pb-2">
+                                            <div className="aspect-square rounded-[16px_8px_8px_8px] bg-slate-100" />
+                                            <div className="grid grid-cols-3 gap-1">
+                                                <div className="aspect-square rounded-[4px] bg-slate-100" />
+                                                <div className="aspect-square rounded-[4px] bg-slate-100" />
+                                                <div className="aspect-square rounded-[4px] bg-slate-100" />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex min-w-0 flex-1 flex-col justify-between">
+                                            <div className="space-y-2 pt-0.5">
+                                                <div className="h-4 w-11/12 rounded-full bg-slate-100 sm:h-5" />
+                                                <div className="h-3.5 w-full rounded-full bg-slate-100" />
+                                                <div className="h-3.5 w-2/3 rounded-full bg-slate-100" />
+                                                <div className="flex flex-wrap gap-2 pt-1">
+                                                    <div className="h-5 w-24 rounded-full bg-slate-100 sm:h-6 sm:w-28" />
+                                                    <div className="h-4 w-16 rounded-full bg-slate-100 sm:w-20" />
+                                                </div>
+                                                <div className="h-3.5 w-1/2 rounded-full bg-slate-100" />
+                                            </div>
+
+                                            <div className="mt-2 flex items-center justify-between gap-2">
+                                                <div className="flex min-w-0 flex-1 items-center gap-2">
+                                                    <div className="h-3.5 w-20 rounded-full bg-slate-100 sm:w-24" />
+                                                    <div className="hidden h-3.5 w-24 rounded-full bg-slate-100 sm:block" />
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="h-8 w-8 rounded-lg bg-slate-100 sm:hidden" />
+                                                    <div className="h-3.5 w-10 rounded-full bg-slate-100" />
+                                                    <div className="h-8 w-8 rounded-lg bg-slate-100" />
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="flex justify-between items-center mt-auto">
-                                        <div className="h-4 w-24 bg-slate-100 animate-pulse rounded"></div>
-                                        <div className="h-4 w-12 bg-slate-100 animate-pulse rounded"></div>
-                                    </div>
-                                    <div className="flex justify-end items-center mt-auto">
-                                        <div className="w-6 h-6 bg-slate-100 animate-pulse rounded"></div>
+                                </div>
+
+                                <div className="hidden animate-pulse lg:block">
+                                    <div className="mx-auto flex w-full max-w-[1040px] gap-5 px-5 py-4">
+                                        <div className="h-[140px] w-[170px] flex-shrink-0 rounded-[14px] bg-slate-100" />
+                                        <div className="flex min-w-0 flex-1 flex-col justify-between">
+                                            <div className="space-y-3">
+                                                <div className="h-6 w-3/4 rounded-full bg-slate-100" />
+                                                <div className="h-4 w-full rounded-full bg-slate-100" />
+                                                <div className="h-4 w-2/3 rounded-full bg-slate-100" />
+                                                <div className="h-5 w-32 rounded-full bg-slate-100" />
+                                                <div className="h-4 w-40 rounded-full bg-slate-100" />
+                                            </div>
+                                            <div className="mt-4 flex items-center justify-between pt-3">
+                                                <div className="flex min-w-0 flex-1 items-center gap-2">
+                                                    <div className="h-4 w-24 rounded-full bg-slate-100" />
+                                                    <div className="h-4 w-28 rounded-full bg-slate-100" />
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="h-8 w-8 rounded-lg bg-slate-100" />
+                                                    <div className="h-4 w-20 rounded-full bg-slate-100" />
+                                                    <div className="h-4 w-10 rounded-full bg-slate-100" />
+                                                    <div className="h-8 w-8 rounded-lg bg-slate-100" />
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
-                </div>
+                </section>
             </div>
         </div>
     );
