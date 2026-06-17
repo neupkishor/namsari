@@ -50,6 +50,7 @@ export default async function HomePage() {
                 location: true,
                 images: true,
                 types: true,
+                natures: true,
                 features: true
             },
             orderBy: { created_on: 'desc' }

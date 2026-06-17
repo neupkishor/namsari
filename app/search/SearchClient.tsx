@@ -48,6 +48,7 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
         const selectedLocations = splitFilters(searchParams.get('locations'));
         const listedByFilter = (searchParams.get('listedBy') || '').trim().toLowerCase();
         const typeFilters = splitFilters(searchParams.get('types'));
+        const categoryFilter = (searchParams.get('category') || '').trim().toLowerCase();
         const sizeMin = searchParams.get('sizeMin');
         const sizeMax = searchParams.get('sizeMax');
         const sizeUnit = (searchParams.get('sizeUnit') || '').toLowerCase();
@@ -58,7 +59,7 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
         const minPrice = rawMinPrice ? Number(rawMinPrice) : null;
         const maxPrice = rawMaxPrice ? Number(rawMaxPrice) : null;
 
-        if (!q && selectedLocations.length === 0 && !listedByFilter && typeFilters.length === 0 && minSize === null && maxSize === null && minPrice === null && maxPrice === null) {
+        if (!q && selectedLocations.length === 0 && !listedByFilter && typeFilters.length === 0 && !categoryFilter && minSize === null && maxSize === null && minPrice === null && maxPrice === null) {
             return properties;
         }
 
@@ -77,12 +78,14 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
             const matchesListedBy = !listedByFilter || normalize(property.listedBy?.type) === listedByFilter;
             const propertyTypes = (property.property_types || []).map((item: string) => normalize(item));
             const matchesType = typeFilters.length === 0 || typeFilters.some((type) => propertyTypes.some((item: string) => item.includes(type) || type.includes(item)));
+            const propertyNatures = (property.property_natures || []).map((item: string) => normalize(item).replace(/\s+/g, '-'));
+            const matchesCategory = !categoryFilter || propertyNatures.some((item: string) => item === categoryFilter);
             const propertyArea = normalizeArea(property.features?.builtUpArea, property.features?.builtUpAreaUnit);
             const matchesSize = (minSize === null || propertyArea === null || propertyArea >= minSize) && (maxSize === null || propertyArea === null || propertyArea <= maxSize);
             const propertyPrice = Number(property.pricing?.price || property.price || NaN);
             const matchesPrice = (minPrice === null || Number.isNaN(propertyPrice) || propertyPrice >= minPrice) && (maxPrice === null || Number.isNaN(propertyPrice) || propertyPrice <= maxPrice);
 
-            return matchesQuery && matchesLocation && matchesListedBy && matchesType && matchesSize && matchesPrice;
+            return matchesQuery && matchesLocation && matchesListedBy && matchesType && matchesCategory && matchesSize && matchesPrice;
         });
     }, [properties, query, searchParams]);
 

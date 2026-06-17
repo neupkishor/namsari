@@ -988,6 +988,48 @@ type HomeClientProps = {
     categories?: any[];
     siteSettings?: SiteSettings | null;
     exploreCategoryStats?: {
+        byTypePurpose: {
+            house: { sale: number; rent: number };
+            land: { sale: number; rent: number };
+            building: { sale: number; rent: number };
+            apartment: { sale: number; rent: number };
+            flat: { sale: number; rent: number };
+            business: { sale: number; rent: number };
+            commercialSpace: { sale: number; rent: number };
+            officeSpace: { sale: number; rent: number };
+        };
+        byNatureTypePurpose: {
+            residential: {
+                house: { sale: number; rent: number };
+                land: { sale: number; rent: number };
+                building: { sale: number; rent: number };
+                apartment: { sale: number; rent: number };
+                flat: { sale: number; rent: number };
+                business: { sale: number; rent: number };
+                commercialSpace: { sale: number; rent: number };
+                officeSpace: { sale: number; rent: number };
+            };
+            commercial: {
+                house: { sale: number; rent: number };
+                land: { sale: number; rent: number };
+                building: { sale: number; rent: number };
+                apartment: { sale: number; rent: number };
+                flat: { sale: number; rent: number };
+                business: { sale: number; rent: number };
+                commercialSpace: { sale: number; rent: number };
+                officeSpace: { sale: number; rent: number };
+            };
+            'semi-commercial': {
+                house: { sale: number; rent: number };
+                land: { sale: number; rent: number };
+                building: { sale: number; rent: number };
+                apartment: { sale: number; rent: number };
+                flat: { sale: number; rent: number };
+                business: { sale: number; rent: number };
+                commercialSpace: { sale: number; rent: number };
+                officeSpace: { sale: number; rent: number };
+            };
+        };
         forSale: {
             house: number;
             land: number;
@@ -1021,6 +1063,56 @@ type HomeClientProps = {
                 commercialSpace: number;
                 officeSpace: number;
                 business: number;
+            };
+            byNatureType: {
+                residential: {
+                    purchaseByType: {
+                        house: number;
+                        land: number;
+                        apartment: number;
+                        business: number;
+                    };
+                    rentalByType: {
+                        flat: number;
+                        house: number;
+                        apartment: number;
+                        commercialSpace: number;
+                        officeSpace: number;
+                        business: number;
+                    };
+                };
+                commercial: {
+                    purchaseByType: {
+                        house: number;
+                        land: number;
+                        apartment: number;
+                        business: number;
+                    };
+                    rentalByType: {
+                        flat: number;
+                        house: number;
+                        apartment: number;
+                        commercialSpace: number;
+                        officeSpace: number;
+                        business: number;
+                    };
+                };
+                'semi-commercial': {
+                    purchaseByType: {
+                        house: number;
+                        land: number;
+                        apartment: number;
+                        business: number;
+                    };
+                    rentalByType: {
+                        flat: number;
+                        house: number;
+                        apartment: number;
+                        commercialSpace: number;
+                        officeSpace: number;
+                        business: number;
+                    };
+                };
             };
         };
     };
@@ -1208,28 +1300,56 @@ function PropertyCollectionsSection({ collections }: { collections?: any[] }) {
 
 function ExploreCategoriesSection({
     stats,
+    selectedCategory,
+    pathname,
+    searchParamsString,
 }: {
     stats: NonNullable<HomeClientProps['exploreCategoryStats']>;
+    selectedCategory: CategoryType | null;
+    pathname: string;
+    searchParamsString: string;
 }) {
+    const categoryLinks = [
+        { label: 'Residential', value: 'residential' },
+        { label: 'Commercial', value: 'commercial' },
+        { label: 'Semi Commercial', value: 'semi-commercial' },
+    ] as const;
+    const scopedStats = selectedCategory ? stats.byNatureTypePurpose[selectedCategory] : null;
+    const scopedRequirementStats = selectedCategory ? stats.requirements.byNatureType[selectedCategory] : null;
+    const withCategory = (href: string) => {
+        if (!selectedCategory) return href;
+        return `${href}${href.includes('?') ? '&' : '?'}category=${selectedCategory}`;
+    };
+    const getCategoryHref = (category: CategoryType) => {
+        const params = new URLSearchParams(searchParamsString);
+        if (selectedCategory === category) {
+            params.delete('category');
+        } else {
+            params.set('category', category);
+        }
+        const query = params.toString();
+        return query ? `${pathname}?${query}` : pathname;
+    };
+
     const propertyGroups: ExploreCategoryGroup[] = [
         {
             label: 'For Sale',
             items: [
-                { icon: '/icons/house-chimney.svg', label: 'House', count: stats.forSale.house ?? 0, href: '/search?purposes=sale&types=house' },
-                { icon: '/icons/land-location.svg', label: 'Land', count: stats.forSale.land ?? 0, href: '/search?purposes=sale&types=land' },
-                { icon: '/icons/apartment.svg', label: 'Apartment', count: stats.forSale.apartment ?? stats.forSale.building ?? 0, href: '/search?purposes=sale&types=apartment' },
-                { icon: '/icons/growth-chart-invest.svg', label: 'Commercial Buildings', count: stats.byTypePurpose.building.sale ?? 0, href: '/search?purposes=sale&types=building' },
+                { icon: '/icons/house-chimney.svg', label: 'House', count: scopedStats?.house.sale ?? stats.forSale.house ?? 0, href: withCategory('/search?purposes=sale&types=house') },
+                { icon: '/icons/land-location.svg', label: 'Land', count: scopedStats?.land.sale ?? stats.forSale.land ?? 0, href: withCategory('/search?purposes=sale&types=land') },
+                { icon: '/icons/apartment.svg', label: 'Apartment', count: scopedStats?.apartment.sale ?? stats.forSale.apartment ?? stats.forSale.building ?? 0, href: withCategory('/search?purposes=sale&types=apartment') },
+                { icon: '/icons/growth-chart-invest.svg', label: 'Commercial Buildings', count: scopedStats?.building.sale ?? stats.byTypePurpose.building.sale ?? 0, href: withCategory('/search?purposes=sale&types=building') },
             ],
         },
         {
             label: 'For Rent',
             items: [
-                { icon: '/icons/apartment.svg', label: 'Flat', count: stats.forRent.flat ?? 0, href: '/search?purposes=rent&types=flat' },
-                { icon: '/icons/house-chimney.svg', label: 'House', count: stats.forRent.house ?? 0, href: '/search?purposes=rent&types=house' },
-                { icon: '/icons/apartment.svg', label: 'Apartment', count: stats.forRent.apartment ?? 0, href: '/search?purposes=rent&types=apartment' },
-                { icon: '/icons/land-location.svg', label: 'Land', count: stats.byTypePurpose.land.rent ?? 0, href: '/search?purposes=rent&types=land' },
-                { icon: '/icons/note.svg', label: 'Office Space', count: stats.forRent.officeSpace ?? 0, href: '/search?purposes=rent&types=office-space' },
-                { icon: '/icons/growth-chart-invest.svg', label: 'Shop', count: stats.forRent.business ?? 0, href: '/search?purposes=rent&types=business' },
+                { icon: '/icons/apartment.svg', label: 'Flat', count: scopedStats?.flat.rent ?? stats.forRent.flat ?? 0, href: withCategory('/search?purposes=rent&types=flat') },
+                { icon: '/icons/house-chimney.svg', label: 'House', count: scopedStats?.house.rent ?? stats.forRent.house ?? 0, href: withCategory('/search?purposes=rent&types=house') },
+                { icon: '/icons/apartment.svg', label: 'Apartment', count: scopedStats?.apartment.rent ?? stats.forRent.apartment ?? 0, href: withCategory('/search?purposes=rent&types=apartment') },
+                { icon: '/icons/land-location.svg', label: 'Land', count: scopedStats?.land.rent ?? stats.byTypePurpose.land.rent ?? 0, href: withCategory('/search?purposes=rent&types=land') },
+                { icon: '/icons/note.svg', label: 'Office Space', count: scopedStats?.officeSpace.rent ?? stats.forRent.officeSpace ?? 0, href: withCategory('/search?purposes=rent&types=office-space') },
+                { icon: '/icons/growth-chart-invest.svg', label: 'Shop', count: scopedStats?.business.rent ?? stats.forRent.business ?? 0, href: withCategory('/search?purposes=rent&types=business') },
             ],
         },
     ];
@@ -1238,21 +1358,21 @@ function ExploreCategoriesSection({
         {
             label: 'For Sale',
             items: [
-                { icon: '/icons/house-chimney.svg', label: 'House', count: stats.requirements.purchaseByType?.house ?? 0, href: '/?tab=requirements&purpose=sale&type=house' },
-                { icon: '/icons/land-location.svg', label: 'Land', count: stats.requirements.purchaseByType?.land ?? 0, href: '/?tab=requirements&purpose=sale&type=land' },
-                { icon: '/icons/apartment.svg', label: 'Apartment', count: stats.requirements.purchaseByType?.apartment ?? 0, href: '/?tab=requirements&purpose=sale&type=apartment' },
-                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: stats.requirements.purchaseByType?.business ?? 0, href: '/?tab=requirements&purpose=sale&type=business' },
+                { icon: '/icons/house-chimney.svg', label: 'House', count: scopedRequirementStats?.purchaseByType.house ?? stats.requirements.purchaseByType?.house ?? 0, href: withCategory('/?tab=requirements&purpose=sale&type=house') },
+                { icon: '/icons/land-location.svg', label: 'Land', count: scopedRequirementStats?.purchaseByType.land ?? stats.requirements.purchaseByType?.land ?? 0, href: withCategory('/?tab=requirements&purpose=sale&type=land') },
+                { icon: '/icons/apartment.svg', label: 'Apartment', count: scopedRequirementStats?.purchaseByType.apartment ?? stats.requirements.purchaseByType?.apartment ?? 0, href: withCategory('/?tab=requirements&purpose=sale&type=apartment') },
+                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: scopedRequirementStats?.purchaseByType.business ?? stats.requirements.purchaseByType?.business ?? 0, href: withCategory('/?tab=requirements&purpose=sale&type=business') },
             ],
         },
         {
             label: 'For Rent',
             items: [
-                { icon: '/icons/apartment.svg', label: 'Flat', count: stats.requirements.rentalByType?.flat ?? 0, href: '/?tab=requirements&purpose=rent&type=flat' },
-                { icon: '/icons/house-chimney.svg', label: 'House', count: stats.requirements.rentalByType?.house ?? 0, href: '/?tab=requirements&purpose=rent&type=house' },
-                { icon: '/icons/apartment.svg', label: 'Apartment', count: stats.requirements.rentalByType?.apartment ?? 0, href: '/?tab=requirements&purpose=rent&type=apartment' },
-                { icon: '/icons/apartment.svg', label: 'Commercial Space', count: stats.requirements.rentalByType?.commercialSpace ?? 0, href: '/?tab=requirements&purpose=rent&type=commercial-space' },
-                { icon: '/icons/note.svg', label: 'Office Space', count: stats.requirements.rentalByType?.officeSpace ?? 0, href: '/?tab=requirements&purpose=rent&type=office-space' },
-                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: stats.requirements.rentalByType?.business ?? 0, href: '/?tab=requirements&purpose=rent&type=business' },
+                { icon: '/icons/apartment.svg', label: 'Flat', count: scopedRequirementStats?.rentalByType.flat ?? stats.requirements.rentalByType?.flat ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=flat') },
+                { icon: '/icons/house-chimney.svg', label: 'House', count: scopedRequirementStats?.rentalByType.house ?? stats.requirements.rentalByType?.house ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=house') },
+                { icon: '/icons/apartment.svg', label: 'Apartment', count: scopedRequirementStats?.rentalByType.apartment ?? stats.requirements.rentalByType?.apartment ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=apartment') },
+                { icon: '/icons/apartment.svg', label: 'Commercial Space', count: scopedRequirementStats?.rentalByType.commercialSpace ?? stats.requirements.rentalByType?.commercialSpace ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=commercial-space') },
+                { icon: '/icons/note.svg', label: 'Office Space', count: scopedRequirementStats?.rentalByType.officeSpace ?? stats.requirements.rentalByType?.officeSpace ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=office-space') },
+                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: scopedRequirementStats?.rentalByType.business ?? stats.requirements.rentalByType?.business ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=business') },
             ],
         },
     ];
@@ -1321,7 +1441,21 @@ function ExploreCategoriesSection({
         <section className="w-full space-y-10">
             <div className="mb-5 space-y-0.5">
                 <h2 className="text-lg font-bold text-slate-900">Browse by category</h2>
-                <p className="text-sm text-slate-400">Find what you&apos;re looking for.</p>
+                <div className="flex flex-wrap items-center gap-x-2 text-sm text-slate-400">
+                    <span>Browse</span>
+                    {categoryLinks.map((item, index) => (
+                        <React.Fragment key={item.label}>
+                            <span className="text-slate-300">|</span>
+                            <Link
+                                href={getCategoryHref(item.value)}
+                                className={`transition-colors hover:text-[color:var(--color-primary)] ${selectedCategory === item.value ? 'font-semibold text-[color:var(--color-primary)]' : ''}`}
+                            >
+                                {item.label}
+                            </Link>
+                        </React.Fragment>
+                    ))}
+                    <span>properties</span>
+                </div>
             </div>
 
             {renderGroups(propertyGroups, 'property')}
@@ -1329,7 +1463,21 @@ function ExploreCategoriesSection({
             <div className="space-y-5">
                 <div className="space-y-0.5">
                     <h2 className="text-lg font-bold text-slate-900">See what people are looking for</h2>
-                    <p className="text-sm text-slate-400">Browse active buyer and renter requirements.</p>
+                    <div className="flex flex-wrap items-center gap-x-2 text-sm text-slate-400">
+                        <span>Browse</span>
+                        {categoryLinks.map((item) => (
+                            <React.Fragment key={`requirements-${item.label}`}>
+                                <span className="text-slate-300">|</span>
+                                <Link
+                                    href={getCategoryHref(item.value)}
+                                    className={`transition-colors hover:text-[color:var(--color-primary)] ${selectedCategory === item.value ? 'font-semibold text-[color:var(--color-primary)]' : ''}`}
+                                >
+                                    {item.label}
+                                </Link>
+                            </React.Fragment>
+                        ))}
+                        <span>requirements</span>
+                    </div>
                 </div>
                 {renderGroups(requirementGroups, 'requirement')}
             </div>
@@ -1365,6 +1513,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
     const selectedRequirementTypes = selectedTypeFilters.filter((value) => value !== 'requirements' && value !== 'property');
     const selectedPurposeFilters = normalizeQueryList([queryFilters.get('purpose')]);
     const selectedFacingFilters = normalizeQueryList([queryFilters.get('facing')]);
+    const selectedCategoryFilter = normalizeQueryList([queryFilters.get('category')])[0] ?? null;
     const selectedLocationFilters = normalizeQueryList([
         queryFilters.get('location'),
         queryFilters.get('district'),
@@ -1378,11 +1527,13 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
     const hasMaxPriceFilter = Number.isFinite(maxPriceParam);
     const queryMinPrice = hasMinPriceFilter ? minPriceParam : null;
     const queryMaxPrice = hasMaxPriceFilter ? maxPriceParam : null;
-    const hasAnyFeedFilters = selectedRequirementTypes.length > 0 || selectedPurposeFilters.length > 0 || selectedFacingFilters.length > 0 || selectedLocationFilters.length > 0 || hasMinPriceFilter || hasMaxPriceFilter;
+    const hasAnyFeedFilters = selectedRequirementTypes.length > 0 || selectedPurposeFilters.length > 0 || selectedFacingFilters.length > 0 || selectedLocationFilters.length > 0 || Boolean(selectedCategoryFilter) || hasMinPriceFilter || hasMaxPriceFilter;
 
     const filteredRequirements = requirements.filter((requirement: any) => {
         if (!includesAny(collectNamedValues(requirement.propertyTypes ? requirement.propertyTypes.split(',') : []), selectedRequirementTypes)) return false;
         if (!includesAny(collectNamedValues(requirement.purposes ? requirement.purposes.split(',') : []), selectedPurposeFilters)) return false;
+        const requirementCategories = collectNamedValues(requirement.natures ? requirement.natures.split(',') : []).map((value) => value.replace(/\s+/g, '-'));
+        if (!includesAny(requirementCategories, selectedCategoryFilter ? [selectedCategoryFilter] : [])) return false;
         if (!includesAny(collectNamedValues(requirement.facings ? requirement.facings.split(',') : []), selectedFacingFilters)) return false;
         if (!matchesLocationParts([requirement.area, requirement.cityVillage, requirement.district], selectedLocationFilters)) return false;
 
@@ -1402,6 +1553,8 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
     const filteredProperties = properties.filter((property: any) => {
         if (!includesAny(collectNamedValues(property.types), selectedRequirementTypes)) return false;
         if (!includesAny(collectNamedValues(property.purposes), selectedPurposeFilters)) return false;
+        const propertyCategories = collectNamedValues(property.natures).map((value) => value.replace(/\s+/g, '-'));
+        if (!includesAny(propertyCategories, selectedCategoryFilter ? [selectedCategoryFilter] : [])) return false;
         if (!includesAny(normalizeQueryList([property.facingDirection, property.facing]), selectedFacingFilters)) return false;
         if (!matchesLocationParts([
             property.location?.area,
@@ -1416,6 +1569,12 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
         if (queryMaxPrice != null && Number.isFinite(priceValue) && priceValue > queryMaxPrice) return false;
 
         return true;
+    });
+
+    const visibleFeaturedCards = featuredCards.filter((property: any) => {
+        if (!selectedCategoryFilter) return true;
+        const propertyCategories = collectNamedValues(property.natures).map((value) => value.replace(/\s+/g, '-'));
+        return includesAny(propertyCategories, [selectedCategoryFilter]);
     });
 
     const visibleProperties = hasAnyFeedFilters && selectedFeedType === 'property' ? filteredProperties : properties;
@@ -1505,7 +1664,12 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                         <HomeSearchHero />
 
                         {exploreCategoryStats && siteSettings?.show_explore_categories !== false && (
-                            <ExploreCategoriesSection stats={exploreCategoryStats} />
+                            <ExploreCategoriesSection
+                                stats={exploreCategoryStats}
+                                selectedCategory={selectedCategoryFilter as CategoryType | null}
+                                pathname={pathname}
+                                searchParamsString={searchParams.toString()}
+                            />
                         )}
 
                         <div>
@@ -1530,7 +1694,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
 
                     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8 sm:gap-12 px-0.5 sm:px-6 lg:px-8 mt-8 sm:mt-12">
                         {/* Featured Properties Section (eSewa Style) */}
-                        {siteSettings?.show_featured_properties !== false && featuredCards.length > 0 && (
+                        {siteSettings?.show_featured_properties !== false && visibleFeaturedCards.length > 0 && (
                             <section className="w-full">
                                 <SectionTitleFeed
                                     title="Featured Properties"
@@ -1539,7 +1703,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                     ctaHref="/search"
                                 />
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                                    {featuredCards.slice(0, 4).map((prop: any) => (
+                                    {visibleFeaturedCards.slice(0, 4).map((prop: any) => (
                                         <FeaturedSmallCard key={prop.id} property={prop} />
                                     ))}
                                 </div>

@@ -38,14 +38,15 @@ export async function GET(request: Request) {
                         _count: { select: { listedProperties: true } }
                     }
                 },
-                location: true,
-                images: true,
-                types: true,
-                features: true,
-                comments: {
-                    include: { user: true },
-                    orderBy: { created_at: 'asc' }
-                },
+            location: true,
+            images: true,
+            types: true,
+            natures: true,
+            features: true,
+            comments: {
+                include: { user: true },
+                orderBy: { created_at: 'asc' }
+            },
                 property_likes: true
             },
             orderBy: { created_on: 'desc' },

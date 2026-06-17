@@ -35,6 +35,7 @@ export async function getBrowseProperties(limit = 60, options?: { onlyMappable?:
             openHouse: true,
             images: true,
             types: true,
+            natures: true,
             features: true,
             comments: {
                 include: { user: true },
@@ -74,6 +75,7 @@ export async function getBrowseProperties(limit = 60, options?: { onlyMappable?:
             longitude,
             images: property.images.map((img: any) => img.url),
             property_types: property.types.map((type: any) => type.name),
+            property_natures: property.natures.map((nature: any) => nature.name),
             specs,
             author_username: property.listedBy ? property.listedBy.username : null,
             author_name: property.listedBy ? property.listedBy.name : 'Unknown',
