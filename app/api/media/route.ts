@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 
@@ -44,25 +45,65 @@ export async function POST(request: Request) {
         }
     }
 
-    const media = await prisma.media.create({
-        data: {
-            uploaderId: Number(session.user.id),
-            url,
-            path: toNullableString((body as any).path),
-            uploadType,
-            originalName,
-            fileName,
-            mime: toNullableString((body as any).mime),
-            originalSize: toNullableNumber((body as any).originalSize),
-            compressedSize: toNullableNumber((body as any).compressedSize),
-            storedSize: toNullableNumber((body as any).storedSize),
-            sha256: toNullableString((body as any).sha256),
-            width: toNullableNumber((body as any).width),
-            height: toNullableNumber((body as any).height),
-            providerResponse: (body as any).providerResponse || undefined,
-            folderId: toNullableNumber((body as any).folderId),
-        },
-    });
+    let folderId = toNullableNumber((body as any).folderId);
+    if (folderId !== null) {
+        const folder = await prisma.mediaFolder.findUnique({
+            where: { id: folderId },
+            select: { id: true },
+        });
 
-    return NextResponse.json({ success: true, media });
+        if (!folder) {
+            folderId = null;
+        }
+    }
+
+    try {
+        const media = await prisma.media.create({
+            data: {
+                uploaderId: Number(session.user.id),
+                url,
+                path: toNullableString((body as any).path),
+                uploadType,
+                originalName,
+                fileName,
+                mime: toNullableString((body as any).mime),
+                originalSize: toNullableNumber((body as any).originalSize),
+                compressedSize: toNullableNumber((body as any).compressedSize),
+                storedSize: toNullableNumber((body as any).storedSize),
+                sha256: toNullableString((body as any).sha256),
+                width: toNullableNumber((body as any).width),
+                height: toNullableNumber((body as any).height),
+                providerResponse: (body as any).providerResponse || undefined,
+                folderId,
+            },
+        });
+
+        return NextResponse.json({ success: true, media });
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2003') {
+            const media = await prisma.media.create({
+                data: {
+                    uploaderId: Number(session.user.id),
+                    url,
+                    path: toNullableString((body as any).path),
+                    uploadType,
+                    originalName,
+                    fileName,
+                    mime: toNullableString((body as any).mime),
+                    originalSize: toNullableNumber((body as any).originalSize),
+                    compressedSize: toNullableNumber((body as any).compressedSize),
+                    storedSize: toNullableNumber((body as any).storedSize),
+                    sha256: toNullableString((body as any).sha256),
+                    width: toNullableNumber((body as any).width),
+                    height: toNullableNumber((body as any).height),
+                    providerResponse: (body as any).providerResponse || undefined,
+                    folderId: null,
+                },
+            });
+
+            return NextResponse.json({ success: true, media });
+        }
+
+        throw error;
+    }
 }

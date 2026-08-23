@@ -1,8 +1,25 @@
-const DEFAULT_UPLOADER_BASE_URL = '/uploader/upload.php';
-const AUTH_COOKIE_SYNC_ENDPOINT = '/api/auth/php-cookie';
+const DEFAULT_UPLOADER_BASE_URL = '/api/uploads';
 export function getUploaderBaseUrl() {
-    const configuredUrl = process.env.NEXT_PUBLIC_UPLOADER_URL || DEFAULT_UPLOADER_BASE_URL;
-    return configuredUrl;
+    return DEFAULT_UPLOADER_BASE_URL;
+}
+
+function getPublicUploadsBaseUrl() {
+    const assetsBase = process.env.NEXT_PUBLIC_ASSETS_URL;
+    if (assetsBase) {
+        return assetsBase.replace(/\/$/, '');
+    }
+
+    const uploaderBase = getUploaderBaseUrl();
+    if (uploaderBase.startsWith('http://') || uploaderBase.startsWith('https://')) {
+        const url = new URL(uploaderBase);
+        return `${url.origin}/assets`;
+    }
+
+    if (typeof window !== 'undefined' && window.location?.origin) {
+        return `${window.location.origin.replace(/\/$/, '')}/assets`;
+    }
+
+    return '';
 }
 
 export function buildUploaderUrl(type: string, fileField = 'file') {
@@ -20,19 +37,24 @@ export function buildUploaderUrl(type: string, fileField = 'file') {
 }
 
 export function resolveUploadedFileUrl(path?: string, url?: string) {
+    if (url) {
+        return url;
+    }
+
     if (path) {
         if (path.startsWith('http://') || path.startsWith('https://')) {
             return path;
         }
 
-        if (typeof window !== 'undefined' && window.location?.origin) {
-            return `${window.location.origin}${path}`;
+        const publicBaseUrl = getPublicUploadsBaseUrl();
+        if (publicBaseUrl) {
+            return `${publicBaseUrl}${path.startsWith('/') ? path : `/${path}`}`;
         }
 
         return path;
     }
 
-    return url || '';
+    return '';
 }
 
 export type UploadIntent = {
@@ -73,83 +95,74 @@ export async function createUploadIntent(file: File): Promise<UploadIntent> {
     };
 }
 
-export async function ensurePhpAuthCookie() {
-    const response = await fetch(AUTH_COOKIE_SYNC_ENDPOINT, {
-        method: 'POST',
-        credentials: 'include',
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-        throw new Error(data.error || 'Unauthorized');
-    }
-
-    return typeof data.token === 'string' ? data.token : '';
-}
-
 async function recordUploadedMedia(uploadType: string, file: File, originalFile: File, intent: UploadIntent, data: any, folderId?: number | null) {
     const path = data?.path || data?.file || '';
     const pathStr = path || '';
 
-    // Build a stable public URL for uploaded assets. Prefer provider `url` when present,
-    // otherwise expose via the `/assets` prefix as requested.
     let url = data?.url || '';
     if (!url && pathStr) {
-        const assetsBase = (typeof process !== 'undefined' && process.env && process.env.NEXT_PUBLIC_ASSETS_URL)
-            ? String(process.env.NEXT_PUBLIC_ASSETS_URL)
-            : undefined;
-        if (assetsBase) {
-            url = `${assetsBase.replace(/\/$/, '')}${pathStr}`;
-        } else if (typeof window !== 'undefined' && window.location?.origin) {
-            url = `${window.location.origin.replace(/\/$/, '')}/assets${pathStr}`;
-        } else {
-            url = pathStr;
-        }
+        url = resolveUploadedFileUrl(pathStr);
     }
 
     if (!url) {
         throw new Error('Unable to determine uploaded file URL');
     }
 
-    const response = await fetch('/api/media', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-            url,
-            path: pathStr || null,
-            uploadType,
-            originalName: originalFile.name,
-            fileName: data?.name || pathStr.split('/').filter(Boolean).pop() || file.name,
-            mime: data?.mime || file.type || null,
-            originalSize: originalFile.size,
-            compressedSize: file.size,
-            storedSize: typeof data?.size === 'number' ? data.size : file.size,
-            sha256: intent.sha256,
-            providerResponse: data || null,
-            folderId: folderId || null,
-        }),
-    });
+    const payload = {
+        url,
+        path: pathStr || null,
+        uploadType,
+        originalName: originalFile.name,
+        fileName: data?.name || pathStr.split('/').filter(Boolean).pop() || file.name,
+        mime: data?.mime || file.type || null,
+        originalSize: originalFile.size,
+        compressedSize: file.size,
+        storedSize: typeof data?.size === 'number' ? data.size : file.size,
+        sha256: intent.sha256,
+        providerResponse: data || null,
+    };
 
-    const body = await response.json().catch(() => null);
-    if (!response.ok) {
-        throw new Error(body?.error || body?.message || `Failed to record media (status ${response.status})`);
+    const createMediaRecord = async (nextFolderId: number | null) => {
+        const response = await fetch('/api/media', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                ...payload,
+                folderId: nextFolderId,
+            }),
+        });
+
+        const body = await response.json().catch(() => null);
+        return { response, body };
+    };
+
+    const initialResult = await createMediaRecord(folderId || null);
+    if (initialResult.response.ok) {
+        return initialResult.body;
     }
 
-    return body;
+    if (folderId !== null && folderId !== undefined && initialResult.response.status === 404) {
+        const fallbackResult = await createMediaRecord(null);
+        if (fallbackResult.response.ok) {
+            return fallbackResult.body;
+        }
+
+        throw new Error(fallbackResult.body?.error || fallbackResult.body?.message || `Failed to record media (status ${fallbackResult.response.status})`);
+    }
+
+    throw new Error(initialResult.body?.error || initialResult.body?.message || `Failed to record media (status ${initialResult.response.status})`);
 }
 
 export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
     const fileField = options.fileField || 'file';
     const originalFile = options.originalFile || options.file;
     options.onStatusChange?.('preparing');
-    const authToken = await ensurePhpAuthCookie();
     const intent = await createUploadIntent(options.file);
     const formData = options.formData || new FormData();
     formData.set(fileField, options.file);
-    formData.set('platform', String(formData.get('platform') || 'namsari'));
-    if (options.folderPath) {
-        formData.set('folder', options.folderPath);
-    }
+    formData.set('fileField', fileField);
+    formData.set('type', options.type);
     formData.set('upload_signature', intent.sha256);
     formData.set('upload_size', String(intent.size));
     formData.set('upload_name', intent.name);
@@ -162,9 +175,6 @@ export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', buildUploaderUrl(options.type, fileField));
             xhr.withCredentials = true;
-            if (authToken) {
-                xhr.setRequestHeader('Authorization', `Bearer ${authToken}`);
-            }
 
             xhr.upload.onprogress = (event) => {
                 if (!event.lengthComputable) return;
@@ -198,7 +208,6 @@ export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
 
     const response = await fetch(buildUploaderUrl(options.type, fileField), {
         method: 'POST',
-        headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
         body: formData,
         credentials: 'include',
     });

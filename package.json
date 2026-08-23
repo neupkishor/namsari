@@ -4,13 +4,17 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 6267",
+    "dev": "next dev -p 6267 --experimental-https",
     "build": "prisma generate && next build",
     "db:push": "prisma db push",
     "db:migrate:deploy": "prisma migrate deploy",
     "start": "next start -p 6267",
     "lint": "eslint",
-    "clean-install": "rm -rf node_modules node_modules/.prisma prisma/generated && npm install && npx prisma generate"
+    "clean-install": "rm -rf node_modules node_modules/.prisma prisma/generated && npm install && npx prisma generate",
+
+    "filebrowser:install": "chmod +x ./setup.sh && ./setup.sh",
+    "setup": "sudo filebrowser setup"
+
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
