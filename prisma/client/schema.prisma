@@ -1,0 +1,847 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  username        String?   @unique
+  name            String?
+  email           String?   @unique
+  emailVerified   DateTime?
+  image           String?
+  contact_number  String?
+  type            String    @default("user") // agency, self (user?), bank, agent, admin
+  bio             String?
+  profile_picture String?
+  cover_image     String?
+  status          String    @default("active") // active, warned, suspended, banned
+  moreInfo        String? // JSON: { suspensionCount, suspendedUntil, warnings: [] }
+  created_on      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  kyc KYC?
+
+  // Relations
+  listedProperties Property[]      @relation("ListedBy")
+  advertisements   Advertisement[]
+
+  comments     Comment[]
+  user_likes   Like[]
+  collections  Collection[]
+  requirements Requirement[]
+
+  // Agency Relation
+  agency_id Int?
+  agency    User?  @relation("AgencyAgents", fields: [agency_id], references: [id])
+  agents    User[] @relation("AgencyAgents")
+
+  // Notifications
+  notifications         Notification[]
+  errorLogs             ErrorLog[]
+  media                 Media[]
+  mediaFolders          MediaFolder[]
+  propertyDraftsCreated PropertyDraft[] @relation("PropertyDraftCreatedBy")
+  propertyDraftsAccount PropertyDraft[] @relation("PropertyDraftAccount")
+  agencyConfig          AgencyConfig?   @relation("AgencyConfig")
+
+  // Reviews
+  reviews_received Review[] @relation("ReviewReceiver")
+  reviews_written  Review[] @relation("ReviewAuthor")
+
+  // Permissions & Auth
+  roleId Int?
+  role   Role? @relation(fields: [roleId], references: [id])
+
+  permissionsGiven    UserPermission[] @relation("ResourceOwner")
+  permissionsReceived UserPermission[] @relation("Actor")
+
+  sessions Session[]
+
+  @@index([type])
+  @@map("users")
+}
+
+model PropertyDraft {
+  id         Int      @id @default(autoincrement())
+  changes    Json
+  doing      String   @default("creation") // creation, edit
+  created_by Int
+  createdBy  User     @relation("PropertyDraftCreatedBy", fields: [created_by], references: [id], onDelete: Cascade)
+  account_id Int
+  account    User     @relation("PropertyDraftAccount", fields: [account_id], references: [id], onDelete: Cascade)
+  status     String   @default("draft") // draft, published, discarded
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([account_id, status])
+  @@index([created_by])
+  @@map("property_drafts")
+}
+
+model AgencyConfig {
+  id                 Int      @id @default(autoincrement())
+  agencyId           Int      @unique @map("agency_id")
+  agency             User     @relation("AgencyConfig", fields: [agencyId], references: [id], onDelete: Cascade)
+  compulsoryFields   Json?    @map("compulsory_fields")
+  defUnits           Json?    @map("def_units")
+  reviewRequired     Boolean? @map("review_required")
+  defaultLocation    Json?    @map("default_location")
+  minPhotoCount      Int?     @map("min_photo_count")
+  canAgentChangeInfo Boolean? @map("can_agent_change_info")
+  canAgentDelete     Boolean? @map("can_agent_delete")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@map("agency_config")
+}
+
+model Account {
+  id                  String           @id @default(cuid())
+  type                AccountType
+  provider            AccountProvider?
+  provider_account_id String
+  refresh_token       String?
+  access_token        String?
+  password_hash       String?
+  role                Int?
+  rolePermission      RolePermission?  @relation(fields: [role], references: [id], onDelete: SetNull)
+
+  @@unique([provider, provider_account_id])
+  @@map("accounts")
+}
+
+enum AccountType {
+  user
+  agent
+  agency
+  admin
+  owner
+  advertiser
+  bank
+
+  @@map("account_type")
+}
+
+enum AccountProvider {
+  bank
+  agency
+
+  @@map("account_provider")
+}
+
+model UserPermission {
+  id Int @id @default(autoincrement())
+
+  ownerId Int // account_of
+  owner   User @relation("ResourceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  actorId Int // permit_to
+  actor   User @relation("Actor", fields: [actorId], references: [id], onDelete: Cascade)
+
+  permissions String // JSON string of permissions
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([ownerId, actorId])
+  @@map("permissions")
+}
+
+model Role {
+  id             Int                 @id @default(autoincrement())
+  role           String              @unique
+  description    String?
+  permissions    Json?
+  users          User[]
+  permissionMaps RolePermissionMap[]
+  created_at     DateTime            @default(now())
+  updated_at     DateTime            @updatedAt
+}
+
+model RolePermission {
+  id           Int                 @id @default(autoincrement())
+  resource     String // e.g., "blog", "user", "property"
+  action       String // "readOnly", "read&write", "read&write&delete", "read&delete"
+  accountRoles Account[]
+  roleMaps     RolePermissionMap[]
+
+  @@unique([resource, action])
+}
+
+model RolePermissionMap {
+  id            Int            @id @default(autoincrement())
+  role_id       Int
+  permission_id Int
+  role          Role           @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  permission    RolePermission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+  @@unique([role_id, permission_id])
+  @@map("role_permission_map")
+}
+
+model Review {
+  id      Int     @id @default(autoincrement())
+  rating  Int     @default(5)
+  comment String?
+
+  author_id Int
+  author    User @relation("ReviewAuthor", fields: [author_id], references: [id])
+
+  receiver_id Int
+  receiver    User @relation("ReviewReceiver", fields: [receiver_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model KYC {
+  id         Int      @id @default(autoincrement())
+  userId     Int      @unique
+  user       User     @relation(fields: [userId], references: [id])
+  name       String
+  email      String
+  phone      String
+  // Additional KYC fields
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Property {
+  id         Int     @id @default(autoincrement())
+  propertyId String? @unique // if unfilled (same as the id) - logic in app
+
+  // Relations for multi-selection
+  types    PropertyType[]
+  purposes PropertyPurpose[]
+  natures  PropertyNature[]
+
+  // Listing Data
+  isPrivate   Boolean @default(false)
+  status      String  @default("pending") // approved, pending, rejected, warned
+  soldStatus  String  @default("unsold") // soldByUs, soldByOther, unsold
+  isFeatured  Boolean @default(false)
+  isExclusive Boolean @default(false)
+  isVerified  Boolean @default(false)
+  remarks     String?
+
+  // Road and Entrance
+  roadType        String?
+  roadSize        String?
+  facingDirection String?
+
+  // Location Information
+  location PropertyLocation?
+
+  // Pricing Details
+  price         Json?
+  detailedPrice Json?
+
+  // Open House
+  openHouse PropertyOpenHouse?
+
+  // Specific Features (varying by property type)
+  features PropertyFeatures?
+
+  // Relations
+  images    PropertyImage[]
+  videos    PropertyVideo[]
+  media     Json?
+  mainMedia String?
+  amenities Json?
+
+  // Ownership Details
+  listedById Int
+  listedBy   User @relation("ListedBy", fields: [listedById], references: [id])
+
+  // Core metadata
+  title        String
+  slug         String?
+  locationData Json?
+  created_on   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  // Interactive
+  views            Int                   @default(0)
+  shares           Int                   @default(0)
+  comments         Comment[]
+  property_likes   Like[]
+  featured_history FeaturedInformation[]
+  collections      CollectionProperty[]
+}
+
+model PropertyType {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique // house, bungalow, land, apartment, commercial space, villa, penthouse
+  properties Property[]
+
+  // Cache for quick access
+  propertyCount Int      @default(0)
+  updated_at    DateTime @default(now()) @updatedAt
+}
+
+model PropertyPurpose {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique // sale, rent
+  properties Property[]
+}
+
+model PropertyNature {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique // commercial, semi commercial, residential, agricultural, industrial
+  properties Property[]
+}
+
+model PropertyFeatures {
+  id         Int      @id @default(autoincrement())
+  propertyId Int      @unique
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  // Residential/Building (House, Apartment)
+  bedrooms    Int?
+  bathrooms   Int?
+  kitchens    Int?
+  livingRooms Int?
+  floorNumber Int?
+  totalFloors Int?
+  furnishing  String? // Unfurnished, Semi-furnished, Full-furnished
+
+  // Size/Area details (Additional to Pricing)
+  builtUpArea     Float?
+  builtUpAreaUnit String? // sqft, sqm, aana, ropani
+
+  // Commercial/Space specific
+  parkingAvailable Boolean?
+  elevator         Boolean?
+  security         Boolean?
+  waterSupply      Boolean?
+  electricity      Boolean?
+}
+
+model PropertyLocation {
+  id         Int      @id @default(autoincrement())
+  propertyId Int      @unique
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  latitude     Float?
+  longitude    Float?
+  country      String  @default("Nepal")
+  province     String
+  district     String
+  cityVillage  String
+  area         String?
+  ward         String?
+  landmark     String?
+  distanceFrom String? // suggestions (swyambhunath, pashupatinath, fewataal, 0km, ringroad, bouddha, bhatbhateni)
+}
+
+model Location {
+  id       Int        @id @default(autoincrement())
+  name     String
+  type     String
+  parentId Int?       @map("parent_id")
+  parent   Location?  @relation("LocationTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children Location[] @relation("LocationTree")
+  details  Json?
+
+  @@unique([name, type, parentId])
+  @@index([parentId])
+  @@map("location")
+}
+
+model PropertyOpenHouse {
+  id         Int      @id @default(autoincrement())
+  propertyId Int      @unique
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  markOpenHouse Boolean   @default(false)
+  date          DateTime?
+  startTime     String?
+  endTime       String?
+  latitude      Float?
+  longitude     Float?
+}
+
+model PropertyImage {
+  id         Int      @id @default(autoincrement())
+  propertyId Int
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  url      String
+  imageOf  String // kitchen, bedroom, livingroom, etc.
+  filename String // title of the property + image of + uniqueIdentifier
+}
+
+model PropertyVideo {
+  id         Int      @id @default(autoincrement())
+  propertyId Int
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  url  String
+  type String // YouTube Video, Instagram Reel, Facebook Reel, YouTube Shorts, Tiktok Shorts
+}
+
+model Media {
+  id         Int  @id @default(autoincrement())
+  uploaderId Int
+  uploader   User @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+
+  url              String
+  path             String?
+  uploadType       String
+  originalName     String
+  fileName         String
+  mime             String?
+  originalSize     Int?
+  compressedSize   Int?
+  storedSize       Int?
+  sha256           String?
+  width            Int?
+  height           Int?
+  providerResponse Json?
+  folderId         Int?
+  folder           MediaFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([uploaderId])
+  @@index([folderId])
+  @@index([uploadType])
+  @@index([createdAt])
+}
+
+model MediaFolder {
+  id          Int           @id @default(autoincrement())
+  name        String
+  slug        String
+  fullPath    String        @unique
+  parentId    Int?
+  parent      MediaFolder?  @relation("MediaFolderChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  children    MediaFolder[] @relation("MediaFolderChildren")
+  media       Media[]
+  createdById Int
+  createdBy   User          @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([parentId, slug])
+  @@index([parentId])
+  @@index([createdById])
+}
+
+model FeaturedInformation {
+  id            Int       @id @default(autoincrement())
+  property_id   Int
+  property      Property  @relation(fields: [property_id], references: [id])
+  is_active     Boolean   @default(true)
+  featured_on   DateTime  @default(now())
+  featured_till DateTime?
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  content    String
+  created_at DateTime @default(now())
+
+  property_id Int
+  property    Property @relation(fields: [property_id], references: [id])
+
+  user_id Int
+  user    User @relation(fields: [user_id], references: [id])
+}
+
+model Like {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now())
+
+  property_id Int
+  property    Property @relation(fields: [property_id], references: [id])
+
+  user_id Int
+  user    User @relation(fields: [user_id], references: [id])
+
+  @@unique([property_id, user_id])
+}
+
+model Agency {
+  id              Int     @id @default(autoincrement())
+  name            String
+  username        String  @unique
+  profile_picture String?
+  email           String?
+  phone           String?
+  bio             String?
+  website         String?
+
+  // Social Medias
+  facebook  String?
+  instagram String?
+  twitter   String?
+  linkedin  String?
+
+  // Status
+  is_verified Boolean @default(false)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model SystemSettings {
+  id                       Int      @id @default(1)
+  view_mode                String   @default("classic") // classic, social
+  show_like_button         Boolean  @default(true)
+  show_share_button        Boolean  @default(true)
+  show_comment_button      Boolean  @default(true)
+  show_contact_agent       Boolean  @default(true)
+  show_featured_properties Boolean  @default(true)
+  show_sponsored_deals     Boolean  @default(true)
+  show_property_collection Boolean  @default(true)
+  show_explore_categories  Boolean  @default(true)
+  show_hero_carousel_ad    Boolean  @default(true)
+  show_feed_ad             Boolean  @default(true)
+  homepage_config          String? // JSON: HomepageSection[]
+  updated_at               DateTime @updatedAt
+}
+
+model AboutContent {
+  id          Int      @id @default(1)
+  title       String   @default("About Namsari")
+  description String?
+  mission     String?
+  vision      String?
+  standard    String?
+  group_info  String?
+  content     String?
+  updated_at  DateTime @updatedAt
+}
+
+model Collection {
+  id          Int     @id @default(autoincrement())
+  name        String
+  slug        String  @unique @default(cuid())
+  description String?
+  type        String  @default("user_generated") // user_generated, system_generated
+
+  // For system generated collections, we store filter conditions here as JSON
+  moreInfo String? // JSON string for conditions: { type, nature, purpose, priceMin, priceMax, unit, etc. }
+
+  is_public  Boolean  @default(true)
+  view_mode  String   @default("classic") // classic, social
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user_id Int
+  user    User @relation(fields: [user_id], references: [id])
+
+  properties CollectionProperty[]
+}
+
+model CollectionProperty {
+  id            Int        @id @default(autoincrement())
+  collection_id Int
+  collection    Collection @relation(fields: [collection_id], references: [id], onDelete: Cascade)
+
+  property_id Int
+  property    Property @relation(fields: [property_id], references: [id], onDelete: Cascade)
+
+  added_at DateTime @default(now())
+
+  @@unique([collection_id, property_id])
+}
+
+model Requirement {
+  id     Int   @id @default(autoincrement())
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id])
+
+  mode    String  @default("simple") // simple, detailed
+  content String? // For simple mode
+
+  // Detailed Mode Fields
+  propertyTypes String? // Comma separated list
+  purposes      String? // Comma separated list
+  natures       String? // Comma separated list
+  facings       String? // Comma separated list
+  district      String?
+  cityVillage   String?
+  area          String?
+  roadAccess    String?
+  minPrice      Float?
+  maxPrice      Float?
+  pricingUnit   String?
+  latitude      Float?
+  longitude     Float?
+  remarks       String?
+
+  is_public  Boolean  @default(true)
+  status     String   @default("active")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Subscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SearchTerm {
+  id            Int      @id @default(autoincrement())
+  term          String   @unique
+  count         Int      @default(1)
+  last_searched DateTime @updatedAt
+}
+
+model JobListing {
+  id                Int              @id @default(autoincrement())
+  title             String
+  slug              String           @unique
+  department        String
+  location          String
+  type              String // Full-time, Part-time, Contract, etc.
+  description       String
+  requirements      String?
+  salary_range      String?
+  application_steps String?          @default("[]") // JSON string of steps and questions
+  status            String           @default("open") // open, closed, draft
+  created_at        DateTime         @default(now())
+  updated_at        DateTime         @updatedAt
+  applications      JobApplication[]
+}
+
+model JobApplication {
+  id                 Int        @id @default(autoincrement())
+  application_for_id Int
+  application_for    JobListing @relation(fields: [application_for_id], references: [id])
+  applicant_name     String
+  applicant_email    String
+  applicant_phone    String
+  resume_url         String?
+  cover_letter       String?
+  moreinformation    String?    @default("[]")
+  status             String     @default("pending") // pending, reviewed, rejected, hired
+  created_at         DateTime   @default(now())
+}
+
+model SupportArticle {
+  id         Int      @id @default(autoincrement())
+  title      String
+  slug       String   @unique
+  category   String // General, Technical, Billing, etc.
+  content    String // Markdown or HTML
+  emoji      String?
+  status     String   @default("published") // published, draft
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model BlogPost {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  content     String // HTML content
+  excerpt     String?
+  cover_image String?
+  category    String?
+  author      String? // Simple text field for the author's name
+  status      String   @default("draft") // draft, published
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model Bank {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique @default(cuid())
+  name        String
+  icon        String?
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  rates BankRate[]
+}
+
+model BankRate {
+  id            Int       @id @default(autoincrement())
+  bank_id       Int
+  bank          Bank      @relation(fields: [bank_id], references: [id], onDelete: Cascade)
+  interest_from DateTime
+  interest      Float
+  interest_to   DateTime?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+}
+
+model Advertisement {
+  id             Int     @id @default(autoincrement())
+  title          String? // Title for internal reference
+  image          String // URL of the advertisement image
+  link           String? // Redirect URL (renamed from takes_to for clarity)
+  isSponsoredRel Boolean @default(true)
+
+  // Relations
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id])
+
+  // Status & Approval
+  status          String  @default("pending") // pending, approved, rejected, active, paused, ended
+  rejectionReason String?
+
+  // Placement & Configuration
+  position String @default("feed") // feed, sidebar, banner_top
+
+  // Budget & Duration
+  budget       Float?
+  durationDays Int?
+  targetViews  Int? // Calculated limit
+  startDate    DateTime?
+  endDate      DateTime?
+
+  // Stats (Aggregated for quick access)
+  views  Int @default(0)
+  clicks Int @default(0)
+
+  // Detailed Tracking
+  impressions AdImpression[]
+  ad_clicks   AdClick[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model AdRate {
+  id          Int      @id @default(autoincrement())
+  name        String // e.g. "Standard Feed", "Premium Banner"
+  description String?
+  price       Float
+  duration    Int // in days
+  position    String // feed, sidebar, banner_top
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model AdImpression {
+  id   Int           @id @default(autoincrement())
+  adId Int
+  ad   Advertisement @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  viewerId  Int? // If logged in
+  sessionId String? // For anonymous tracking
+  device    String? // mobile, desktop, tablet
+  userAgent String?
+  ipAddress String?
+
+  created_at DateTime @default(now())
+
+  @@index([adId, created_at])
+}
+
+model AdClick {
+  id   Int           @id @default(autoincrement())
+  adId Int
+  ad   Advertisement @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  viewerId  Int?
+  sessionId String?
+  userAgent String?
+
+  created_at DateTime @default(now())
+
+  @@index([adId, created_at])
+}
+
+model Visitor {
+  id         Int      @id @default(autoincrement())
+  session_id String // Cookie ID
+  page_url   String
+  user_agent String?
+  ip_address String? // Anonymized or hashed if needed
+  created_at DateTime @default(now())
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       Int
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Custom fields from old session
+  sessionKey  String?
+  operatingId Int? // If null, operating as self
+  ipAddress   String?
+  userAgent   String?
+  lastActive  DateTime @updatedAt
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Notification {
+  id     Int  @id @default(autoincrement())
+  userId Int // Recipient
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title   String
+  message String
+  type    String // system, invite, exclusive_request, info
+
+  // Action related (e.g. for invites)
+  actionLink String?
+  actionId   Int? // e.g. agencyId or memberId
+
+  isRead     Boolean  @default(false)
+  created_at DateTime @default(now())
+}
+
+model ActivityLog {
+  id              String   @id @default(cuid())
+  temp_account_id String
+  account_id      Int?
+  activity_on     DateTime @default(now())
+  activity_type   String
+  description     String
+
+  // Metadata for tracking
+  ip_address  String?
+  user_agent  String?
+  device_type String? // mobile, tablet, desktop
+}
+
+model ErrorLog {
+  id          String   @id @default(cuid())
+  message     String
+  source      String
+  page        String?
+  stack       String?
+  log         Json?
+  occurred_at DateTime @default(now())
+  created_at  DateTime @default(now())
+
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([occurred_at])
+  @@index([source])
+  @@index([userId])
+  @@map("errors")
+}
