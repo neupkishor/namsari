@@ -14,7 +14,6 @@
 
     "filebrowser:install": "chmod +x ./setup.sh && ./setup.sh",
     "setup": "sudo filebrowser setup"
-
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

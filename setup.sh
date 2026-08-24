@@ -3,7 +3,7 @@
 set -e
 
 REPO="gtsteffaniak/filebrowser"
-INSTALL_PATH="/usr/local/bin/filebrowser"
+INSTALL_PATH="/home/ubuntu/filebrowser"
 
 echo "Installing FileBrowser Quantum..."
 
