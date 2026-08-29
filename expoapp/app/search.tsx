@@ -3,7 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Header } from '@/components/elements/Header';
+import { Header } from '@/.neup/components/elements/Header';
 import { Chevron } from '@/components/ui/chevron';
 
 import { Text } from '#/components/ui/text';

@@ -1,4 +1,4 @@
-import { Text as NativeText, type TextProps as NativeTextProps } from 'react-native';
+import { Text as NativeText, type TextProps as NativeTextProps, type TextStyle } from 'react-native';
 
 import fonts from '$/fonts.json';
 import { ThemeColor } from '$/theme';
@@ -50,7 +50,7 @@ export function Text({
           fontFamily: font.file,
           fontSize: size ?? font.size,
           lineHeight: lineHeight ?? font.lineHeight,
-          fontWeight: font.weight,
+          fontWeight: font.weight as TextStyle['fontWeight'],
         },
         style,
       ]}

@@ -127,3 +127,12 @@ export async function clearAuthSession() {
   }
   await SecureStore.deleteItemAsync(SESSION_KEY);
 }
+
+export async function bridgeRequest<T>(session: AuthSession, path: string, method: 'GET' | 'POST' | 'PATCH', body?: unknown): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}/bridge/api.v1/${path}`, { method, headers: { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: `Bearer ${session.token}` }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+  const data = await response.json().catch(() => null);
+  if (!response.ok) throw new AuthRequestError(data && typeof data.error === 'string' ? data.error : 'Request failed');
+  return data as T;
+}
+
+export async function updateStoredProfile(session: AuthSession, profile: Partial<AuthProfile>) { await saveAuthSession({ ...session, profile: { ...session.profile, ...profile } }); }

@@ -42,7 +42,6 @@ export default function TabLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="property/[id]" />
         <Stack.Screen name="search" />
-        <Stack.Screen name="maps" />
         <Stack.Screen name="auth/signin" />
         <Stack.Screen name="auth/signup" />
         <Stack.Screen name="@/[username]" />

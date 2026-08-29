@@ -3,7 +3,7 @@ import { Link, router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Header } from '@/components/elements/Header';
+import { Header } from '#/components/elements/Header';
 
 import { Text as Text } from '#/components/ui/text';
 import { ThemedView } from '@/components/themed-view';

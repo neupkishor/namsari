@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Header } from '@/components/elements/Header';
+import { Header } from '@/.neup/components/elements/Header';
 import { Chevron } from '@/components/ui/chevron';
 
 import { Text } from '#/components/ui/text';
@@ -19,7 +19,7 @@ const accountItems = [
   { icon: '♡', title: 'Saved properties', subtitle: 'Keep track of properties you love', href: '/saved-properties' as const },
   { icon: '⌂', title: 'My listings', subtitle: 'Manage your posted properties', href: '/my-listings' as const },
   { icon: '◷', title: 'Recently viewed', subtitle: 'Continue where you left off' },
-  { icon: '⚙', title: 'Account settings', subtitle: 'Profile, security and preferences' },
+  { icon: '⚙', title: 'Account settings', subtitle: 'Profile, security and preferences', href: '/account-settings' as const },
 ];
 
 export default function ProfileScreen() {
@@ -49,7 +49,7 @@ export default function ProfileScreen() {
     return () => { active = false; };
   }, [session, userId]);
 
-  const openAccountItem = (href?: '/saved-properties' | '/my-listings') => {
+  const openAccountItem = (href?: '/saved-properties' | '/my-listings' | '/account-settings') => {
     if (!href) return;
     router.push(session ? href : '/auth/signin');
   };
