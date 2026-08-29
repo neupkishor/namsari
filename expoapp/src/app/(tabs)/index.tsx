@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { Link, router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, RefreshControl, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -9,7 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useAuthSession } from '@/hooks/use-auth-session';
 import { getSessionUserId } from '@/lib/auth';
-import { interactWithProperty } from '@/lib/property-interactions';
+import { getPendingLikeToggles, interactWithProperty } from '@/lib/property-interactions';
 
 const colors = { primary: '#820000', primarySoft: '#F9EEEE', gold: '#B8960C', ink: '#191413', muted: '#786E6B', line: '#EDE6E3', paper: '#FBF8F6', white: '#FFFFFF' };
 
@@ -84,7 +84,15 @@ export default function HomeScreen() {
       const loadedProperties = data as ApiProperty[];
       setProperties(loadedProperties);
       if (userId) {
-        setLikedPropertyIds(new Set(loadedProperties.filter((property) => property.property_likes?.some((like) => like.user_id === userId)).map((property) => property.id)));
+        const pending = await getPendingLikeToggles(userId);
+        const pendingByProperty = new Map(pending.map((item) => [item.propertyId, item.toggleCount]));
+        setLikedPropertyIds(new Set(loadedProperties.filter((property) => {
+          const likedOnline = Boolean(property.property_likes?.some((like) => like.user_id === userId));
+          const pendingToggle = (pendingByProperty.get(property.id) || 0) % 2 === 1;
+          return pendingToggle ? !likedOnline : likedOnline;
+        }).map((property) => property.id)));
+      } else {
+        setLikedPropertyIds(new Set());
       }
     } catch (error) {
       setPropertyError(error instanceof Error ? error.message : 'Unable to load properties');
@@ -104,15 +112,23 @@ export default function HomeScreen() {
     if (pendingLikeIds.has(propertyId)) return;
 
     setPendingLikeIds((current) => new Set(current).add(propertyId));
+    setLikedPropertyIds((current) => {
+      const next = new Set(current);
+      next.has(propertyId) ? next.delete(propertyId) : next.add(propertyId);
+      return next;
+    });
     try {
-      const result = await interactWithProperty(propertyId, 'like', session);
-      setLikedPropertyIds((current) => {
-        const next = new Set(current);
-        result.liked ? next.add(propertyId) : next.delete(propertyId);
-        return next;
-      });
-    } catch (requestError) {
-      Alert.alert('Could not update property', requestError instanceof Error ? requestError.message : 'Please try again.');
+      const property = properties.find((item) => item.id === propertyId);
+      const result = await interactWithProperty(propertyId, 'like', session, property as Record<string, unknown> | undefined);
+      if (!result.queued && typeof result.liked === 'boolean') {
+        setLikedPropertyIds((current) => {
+          const next = new Set(current);
+          result.liked ? next.add(propertyId) : next.delete(propertyId);
+          return next;
+        });
+      }
+    } catch {
+      // Failed requests are retained locally and retried later.
     } finally {
       setPendingLikeIds((current) => {
         const next = new Set(current);

@@ -9,9 +9,11 @@ import {
   useFonts,
 } from '@expo-google-fonts/poppins';
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { useEffect } from 'react';
+import { AppState, useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
+import { flushInteractionQueue } from '@/lib/property-interactions';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -25,6 +27,18 @@ export default function TabLayout() {
     Poppins_800ExtraBold,
     Poppins_900Black,
   });
+
+  useEffect(() => {
+    void flushInteractionQueue();
+    const interval = setInterval(() => { void flushInteractionQueue(); }, 30_000);
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') void flushInteractionQueue();
+    });
+    return () => {
+      clearInterval(interval);
+      subscription.remove();
+    };
+  }, []);
 
   if (!fontsLoaded) return null;
 

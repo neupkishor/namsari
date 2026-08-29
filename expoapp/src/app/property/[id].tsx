@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Pressable, RefreshControl, ScrollView, Share, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, RefreshControl, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -9,7 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth } from '@/constants/theme';
 import { useAuthSession } from '@/hooks/use-auth-session';
 import { getSessionUserId } from '@/lib/auth';
-import { interactWithProperty } from '@/lib/property-interactions';
+import { getPendingLikeToggles, interactWithProperty } from '@/lib/property-interactions';
 
 const API_BASE_URL = 'https://namsari.com';
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1200&q=80';
@@ -104,7 +104,14 @@ export default function PropertyDetailScreen() {
       }
       if (!match) throw new Error('This property could not be found');
       setProperty(match);
-      setIsLiked(Boolean(userId && match.property_likes?.some((like) => like.user_id === userId)));
+      if (userId) {
+        const pending = await getPendingLikeToggles(userId);
+        const pendingToggle = (pending.find((item) => item.propertyId === match.id)?.toggleCount || 0) % 2 === 1;
+        const likedOnline = Boolean(match.property_likes?.some((like) => like.user_id === userId));
+        setIsLiked(pendingToggle ? !likedOnline : likedOnline);
+      } else {
+        setIsLiked(false);
+      }
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Unable to load this property');
     } finally {
@@ -142,11 +149,12 @@ export default function PropertyDetailScreen() {
     }
     if (likePending) return;
     setLikePending(true);
+    setIsLiked((current) => !current);
     try {
-      const result = await interactWithProperty(property.id, 'like', session);
-      setIsLiked(Boolean(result.liked));
-    } catch (requestError) {
-      Alert.alert('Could not update property', requestError instanceof Error ? requestError.message : 'Please try again.');
+      const result = await interactWithProperty(property.id, 'like', session, property as Record<string, unknown>);
+      if (!result.queued && typeof result.liked === 'boolean') setIsLiked(result.liked);
+    } catch {
+      // Failed requests are retained locally and retried later.
     } finally {
       setLikePending(false);
     }
