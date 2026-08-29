@@ -16,7 +16,23 @@ export async function GET() {
             ],
         });
 
-        return NextResponse.json({ locations });
+        const provinces = locations
+            .filter((location) => location.type.toLowerCase() === 'province')
+            .map((province) => ({
+                id: province.id,
+                name: province.name,
+                districts: locations
+                    .filter((district) => district.parentId === province.id && district.type.toLowerCase() === 'district')
+                    .map((district) => ({
+                        id: district.id,
+                        name: district.name,
+                        cities: locations
+                            .filter((city) => city.parentId === district.id && ['city', 'village', 'city/village'].includes(city.type.toLowerCase()))
+                            .map(({ id, name }) => ({ id, name })),
+                    })),
+            }));
+
+        return NextResponse.json({ provinces, locations });
     } catch (error) {
         console.error('Failed to load locations:', error);
         return NextResponse.json({ error: 'Failed to load locations' }, { status: 500 });
