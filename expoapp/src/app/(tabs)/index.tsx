@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useAuthSession } from '@/hooks/use-auth-session';
 
 const colors = { primary: '#820000', primarySoft: '#F9EEEE', gold: '#B8960C', ink: '#191413', muted: '#786E6B', line: '#EDE6E3', paper: '#FBF8F6', white: '#FFFFFF' };
 
@@ -52,7 +53,13 @@ function getPropertyLocation(property: ApiProperty) {
   return [property.locationData?.area, property.locationData?.cityVillage, property.locationData?.district].filter(Boolean).join(', ') || 'Nepal';
 }
 
+function getInitials(name?: string | null) {
+  const initials = name?.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('');
+  return initials?.toUpperCase() || 'N';
+}
+
 export default function HomeScreen() {
+  const { session } = useAuthSession();
   const [searchQuery, setSearchQuery] = useState('');
   const [properties, setProperties] = useState<ApiProperty[]>([]);
   const [isLoadingProperties, setIsLoadingProperties] = useState(true);
@@ -84,7 +91,9 @@ export default function HomeScreen() {
       <SafeAreaView edges={['top']} style={styles.safeArea}>
         <View style={styles.header}>
           <View><ThemedText style={styles.brand}>Namsari<ThemedText style={styles.brandGold}>.</ThemedText></ThemedText><ThemedText style={styles.brandCaption}>PROPERTY, SIMPLIFIED</ThemedText></View>
-          <Pressable accessibilityLabel="Open profile" style={styles.avatar} onPress={() => router.push('/profile')}><ThemedText style={styles.avatarText}>NK</ThemedText></Pressable>
+          <Pressable accessibilityLabel="Open profile" style={styles.headerProfile} onPress={() => router.push('/profile')}>
+            {session?.profile.image ? <Image source={{ uri: session.profile.image }} style={styles.headerAvatarImage} contentFit="cover" alt={`${session.profile.name || 'User'} profile`} /> : <View style={styles.avatar}><ThemedText style={styles.avatarText}>{getInitials(session?.profile.name)}</ThemedText></View>}
+          </Pressable>
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} contentInsetAdjustmentBehavior="automatic" refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={() => void loadProperties(true)} tintColor={colors.primary} colors={[colors.primary]} />}>
@@ -149,6 +158,7 @@ const styles = StyleSheet.create({
   brand: { color: colors.primary, fontSize: 24, lineHeight: 28, fontWeight: '900', letterSpacing: -1 }, brandGold: { color: colors.gold, fontSize: 24, lineHeight: 28, fontWeight: '900' },
   brandCaption: { color: colors.muted, fontSize: 8, lineHeight: 12, fontWeight: '800', letterSpacing: 2 },
   avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#EEDAD8' }, avatarText: { color: colors.primary, fontSize: 12, lineHeight: 16, fontWeight: '800' },
+  headerProfile: { width: 40, height: 40, borderRadius: 20 }, headerAvatarImage: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primarySoft },
   hero: { marginHorizontal: 12, borderRadius: 30, backgroundColor: colors.primary, paddingHorizontal: 22, paddingTop: 32, paddingBottom: 20, overflow: 'hidden' },
   heroGlow: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: '#A93030', opacity: 0.52, right: -90, top: -100 },
   eyebrow: { color: '#E7C668', fontSize: 10, lineHeight: 14, fontWeight: '800', letterSpacing: 1.6 }, heroTitle: { color: colors.white, fontSize: 34, lineHeight: 39, fontWeight: '800', letterSpacing: -1.1, maxWidth: 510, marginTop: 10 }, heroCopy: { color: '#EBDDDD', fontSize: 15, lineHeight: 22, maxWidth: 470, marginTop: 10 },

@@ -44,6 +44,7 @@ export function createApiToken(user: {
 export function successResponse(method: 'signup' | 'signin', user: {
     id: number;
     name: string | null;
+    username: string | null;
     email: string | null;
     contact_number: string | null;
     image: string | null;
@@ -55,7 +56,9 @@ export function successResponse(method: 'signup' | 'signin', user: {
         method,
         token: createApiToken(user),
         profile: {
+            id: user.id,
             name: user.name,
+            username: user.username,
             email: user.email,
             phone: user.contact_number,
             image: user.image || user.profile_picture,

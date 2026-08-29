@@ -39,6 +39,8 @@ export default function TabLayout() {
         <Stack.Screen name="auth/signin" />
         <Stack.Screen name="auth/signup" />
         <Stack.Screen name="@/[username]" />
+        <Stack.Screen name="saved-properties" />
+        <Stack.Screen name="my-listings" />
       </Stack>
     </ThemeProvider>
   );
