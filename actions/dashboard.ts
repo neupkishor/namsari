@@ -2,7 +2,12 @@
 
 import prisma from '@/lib/prisma';
 import { getCurrentUser, getSession } from '@/lib/auth';
-import { User } from '@prisma/client';
+
+type DashboardAgency = { id: number; type: string };
+type DashboardBank = {
+    name: string;
+    rates: Array<{ interest: unknown; created_at: Date }>;
+};
 
 // Helper to calculate date ranges
 const getDateRange = (days: number) => {
@@ -128,19 +133,19 @@ export async function getDashboardStats() {
         include: { owner: true }
     });
     
-    let agencies = permissions.map(p => p.owner);
+    let agencies: DashboardAgency[] = permissions.map((p: { owner: DashboardAgency }) => p.owner);
     // If user is agency, include self if not already in list
     if (user.type === 'agency' && !agencies.find(a => a.id === user.id)) {
         agencies.push(user);
     }
 
-    const agenciesStats = await Promise.all(agencies.map(async (agency) => {
+    const agenciesStats = await Promise.all(agencies.map(async (agency: DashboardAgency) => {
         // Find all agents of this agency
         const agents = await prisma.user.findMany({
             where: { agency_id: agency.id },
             select: { id: true }
         });
-        const agentIds = agents.map(a => a.id);
+        const agentIds = agents.map((a: { id: number }) => a.id);
         const memberIds = [agency.id, ...agentIds];
 
         const stats = await fetchScopeStats({
@@ -218,7 +223,7 @@ export async function getDashboardStats() {
          const banks = await prisma.bank.findMany({
              include: { rates: { orderBy: { created_at: 'desc' }, take: 1 } }
          });
-         const bankStats = banks.map((b) => ({
+         const bankStats = banks.map((b: DashboardBank) => ({
              name: b.name,
              currentRate: b.rates[0]?.interest || 'N/A',
              lastChange: b.rates[0]?.created_at || 'N/A'

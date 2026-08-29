@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { Prisma } from '@prisma/client';
 
 export async function toggleFeatured(propertyId: number) {
     const property = await prisma.property.findUnique({
@@ -13,7 +14,7 @@ export async function toggleFeatured(propertyId: number) {
     const newStatus = !property.isFeatured;
 
     // Use a transaction to ensure database consistency
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         // 1. Update the property status
         await (tx as any).property.update({
             where: { id: propertyId },

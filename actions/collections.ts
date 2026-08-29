@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { Prisma } from '@prisma/client';
 
 type CollectionCriteria = {
     types: string[];
@@ -20,6 +21,15 @@ type CollectionCriteria = {
     isFeatured?: boolean;
     isExclusive?: boolean;
     isVerified?: boolean;
+};
+
+type CollectionCandidate = {
+    id: number;
+    price: unknown;
+    features: {
+        bedrooms: number | null;
+        bathrooms: number | null;
+    } | null;
 };
 
 function normalizeList(values: FormDataEntryValue[]) {
@@ -56,7 +66,7 @@ function getPropertyPriceValue(price: unknown) {
     return Number.isFinite(total) ? total : null;
 }
 
-function matchesCriteria(property: any, criteria: CollectionCriteria) {
+function matchesCriteria(property: CollectionCandidate, criteria: CollectionCriteria) {
     const price = getPropertyPriceValue(property.price);
 
     if (criteria.minPrice != null && (price == null || price < criteria.minPrice)) return false;
@@ -137,11 +147,11 @@ export async function createCollection(formData: FormData) {
         });
 
         candidates
-            .filter((property) => matchesCriteria(property, criteria))
-            .forEach((property) => propertyIds.add(property.id));
+            .filter((property: CollectionCandidate) => matchesCriteria(property, criteria))
+            .forEach((property: CollectionCandidate) => propertyIds.add(property.id));
     }
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const collection = await tx.collection.create({
             data: {
                 name,

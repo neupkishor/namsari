@@ -5,6 +5,8 @@ import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/auth';
 
 type RolePermInput = { resource: string; action: string };
+type RoleRecord = { role: string; permissions?: unknown; [key: string]: unknown };
+type UserWithRole = { role: RoleRecord | null; [key: string]: unknown };
 
 async function checkAdmin() {
   const session = await getSession();
@@ -58,7 +60,7 @@ export async function getRoles() {
       orderBy: { created_at: 'desc' },
     });
 
-    const formatted = roles.map((role) => ({
+    const formatted = roles.map((role: RoleRecord) => ({
       ...role,
       name: role.role,
       permissions: parseRolePermissions(role),
@@ -198,7 +200,7 @@ export async function getUsersWithRoles() {
       orderBy: { created_on: 'desc' },
     });
 
-    const formatted = users.map((u) => ({
+    const formatted = users.map((u: UserWithRole) => ({
       ...u,
       role: u.role
         ? {

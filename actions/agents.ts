@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
 import { getSession } from '@/lib/auth';
+import { Prisma } from '@prisma/client';
 
 export async function createAgencyAgent(data: FormData) {
     const name = data.get('name') as string;
@@ -34,7 +35,7 @@ export async function createAgencyAgent(data: FormData) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
             // Create User
             const user = await tx.user.create({
                 data: {

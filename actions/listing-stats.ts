@@ -3,7 +3,6 @@
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
-import { Prisma } from '@prisma/client';
 
 export interface ListingStats {
     byTypePurpose: {
@@ -385,23 +384,24 @@ async function ensureListingStatsTable() {
 async function saveListingStatsCache(stats: ListingStats) {
     await ensureListingStatsTable();
 
-    await prisma.$executeRaw(
-        Prisma.sql`
+    await prisma.$executeRawUnsafe(
+        `
             INSERT INTO listing_stats_cache (id, payload, updated_at)
-            VALUES (1, ${JSON.stringify(stats)}, CURRENT_TIMESTAMP)
+            VALUES (1, $1, CURRENT_TIMESTAMP)
             ON CONFLICT(id) DO UPDATE SET
                 payload = excluded.payload,
                 updated_at = CURRENT_TIMESTAMP
-        `
+        `,
+        JSON.stringify(stats)
     );
 }
 
 async function readListingStatsCache() {
     await ensureListingStatsTable();
 
-    const rows = await prisma.$queryRawUnsafe<CachedStatsRow[]>(
+    const rows = await prisma.$queryRawUnsafe(
         `SELECT payload, updated_at FROM listing_stats_cache WHERE id = 1 LIMIT 1`
-    );
+    ) as CachedStatsRow[];
 
     return rows && rows.length > 0 ? rows[0] : null;
 }

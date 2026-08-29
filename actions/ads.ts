@@ -319,6 +319,18 @@ export async function trackClick(adId: number, sessionId?: string) {
 }
 
 export async function getAdAnalytics(adId: number, days: number = 30) {
+    type ImpressionAnalyticsRow = {
+        created_at: Date;
+        viewerId: number | null;
+        sessionId: string | null;
+        device: string | null;
+    };
+    type ClickAnalyticsRow = {
+        created_at: Date;
+        viewerId: number | null;
+        sessionId: string | null;
+    };
+
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
@@ -355,7 +367,7 @@ export async function getAdAnalytics(adId: number, days: number = 30) {
 
     // 2. Unique Customers (based on viewerId if logged in, or sessionId if not)
     const uniqueViewers = new Set();
-    impressions.forEach(imp => {
+    impressions.forEach((imp: ImpressionAnalyticsRow) => {
         if (imp.viewerId) uniqueViewers.add(`u_${imp.viewerId}`);
         else if (imp.sessionId) uniqueViewers.add(`s_${imp.sessionId}`);
     });
@@ -363,7 +375,7 @@ export async function getAdAnalytics(adId: number, days: number = 30) {
 
     // 3. Device Breakdown
     const devices: Record<string, number> = {};
-    impressions.forEach(imp => {
+    impressions.forEach((imp: ImpressionAnalyticsRow) => {
         const dev = imp.device || 'unknown';
         devices[dev] = (devices[dev] || 0) + 1;
     });
@@ -376,7 +388,7 @@ export async function getAdAnalytics(adId: number, days: number = 30) {
 
     // 6. Unique Clicks
     const uniqueClickers = new Set();
-    clicks.forEach(c => {
+    clicks.forEach((c: ClickAnalyticsRow) => {
         if (c.viewerId) uniqueClickers.add(`u_${c.viewerId}`);
         else if (c.sessionId) uniqueClickers.add(`s_${c.sessionId}`);
     });

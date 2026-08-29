@@ -1,9 +1,9 @@
 'use server';
 
 import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
-import { Prisma } from '@prisma/client';
 import {
     resolveActiveAgencyId,
 } from '@/lib/agency-config';
@@ -86,10 +86,10 @@ export async function saveAgencyConfig(formData: FormData) {
     const hasDefaultLocation = Object.values(defaultLocation).some(Boolean);
 
     const payload = {
-        compulsoryFields: compulsoryFields.length > 0 ? compulsoryFields : Prisma.JsonNull,
-        defUnits: defUnits.length > 0 ? defUnits : Prisma.JsonNull,
+        compulsoryFields: compulsoryFields.length > 0 ? compulsoryFields : Prisma.DbNull,
+        defUnits: defUnits.length > 0 ? defUnits : Prisma.DbNull,
         reviewRequired: formData.get('review_required') === 'on' ? true : null,
-        defaultLocation: hasDefaultLocation ? defaultLocation : Prisma.JsonNull,
+        defaultLocation: hasDefaultLocation ? defaultLocation : Prisma.DbNull,
         minPhotoCount: formData.get('min_photo_count')?.toString().trim()
             ? Number(formData.get('min_photo_count'))
             : null,

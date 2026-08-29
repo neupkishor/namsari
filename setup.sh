@@ -90,7 +90,7 @@ if [ ! -f "$BINARY" ]; then
     exit 1
 fi
 
-chmod +x "$BINARY"
+chmod +x "$INSTALL_PATH"
 
 sudo mv "$BINARY" "$INSTALL_PATH"
 sudo chmod +x "$INSTALL_PATH"
@@ -99,7 +99,7 @@ rm -rf "$TMP_DIR"
 
 echo ""
 echo "FileBrowser installed:"
-filebrowser version
+cd "$INSTALL_PATH" && ./filebrowser version
 
 echo ""
 echo "Installation complete."
