@@ -72,7 +72,7 @@ export default function ProfileScreen() {
           <Text style={styles.sectionTitle}>Your Namsari</Text>
           <View style={styles.menuCard}>{accountItems.map((item, index) => <Pressable key={item.title} onPress={() => openAccountItem(item.href)} style={[styles.menuItem, index < accountItems.length - 1 && styles.menuBorder]}><View style={styles.menuIcon}><Text style={styles.menuIconText}>{item.icon}</Text></View><View style={styles.menuCopy}><Text style={styles.menuTitle}>{item.title}</Text><Text style={styles.menuSubtitle}>{item.subtitle}</Text></View><Text style={styles.arrow}>›</Text></Pressable>)}</View>
 
-          <View style={styles.helpCard}><Text style={styles.helpKicker}>NEED HELP?</Text><Text style={styles.helpTitle}>We&apos;re here for your property journey.</Text><Text style={styles.helpText}>Get support with listings, enquiries, or using Namsari.</Text><Pressable style={styles.helpButton}><Text style={styles.helpButtonText}>Contact support</Text></Pressable></View>
+          <View style={styles.helpCard}><Text style={styles.helpKicker}>NEED HELP?</Text><Text style={styles.helpTitle}>We&apos;re here for your property journey.</Text><Text style={styles.helpText}>Get support with listings, enquiries, or using Namsari.</Text><Pressable style={styles.helpButton} onPress={() => router.push('/support')}><Text style={styles.helpButtonText}>Contact support</Text></Pressable></View>
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
