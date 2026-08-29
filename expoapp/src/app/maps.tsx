@@ -4,10 +4,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Header } from '../../components/elements/header/Header';
+import { Chevron } from '../../components/ui/chevron';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { BottomTabInset, MaxContentWidth } from '@/constants/theme';
+import { ThemedText } from '@@/components/themed-text';
+import { ThemedView } from '@@/components/themed-view';
+import { BottomTabInset, MaxContentWidth } from '@@/constants/theme';
 
 const API_BASE_URL = 'https://namsari.com';
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=700&q=80';
@@ -52,7 +54,7 @@ export default function MapsScreen() {
   return (
     <ThemedView style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.safeArea}>
-        <View style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.iconButton} onPress={() => router.back()}><ThemedText style={styles.backIcon}>‹</ThemedText></Pressable><View style={styles.titleCopy}><ThemedText style={styles.topTitle}>Properties on map</ThemedText><ThemedText style={styles.topSubtitle}>{loading ? 'Loading…' : `${properties.length} mapped listings`}</ThemedText></View><Pressable accessibilityLabel="Refresh map" style={styles.iconButton} onPress={() => void loadProperties()}><ThemedText style={styles.refreshIcon}>↻</ThemedText></Pressable></View>
+        <Header style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.backButton} onPress={() => router.back()}><Chevron direction="left" size={28} color={colors.ink} strokeWidth={2.5} /></Pressable><View style={styles.titleCopy}><ThemedText style={styles.topTitle}>Properties on map</ThemedText><ThemedText style={styles.topSubtitle}>{loading ? 'Loading…' : `${properties.length} mapped listings`}</ThemedText></View><Pressable accessibilityLabel="Refresh map" style={styles.iconButton} onPress={() => void loadProperties()}><ThemedText style={styles.refreshIcon}>↻</ThemedText></Pressable></Header>
 
         <View style={styles.mapContainer}>
           <MapView
@@ -86,8 +88,9 @@ export default function MapsScreen() {
 }
 
 const styles = StyleSheet.create({
+  backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   screen: { flex: 1, backgroundColor: colors.paper }, safeArea: { flex: 1 },
-  topBar: { width: '100%', maxWidth: MaxContentWidth, alignSelf: 'center', height: 66, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', backgroundColor: colors.paper, zIndex: 10, borderBottomWidth: 1, borderBottomColor: colors.line, shadowColor: '#291817', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 7 }, iconButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' }, backIcon: { color: colors.ink, fontSize: 31, lineHeight: 33, fontWeight: '400', marginTop: -3 }, refreshIcon: { color: colors.primary, fontSize: 21, lineHeight: 24, fontWeight: '700' }, titleCopy: { flex: 1, alignItems: 'center' }, topTitle: { color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: '800' }, topSubtitle: { color: colors.muted, fontSize: 9, lineHeight: 13, marginTop: 1 },
+  topBar: { width: '100%', maxWidth: MaxContentWidth, alignSelf: 'center', height: 66, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', backgroundColor: colors.paper, zIndex: 10 }, iconButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' }, backIcon: { color: colors.ink, fontSize: 36, lineHeight: 33, fontWeight: '400', marginTop: -3 }, refreshIcon: { color: colors.primary, fontSize: 21, lineHeight: 24, fontWeight: '700' }, titleCopy: { flex: 1, alignItems: 'center' }, topTitle: { color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: '800' }, topSubtitle: { color: colors.muted, fontSize: 9, lineHeight: 13, marginTop: 1 },
   mapContainer: { flex: 1, width: '100%', maxWidth: MaxContentWidth, alignSelf: 'center', overflow: 'hidden' }, map: { flex: 1 },
   statusOverlay: { position: 'absolute', left: 18, right: 18, top: '35%', minHeight: 150, borderRadius: 23, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center', padding: 22, gap: 8, shadowColor: '#291817', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.12, shadowRadius: 18, elevation: 8 }, statusTitle: { color: colors.ink, fontSize: 17, lineHeight: 23, fontWeight: '800', textAlign: 'center' }, statusText: { color: colors.muted, fontSize: 11, lineHeight: 17, textAlign: 'center' }, retryButton: { backgroundColor: colors.primary, borderRadius: 100, paddingHorizontal: 18, paddingVertical: 9, marginTop: 4 }, retryText: { color: colors.white, fontSize: 11, lineHeight: 15, fontWeight: '800' },
   previewWrap: { position: 'absolute', left: 12, right: 12, bottom: 14 + BottomTabInset }, preview: { minHeight: 120, flexDirection: 'row', alignItems: 'center', backgroundColor: colors.white, borderRadius: 22, padding: 10, borderWidth: 1, borderColor: colors.line, shadowColor: '#291817', shadowOffset: { width: 0, height: 9 }, shadowOpacity: 0.18, shadowRadius: 20, elevation: 12 }, previewImage: { width: 100, height: 100, borderRadius: 15, backgroundColor: '#EAE2DE' }, previewCopy: { flex: 1, paddingHorizontal: 12 }, previewPrice: { color: colors.primary, fontSize: 15, lineHeight: 20, fontWeight: '900' }, previewTitle: { color: colors.ink, fontSize: 12, lineHeight: 17, fontWeight: '700', marginTop: 2 }, previewLocation: { color: colors.muted, fontSize: 9, lineHeight: 14, marginTop: 4 }, previewSpecs: { color: colors.muted, fontSize: 9, lineHeight: 14, marginTop: 3 }, previewArrow: { color: colors.primary, fontSize: 28, lineHeight: 32, marginRight: 3 },

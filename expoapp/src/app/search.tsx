@@ -3,10 +3,12 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Header } from '@/components/elements/header/Header';
+import { Chevron } from '@/components/ui/chevron';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { BottomTabInset, MaxContentWidth } from '@/constants/theme';
+import { ThemedText } from '@@/components/themed-text';
+import { ThemedView } from '@@/components/themed-view';
+import { BottomTabInset, MaxContentWidth } from '@@/constants/theme';
 
 const API_BASE_URL = 'https://namsari.com';
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=900&q=80';
@@ -69,7 +71,7 @@ export default function SearchScreen() {
   return (
     <ThemedView style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.safeArea}>
-        <View style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.iconButton} onPress={() => router.back()}><ThemedText style={styles.backIcon}>‹</ThemedText></Pressable><ThemedText style={styles.topTitle}>Search properties</ThemedText><View style={styles.headerSpacer} /></View>
+        <Header style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.backButton} onPress={() => router.back()}><Chevron direction="left" size={28} color={colors.ink} strokeWidth={2.5} /></Pressable><ThemedText style={styles.topTitle}>Search properties</ThemedText><View style={styles.headerSpacer} /></Header>
         <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void loadProperties(true)} tintColor={colors.primary} colors={[colors.primary]} />} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View style={styles.searchBox}><ThemedText style={styles.searchIcon}>⌕</ThemedText><TextInput autoFocus={!params.q} value={query} onChangeText={setQuery} onSubmitEditing={submitSearch} returnKeyType="search" placeholder="Area, property or landmark" placeholderTextColor="#9B908D" style={styles.searchInput} /><Pressable style={styles.searchButton} onPress={submitSearch}><ThemedText style={styles.searchButtonText}>Search</ThemedText></Pressable></View>
 
@@ -92,8 +94,9 @@ export default function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
+  backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   screen: { flex: 1, backgroundColor: colors.paper }, safeArea: { flex: 1 }, content: { width: '100%', maxWidth: MaxContentWidth, alignSelf: 'center', padding: 16, paddingBottom: 36 + BottomTabInset },
-  topBar: { height: 62, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: colors.paper, zIndex: 10, borderBottomWidth: 1, borderBottomColor: colors.line, shadowColor: '#291817', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 7 }, iconButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' }, backIcon: { color: colors.ink, fontSize: 31, lineHeight: 33, fontWeight: '400', marginTop: -3 }, topTitle: { color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: '700' }, headerSpacer: { width: 40 },
+  topBar: { height: 62, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: colors.paper, zIndex: 10 }, iconButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' }, backIcon: { color: colors.ink, fontSize: 36, lineHeight: 33, fontWeight: '400', marginTop: -3 }, topTitle: { color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: '700' }, headerSpacer: { width: 40 },
   searchBox: { minHeight: 58, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderRadius: 18, paddingLeft: 14, paddingRight: 6, flexDirection: 'row', alignItems: 'center' }, searchIcon: { color: colors.primary, fontSize: 24, lineHeight: 28, marginRight: 7, transform: [{ rotate: '-15deg' }] }, searchInput: { flex: 1, height: 52, minWidth: 0, color: colors.ink, fontSize: 13, fontFamily: 'Poppins_500Medium' }, searchButton: { height: 44, paddingHorizontal: 16, borderRadius: 13, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }, searchButtonText: { color: colors.white, fontSize: 12, lineHeight: 17, fontWeight: '800' },
   filters: { gap: 8, paddingTop: 14 }, filter: { borderRadius: 100, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.white, paddingHorizontal: 15, paddingVertical: 9 }, filterActive: { borderColor: colors.primary, backgroundColor: colors.primary }, filterText: { color: colors.muted, fontSize: 11, lineHeight: 16, fontWeight: '700', textTransform: 'capitalize' }, filterTextActive: { color: colors.white }, typeFilters: { gap: 7, paddingTop: 9 }, typeFilter: { borderRadius: 100, backgroundColor: colors.primarySoft, paddingHorizontal: 12, paddingVertical: 7 }, typeFilterActive: { backgroundColor: '#EACFCF' }, typeText: { color: colors.muted, fontSize: 10, lineHeight: 14, fontWeight: '600', textTransform: 'capitalize' }, typeTextActive: { color: colors.primary, fontWeight: '800' },
   resultHeader: { marginTop: 28, marginBottom: 13 }, resultTitle: { color: colors.ink, fontSize: 20, lineHeight: 27, fontWeight: '800' }, resultCount: { color: colors.muted, fontSize: 10, lineHeight: 15, marginTop: 2 }, results: { gap: 14 }, card: { flexDirection: 'row', minHeight: 158, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderRadius: 22, overflow: 'hidden' }, cardImage: { width: 142, minHeight: 158, backgroundColor: '#EAE2DE' }, cardBody: { flex: 1, padding: 13 }, cardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, cardType: { color: colors.primary, backgroundColor: colors.primarySoft, borderRadius: 100, paddingHorizontal: 8, paddingVertical: 3, fontSize: 8, lineHeight: 11, fontWeight: '900', letterSpacing: 0.7 }, heart: { color: colors.primary, fontSize: 20, lineHeight: 22 }, price: { color: colors.primary, fontSize: 16, lineHeight: 21, fontWeight: '900', marginTop: 5 }, cardTitle: { color: colors.ink, fontSize: 12, lineHeight: 17, fontWeight: '700', marginTop: 2 }, location: { color: colors.muted, fontSize: 9, lineHeight: 14, marginTop: 4 }, cardFooter: { marginTop: 'auto', paddingTop: 6, flexDirection: 'row', alignItems: 'center' }, specs: { flex: 1, color: colors.muted, fontSize: 9, lineHeight: 13 }, arrow: { color: colors.primary, fontSize: 21, lineHeight: 23 },

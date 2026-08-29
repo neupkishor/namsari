@@ -3,13 +3,15 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, RefreshControl, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Header } from '@/components/elements/header/Header';
+import { Chevron } from '@/components/ui/chevron';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { BottomTabInset, MaxContentWidth } from '@/constants/theme';
-import { useAuthSession } from '@/hooks/use-auth-session';
-import { getSessionUserId } from '@/lib/auth';
-import { getPendingLikeToggles, interactWithProperty } from '@/lib/property-interactions';
+import { ThemedText } from "@@/components/themed-text";
+import { ThemedView } from '@@/components/themed-view';
+import { BottomTabInset, MaxContentWidth } from '@@/constants/theme';
+import { useAuthSession } from '@@/hooks/use-auth-session';
+import { getSessionUserId } from '@@/lib/auth';
+import { getPendingLikeToggles, interactWithProperty } from '@@/lib/property-interactions';
 
 const API_BASE_URL = 'https://namsari.com';
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1200&q=80';
@@ -173,11 +175,11 @@ export default function PropertyDetailScreen() {
   return (
     <ThemedView style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.safeArea}>
-        <View style={styles.topBar}>
-          <Pressable accessibilityLabel="Go back" style={styles.iconButton} onPress={() => router.back()}><ThemedText style={styles.iconButtonText}>‹</ThemedText></Pressable>
+        <Header style={styles.topBar}>
+          <Pressable accessibilityLabel="Go back" style={styles.iconButton} onPress={() => router.back()}><Chevron direction="left" size={28} color={colors.ink} strokeWidth={2.5} /></Pressable>
           <ThemedText numberOfLines={1} style={styles.topBarTitle}>Property details</ThemedText>
           <View style={styles.topActions}><Pressable accessibilityLabel={isLiked ? 'Unlike property' : 'Like property'} disabled={likePending} style={[styles.iconButton, likePending && styles.disabled]} onPress={() => void toggleLike()}><ThemedText style={styles.likeIcon}>{isLiked ? '♥' : '♡'}</ThemedText></Pressable><Pressable accessibilityLabel="Share property" style={styles.iconButton} onPress={() => void shareProperty()}><ThemedText style={styles.shareIcon}>↗</ThemedText></Pressable></View>
-        </View>
+        </Header>
 
         <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void loadProperty(true)} tintColor={colors.primary} colors={[colors.primary]} />} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={styles.gallery}>
@@ -221,8 +223,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 const styles = StyleSheet.create({
+  backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   screen: { flex: 1, backgroundColor: colors.paper }, safeArea: { flex: 1 }, content: { width: '100%', maxWidth: MaxContentWidth, alignSelf: 'center', paddingBottom: 110 + BottomTabInset },
-  topBar: { height: 62, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: colors.paper, borderBottomWidth: 1, borderBottomColor: colors.line, zIndex: 10, shadowColor: '#291817', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 7 }, topBarTitle: { color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: '700', flex: 1, textAlign: 'center' }, topActions: { flexDirection: 'row', gap: 8 }, iconButton: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line }, iconButtonText: { color: colors.ink, fontSize: 31, lineHeight: 33, fontWeight: '400', marginTop: -3 }, likeIcon: { color: colors.primary, fontSize: 22, lineHeight: 25 }, shareIcon: { color: colors.ink, fontSize: 20, lineHeight: 24, fontWeight: '700' },
+  topBar: { height: 62, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: colors.paper, zIndex: 10 }, topBarTitle: { color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: '700', flex: 1, textAlign: 'center' }, topActions: { flexDirection: 'row', gap: 8 }, iconButton: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line }, iconButtonText: { color: colors.ink, fontSize: 36, lineHeight: 33, fontWeight: '400', marginTop: -3 }, likeIcon: { color: colors.primary, fontSize: 22, lineHeight: 25 }, shareIcon: { color: colors.ink, fontSize: 20, lineHeight: 24, fontWeight: '700' },
   gallery: { marginTop: 12, paddingLeft: 12 }, imageFrame: { width: 370, maxWidth: '95%', height: 300, marginRight: 10, borderRadius: 28, overflow: 'hidden', backgroundColor: '#EAE2DE' }, heroImage: { width: '100%', height: '100%' }, imageCounter: { position: 'absolute', right: 14, bottom: 14, backgroundColor: 'rgba(25,20,19,0.72)', borderRadius: 100, paddingHorizontal: 11, paddingVertical: 6 }, imageCounterText: { color: colors.white, fontSize: 10, lineHeight: 14, fontWeight: '700' },
   body: { paddingHorizontal: 20, paddingTop: 22 }, badgeRow: { flexDirection: 'row', gap: 8, alignItems: 'center' }, typeBadge: { color: colors.primary, backgroundColor: colors.primarySoft, borderRadius: 100, paddingHorizontal: 10, paddingVertical: 5, fontSize: 9, lineHeight: 12, fontWeight: '900', letterSpacing: 1 }, verifiedBadge: { color: colors.green, backgroundColor: '#EAF6EF', borderRadius: 100, paddingHorizontal: 10, paddingVertical: 5, fontSize: 9, lineHeight: 12, fontWeight: '900', letterSpacing: 0.7 }, price: { color: colors.primary, fontSize: 29, lineHeight: 37, fontWeight: '900', letterSpacing: -0.8, marginTop: 15 }, title: { color: colors.ink, fontSize: 23, lineHeight: 31, fontWeight: '800', letterSpacing: -0.4, marginTop: 4 }, location: { color: colors.muted, fontSize: 13, lineHeight: 20, marginTop: 8 }, metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }, metaText: { color: colors.muted, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderRadius: 100, paddingHorizontal: 10, paddingVertical: 5, fontSize: 10, lineHeight: 14 },
   section: { borderTopWidth: 1, borderTopColor: colors.line, marginTop: 26, paddingTop: 24 }, sectionTitle: { color: colors.ink, fontSize: 19, lineHeight: 26, fontWeight: '800', marginBottom: 14 }, featureGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 }, featureCard: { width: '47.5%', minHeight: 76, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderRadius: 17, padding: 13, justifyContent: 'center' }, featureValue: { color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: '800' }, featureLabel: { color: colors.muted, fontSize: 10, lineHeight: 15, marginTop: 3 }, description: { color: '#514946', fontSize: 14, lineHeight: 23, fontWeight: '400' }, chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }, chip: { backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderRadius: 100, paddingHorizontal: 12, paddingVertical: 8 }, chipText: { color: '#514946', fontSize: 11, lineHeight: 16 },

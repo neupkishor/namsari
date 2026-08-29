@@ -4,12 +4,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { BottomTabInset, MaxContentWidth } from '@/constants/theme';
-import { useAuthSession } from '@/hooks/use-auth-session';
-import { getSessionUserId } from '@/lib/auth';
-import { cacheSavedProperties, getCachedSavedProperties, getPendingLikeToggles } from '@/lib/property-interactions';
+import { ThemedText } from '@@/components/themed-text';
+import { ThemedView } from '@@/components/themed-view';
+import { BottomTabInset, MaxContentWidth } from '@@/constants/theme';
+import { useAuthSession } from '@@/hooks/use-auth-session';
+import { getSessionUserId } from '@@/lib/auth';
+import { cacheSavedProperties, getCachedSavedProperties, getPendingLikeToggles } from '@@/lib/property-interactions';
 
 const API_BASE_URL = (process.env.EXPO_PUBLIC_API_BASE_URL || 'https://namsari.com').replace(/\/$/, '');
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1000&q=80';

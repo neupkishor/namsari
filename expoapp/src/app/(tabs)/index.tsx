@@ -3,13 +3,14 @@ import { Link, router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Header } from '../../../components/elements/header/Header';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { useAuthSession } from '@/hooks/use-auth-session';
-import { getSessionUserId } from '@/lib/auth';
-import { getPendingLikeToggles, interactWithProperty } from '@/lib/property-interactions';
+import { ThemedText } from '@@/components/themed-text';
+import { ThemedView } from '@@/components/themed-view';
+import { BottomTabInset, MaxContentWidth, Spacing } from '@@/constants/theme';
+import { useAuthSession } from '@@/hooks/use-auth-session';
+import { getSessionUserId } from '@@/lib/auth';
+import { getPendingLikeToggles, interactWithProperty } from '@@/lib/property-interactions';
 
 const colors = { primary: '#820000', primarySoft: '#F9EEEE', gold: '#B8960C', ink: '#191413', muted: '#786E6B', line: '#EDE6E3', paper: '#FBF8F6', white: '#FFFFFF' };
 
@@ -141,12 +142,12 @@ export default function HomeScreen() {
   return (
     <ThemedView style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.safeArea}>
-        <View style={styles.header}>
+        <Header style={styles.header}>
           <View><ThemedText style={styles.brand}>Namsari<ThemedText style={styles.brandGold}>.</ThemedText></ThemedText><ThemedText style={styles.brandCaption}>PROPERTY, SIMPLIFIED</ThemedText></View>
           <Pressable accessibilityLabel="Open profile" style={styles.headerProfile} onPress={() => router.push('/profile')}>
             {session?.profile.image ? <Image source={{ uri: session.profile.image }} style={styles.headerAvatarImage} contentFit="cover" alt={`${session.profile.name || 'User'} profile`} /> : <View style={styles.avatar}><ThemedText style={styles.avatarText}>{getInitials(session?.profile.name)}</ThemedText></View>}
           </Pressable>
-        </View>
+        </Header>
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} contentInsetAdjustmentBehavior="automatic" refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={() => void loadProperties(true)} tintColor={colors.primary} colors={[colors.primary]} />}>
 
@@ -206,7 +207,7 @@ function TrustItem({ value, label }: { value: string; label: string }) {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper }, safeArea: { flex: 1 },
   scrollContent: { width: '100%', maxWidth: MaxContentWidth, alignSelf: 'center', paddingTop: 12, paddingBottom: BottomTabInset + Spacing.six },
-  header: { width: '100%', maxWidth: MaxContentWidth, alignSelf: 'center', height: 72, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: colors.paper, zIndex: 10, shadowColor: '#291817', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 7 },
+  header: { width: '100%', maxWidth: MaxContentWidth, alignSelf: 'center', height: 72, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: colors.paper, zIndex: 10 },
   brand: { color: colors.primary, fontSize: 24, lineHeight: 28, fontWeight: '900', letterSpacing: -1 }, brandGold: { color: colors.gold, fontSize: 24, lineHeight: 28, fontWeight: '900' },
   brandCaption: { color: colors.muted, fontSize: 8, lineHeight: 12, fontWeight: '800', letterSpacing: 2 },
   avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#EEDAD8' }, avatarText: { color: colors.primary, fontSize: 12, lineHeight: 16, fontWeight: '800' },

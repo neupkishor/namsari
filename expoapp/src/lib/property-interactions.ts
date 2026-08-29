@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 
-import { AuthSession, getAuthSession, getSessionUserId } from '@/lib/auth';
+import { AuthSession, getAuthSession, getSessionUserId } from '@@/lib/auth';
 
 const API_BASE_URL = (process.env.EXPO_PUBLIC_API_BASE_URL || 'https://namsari.com').replace(/\/$/, '');
 const WEB_STORAGE_KEY = 'namsari.interactions';

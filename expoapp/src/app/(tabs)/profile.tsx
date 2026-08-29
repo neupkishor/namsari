@@ -3,12 +3,14 @@ import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Header } from '@/components/elements/header/Header';
+import { Chevron } from '@/components/ui/chevron';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { BottomTabInset, MaxContentWidth } from '@/constants/theme';
-import { useAuthSession } from '@/hooks/use-auth-session';
-import { getSessionUserId } from '@/lib/auth';
+import { ThemedText } from '@@/components/themed-text';
+import { ThemedView } from '@@/components/themed-view';
+import { BottomTabInset, MaxContentWidth } from '@@/constants/theme';
+import { useAuthSession } from '@@/hooks/use-auth-session';
+import { getSessionUserId } from '@@/lib/auth';
 
 const colors = { primary: '#820000', primarySoft: '#F9EEEE', gold: '#B8960C', ink: '#191413', muted: '#786E6B', line: '#EDE6E3', paper: '#FBF8F6', white: '#FFFFFF' };
 const API_BASE_URL = (process.env.EXPO_PUBLIC_API_BASE_URL || 'https://namsari.com').replace(/\/$/, '');
@@ -55,7 +57,7 @@ export default function ProfileScreen() {
   return (
     <ThemedView style={styles.screen}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <View style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.backButton} onPress={() => router.back()}><ThemedText style={styles.backIcon}>‹</ThemedText></Pressable><ThemedText style={styles.topTitle}>Profile</ThemedText><View style={styles.headerSpacer} /></View>
+        <Header style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.backButton} onPress={() => router.back()}><Chevron direction="left" size={28} color={colors.ink} strokeWidth={2.5} /></Pressable><ThemedText style={styles.topTitle}>Profile</ThemedText><View style={styles.headerSpacer} /></Header>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.hero}>
             <View style={styles.heroGlow} />
@@ -81,7 +83,7 @@ function Stat({ value, label }: { value: string; label: string }) { return <View
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper }, safeArea: { flex: 1 }, content: { width: '100%', maxWidth: MaxContentWidth, alignSelf: 'center', paddingHorizontal: 20, paddingBottom: 36 + BottomTabInset },
-  topBar: { height: 62, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: colors.paper, borderBottomWidth: 1, borderBottomColor: colors.line, zIndex: 10, shadowColor: '#291817', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 7 }, backButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' }, backIcon: { color: colors.ink, fontSize: 31, lineHeight: 33, fontWeight: '400', marginTop: -3 }, topTitle: { color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: '700' }, headerSpacer: { width: 40 },
+  topBar: { height: 62, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: colors.paper, zIndex: 10 }, backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }, backIcon: { color: colors.ink, fontSize: 36, lineHeight: 33, fontWeight: '400', marginTop: -3 }, topTitle: { color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: '700' }, headerSpacer: { width: 40 },
   hero: { marginTop: 16, backgroundColor: colors.primary, borderRadius: 28, padding: 26, alignItems: 'center', overflow: 'hidden' }, heroGlow: { position: 'absolute', width: 180, height: 180, borderRadius: 90, backgroundColor: '#A93030', right: -65, top: -80, opacity: 0.55 }, avatar: { width: 78, height: 78, borderRadius: 39, backgroundColor: colors.white, borderWidth: 4, borderColor: '#A84A4A', alignItems: 'center', justifyContent: 'center' }, profileImage: { width: 78, height: 78, borderRadius: 39, backgroundColor: colors.white, borderWidth: 4, borderColor: '#A84A4A' }, avatarText: { color: colors.primary, fontSize: 28, lineHeight: 35, fontWeight: '900' }, name: { color: colors.white, fontSize: 22, lineHeight: 29, fontWeight: '800', marginTop: 14 }, handle: { color: '#EBDDDD', fontSize: 12, lineHeight: 18, marginTop: 3 }, signInButton: { backgroundColor: colors.white, borderRadius: 100, paddingHorizontal: 20, paddingVertical: 11, marginTop: 18 }, signInText: { color: colors.primary, fontSize: 12, lineHeight: 17, fontWeight: '800' },
   stats: { backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderRadius: 20, flexDirection: 'row', alignItems: 'center', marginTop: 14, paddingVertical: 18 }, stat: { flex: 1, alignItems: 'center' }, statValue: { color: colors.ink, fontSize: 18, lineHeight: 23, fontWeight: '900' }, statLabel: { color: colors.muted, fontSize: 10, lineHeight: 15, marginTop: 2 }, divider: { width: 1, height: 30, backgroundColor: colors.line },
   sectionTitle: { color: colors.ink, fontSize: 19, lineHeight: 26, fontWeight: '800', marginTop: 28, marginBottom: 12 }, menuCard: { backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderRadius: 22, paddingHorizontal: 14 }, menuItem: { minHeight: 74, flexDirection: 'row', alignItems: 'center' }, menuBorder: { borderBottomWidth: 1, borderBottomColor: colors.line }, menuIcon: { width: 40, height: 40, borderRadius: 13, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' }, menuIconText: { color: colors.primary, fontSize: 19, lineHeight: 23, fontWeight: '700' }, menuCopy: { flex: 1, marginLeft: 12 }, menuTitle: { color: colors.ink, fontSize: 13, lineHeight: 18, fontWeight: '700' }, menuSubtitle: { color: colors.muted, fontSize: 10, lineHeight: 15, marginTop: 2 }, arrow: { color: colors.primary, fontSize: 25, lineHeight: 29 },

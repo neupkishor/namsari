@@ -1,7 +1,7 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 
-import { AuthSession, getAuthSession } from '@/lib/auth';
+import { AuthSession, getAuthSession } from '@@/lib/auth';
 
 export function useAuthSession() {
   const [session, setSession] = useState<AuthSession | null>(null);

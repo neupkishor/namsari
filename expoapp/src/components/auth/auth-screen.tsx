@@ -2,11 +2,13 @@ import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Header } from '@/components/elements/header/Header';
+import { Chevron } from '@/components/ui/chevron';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { MaxContentWidth } from '@/constants/theme';
-import { AuthRequestError, signIn, signUp } from '@/lib/auth';
+import { ThemedText } from '@@/components/themed-text';
+import { ThemedView } from '@@/components/themed-view';
+import { MaxContentWidth } from '@@/constants/theme';
+import { AuthRequestError, signIn, signUp } from '@@/lib/auth';
 
 const colors = { primary: '#820000', primarySoft: '#F9EEEE', gold: '#B8960C', ink: '#191413', muted: '#786E6B', line: '#EDE6E3', paper: '#FBF8F6', white: '#FFFFFF', error: '#B42318' };
 
@@ -59,7 +61,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
   return (
     <ThemedView style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.safeArea}>
-        <View style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.backButton} onPress={() => router.back()}><ThemedText style={styles.backIcon}>‹</ThemedText></Pressable><ThemedText style={styles.topTitle}>{signup ? 'Sign up' : 'Sign in'}</ThemedText><View style={styles.spacer} /></View>
+        <Header style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.backButton} onPress={() => router.back()}><Chevron direction="left" size={28} color={colors.ink} strokeWidth={2.5} /></Pressable><ThemedText style={styles.topTitle}>{signup ? 'Sign up' : 'Sign in'}</ThemedText><View style={styles.spacer} /></Header>
         <KeyboardAvoidingView style={styles.keyboard} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             <View style={styles.brandWrap}><ThemedText style={styles.brand}>Namsari<ThemedText style={styles.brandDot}>.</ThemedText></ThemedText><ThemedText style={styles.kicker}>PROPERTY, SIMPLIFIED</ThemedText></View>
@@ -95,7 +97,7 @@ function Field({ label, error, style, ...props }: FieldProps) { return <View><Th
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper }, safeArea: { flex: 1 }, keyboard: { flex: 1 }, content: { width: '100%', maxWidth: MaxContentWidth, alignSelf: 'center', paddingHorizontal: 22, paddingTop: 28, paddingBottom: 42 },
-  topBar: { height: 62, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', backgroundColor: colors.paper, zIndex: 10, borderBottomWidth: 1, borderBottomColor: colors.line, shadowColor: '#291817', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 7 }, backButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' }, backIcon: { color: colors.ink, fontSize: 31, lineHeight: 33, fontWeight: '400', marginTop: -3 }, topTitle: { flex: 1, textAlign: 'center', color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: '700' }, spacer: { width: 40 },
+  topBar: { height: 62, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', backgroundColor: colors.paper, zIndex: 10 }, backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }, backIcon: { color: colors.ink, fontSize: 36, lineHeight: 33, fontWeight: '400', marginTop: -3 }, topTitle: { flex: 1, textAlign: 'center', color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: '700' }, spacer: { width: 40 },
   brandWrap: { alignItems: 'center' }, brand: { color: colors.primary, fontSize: 30, lineHeight: 36, fontWeight: '900', letterSpacing: -1.2 }, brandDot: { color: colors.gold, fontSize: 30, lineHeight: 36, fontWeight: '900' }, kicker: { color: colors.muted, fontSize: 8, lineHeight: 12, fontWeight: '800', letterSpacing: 2, marginTop: 2 }, headingWrap: { alignItems: 'center', marginTop: 25, marginBottom: 24 }, title: { color: colors.ink, fontSize: 27, lineHeight: 35, fontWeight: '900', letterSpacing: -0.7, textAlign: 'center' }, subtitle: { color: colors.muted, fontSize: 12, lineHeight: 19, textAlign: 'center', maxWidth: 360, marginTop: 7 },
   form: { backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderRadius: 26, padding: 20, gap: 17, shadowColor: '#291817', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.06, shadowRadius: 22, elevation: 3 }, label: { color: colors.ink, fontSize: 11, lineHeight: 16, fontWeight: '700', marginBottom: 7 }, inputWrap: { minHeight: 54, borderWidth: 1, borderColor: colors.line, borderRadius: 15, backgroundColor: colors.paper, flexDirection: 'row', alignItems: 'center' }, inputError: { borderColor: '#E7A6A0', backgroundColor: '#FFF8F7' }, input: { flex: 1, height: 52, color: colors.ink, fontSize: 13, paddingHorizontal: 14, fontFamily: 'Poppins_500Medium' }, showButton: { height: 50, justifyContent: 'center', paddingHorizontal: 14 }, showText: { color: colors.primary, fontSize: 10, lineHeight: 15, fontWeight: '800' }, error: { color: colors.error, fontSize: 9, lineHeight: 14, marginTop: 5 }, forgot: { alignSelf: 'flex-end', marginTop: -5 }, forgotText: { color: colors.primary, fontSize: 10, lineHeight: 15, fontWeight: '700' }, notice: { backgroundColor: colors.primarySoft, borderRadius: 12, padding: 11 }, noticeText: { color: colors.primary, fontSize: 9, lineHeight: 15, textAlign: 'center' }, submit: { height: 54, borderRadius: 15, backgroundColor: colors.primary, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 9, shadowColor: colors.primary, shadowOffset: { width: 0, height: 7 }, shadowOpacity: 0.2, shadowRadius: 12, elevation: 5 }, submitDisabled: { opacity: 0.7 }, submitText: { color: colors.white, fontSize: 13, lineHeight: 19, fontWeight: '800' }, submitArrow: { color: colors.white, fontSize: 17, lineHeight: 20, fontWeight: '700' }, terms: { color: colors.muted, fontSize: 8, lineHeight: 14, textAlign: 'center', paddingHorizontal: 8 },
   switchRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 5, marginTop: 22 }, switchCopy: { color: colors.muted, fontSize: 11, lineHeight: 17 }, switchAction: { color: colors.primary, fontSize: 11, lineHeight: 17, fontWeight: '800' }, trust: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 25, paddingHorizontal: 20 }, trustIcon: { color: colors.primary, fontSize: 10, lineHeight: 15, fontWeight: '900' }, trustText: { color: colors.muted, fontSize: 8, lineHeight: 13, textAlign: 'center' },
