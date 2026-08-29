@@ -5,7 +5,7 @@ import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, T
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from '@/components/elements/Header';
 
-import { ThemedText } from '@/components/themed-text';
+import { Text as Text } from '#/components/ui/text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '$/theme';
 import { useAuthSession } from '#/core/hooks/useAuthSession';
@@ -143,9 +143,9 @@ export default function HomeScreen() {
     <ThemedView style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.safeArea}>
         <Header style={styles.header}>
-          <View><ThemedText style={styles.brand}>Namsari<ThemedText style={styles.brandGold}>.</ThemedText></ThemedText><ThemedText style={styles.brandCaption}>PROPERTY, SIMPLIFIED</ThemedText></View>
+          <View><Text type="titleSemiBold">Namsari<Text style={styles.brandGold}>.</Text></Text><Text style={styles.brandCaption}>PROPERTY, SIMPLIFIED</Text></View>
           <Pressable accessibilityLabel="Open profile" style={styles.headerProfile} onPress={() => router.push('/profile')}>
-            {session?.profile.image ? <Image source={{ uri: session.profile.image }} style={styles.headerAvatarImage} contentFit="cover" alt={`${session.profile.name || 'User'} profile`} /> : <View style={styles.avatar}><ThemedText style={styles.avatarText}>{getInitials(session?.profile.name)}</ThemedText></View>}
+            {session?.profile.image ? <Image source={{ uri: session.profile.image }} style={styles.headerAvatarImage} contentFit="cover" alt={`${session.profile.name || 'User'} profile`} /> : <View style={styles.avatar}><Text style={styles.avatarText}>{getInitials(session?.profile.name)}</Text></View>}
           </Pressable>
         </Header>
 
@@ -153,39 +153,39 @@ export default function HomeScreen() {
 
           <View style={styles.hero}>
             <View style={styles.heroGlow} />
-            <ThemedText style={styles.eyebrow}>NEPAL&apos;S PROPERTY MARKETPLACE</ThemedText>
-            <ThemedText style={styles.heroTitle}>Find a place that feels like yours.</ThemedText>
-            <ThemedText style={styles.heroCopy}>Discover trusted homes, land and commercial spaces across Nepal.</ThemedText>
+            <Text style={styles.eyebrow}>NEPAL&apos;S PROPERTY MARKETPLACE</Text>
+            <Text style={styles.heroTitle}>Find a place that feels like yours.</Text>
+            <Text style={styles.heroCopy}>Discover trusted homes, land and commercial spaces across Nepal.</Text>
             <View style={styles.purposeRow}>
-              <Pressable style={[styles.purposeButton, styles.purposeButtonActive]}><ThemedText style={styles.purposeTextActive}>Buy</ThemedText></Pressable>
-              <Pressable style={styles.purposeButton}><ThemedText style={styles.purposeText}>Rent</ThemedText></Pressable>
+              <Pressable style={[styles.purposeButton, styles.purposeButtonActive]}><Text style={styles.purposeTextActive}>Buy</Text></Pressable>
+              <Pressable style={styles.purposeButton}><Text style={styles.purposeText}>Rent</Text></Pressable>
             </View>
             <View style={styles.searchBox}>
-              <ThemedText style={styles.searchIcon}>⌕</ThemedText>
+              <Text style={styles.searchIcon}>⌕</Text>
               <TextInput value={searchQuery} onChangeText={setSearchQuery} onSubmitEditing={() => router.push({ pathname: '/search', params: searchQuery.trim() ? { q: searchQuery.trim() } : {} })} returnKeyType="search" accessibilityLabel="Search properties" placeholder="Area, property or landmark" placeholderTextColor="#9B908D" style={styles.searchInput} />
-              <Pressable style={styles.searchButton} onPress={() => router.push({ pathname: '/search', params: searchQuery.trim() ? { q: searchQuery.trim() } : {} })}><ThemedText style={styles.searchButtonText}>Explore</ThemedText></Pressable>
+              <Pressable style={styles.searchButton} onPress={() => router.push({ pathname: '/search', params: searchQuery.trim() ? { q: searchQuery.trim() } : {} })}><Text style={styles.searchButtonText}>Explore</Text></Pressable>
             </View>
-            <Pressable style={styles.mapLink} onPress={() => router.push('/maps')}><ThemedText style={styles.mapLinkIcon}>⌖</ThemedText><ThemedText style={styles.mapLinkText}>Explore properties on the map</ThemedText><ThemedText style={styles.mapLinkArrow}>→</ThemedText></Pressable>
+            <Pressable style={styles.mapLink} onPress={() => router.push('/maps')}><Text style={styles.mapLinkIcon}>⌖</Text><Text style={styles.mapLinkText}>Explore properties on the map</Text><Text style={styles.mapLinkArrow}>→</Text></Pressable>
           </View>
 
           <SectionHeader title="Browse by category" action="View all" />
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRow}>
-            {categories.map((category) => <Link key={category.label} href="/explore" asChild><Pressable style={styles.categoryCard}><View style={styles.categoryIcon}><ThemedText style={styles.categoryIconText}>{category.icon}</ThemedText></View><ThemedText style={styles.categoryLabel}>{category.label}</ThemedText><ThemedText style={styles.categoryCount}>{category.count} listings</ThemedText></Pressable></Link>)}
+            {categories.map((category) => <Link key={category.label} href="/explore" asChild><Pressable style={styles.categoryCard}><View style={styles.categoryIcon}><Text style={styles.categoryIconText}>{category.icon}</Text></View><Text style={styles.categoryLabel}>{category.label}</Text><Text style={styles.categoryCount}>{category.count} listings</Text></Pressable></Link>)}
           </ScrollView>
 
           <View style={styles.actionBanner}>
-            <View style={styles.actionCopy}><ThemedText style={styles.actionKicker}>FOR OWNERS</ThemedText><ThemedText style={styles.actionTitle}>Have a property to list?</ThemedText><ThemedText style={styles.actionBody}>Reach serious buyers and renters in minutes.</ThemedText></View>
-            <Pressable style={styles.listButton}><ThemedText style={styles.listButtonText}>Post property</ThemedText></Pressable>
+            <View style={styles.actionCopy}><Text style={styles.actionKicker}>FOR OWNERS</Text><Text style={styles.actionTitle}>Have a property to list?</Text><Text style={styles.actionBody}>Reach serious buyers and renters in minutes.</Text></View>
+            <Pressable style={styles.listButton}><Text style={styles.listButtonText}>Post property</Text></Pressable>
           </View>
 
           <SectionHeader title="Featured properties" action="See all" />
           <View style={styles.propertyList}>
-            {isLoadingProperties && <View style={styles.propertyState}><ActivityIndicator color={colors.primary} /><ThemedText style={styles.propertyStateText}>Loading properties…</ThemedText></View>}
-            {!isLoadingProperties && propertyError && <View style={styles.propertyState}><ThemedText style={styles.propertyStateTitle}>Couldn&apos;t load properties</ThemedText><ThemedText style={styles.propertyStateText}>{propertyError}</ThemedText><Pressable style={styles.retryButton} onPress={() => void loadProperties()}><ThemedText style={styles.retryButtonText}>Try again</ThemedText></Pressable></View>}
-            {!isLoadingProperties && !propertyError && properties.length === 0 && <View style={styles.propertyState}><ThemedText style={styles.propertyStateTitle}>No properties available</ThemedText><ThemedText style={styles.propertyStateText}>New listings will appear here.</ThemedText></View>}
+            {isLoadingProperties && <View style={styles.propertyState}><ActivityIndicator color={colors.primary} /><Text style={styles.propertyStateText}>Loading properties…</Text></View>}
+            {!isLoadingProperties && propertyError && <View style={styles.propertyState}><Text style={styles.propertyStateTitle}>Couldn&apos;t load properties</Text><Text style={styles.propertyStateText}>{propertyError}</Text><Pressable style={styles.retryButton} onPress={() => void loadProperties()}><Text style={styles.retryButtonText}>Try again</Text></Pressable></View>}
+            {!isLoadingProperties && !propertyError && properties.length === 0 && <View style={styles.propertyState}><Text style={styles.propertyStateTitle}>No properties available</Text><Text style={styles.propertyStateText}>New listings will appear here.</Text></View>}
             {properties.map((property) => <Link key={property.id} href={{ pathname: '/property/[id]', params: { id: String(property.id) } }} asChild><Pressable style={styles.propertyCard}>
               <Image source={{ uri: normalizeMediaUrl(property.images?.[0] || property.mainMedia) }} style={styles.propertyImage} contentFit="cover" transition={250} alt={property.title || 'Property listing'} />
-              <View style={styles.propertyDetails}><View style={styles.propertyTopline}><ThemedText style={styles.featuredPill}>{property.isFeatured ? 'FEATURED' : (property.property_types?.[0] || 'PROPERTY').toUpperCase()}</ThemedText><Pressable accessibilityRole="button" accessibilityLabel={likedPropertyIds.has(property.id) ? 'Unlike property' : 'Like property'} disabled={pendingLikeIds.has(property.id)} hitSlop={10} style={pendingLikeIds.has(property.id) && styles.likePending} onPress={(event) => { event.stopPropagation(); void toggleLike(property.id); }}><ThemedText style={[styles.heart, likedPropertyIds.has(property.id) && styles.heartLiked]}>{likedPropertyIds.has(property.id) ? '♥' : '♡'}</ThemedText></Pressable></View><ThemedText numberOfLines={2} style={styles.propertyTitle}>{property.title || 'Property listing'}</ThemedText><ThemedText numberOfLines={1} style={styles.propertyLocation}>⌖  {getPropertyLocation(property)}</ThemedText><View style={styles.propertyFooter}><ThemedText style={styles.propertyPrice}>{formatPropertyPrice(property)}</ThemedText><ThemedText numberOfLines={1} style={styles.propertyMeta}>{property.specs || 'View details'}</ThemedText></View></View>
+              <View style={styles.propertyDetails}><View style={styles.propertyTopline}><Text style={styles.featuredPill}>{property.isFeatured ? 'FEATURED' : (property.property_types?.[0] || 'PROPERTY').toUpperCase()}</Text><Pressable accessibilityRole="button" accessibilityLabel={likedPropertyIds.has(property.id) ? 'Unlike property' : 'Like property'} disabled={pendingLikeIds.has(property.id)} hitSlop={10} style={pendingLikeIds.has(property.id) && styles.likePending} onPress={(event) => { event.stopPropagation(); void toggleLike(property.id); }}><Text style={[styles.heart, likedPropertyIds.has(property.id) && styles.heartLiked]}>{likedPropertyIds.has(property.id) ? '♥' : '♡'}</Text></Pressable></View><Text numberOfLines={2} style={styles.propertyTitle}>{property.title || 'Property listing'}</Text><Text numberOfLines={1} style={styles.propertyLocation}>⌖  {getPropertyLocation(property)}</Text><View style={styles.propertyFooter}><Text style={styles.propertyPrice}>{formatPropertyPrice(property)}</Text><Text numberOfLines={1} style={styles.propertyMeta}>{property.specs || 'View details'}</Text></View></View>
             </Pressable></Link>)}
           </View>
 
@@ -197,11 +197,11 @@ export default function HomeScreen() {
 }
 
 function SectionHeader({ title, action }: { title: string; action: string }) {
-  return <View style={styles.sectionHeader}><ThemedText style={styles.sectionTitle}>{title}</ThemedText><Link href="/explore" asChild><Pressable><ThemedText style={styles.sectionAction}>{action}  →</ThemedText></Pressable></Link></View>;
+  return <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>{title}</Text><Link href="/explore" asChild><Pressable><Text style={styles.sectionAction}>{action}  →</Text></Pressable></Link></View>;
 }
 
 function TrustItem({ value, label }: { value: string; label: string }) {
-  return <View style={styles.trustItem}><ThemedText style={styles.trustValue}>{value}</ThemedText><ThemedText style={styles.trustLabel}>{label}</ThemedText></View>;
+  return <View style={styles.trustItem}><Text style={styles.trustValue}>{value}</Text><Text style={styles.trustLabel}>{label}</Text></View>;
 }
 
 const styles = StyleSheet.create({

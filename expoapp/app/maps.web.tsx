@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ThemedText } from '@/components/themed-text';
+import { Text } from '#/components/ui/text';
 import { ThemedView } from '@/components/themed-view';
 
 export default function MapsWebScreen() {
@@ -10,14 +10,14 @@ export default function MapsWebScreen() {
     <ThemedView style={styles.screen}>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
-          <Pressable style={styles.back} onPress={() => router.back()}><ThemedText style={styles.backText}>‹</ThemedText></Pressable>
-          <ThemedText style={styles.title}>Properties on map</ThemedText>
+          <Pressable style={styles.back} onPress={() => router.back()}><Text style={styles.backText}>‹</Text></Pressable>
+          <Text style={styles.title}>Properties on map</Text>
           <View style={styles.spacer} />
         </View>
         <View style={styles.content}>
-          <View style={styles.icon}><ThemedText style={styles.iconText}>⌖</ThemedText></View>
-          <ThemedText style={styles.heading}>Native map preview</ThemedText>
-          <ThemedText style={styles.copy}>Property maps are available in the Namsari Android and iOS apps.</ThemedText>
+          <View style={styles.icon}><Text style={styles.iconText}>⌖</Text></View>
+          <Text style={styles.heading}>Native map preview</Text>
+          <Text style={styles.copy}>Property maps are available in the Namsari Android and iOS apps.</Text>
         </View>
       </SafeAreaView>
     </ThemedView>

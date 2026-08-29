@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from '@/components/elements/Header';
 import { Chevron } from '@/components/ui/chevron';
 
-import { ThemedText } from '@/components/themed-text';
+import { Text } from '#/components/ui/text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth } from '@/base/theme';
 
@@ -54,7 +54,7 @@ export default function MapsScreen() {
   return (
     <ThemedView style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.safeArea}>
-        <Header style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.backButton} onPress={() => router.back()}><Chevron direction="left" size={28} color={colors.ink} strokeWidth={2.5} /></Pressable><View style={styles.titleCopy}><ThemedText style={styles.topTitle}>Properties on map</ThemedText><ThemedText style={styles.topSubtitle}>{loading ? 'Loading…' : `${properties.length} mapped listings`}</ThemedText></View><Pressable accessibilityLabel="Refresh map" style={styles.iconButton} onPress={() => void loadProperties()}><ThemedText style={styles.refreshIcon}>↻</ThemedText></Pressable></Header>
+        <Header style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.backButton} onPress={() => router.back()}><Chevron direction="left" size={28} color={colors.ink} strokeWidth={2.5} /></Pressable><View style={styles.titleCopy}><Text style={styles.topTitle}>Properties on map</Text><Text style={styles.topSubtitle}>{loading ? 'Loading…' : `${properties.length} mapped listings`}</Text></View><Pressable accessibilityLabel="Refresh map" style={styles.iconButton} onPress={() => void loadProperties()}><Text style={styles.refreshIcon}>↻</Text></Pressable></Header>
 
         <View style={styles.mapContainer}>
           <MapView
@@ -76,11 +76,11 @@ export default function MapsScreen() {
             ))}
           </MapView>
 
-          {loading && <View style={styles.statusOverlay}><ActivityIndicator color={colors.primary} size="large" /><ThemedText style={styles.statusText}>Finding mapped properties…</ThemedText></View>}
-          {!loading && error && <View style={styles.statusOverlay}><ThemedText style={styles.statusTitle}>Map unavailable</ThemedText><ThemedText style={styles.statusText}>{error}</ThemedText><Pressable style={styles.retryButton} onPress={() => void loadProperties()}><ThemedText style={styles.retryText}>Try again</ThemedText></Pressable></View>}
-          {!loading && !error && properties.length === 0 && <View style={styles.statusOverlay}><ThemedText style={styles.statusTitle}>No mapped properties yet</ThemedText><ThemedText style={styles.statusText}>Listings with coordinates will appear on this map.</ThemedText></View>}
+          {loading && <View style={styles.statusOverlay}><ActivityIndicator color={colors.primary} size="large" /><Text style={styles.statusText}>Finding mapped properties…</Text></View>}
+          {!loading && error && <View style={styles.statusOverlay}><Text style={styles.statusTitle}>Map unavailable</Text><Text style={styles.statusText}>{error}</Text><Pressable style={styles.retryButton} onPress={() => void loadProperties()}><Text style={styles.retryText}>Try again</Text></Pressable></View>}
+          {!loading && !error && properties.length === 0 && <View style={styles.statusOverlay}><Text style={styles.statusTitle}>No mapped properties yet</Text><Text style={styles.statusText}>Listings with coordinates will appear on this map.</Text></View>}
 
-          {!loading && selected && <View style={styles.previewWrap}><Pressable style={styles.preview} onPress={() => router.push({ pathname: '/property/[id]', params: { id: String(selected.id) } })}><Image source={{ uri: imageUrl(selected.images?.[0] || selected.mainMedia) }} style={styles.previewImage} contentFit="cover" transition={180} /><View style={styles.previewCopy}><ThemedText style={styles.previewPrice}>{priceLabel(selected)}</ThemedText><ThemedText numberOfLines={2} style={styles.previewTitle}>{selected.title || 'Property listing'}</ThemedText><ThemedText numberOfLines={1} style={styles.previewLocation}>⌖  {selected.location || [selected.locationData?.area, selected.locationData?.district].filter(Boolean).join(', ') || 'Nepal'}</ThemedText><ThemedText numberOfLines={1} style={styles.previewSpecs}>{selected.specs || 'Tap to view details'}</ThemedText></View><ThemedText style={styles.previewArrow}>›</ThemedText></Pressable></View>}
+          {!loading && selected && <View style={styles.previewWrap}><Pressable style={styles.preview} onPress={() => router.push({ pathname: '/property/[id]', params: { id: String(selected.id) } })}><Image source={{ uri: imageUrl(selected.images?.[0] || selected.mainMedia) }} style={styles.previewImage} contentFit="cover" transition={180} /><View style={styles.previewCopy}><Text style={styles.previewPrice}>{priceLabel(selected)}</Text><Text numberOfLines={2} style={styles.previewTitle}>{selected.title || 'Property listing'}</Text><Text numberOfLines={1} style={styles.previewLocation}>⌖  {selected.location || [selected.locationData?.area, selected.locationData?.district].filter(Boolean).join(', ') || 'Nepal'}</Text><Text numberOfLines={1} style={styles.previewSpecs}>{selected.specs || 'Tap to view details'}</Text></View><Text style={styles.previewArrow}>›</Text></Pressable></View>}
         </View>
       </SafeAreaView>
     </ThemedView>

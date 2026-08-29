@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from '@/components/elements/Header';
 import { Chevron } from '@/components/ui/chevron';
 
-import { ThemedText } from '@/components/themed-text';
+import { Text } from '#/components/ui/text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth } from '@/base/theme';
 
@@ -58,8 +58,8 @@ export default function PublicProfileScreen() {
 
   useEffect(() => { void loadProfile(); }, [loadProfile]);
 
-  if (loading) return <StateScreen><ActivityIndicator size="large" color={colors.primary} /><ThemedText style={styles.stateText}>Loading profile…</ThemedText></StateScreen>;
-  if (error || !user) return <StateScreen><ThemedText style={styles.stateTitle}>Profile unavailable</ThemedText><ThemedText style={styles.stateText}>{error}</ThemedText><Pressable style={styles.retryButton} onPress={() => void loadProfile()}><ThemedText style={styles.retryText}>Try again</ThemedText></Pressable><Pressable onPress={() => router.back()}><ThemedText style={styles.goBack}>Go back</ThemedText></Pressable></StateScreen>;
+  if (loading) return <StateScreen><ActivityIndicator size="large" color={colors.primary} /><Text style={styles.stateText}>Loading profile…</Text></StateScreen>;
+  if (error || !user) return <StateScreen><Text style={styles.stateTitle}>Profile unavailable</Text><Text style={styles.stateText}>{error}</Text><Pressable style={styles.retryButton} onPress={() => void loadProfile()}><Text style={styles.retryText}>Try again</Text></Pressable><Pressable onPress={() => router.back()}><Text style={styles.goBack}>Go back</Text></Pressable></StateScreen>;
 
   const name = user.name || username;
   const joined = user.created_on ? new Date(user.created_on).getFullYear() : null;
@@ -67,21 +67,21 @@ export default function PublicProfileScreen() {
   return (
     <ThemedView style={styles.screen}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <Header style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.backButton} onPress={() => router.back()}><Chevron direction="left" size={28} color={colors.ink} strokeWidth={2.5} /></Pressable><ThemedText numberOfLines={1} style={styles.topTitle}>@{username}</ThemedText><Pressable accessibilityLabel="Share profile" style={styles.iconButton} onPress={() => void Share.share({ title: name, message: `${name} on Namsari\n${API_BASE_URL}/@${username}` })}><ThemedText style={styles.shareIcon}>↗</ThemedText></Pressable></Header>
+        <Header style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.backButton} onPress={() => router.back()}><Chevron direction="left" size={28} color={colors.ink} strokeWidth={2.5} /></Pressable><Text numberOfLines={1} style={styles.topTitle}>@{username}</Text><Pressable accessibilityLabel="Share profile" style={styles.iconButton} onPress={() => void Share.share({ title: name, message: `${name} on Namsari\n${API_BASE_URL}/@${username}` })}><Text style={styles.shareIcon}>↗</Text></Pressable></Header>
         <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void loadProfile(true)} tintColor={colors.primary} colors={[colors.primary]} />} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.cover}>{user.cover_image && <Image source={{ uri: mediaUrl(user.cover_image) }} style={StyleSheet.absoluteFill} contentFit="cover" />}<View style={styles.coverShade} /></View>
           <View style={styles.profileHeader}>
-            <View style={styles.avatar}>{user.profile_picture ? <Image source={{ uri: mediaUrl(user.profile_picture) }} style={styles.avatarImage} contentFit="cover" /> : <ThemedText style={styles.avatarInitial}>{name?.[0]?.toUpperCase() || 'N'}</ThemedText>}</View>
-            <View style={styles.nameRow}><ThemedText style={styles.name}>{name}</ThemedText><ThemedText style={styles.verified}>✓</ThemedText></View>
-            <ThemedText style={styles.handle}>@{username}</ThemedText>
-            <ThemedText style={styles.role}>{user.type === 'agency' ? 'Real estate agency' : user.type === 'agent' ? 'Property agent' : 'Property owner'}{joined ? ` · Member since ${joined}` : ''}</ThemedText>
-            {user.bio && <ThemedText style={styles.bio}>{user.bio}</ThemedText>}
+            <View style={styles.avatar}>{user.profile_picture ? <Image source={{ uri: mediaUrl(user.profile_picture) }} style={styles.avatarImage} contentFit="cover" /> : <Text style={styles.avatarInitial}>{name?.[0]?.toUpperCase() || 'N'}</Text>}</View>
+            <View style={styles.nameRow}><Text style={styles.name}>{name}</Text><Text style={styles.verified}>✓</Text></View>
+            <Text style={styles.handle}>@{username}</Text>
+            <Text style={styles.role}>{user.type === 'agency' ? 'Real estate agency' : user.type === 'agent' ? 'Property agent' : 'Property owner'}{joined ? ` · Member since ${joined}` : ''}</Text>
+            {user.bio && <Text style={styles.bio}>{user.bio}</Text>}
           </View>
 
           <View style={styles.stats}><Stat value={String(properties.length)} label="Listings" /><View style={styles.divider} /><Stat value={String(user._count?.listedProperties ?? properties.length)} label="Properties posted" /><View style={styles.divider} /><Stat value="Active" label="Profile status" /></View>
 
-          <View style={styles.sectionHeader}><View><ThemedText style={styles.sectionTitle}>Properties by {name}</ThemedText><ThemedText style={styles.sectionSubtitle}>{properties.length} active {properties.length === 1 ? 'listing' : 'listings'}</ThemedText></View></View>
-          <View style={styles.propertyList}>{properties.map((property) => <Pressable key={property.id} style={styles.propertyCard} onPress={() => router.push({ pathname: '/property/[id]', params: { id: String(property.id) } })}><Image source={{ uri: mediaUrl(property.images?.[0] || property.mainMedia) }} style={styles.propertyImage} contentFit="cover" transition={200} /><View style={styles.propertyCopy}><ThemedText style={styles.propertyPrice}>{priceLabel(property)}</ThemedText><ThemedText numberOfLines={2} style={styles.propertyTitle}>{property.title || 'Property listing'}</ThemedText><ThemedText numberOfLines={1} style={styles.propertyLocation}>⌖  {property.location || 'Nepal'}</ThemedText><ThemedText numberOfLines={1} style={styles.propertySpecs}>{property.specs || 'View property details'}</ThemedText></View></Pressable>)}</View>
+          <View style={styles.sectionHeader}><View><Text style={styles.sectionTitle}>Properties by {name}</Text><Text style={styles.sectionSubtitle}>{properties.length} active {properties.length === 1 ? 'listing' : 'listings'}</Text></View></View>
+          <View style={styles.propertyList}>{properties.map((property) => <Pressable key={property.id} style={styles.propertyCard} onPress={() => router.push({ pathname: '/property/[id]', params: { id: String(property.id) } })}><Image source={{ uri: mediaUrl(property.images?.[0] || property.mainMedia) }} style={styles.propertyImage} contentFit="cover" transition={200} /><View style={styles.propertyCopy}><Text style={styles.propertyPrice}>{priceLabel(property)}</Text><Text numberOfLines={2} style={styles.propertyTitle}>{property.title || 'Property listing'}</Text><Text numberOfLines={1} style={styles.propertyLocation}>⌖  {property.location || 'Nepal'}</Text><Text numberOfLines={1} style={styles.propertySpecs}>{property.specs || 'View property details'}</Text></View></Pressable>)}</View>
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
@@ -89,7 +89,7 @@ export default function PublicProfileScreen() {
 }
 
 function StateScreen({ children }: { children: React.ReactNode }) { return <ThemedView style={styles.screen}><SafeAreaView style={styles.state}>{children}</SafeAreaView></ThemedView>; }
-function Stat({ value, label }: { value: string; label: string }) { return <View style={styles.stat}><ThemedText style={styles.statValue}>{value}</ThemedText><ThemedText style={styles.statLabel}>{label}</ThemedText></View>; }
+function Stat({ value, label }: { value: string; label: string }) { return <View style={styles.stat}><Text style={styles.statValue}>{value}</Text><Text style={styles.statLabel}>{label}</Text></View>; }
 
 const styles = StyleSheet.create({
   backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },

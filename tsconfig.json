@@ -34,7 +34,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
-  ],
+, "expoapp/.neup/components/ui/text.tsx"  ],
   "exclude": [
     "node_modules",
     "application",

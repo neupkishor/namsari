@@ -28,5 +28,5 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+, ".neup/components/ui/text.tsx"  ]
 }

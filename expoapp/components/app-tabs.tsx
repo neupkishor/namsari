@@ -12,8 +12,8 @@ export default function AppTabs() {
       backgroundColor={colors.background}
       indicatorColor={colors.backgroundElement}
       labelStyle={{
-        default: { fontFamily: 'Poppins_500Medium' },
-        selected: { color: colors.text, fontFamily: 'Poppins_600SemiBold' },
+        default: { fontFamily: 'GoogleSansMedium' },
+        selected: { color: colors.text, fontFamily: 'GoogleSansSemiBold' },
       }}>
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>

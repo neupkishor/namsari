@@ -1,13 +1,5 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
-import {
-  Poppins_400Regular,
-  Poppins_500Medium,
-  Poppins_600SemiBold,
-  Poppins_700Bold,
-  Poppins_800ExtraBold,
-  Poppins_900Black,
-  useFonts,
-} from '@expo-google-fonts/poppins';
+import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { AppState, useColorScheme } from 'react-native';
@@ -21,12 +13,11 @@ SplashScreen.preventAutoHideAsync();
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const [fontsLoaded] = useFonts({
-    Poppins_400Regular,
-    Poppins_500Medium,
-    Poppins_600SemiBold,
-    Poppins_700Bold,
-    Poppins_800ExtraBold,
-    Poppins_900Black,
+    GoogleSansRegular: require('$/fonts/regular.ttf'),
+    GoogleSansItalic: require('$/fonts/italic.ttf'),
+    GoogleSansMedium: require('$/fonts/medium.ttf'),
+    GoogleSansMediumItalic: require('$/fonts/mediumitalic.ttf'),
+    GoogleSansSemiBold: require('$/fonts/semibold.ttf'),
   });
 
   useEffect(() => {

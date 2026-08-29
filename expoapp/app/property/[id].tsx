@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from '@/components/elements/Header';
 import { Chevron } from '@/components/ui/chevron';
 
-import { ThemedText } from "@/components/themed-text";
+import { Text } from "#/components/ui/text";
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth } from '$/theme';
 import { useAuthSession } from '#/core/hooks/useAuthSession';
@@ -124,8 +124,8 @@ export default function PropertyDetailScreen() {
 
   useEffect(() => { void loadProperty(); }, [loadProperty]);
 
-  if (loading) return <ScreenState><ActivityIndicator color={colors.primary} size="large" /><ThemedText style={styles.stateText}>Loading property…</ThemedText></ScreenState>;
-  if (error || !property) return <ScreenState><ThemedText style={styles.stateTitle}>Property unavailable</ThemedText><ThemedText style={styles.stateText}>{error}</ThemedText><Pressable style={styles.primaryButton} onPress={() => void loadProperty()}><ThemedText style={styles.primaryButtonText}>Try again</ThemedText></Pressable><Pressable onPress={() => router.back()}><ThemedText style={styles.backLink}>Go back</ThemedText></Pressable></ScreenState>;
+  if (loading) return <ScreenState><ActivityIndicator color={colors.primary} size="large" /><Text style={styles.stateText}>Loading property…</Text></ScreenState>;
+  if (error || !property) return <ScreenState><Text style={styles.stateTitle}>Property unavailable</Text><Text style={styles.stateText}>{error}</Text><Pressable style={styles.primaryButton} onPress={() => void loadProperty()}><Text style={styles.primaryButtonText}>Try again</Text></Pressable><Pressable onPress={() => router.back()}><Text style={styles.backLink}>Go back</Text></Pressable></ScreenState>;
 
   const images = getImages(property);
   const location = property.location || [property.locationData?.area, property.locationData?.cityVillage, property.locationData?.district].filter(Boolean).join(', ') || 'Nepal';
@@ -177,37 +177,37 @@ export default function PropertyDetailScreen() {
       <SafeAreaView edges={['top']} style={styles.safeArea}>
         <Header style={styles.topBar}>
           <Pressable accessibilityLabel="Go back" style={styles.iconButton} onPress={() => router.back()}><Chevron direction="left" size={28} color={colors.ink} strokeWidth={2.5} /></Pressable>
-          <ThemedText numberOfLines={1} style={styles.topBarTitle}>Property details</ThemedText>
-          <View style={styles.topActions}><Pressable accessibilityLabel={isLiked ? 'Unlike property' : 'Like property'} disabled={likePending} style={[styles.iconButton, likePending && styles.disabled]} onPress={() => void toggleLike()}><ThemedText style={styles.likeIcon}>{isLiked ? '♥' : '♡'}</ThemedText></Pressable><Pressable accessibilityLabel="Share property" style={styles.iconButton} onPress={() => void shareProperty()}><ThemedText style={styles.shareIcon}>↗</ThemedText></Pressable></View>
+          <Text numberOfLines={1} style={styles.topBarTitle}>Property details</Text>
+          <View style={styles.topActions}><Pressable accessibilityLabel={isLiked ? 'Unlike property' : 'Like property'} disabled={likePending} style={[styles.iconButton, likePending && styles.disabled]} onPress={() => void toggleLike()}><Text style={styles.likeIcon}>{isLiked ? '♥' : '♡'}</Text></Pressable><Pressable accessibilityLabel="Share property" style={styles.iconButton} onPress={() => void shareProperty()}><Text style={styles.shareIcon}>↗</Text></Pressable></View>
         </Header>
 
         <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void loadProperty(true)} tintColor={colors.primary} colors={[colors.primary]} />} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={styles.gallery}>
-            {images.map((image, index) => <View key={`${image}-${index}`} style={styles.imageFrame}><Image source={{ uri: image }} style={styles.heroImage} contentFit="cover" transition={200} alt={`${property.title || 'Property'} image ${index + 1}`} /><View style={styles.imageCounter}><ThemedText style={styles.imageCounterText}>{index + 1} / {images.length}</ThemedText></View></View>)}
+            {images.map((image, index) => <View key={`${image}-${index}`} style={styles.imageFrame}><Image source={{ uri: image }} style={styles.heroImage} contentFit="cover" transition={200} alt={`${property.title || 'Property'} image ${index + 1}`} /><View style={styles.imageCounter}><Text style={styles.imageCounterText}>{index + 1} / {images.length}</Text></View></View>)}
           </ScrollView>
 
           <View style={styles.body}>
-            <View style={styles.badgeRow}><ThemedText style={styles.typeBadge}>{(property.property_types?.[0] || property.types?.[0]?.name || 'Property').toUpperCase()}</ThemedText>{property.isVerified && <ThemedText style={styles.verifiedBadge}>✓ VERIFIED</ThemedText>}</View>
-            <ThemedText style={styles.price}>{formatPrice(property)}</ThemedText>
-            <ThemedText style={styles.title}>{property.title || 'Property listing'}</ThemedText>
-            <ThemedText style={styles.location}>⌖  {location}</ThemedText>
-            <View style={styles.metaRow}><ThemedText style={styles.metaText}>{formatDate(property.created_on)}</ThemedText><ThemedText style={styles.metaText}>{property.views || 0} views</ThemedText><ThemedText style={styles.metaText}>ID #{property.propertyId || property.id}</ThemedText></View>
+            <View style={styles.badgeRow}><Text style={styles.typeBadge}>{(property.property_types?.[0] || property.types?.[0]?.name || 'Property').toUpperCase()}</Text>{property.isVerified && <Text style={styles.verifiedBadge}>✓ VERIFIED</Text>}</View>
+            <Text style={styles.price}>{formatPrice(property)}</Text>
+            <Text style={styles.title}>{property.title || 'Property listing'}</Text>
+            <Text style={styles.location}>⌖  {location}</Text>
+            <View style={styles.metaRow}><Text style={styles.metaText}>{formatDate(property.created_on)}</Text><Text style={styles.metaText}>{property.views || 0} views</Text><Text style={styles.metaText}>ID #{property.propertyId || property.id}</Text></View>
 
-            {featureItems.length > 0 && <Section title="Property overview"><View style={styles.featureGrid}>{featureItems.map(([label, value]) => <View key={label} style={styles.featureCard}><ThemedText style={styles.featureValue}>{value}</ThemedText><ThemedText style={styles.featureLabel}>{label}</ThemedText></View>)}</View></Section>}
+            {featureItems.length > 0 && <Section title="Property overview"><View style={styles.featureGrid}>{featureItems.map(([label, value]) => <View key={label} style={styles.featureCard}><Text style={styles.featureValue}>{value}</Text><Text style={styles.featureLabel}>{label}</Text></View>)}</View></Section>}
 
-            <Section title="About this property"><ThemedText style={styles.description}>{property.remarks?.trim() || `${property.specs || 'A property'} available in ${location}. Contact the listing owner for availability, viewing times and additional information.`}</ThemedText></Section>
+            <Section title="About this property"><Text style={styles.description}>{property.remarks?.trim() || `${property.specs || 'A property'} available in ${location}. Contact the listing owner for availability, viewing times and additional information.`}</Text></Section>
 
-            {property.amenities && property.amenities.length > 0 && <Section title="Nearby amenities"><View style={styles.chipRow}>{property.amenities.map((amenity, index) => <View key={`${amenity.name}-${index}`} style={styles.chip}><ThemedText style={styles.chipText}>{amenity.name || amenity.type}{amenity.distance ? ` · ${amenity.distance}` : ''}</ThemedText></View>)}</View></Section>}
+            {property.amenities && property.amenities.length > 0 && <Section title="Nearby amenities"><View style={styles.chipRow}>{property.amenities.map((amenity, index) => <View key={`${amenity.name}-${index}`} style={styles.chip}><Text style={styles.chipText}>{amenity.name || amenity.type}{amenity.distance ? ` · ${amenity.distance}` : ''}</Text></View>)}</View></Section>}
 
-            <Section title="Listed by"><Pressable disabled={!property.listedBy?.username} accessibilityRole="link" accessibilityLabel={`View ${property.listedBy?.name || property.author_name || 'user'} profile`} onPress={() => property.listedBy?.username && router.push({ pathname: '/@/[username]', params: { username: property.listedBy.username } })} style={styles.sellerCard}>{property.listedBy?.profile_picture || property.listedBy?.image ? <Image source={{ uri: normalizeMediaUrl(property.listedBy.profile_picture || property.listedBy.image) }} style={styles.sellerImage} contentFit="cover" alt={`${property.listedBy?.name || property.author_name || 'User'} profile`} /> : <View style={styles.sellerAvatar}><ThemedText style={styles.sellerInitial}>{(property.listedBy?.name || property.author_name || 'N')[0].toUpperCase()}</ThemedText></View>}<View style={styles.sellerCopy}><ThemedText style={styles.sellerName}>{property.listedBy?.name || property.author_name || 'Namsari member'}</ThemedText><ThemedText style={styles.sellerType}>{property.listedBy?._count?.listedProperties || 0} Properties</ThemedText></View></Pressable></Section>
+            <Section title="Listed by"><Pressable disabled={!property.listedBy?.username} accessibilityRole="link" accessibilityLabel={`View ${property.listedBy?.name || property.author_name || 'user'} profile`} onPress={() => property.listedBy?.username && router.push({ pathname: '/@/[username]', params: { username: property.listedBy.username } })} style={styles.sellerCard}>{property.listedBy?.profile_picture || property.listedBy?.image ? <Image source={{ uri: normalizeMediaUrl(property.listedBy.profile_picture || property.listedBy.image) }} style={styles.sellerImage} contentFit="cover" alt={`${property.listedBy?.name || property.author_name || 'User'} profile`} /> : <View style={styles.sellerAvatar}><Text style={styles.sellerInitial}>{(property.listedBy?.name || property.author_name || 'N')[0].toUpperCase()}</Text></View>}<View style={styles.sellerCopy}><Text style={styles.sellerName}>{property.listedBy?.name || property.author_name || 'Namsari member'}</Text><Text style={styles.sellerType}>{property.listedBy?._count?.listedProperties || 0} Properties</Text></View></Pressable></Section>
 
-            <View style={styles.safetyNote}><ThemedText style={styles.safetyTitle}>Namsari safety tip</ThemedText><ThemedText style={styles.safetyText}>Visit the property and verify ownership documents before making any payment.</ThemedText></View>
+            <View style={styles.safetyNote}><Text style={styles.safetyTitle}>Namsari safety tip</Text><Text style={styles.safetyText}>Visit the property and verify ownership documents before making any payment.</Text></View>
           </View>
         </ScrollView>
 
         <View style={styles.contactBar}>
-          <Pressable disabled={!phone} style={[styles.contactButton, !phone && styles.disabled]} onPress={() => phone && contact('phone', phone)}><ThemedText style={styles.contactButtonText}>Call</ThemedText></Pressable>
-          <Pressable disabled={!whatsapp} style={[styles.whatsappButton, !whatsapp && styles.disabled]} onPress={() => whatsapp && contact('whatsapp', whatsapp)}><ThemedText style={styles.whatsappButtonText}>WhatsApp</ThemedText></Pressable>
+          <Pressable disabled={!phone} style={[styles.contactButton, !phone && styles.disabled]} onPress={() => phone && contact('phone', phone)}><Text style={styles.contactButtonText}>Call</Text></Pressable>
+          <Pressable disabled={!whatsapp} style={[styles.whatsappButton, !whatsapp && styles.disabled]} onPress={() => whatsapp && contact('whatsapp', whatsapp)}><Text style={styles.whatsappButtonText}>WhatsApp</Text></Pressable>
         </View>
       </SafeAreaView>
     </ThemedView>
@@ -219,7 +219,7 @@ function ScreenState({ children }: { children: React.ReactNode }) {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return <View style={styles.section}><ThemedText style={styles.sectionTitle}>{title}</ThemedText>{children}</View>;
+  return <View style={styles.section}><Text style={styles.sectionTitle}>{title}</Text>{children}</View>;
 }
 
 const styles = StyleSheet.create({

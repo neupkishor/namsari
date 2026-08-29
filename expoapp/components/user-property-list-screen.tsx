@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ThemedText } from '@/components/themed-text';
+import { Text as Text } from '#/components/ui/text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth } from '$/theme';
 import { useAuthSession } from '#/core/hooks/useAuthSession';
@@ -108,15 +108,15 @@ export function UserPropertyListScreen({ kind, title, emptyTitle, emptyText }: P
   return (
     <ThemedView style={styles.screen}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <View style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.backButton} onPress={() => router.back()}><ThemedText style={styles.backIcon}>‹</ThemedText></Pressable><ThemedText style={styles.topTitle}>{title}</ThemedText><View style={styles.spacer} /></View>
-        {!isLoadingSession && !session ? <View style={styles.state}><ThemedText style={styles.stateTitle}>Sign in required</ThemedText><ThemedText style={styles.stateText}>Sign in to see your properties.</ThemedText><Pressable style={styles.primaryButton} onPress={() => router.push('/auth/signin')}><ThemedText style={styles.primaryButtonText}>Sign in</ThemedText></Pressable></View> :
-          loading ? <View style={styles.state}><ActivityIndicator color={colors.primary} size="large" /><ThemedText style={styles.stateText}>Loading properties…</ThemedText></View> :
-            error ? <View style={styles.state}><ThemedText style={styles.stateTitle}>Couldn&apos;t load properties</ThemedText><ThemedText style={styles.stateText}>{error}</ThemedText><Pressable style={styles.primaryButton} onPress={() => void load()}><ThemedText style={styles.primaryButtonText}>Try again</ThemedText></Pressable></View> :
+        <View style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.backButton} onPress={() => router.back()}><Text style={styles.backIcon}>‹</Text></Pressable><Text style={styles.topTitle}>{title}</Text><View style={styles.spacer} /></View>
+        {!isLoadingSession && !session ? <View style={styles.state}><Text style={styles.stateTitle}>Sign in required</Text><Text style={styles.stateText}>Sign in to see your properties.</Text><Pressable style={styles.primaryButton} onPress={() => router.push('/auth/signin')}><Text style={styles.primaryButtonText}>Sign in</Text></Pressable></View> :
+          loading ? <View style={styles.state}><ActivityIndicator color={colors.primary} size="large" /><Text style={styles.stateText}>Loading properties…</Text></View> :
+            error ? <View style={styles.state}><Text style={styles.stateTitle}>Couldn&apos;t load properties</Text><Text style={styles.stateText}>{error}</Text><Pressable style={styles.primaryButton} onPress={() => void load()}><Text style={styles.primaryButtonText}>Try again</Text></Pressable></View> :
               <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void load(true)} tintColor={colors.primary} colors={[colors.primary]} />} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-                {properties.length === 0 ? <View style={styles.empty}><ThemedText style={styles.emptyIcon}>{kind === 'favourites' ? '♡' : '⌂'}</ThemedText><ThemedText style={styles.stateTitle}>{emptyTitle}</ThemedText><ThemedText style={styles.stateText}>{emptyText}</ThemedText></View> : properties.map((property) =>
+                {properties.length === 0 ? <View style={styles.empty}><Text style={styles.emptyIcon}>{kind === 'favourites' ? '♡' : '⌂'}</Text><Text style={styles.stateTitle}>{emptyTitle}</Text><Text style={styles.stateText}>{emptyText}</Text></View> : properties.map((property) =>
                   <Link key={property.id} href={{ pathname: '/property/[id]', params: { id: String(property.id) } }} asChild><Pressable style={styles.card}>
                     <Image source={{ uri: imageUrl(property.images?.[0] || property.mainMedia) }} style={styles.image} contentFit="cover" transition={200} alt={property.title || 'Property listing'} />
-                    <View style={styles.cardBody}><View style={styles.cardTop}><ThemedText style={styles.badge}>{(property.property_types?.[0] || 'PROPERTY').toUpperCase()}</ThemedText>{kind === 'favourites' && <ThemedText accessibilityLabel="Liked property" style={styles.heart}>♥</ThemedText>}</View><ThemedText numberOfLines={2} style={styles.title}>{property.title || 'Property listing'}</ThemedText><ThemedText numberOfLines={1} style={styles.location}>⌖  {property.location_text || 'Nepal'}</ThemedText><View style={styles.footer}><ThemedText style={styles.price}>{priceText(property)}</ThemedText><ThemedText numberOfLines={1} style={styles.meta}>{property.specs || 'View details'}</ThemedText></View></View>
+                    <View style={styles.cardBody}><View style={styles.cardTop}><Text style={styles.badge}>{(property.property_types?.[0] || 'PROPERTY').toUpperCase()}</Text>{kind === 'favourites' && <Text accessibilityLabel="Liked property" style={styles.heart}>♥</Text>}</View><Text numberOfLines={2} style={styles.title}>{property.title || 'Property listing'}</Text><Text numberOfLines={1} style={styles.location}>⌖  {property.location_text || 'Nepal'}</Text><View style={styles.footer}><Text style={styles.price}>{priceText(property)}</Text><Text numberOfLines={1} style={styles.meta}>{property.specs || 'View details'}</Text></View></View>
                   </Pressable></Link>)}
               </ScrollView>}
       </SafeAreaView>

@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from '@/components/elements/Header';
 import { Chevron } from '@/components/ui/chevron';
 
-import { ThemedText } from '@/components/themed-text';
+import { Text } from '#/components/ui/text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth } from '$/theme';
 import { useAuthSession } from '#/core/hooks/useAuthSession';
@@ -57,29 +57,29 @@ export default function ProfileScreen() {
   return (
     <ThemedView style={styles.screen}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <Header style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.backButton} onPress={() => router.back()}><Chevron direction="left" size={28} color={colors.ink} strokeWidth={2.5} /></Pressable><ThemedText style={styles.topTitle}>Profile</ThemedText><View style={styles.headerSpacer} /></Header>
+        <Header style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.backButton} onPress={() => router.back()}><Chevron direction="left" size={28} color={colors.ink} strokeWidth={2.5} /></Pressable><Text style={styles.topTitle}>Profile</Text><View style={styles.headerSpacer} /></Header>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.hero}>
             <View style={styles.heroGlow} />
-            {profile?.image ? <Image source={{ uri: profile.image }} style={styles.profileImage} contentFit="cover" alt={`${profile.name || 'User'} profile`} /> : <View style={styles.avatar}><ThemedText style={styles.avatarText}>{initials}</ThemedText></View>}
-            <ThemedText style={styles.name}>{profile?.name || (isLoading ? 'Loading profile…' : 'Welcome to Namsari')}</ThemedText>
-            <ThemedText style={styles.handle}>{profile?.username ? `@${profile.username}` : profile?.email || 'Your property journey starts here'}</ThemedText>
-            {!isLoading && !session && <Pressable style={styles.signInButton} onPress={() => router.push('/auth/signin')}><ThemedText style={styles.signInText}>Sign in or create account</ThemedText></Pressable>}
+            {profile?.image ? <Image source={{ uri: profile.image }} style={styles.profileImage} contentFit="cover" alt={`${profile.name || 'User'} profile`} /> : <View style={styles.avatar}><Text style={styles.avatarText}>{initials}</Text></View>}
+            <Text style={styles.name}>{profile?.name || (isLoading ? 'Loading profile…' : 'Welcome to Namsari')}</Text>
+            <Text style={styles.handle}>{profile?.username ? `@${profile.username}` : profile?.email || 'Your property journey starts here'}</Text>
+            {!isLoading && !session && <Pressable style={styles.signInButton} onPress={() => router.push('/auth/signin')}><Text style={styles.signInText}>Sign in or create account</Text></Pressable>}
           </View>
 
           <View style={styles.stats}><Stat value={String(counts.saved)} label="Saved" /><View style={styles.divider} /><Stat value={String(counts.listings)} label="Listings" /><View style={styles.divider} /><Stat value="0" label="Enquiries" /></View>
 
-          <ThemedText style={styles.sectionTitle}>Your Namsari</ThemedText>
-          <View style={styles.menuCard}>{accountItems.map((item, index) => <Pressable key={item.title} onPress={() => openAccountItem(item.href)} style={[styles.menuItem, index < accountItems.length - 1 && styles.menuBorder]}><View style={styles.menuIcon}><ThemedText style={styles.menuIconText}>{item.icon}</ThemedText></View><View style={styles.menuCopy}><ThemedText style={styles.menuTitle}>{item.title}</ThemedText><ThemedText style={styles.menuSubtitle}>{item.subtitle}</ThemedText></View><ThemedText style={styles.arrow}>›</ThemedText></Pressable>)}</View>
+          <Text style={styles.sectionTitle}>Your Namsari</Text>
+          <View style={styles.menuCard}>{accountItems.map((item, index) => <Pressable key={item.title} onPress={() => openAccountItem(item.href)} style={[styles.menuItem, index < accountItems.length - 1 && styles.menuBorder]}><View style={styles.menuIcon}><Text style={styles.menuIconText}>{item.icon}</Text></View><View style={styles.menuCopy}><Text style={styles.menuTitle}>{item.title}</Text><Text style={styles.menuSubtitle}>{item.subtitle}</Text></View><Text style={styles.arrow}>›</Text></Pressable>)}</View>
 
-          <View style={styles.helpCard}><ThemedText style={styles.helpKicker}>NEED HELP?</ThemedText><ThemedText style={styles.helpTitle}>We&apos;re here for your property journey.</ThemedText><ThemedText style={styles.helpText}>Get support with listings, enquiries, or using Namsari.</ThemedText><Pressable style={styles.helpButton}><ThemedText style={styles.helpButtonText}>Contact support</ThemedText></Pressable></View>
+          <View style={styles.helpCard}><Text style={styles.helpKicker}>NEED HELP?</Text><Text style={styles.helpTitle}>We&apos;re here for your property journey.</Text><Text style={styles.helpText}>Get support with listings, enquiries, or using Namsari.</Text><Pressable style={styles.helpButton}><Text style={styles.helpButtonText}>Contact support</Text></Pressable></View>
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );
 }
 
-function Stat({ value, label }: { value: string; label: string }) { return <View style={styles.stat}><ThemedText style={styles.statValue}>{value}</ThemedText><ThemedText style={styles.statLabel}>{label}</ThemedText></View>; }
+function Stat({ value, label }: { value: string; label: string }) { return <View style={styles.stat}><Text style={styles.statValue}>{value}</Text><Text style={styles.statLabel}>{label}</Text></View>; }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper }, safeArea: { flex: 1 }, content: { width: '100%', maxWidth: MaxContentWidth, alignSelf: 'center', paddingHorizontal: 20, paddingBottom: 36 + BottomTabInset },
