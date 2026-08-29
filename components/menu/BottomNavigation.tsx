@@ -348,14 +348,14 @@ export function BottomNavigation({ user }: { user?: any }) {
                             }}
                             onContextMenu={preventContextMenu}
                             onDragStart={preventDragStart}
-                            className={`bottom-nav-guard relative flex flex-col items-center justify-center gap-1 min-w-[56px] h-[52px] px-2 rounded-xl transition-all duration-200 active:scale-95 ${
+                            className={`bottom-nav-guard group relative flex flex-col items-center justify-center gap-1 min-w-[56px] h-[52px] px-2 rounded-xl transition-[background-color,transform] duration-200 ease-out hover:bg-[color:var(--color-primary)]/8 active:scale-95 ${
                                 active ? 'bg-[color:var(--color-primary)]/8' : 'bg-transparent'
                             }`}
                         >
-                            <div className={`transition-all duration-200 ${
+                            <div className={`flex h-8 w-8 items-center justify-center rounded-xl transition-[background-color,transform] duration-200 ease-out group-hover:-translate-y-0.5 group-hover:scale-110 ${
                                 active 
-                                    ? 'scale-105' 
-                                    : 'opacity-80'
+                                    ? 'scale-105 bg-[color:var(--color-primary)]/18' 
+                                    : 'bg-[color:var(--color-primary)]/6'
                             }`}>
                                 <span key={`${item.label}-${itemIcon}`} className="footer-icon-swap inline-flex text-[20px]">
                                     <MenuIcon icon={itemIcon} label={item.label} active={active} className="text-[20px]" />
@@ -366,9 +366,9 @@ export function BottomNavigation({ user }: { user?: any }) {
                                     <div className="footer-hold-progress h-full bg-blue-600 rounded-full" />
                                 </div>
                             )}
-                            <span className={`text-[10px] font-semibold tracking-tight transition-all duration-200 ${
-                                active ? 'text-[color:var(--color-primary)] opacity-100' : 'text-slate-500 opacity-100'
-                            }`}>
+                            <span className={`text-[10px] tracking-tight transition-colors duration-200 ${
+                                active ? 'font-bold text-[color:var(--color-primary)] opacity-100' : 'font-semibold text-slate-500 opacity-100'
+                            } group-hover:text-[color:var(--color-primary)]`}>
                                 {item.label}
                             </span>
                             {active && (

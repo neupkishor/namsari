@@ -186,10 +186,9 @@ export const managementMenuGroups = (user: any): MenuGroup[] => {
 
 export const bottomNavItems = (user: any): MenuItem[] => [
     { label: 'Home', icon: '/icons/house-chimney.svg', href: '/' },
-    { label: 'Search', icon: '/icons/land-layer-location.svg', href: '/search' },
+    { label: 'Maps', icon: '/icons/land-layer-location.svg', href: '/maps' },
     { label: 'Post', icon: '/icons/note.svg', href: '/post' },
-    { label: 'Saved', icon: '/icons/note.svg', href: user ? `/@${user.username}/saved` : '/auth/login' },
-    { label: 'Menu', icon: '/icons/info.svg', href: '#menu' }
+    { label: 'Profile', icon: '/icons/info.svg', href: user ? `/@${user.username}` : '/auth/login' }
 ];
 
 export const footerPlatformItems: MenuItem[] = [

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '#/components/ui/text';
@@ -56,12 +56,13 @@ export function PostPropertyScreen() {
   return (
     <ThemedView style={styles.screen}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <View style={styles.header}>
+        <View style={[styles.header, styles.headerShadow]}>
           <Pressable accessibilityLabel="Go back" onPress={handleBack} style={styles.backButton}><Text style={styles.back}>‹</Text></Pressable>
           <Text style={styles.headerTitle}>Post property</Text>
           <View style={styles.headerSpacer} />
         </View>
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <KeyboardAvoidingView style={styles.keyboardArea} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}>
           <View style={styles.intro}>
             <Text style={styles.eyebrow}>LIST WITH NAMSARI</Text>
             <Text style={styles.title}>Put your property in front of the right people.</Text>
@@ -93,6 +94,7 @@ export function PostPropertyScreen() {
             <Text style={styles.note}>Free to post. You’ll review everything before it goes live.</Text>
           </View>
         </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -103,5 +105,6 @@ export default PostPropertyScreen;
 function Field({ label, value, setValue, placeholder, keyboardType }: { label: string; value: string; setValue: (value: string) => void; placeholder: string; keyboardType?: 'numeric' }) { return <><Text style={styles.label}>{label}</Text><TextInput value={value} onChangeText={setValue} placeholder={placeholder} placeholderTextColor="#A89C98" keyboardType={keyboardType} style={styles.input} /></>; }
 
 const styles = StyleSheet.create({
+  headerShadow: { boxShadow: '0px 5px 10px -3px rgba(41, 24, 23, 0.16)', zIndex: 10 }, keyboardArea: { flex: 1 },
   screen: { flex: 1, backgroundColor: colors.paper }, safeArea: { flex: 1 }, header: { height: 68, maxWidth: MaxContentWidth, width: '100%', alignSelf: 'center', paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: colors.paper }, backButton: { width: 40, height: 40, justifyContent: 'center' }, back: { color: colors.ink, fontSize: 38, lineHeight: 40, fontWeight: '300' }, headerTitle: { color: colors.ink, fontSize: 17, lineHeight: 23, fontWeight: '800' }, headerSpacer: { width: 40 }, content: { width: '100%', maxWidth: MaxContentWidth, alignSelf: 'center', padding: 20, paddingBottom: 50 }, intro: { paddingTop: 20, paddingBottom: 24 }, eyebrow: { color: colors.primary, fontSize: 10, lineHeight: 14, letterSpacing: 1.6, fontWeight: '900' }, title: { color: colors.ink, fontSize: 31, lineHeight: 37, letterSpacing: -0.8, fontWeight: '800', marginTop: 9 }, copy: { color: colors.muted, fontSize: 14, lineHeight: 21, marginTop: 10 }, progress: { marginBottom: 14 }, progressText: { color: colors.primary, fontSize: 10, fontWeight: '900', letterSpacing: 1.3, marginBottom: 7 }, progressTrack: { height: 5, borderRadius: 5, backgroundColor: colors.line, overflow: 'hidden' }, progressFill: { height: '100%', backgroundColor: colors.primary }, card: { backgroundColor: colors.white, borderColor: colors.line, borderWidth: 1, borderRadius: 24, padding: 20 }, previous: { color: colors.primary, fontSize: 12, fontWeight: '800', marginBottom: 20 }, sectionTitle: { color: colors.ink, fontSize: 16, lineHeight: 22, fontWeight: '800' }, sectionCopy: { color: colors.muted, fontSize: 12, marginTop: 5 }, choiceList: { gap: 10, marginTop: 15 }, choiceCard: { borderWidth: 1, borderColor: colors.line, borderRadius: 15, padding: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, choiceCardActive: { borderColor: colors.primary, backgroundColor: colors.primarySoft }, choiceTitle: { color: colors.ink, fontSize: 14, fontWeight: '800' }, choiceCheck: { color: colors.primary, fontSize: 20, fontWeight: '800' }, requirementsMessage: { color: colors.muted, fontSize: 13, lineHeight: 20, marginTop: 18 }, segmentRow: { flexDirection: 'row', gap: 8, marginTop: 13 }, segment: { flex: 1, borderRadius: 12, borderWidth: 1, borderColor: colors.line, paddingVertical: 13, alignItems: 'center' }, segmentActive: { backgroundColor: colors.primary, borderColor: colors.primary }, segmentText: { color: colors.muted, fontSize: 13, fontWeight: '700' }, segmentTextActive: { color: colors.white }, label: { color: colors.ink, fontSize: 12, lineHeight: 17, fontWeight: '800', marginTop: 22, marginBottom: 9 }, typeRow: { gap: 8, flexDirection: 'row', flexWrap: 'wrap' }, typeChip: { borderColor: colors.line, borderWidth: 1, borderRadius: 100, paddingHorizontal: 14, paddingVertical: 9 }, typeChipActive: { borderColor: colors.primary, backgroundColor: colors.primarySoft }, typeText: { color: colors.muted, fontSize: 12, fontWeight: '700' }, typeTextActive: { color: colors.primary }, input: { minHeight: 52, borderColor: colors.line, borderWidth: 1, borderRadius: 13, paddingHorizontal: 14, color: colors.ink, fontSize: 13, backgroundColor: colors.paper }, review: { color: colors.muted, fontSize: 14, lineHeight: 21, marginTop: 12 }, error: { color: colors.primary, fontSize: 12, marginTop: 14 }, continueButton: { marginTop: 26, borderRadius: 14, minHeight: 52, backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center' }, continueText: { color: colors.white, fontSize: 13, fontWeight: '800' }, note: { color: colors.muted, fontSize: 11, lineHeight: 17, textAlign: 'center', marginTop: 12 },
 });
