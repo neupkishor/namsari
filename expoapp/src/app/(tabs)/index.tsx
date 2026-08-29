@@ -1,13 +1,15 @@
 import { Image } from 'expo-image';
 import { Link, router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, RefreshControl, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useAuthSession } from '@/hooks/use-auth-session';
+import { getSessionUserId } from '@/lib/auth';
+import { interactWithProperty } from '@/lib/property-interactions';
 
 const colors = { primary: '#820000', primarySoft: '#F9EEEE', gold: '#B8960C', ink: '#191413', muted: '#786E6B', line: '#EDE6E3', paper: '#FBF8F6', white: '#FFFFFF' };
 
@@ -33,6 +35,7 @@ type ApiProperty = {
   specs?: string;
   property_types?: string[];
   isFeatured?: boolean;
+  property_likes?: Array<{ user_id: number }>;
 };
 
 function normalizeMediaUrl(url?: string) {
@@ -65,6 +68,9 @@ export default function HomeScreen() {
   const [isLoadingProperties, setIsLoadingProperties] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [propertyError, setPropertyError] = useState<string | null>(null);
+  const [likedPropertyIds, setLikedPropertyIds] = useState<Set<number>>(new Set());
+  const [pendingLikeIds, setPendingLikeIds] = useState<Set<number>>(new Set());
+  const userId = getSessionUserId(session);
 
   const loadProperties = useCallback(async (refresh = false) => {
     refresh ? setIsRefreshing(true) : setIsLoadingProperties(true);
@@ -75,16 +81,46 @@ export default function HomeScreen() {
       if (!response.ok) throw new Error(`Property request failed with status ${response.status}`);
       const data: unknown = await response.json();
       if (!Array.isArray(data)) throw new Error('The property API returned an invalid response');
-      setProperties(data as ApiProperty[]);
+      const loadedProperties = data as ApiProperty[];
+      setProperties(loadedProperties);
+      if (userId) {
+        setLikedPropertyIds(new Set(loadedProperties.filter((property) => property.property_likes?.some((like) => like.user_id === userId)).map((property) => property.id)));
+      }
     } catch (error) {
       setPropertyError(error instanceof Error ? error.message : 'Unable to load properties');
     } finally {
       setIsLoadingProperties(false);
       setIsRefreshing(false);
     }
-  }, []);
+  }, [userId]);
 
   useEffect(() => { void loadProperties(); }, [loadProperties]);
+
+  const toggleLike = async (propertyId: number) => {
+    if (!session) {
+      router.push('/auth/signin');
+      return;
+    }
+    if (pendingLikeIds.has(propertyId)) return;
+
+    setPendingLikeIds((current) => new Set(current).add(propertyId));
+    try {
+      const result = await interactWithProperty(propertyId, 'like', session);
+      setLikedPropertyIds((current) => {
+        const next = new Set(current);
+        result.liked ? next.add(propertyId) : next.delete(propertyId);
+        return next;
+      });
+    } catch (requestError) {
+      Alert.alert('Could not update property', requestError instanceof Error ? requestError.message : 'Please try again.');
+    } finally {
+      setPendingLikeIds((current) => {
+        const next = new Set(current);
+        next.delete(propertyId);
+        return next;
+      });
+    }
+  };
 
   return (
     <ThemedView style={styles.screen}>
@@ -131,8 +167,8 @@ export default function HomeScreen() {
             {!isLoadingProperties && propertyError && <View style={styles.propertyState}><ThemedText style={styles.propertyStateTitle}>Couldn&apos;t load properties</ThemedText><ThemedText style={styles.propertyStateText}>{propertyError}</ThemedText><Pressable style={styles.retryButton} onPress={() => void loadProperties()}><ThemedText style={styles.retryButtonText}>Try again</ThemedText></Pressable></View>}
             {!isLoadingProperties && !propertyError && properties.length === 0 && <View style={styles.propertyState}><ThemedText style={styles.propertyStateTitle}>No properties available</ThemedText><ThemedText style={styles.propertyStateText}>New listings will appear here.</ThemedText></View>}
             {properties.map((property) => <Link key={property.id} href={{ pathname: '/property/[id]', params: { id: String(property.id) } }} asChild><Pressable style={styles.propertyCard}>
-              <Image source={{ uri: normalizeMediaUrl(property.images?.[0] || property.mainMedia) }} style={styles.propertyImage} contentFit="cover" transition={250} />
-              <View style={styles.propertyDetails}><View style={styles.propertyTopline}><ThemedText style={styles.featuredPill}>{property.isFeatured ? 'FEATURED' : (property.property_types?.[0] || 'PROPERTY').toUpperCase()}</ThemedText><ThemedText style={styles.heart}>♡</ThemedText></View><ThemedText numberOfLines={2} style={styles.propertyTitle}>{property.title || 'Property listing'}</ThemedText><ThemedText numberOfLines={1} style={styles.propertyLocation}>⌖  {getPropertyLocation(property)}</ThemedText><View style={styles.propertyFooter}><ThemedText style={styles.propertyPrice}>{formatPropertyPrice(property)}</ThemedText><ThemedText numberOfLines={1} style={styles.propertyMeta}>{property.specs || 'View details'}</ThemedText></View></View>
+              <Image source={{ uri: normalizeMediaUrl(property.images?.[0] || property.mainMedia) }} style={styles.propertyImage} contentFit="cover" transition={250} alt={property.title || 'Property listing'} />
+              <View style={styles.propertyDetails}><View style={styles.propertyTopline}><ThemedText style={styles.featuredPill}>{property.isFeatured ? 'FEATURED' : (property.property_types?.[0] || 'PROPERTY').toUpperCase()}</ThemedText><Pressable accessibilityRole="button" accessibilityLabel={likedPropertyIds.has(property.id) ? 'Unlike property' : 'Like property'} disabled={pendingLikeIds.has(property.id)} hitSlop={10} style={pendingLikeIds.has(property.id) && styles.likePending} onPress={(event) => { event.stopPropagation(); void toggleLike(property.id); }}><ThemedText style={[styles.heart, likedPropertyIds.has(property.id) && styles.heartLiked]}>{likedPropertyIds.has(property.id) ? '♥' : '♡'}</ThemedText></Pressable></View><ThemedText numberOfLines={2} style={styles.propertyTitle}>{property.title || 'Property listing'}</ThemedText><ThemedText numberOfLines={1} style={styles.propertyLocation}>⌖  {getPropertyLocation(property)}</ThemedText><View style={styles.propertyFooter}><ThemedText style={styles.propertyPrice}>{formatPropertyPrice(property)}</ThemedText><ThemedText numberOfLines={1} style={styles.propertyMeta}>{property.specs || 'View details'}</ThemedText></View></View>
             </Pressable></Link>)}
           </View>
 
@@ -168,7 +204,7 @@ const styles = StyleSheet.create({
   sectionHeader: { paddingHorizontal: 20, marginTop: 32, marginBottom: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, sectionTitle: { color: colors.ink, fontSize: 21, lineHeight: 28, fontWeight: '800', letterSpacing: -0.4 }, sectionAction: { color: colors.primary, fontSize: 12, lineHeight: 18, fontWeight: '800' },
   categoryRow: { paddingHorizontal: 20, gap: 10 }, categoryCard: { width: 136, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderRadius: 20, padding: 14 }, categoryIcon: { width: 42, height: 42, borderRadius: 14, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center', marginBottom: 14 }, categoryIconText: { color: colors.primary, fontSize: 22, lineHeight: 26, fontWeight: '700' }, categoryLabel: { color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: '800' }, categoryCount: { color: colors.muted, fontSize: 11, lineHeight: 16, marginTop: 2 },
   actionBanner: { marginHorizontal: 20, marginTop: 28, padding: 20, borderRadius: 24, backgroundColor: '#F0E3C3', flexDirection: 'row', alignItems: 'center', gap: 12 }, actionCopy: { flex: 1 }, actionKicker: { color: '#735A18', fontSize: 9, lineHeight: 13, fontWeight: '900', letterSpacing: 1.4 }, actionTitle: { color: colors.ink, fontSize: 18, lineHeight: 24, fontWeight: '800', marginTop: 3 }, actionBody: { color: '#695F45', fontSize: 12, lineHeight: 17, marginTop: 3 }, listButton: { backgroundColor: colors.ink, borderRadius: 13, paddingHorizontal: 15, paddingVertical: 12 }, listButtonText: { color: colors.white, fontSize: 12, lineHeight: 16, fontWeight: '800' },
-  propertyList: { paddingHorizontal: 20, gap: 16 }, propertyCard: { backgroundColor: colors.white, borderRadius: 24, borderWidth: 1, borderColor: colors.line, overflow: 'hidden' }, propertyImage: { width: '100%', height: 205, backgroundColor: '#EAE2DE' }, propertyDetails: { padding: 16 }, propertyTopline: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, featuredPill: { color: colors.primary, backgroundColor: colors.primarySoft, borderRadius: 100, paddingHorizontal: 9, paddingVertical: 4, fontSize: 9, lineHeight: 12, fontWeight: '900', letterSpacing: 1 }, heart: { color: colors.primary, fontSize: 24, lineHeight: 26 }, propertyTitle: { color: colors.ink, fontSize: 18, lineHeight: 24, fontWeight: '800', marginTop: 8 }, propertyLocation: { color: colors.muted, fontSize: 12, lineHeight: 18, marginTop: 5 }, propertyFooter: { borderTopWidth: 1, borderTopColor: colors.line, marginTop: 14, paddingTop: 13, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }, propertyPrice: { color: colors.primary, fontSize: 18, lineHeight: 24, fontWeight: '900' }, propertyMeta: { color: colors.muted, fontSize: 11, lineHeight: 16, textAlign: 'right' },
+  propertyList: { paddingHorizontal: 20, gap: 16 }, propertyCard: { backgroundColor: colors.white, borderRadius: 24, borderWidth: 1, borderColor: colors.line, overflow: 'hidden' }, propertyImage: { width: '100%', height: 205, backgroundColor: '#EAE2DE' }, propertyDetails: { padding: 16 }, propertyTopline: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, featuredPill: { color: colors.primary, backgroundColor: colors.primarySoft, borderRadius: 100, paddingHorizontal: 9, paddingVertical: 4, fontSize: 9, lineHeight: 12, fontWeight: '900', letterSpacing: 1 }, heart: { color: colors.primary, fontSize: 24, lineHeight: 26 }, heartLiked: { color: colors.primary }, likePending: { opacity: 0.45 }, propertyTitle: { color: colors.ink, fontSize: 18, lineHeight: 24, fontWeight: '800', marginTop: 8 }, propertyLocation: { color: colors.muted, fontSize: 12, lineHeight: 18, marginTop: 5 }, propertyFooter: { borderTopWidth: 1, borderTopColor: colors.line, marginTop: 14, paddingTop: 13, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }, propertyPrice: { color: colors.primary, fontSize: 18, lineHeight: 24, fontWeight: '900' }, propertyMeta: { color: colors.muted, fontSize: 11, lineHeight: 16, textAlign: 'right' },
   propertyState: { minHeight: 170, borderRadius: 24, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 8 }, propertyStateTitle: { color: colors.ink, fontSize: 16, lineHeight: 22, fontWeight: '800', textAlign: 'center' }, propertyStateText: { color: colors.muted, fontSize: 12, lineHeight: 18, textAlign: 'center' }, retryButton: { marginTop: 6, borderRadius: 100, backgroundColor: colors.primary, paddingHorizontal: 18, paddingVertical: 10 }, retryButtonText: { color: colors.white, fontSize: 12, lineHeight: 16, fontWeight: '800' },
   trustRow: { marginHorizontal: 20, marginTop: 30, paddingVertical: 22, borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.line, flexDirection: 'row', alignItems: 'center' }, trustItem: { flex: 1, alignItems: 'center' }, trustValue: { color: colors.primary, fontSize: 17, lineHeight: 22, fontWeight: '900' }, trustLabel: { color: colors.muted, fontSize: 9, lineHeight: 13, marginTop: 2, textAlign: 'center' }, trustDivider: { width: 1, height: 28, backgroundColor: colors.line },
 });

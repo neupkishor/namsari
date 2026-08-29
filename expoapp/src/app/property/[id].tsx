@@ -1,12 +1,15 @@
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Pressable, RefreshControl, ScrollView, Share, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Pressable, RefreshControl, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth } from '@/constants/theme';
+import { useAuthSession } from '@/hooks/use-auth-session';
+import { getSessionUserId } from '@/lib/auth';
+import { interactWithProperty } from '@/lib/property-interactions';
 
 const API_BASE_URL = 'https://namsari.com';
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1200&q=80';
@@ -50,6 +53,7 @@ type Property = {
   author_phone?: string;
   created_on?: string;
   views?: number;
+  property_likes?: Array<{ user_id: number }>;
 };
 
 function normalizeMediaUrl(url?: string) {
@@ -75,10 +79,14 @@ function formatDate(value?: string) {
 
 export default function PropertyDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { session } = useAuthSession();
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likePending, setLikePending] = useState(false);
+  const userId = getSessionUserId(session);
 
   const loadProperty = useCallback(async (refresh = false) => {
     if (!id) return;
@@ -96,13 +104,14 @@ export default function PropertyDetailScreen() {
       }
       if (!match) throw new Error('This property could not be found');
       setProperty(match);
+      setIsLiked(Boolean(userId && match.property_likes?.some((like) => like.user_id === userId)));
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Unable to load this property');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [id]);
+  }, [id, userId]);
 
   useEffect(() => { void loadProperty(); }, [loadProperty]);
 
@@ -126,18 +135,45 @@ export default function PropertyDetailScreen() {
 
   const shareProperty = () => Share.share({ title: property.title, message: `${property.title || 'Property on Namsari'}\n${API_BASE_URL}/properties/${property.slug || 'property'}-${property.id}` });
 
+  const toggleLike = async () => {
+    if (!session) {
+      router.push('/auth/signin');
+      return;
+    }
+    if (likePending) return;
+    setLikePending(true);
+    try {
+      const result = await interactWithProperty(property.id, 'like', session);
+      setIsLiked(Boolean(result.liked));
+    } catch (requestError) {
+      Alert.alert('Could not update property', requestError instanceof Error ? requestError.message : 'Please try again.');
+    } finally {
+      setLikePending(false);
+    }
+  };
+
+  const contact = (channel: 'phone' | 'whatsapp', value: string) => {
+    void interactWithProperty(property.id, `enquiry:${channel}`, session).catch((requestError) => {
+      console.warn('Unable to record property enquiry', requestError);
+    });
+    const url = channel === 'phone'
+      ? `tel:${value.replace(/[^+\d]/g, '')}`
+      : `https://wa.me/${value.replace(/\D/g, '')}`;
+    void Linking.openURL(url);
+  };
+
   return (
     <ThemedView style={styles.screen}>
       <SafeAreaView edges={['top']} style={styles.safeArea}>
         <View style={styles.topBar}>
           <Pressable accessibilityLabel="Go back" style={styles.iconButton} onPress={() => router.back()}><ThemedText style={styles.iconButtonText}>‹</ThemedText></Pressable>
           <ThemedText numberOfLines={1} style={styles.topBarTitle}>Property details</ThemedText>
-          <Pressable accessibilityLabel="Share property" style={styles.iconButton} onPress={() => void shareProperty()}><ThemedText style={styles.shareIcon}>↗</ThemedText></Pressable>
+          <View style={styles.topActions}><Pressable accessibilityLabel={isLiked ? 'Unlike property' : 'Like property'} disabled={likePending} style={[styles.iconButton, likePending && styles.disabled]} onPress={() => void toggleLike()}><ThemedText style={styles.likeIcon}>{isLiked ? '♥' : '♡'}</ThemedText></Pressable><Pressable accessibilityLabel="Share property" style={styles.iconButton} onPress={() => void shareProperty()}><ThemedText style={styles.shareIcon}>↗</ThemedText></Pressable></View>
         </View>
 
         <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void loadProperty(true)} tintColor={colors.primary} colors={[colors.primary]} />} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={styles.gallery}>
-            {images.map((image, index) => <View key={`${image}-${index}`} style={styles.imageFrame}><Image source={{ uri: image }} style={styles.heroImage} contentFit="cover" transition={200} /><View style={styles.imageCounter}><ThemedText style={styles.imageCounterText}>{index + 1} / {images.length}</ThemedText></View></View>)}
+            {images.map((image, index) => <View key={`${image}-${index}`} style={styles.imageFrame}><Image source={{ uri: image }} style={styles.heroImage} contentFit="cover" transition={200} alt={`${property.title || 'Property'} image ${index + 1}`} /><View style={styles.imageCounter}><ThemedText style={styles.imageCounterText}>{index + 1} / {images.length}</ThemedText></View></View>)}
           </ScrollView>
 
           <View style={styles.body}>
@@ -160,8 +196,8 @@ export default function PropertyDetailScreen() {
         </ScrollView>
 
         <View style={styles.contactBar}>
-          <Pressable disabled={!phone} style={[styles.contactButton, !phone && styles.disabled]} onPress={() => phone && Linking.openURL(`tel:${phone.replace(/[^+\d]/g, '')}`)}><ThemedText style={styles.contactButtonText}>Call</ThemedText></Pressable>
-          <Pressable disabled={!whatsapp} style={[styles.whatsappButton, !whatsapp && styles.disabled]} onPress={() => whatsapp && Linking.openURL(`https://wa.me/${whatsapp.replace(/\D/g, '')}`)}><ThemedText style={styles.whatsappButtonText}>WhatsApp</ThemedText></Pressable>
+          <Pressable disabled={!phone} style={[styles.contactButton, !phone && styles.disabled]} onPress={() => phone && contact('phone', phone)}><ThemedText style={styles.contactButtonText}>Call</ThemedText></Pressable>
+          <Pressable disabled={!whatsapp} style={[styles.whatsappButton, !whatsapp && styles.disabled]} onPress={() => whatsapp && contact('whatsapp', whatsapp)}><ThemedText style={styles.whatsappButtonText}>WhatsApp</ThemedText></Pressable>
         </View>
       </SafeAreaView>
     </ThemedView>
@@ -178,7 +214,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper }, safeArea: { flex: 1 }, content: { width: '100%', maxWidth: MaxContentWidth, alignSelf: 'center', paddingBottom: 110 + BottomTabInset },
-  topBar: { height: 62, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: colors.paper, borderBottomWidth: 1, borderBottomColor: colors.line, zIndex: 10, shadowColor: '#291817', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 7 }, topBarTitle: { color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: '700', flex: 1, textAlign: 'center' }, iconButton: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line }, iconButtonText: { color: colors.ink, fontSize: 31, lineHeight: 33, fontWeight: '400', marginTop: -3 }, shareIcon: { color: colors.ink, fontSize: 20, lineHeight: 24, fontWeight: '700' },
+  topBar: { height: 62, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: colors.paper, borderBottomWidth: 1, borderBottomColor: colors.line, zIndex: 10, shadowColor: '#291817', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 7 }, topBarTitle: { color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: '700', flex: 1, textAlign: 'center' }, topActions: { flexDirection: 'row', gap: 8 }, iconButton: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line }, iconButtonText: { color: colors.ink, fontSize: 31, lineHeight: 33, fontWeight: '400', marginTop: -3 }, likeIcon: { color: colors.primary, fontSize: 22, lineHeight: 25 }, shareIcon: { color: colors.ink, fontSize: 20, lineHeight: 24, fontWeight: '700' },
   gallery: { marginTop: 12, paddingLeft: 12 }, imageFrame: { width: 370, maxWidth: '95%', height: 300, marginRight: 10, borderRadius: 28, overflow: 'hidden', backgroundColor: '#EAE2DE' }, heroImage: { width: '100%', height: '100%' }, imageCounter: { position: 'absolute', right: 14, bottom: 14, backgroundColor: 'rgba(25,20,19,0.72)', borderRadius: 100, paddingHorizontal: 11, paddingVertical: 6 }, imageCounterText: { color: colors.white, fontSize: 10, lineHeight: 14, fontWeight: '700' },
   body: { paddingHorizontal: 20, paddingTop: 22 }, badgeRow: { flexDirection: 'row', gap: 8, alignItems: 'center' }, typeBadge: { color: colors.primary, backgroundColor: colors.primarySoft, borderRadius: 100, paddingHorizontal: 10, paddingVertical: 5, fontSize: 9, lineHeight: 12, fontWeight: '900', letterSpacing: 1 }, verifiedBadge: { color: colors.green, backgroundColor: '#EAF6EF', borderRadius: 100, paddingHorizontal: 10, paddingVertical: 5, fontSize: 9, lineHeight: 12, fontWeight: '900', letterSpacing: 0.7 }, price: { color: colors.primary, fontSize: 29, lineHeight: 37, fontWeight: '900', letterSpacing: -0.8, marginTop: 15 }, title: { color: colors.ink, fontSize: 23, lineHeight: 31, fontWeight: '800', letterSpacing: -0.4, marginTop: 4 }, location: { color: colors.muted, fontSize: 13, lineHeight: 20, marginTop: 8 }, metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }, metaText: { color: colors.muted, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderRadius: 100, paddingHorizontal: 10, paddingVertical: 5, fontSize: 10, lineHeight: 14 },
   section: { borderTopWidth: 1, borderTopColor: colors.line, marginTop: 26, paddingTop: 24 }, sectionTitle: { color: colors.ink, fontSize: 19, lineHeight: 26, fontWeight: '800', marginBottom: 14 }, featureGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 }, featureCard: { width: '47.5%', minHeight: 76, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderRadius: 17, padding: 13, justifyContent: 'center' }, featureValue: { color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: '800' }, featureLabel: { color: colors.muted, fontSize: 10, lineHeight: 15, marginTop: 3 }, description: { color: '#514946', fontSize: 14, lineHeight: 23, fontWeight: '400' }, chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }, chip: { backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderRadius: 100, paddingHorizontal: 12, paddingVertical: 8 }, chipText: { color: '#514946', fontSize: 11, lineHeight: 16 },
