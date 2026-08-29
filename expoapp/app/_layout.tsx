@@ -47,6 +47,7 @@ export default function TabLayout() {
         <Stack.Screen name="@/[username]" />
         <Stack.Screen name="saved-properties" />
         <Stack.Screen name="my-listings" />
+        <Stack.Screen name="post-property" />
       </Stack>
     </ThemeProvider>
   );

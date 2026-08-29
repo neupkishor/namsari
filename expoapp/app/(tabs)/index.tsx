@@ -175,7 +175,7 @@ export default function HomeScreen() {
 
           <View style={styles.actionBanner}>
             <View style={styles.actionCopy}><Text style={styles.actionKicker}>FOR OWNERS</Text><Text style={styles.actionTitle}>Have a property to list?</Text><Text style={styles.actionBody}>Reach serious buyers and renters in minutes.</Text></View>
-            <Pressable style={styles.listButton}><Text style={styles.listButtonText}>Post property</Text></Pressable>
+            <Pressable style={styles.listButton} onPress={() => router.push('/post-property')}><Text style={styles.listButtonText}>Post property</Text></Pressable>
           </View>
 
           <SectionHeader title="Featured properties" action="See all" />

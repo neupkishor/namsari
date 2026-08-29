@@ -31,6 +31,14 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>
 
+      <NativeTabs.Trigger name="post">
+        <NativeTabs.Trigger.Label>Post</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'plus', selected: 'plus.circle.fill' }}
+          md={{ default: 'add', selected: 'add_circle' }}
+        />
+      </NativeTabs.Trigger>
+
       <NativeTabs.Trigger name="profile">
         <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
