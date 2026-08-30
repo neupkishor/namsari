@@ -1,7 +1,15 @@
 import imageCompression from 'browser-image-compression';
 
 const DEFAULT_UPLOADER_BASE_URL = '/api/uploads';
+const MEDIA_BASE_URL = 'https://namsari.com/media/';
 export const MAX_UPLOAD_SIZE = 200 * 1024;
+
+export function getMedia(path?: string) {
+    if (!path) return '';
+    const normalizedPath = path.replace(/^\/+/, '').replace(/^files\//, '');
+    return `${MEDIA_BASE_URL}${normalizedPath}`;
+}
+
 export function getUploaderBaseUrl() {
     return DEFAULT_UPLOADER_BASE_URL;
 }
@@ -40,24 +48,11 @@ export function buildUploaderUrl(type: string, fileField = 'file') {
 }
 
 export function resolveUploadedFileUrl(path?: string, url?: string) {
-    if (url) {
-        return url;
-    }
-
     if (path) {
-        if (path.startsWith('http://') || path.startsWith('https://')) {
-            return path;
-        }
-
-        const publicBaseUrl = getPublicUploadsBaseUrl();
-        if (publicBaseUrl) {
-            return `${publicBaseUrl}${path.startsWith('/') ? path : `/${path}`}`;
-        }
-
-        return path;
+        return getMedia(path);
     }
 
-    return '';
+    return url || '';
 }
 
 export type UploadIntent = {
@@ -96,8 +91,6 @@ type UploadWithIntentOptions = {
     type: string;
     file: File;
     originalFile?: File;
-    folderId?: number | null;
-    folderPath?: string | null;
     formData?: FormData;
     fileField?: string;
     onProgress?: (progress: number) => void;
@@ -215,7 +208,6 @@ export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
                     if (xhr.status >= 200 && xhr.status < 300) {
                         (async () => {
                             try {
-                                await recordUploadedMedia(options.type, preparedFile, originalFile, intent, parsed, options.folderId);
                                 resolve(parsed);
                             } catch (err) {
                                 reject(err instanceof Error ? err : new Error(String(err)));
@@ -243,8 +235,6 @@ export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
     if (!response.ok) {
         throw new Error(data.message || data.error || `Upload failed with status ${response.status}`);
     }
-
-    await recordUploadedMedia(options.type, preparedFile, originalFile, intent, data, options.folderId);
 
     return data;
 }

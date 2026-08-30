@@ -52,7 +52,7 @@ export default function PropertyManageClient({ property, canDelete }: PropertyMa
         if (!originalFile) return;
 
         setCompressing(true);
-        setUploadStatus('Compressing image...');
+        setUploadStatus('Processing image...');
         setUploadProgress(0);
 
         try {
@@ -227,7 +227,7 @@ export default function PropertyManageClient({ property, canDelete }: PropertyMa
                                 <input type="file" style={{ display: 'none' }} onChange={(e) => handleUpload(e, 'other')} disabled={uploading} />
                                 <span style={{ fontSize: '1.4rem', color: '#64748b' }}>{(uploading || compressing) ? '...' : '+'}</span>
                                 <span style={{ fontSize: '0.76rem', color: '#334155', fontWeight: 800, marginTop: '8px' }}>
-                                    {compressing ? 'Compressing...' : uploading ? `${uploadProgress ? `${uploadProgress}%` : uploadStatus || 'Uploading...'}` : 'Add image'}
+                                    {compressing ? 'Processing...' : uploading ? `${uploadProgress ? `${uploadProgress}%` : uploadStatus || 'Uploading...'}` : 'Add image'}
                                 </span>
                                 {(uploading || compressing) && (
                                     <div style={{ width: '72%', height: '5px', background: '#e2e8f0', borderRadius: '999px', overflow: 'hidden', marginTop: '8px' }}>

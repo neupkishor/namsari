@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
+import prisma from '@/lib/prisma';
 import { uploadFileToAssetServer } from '@/lib/remote-uploader';
 
 export const runtime = 'nodejs';
@@ -28,7 +29,16 @@ export async function POST(request: Request) {
     }
 
     try {
-        const saved = await uploadFileToAssetServer(entry);
+        const saved = await uploadFileToAssetServer(entry, uploadType, entry.name);
+
+        const media = await prisma.media.create({
+            data: {
+                uploaderId: Number(session.user.id),
+                path: saved.path,
+                uploadFor: uploadType,
+                originalName: entry.name,
+            },
+        });
 
         return NextResponse.json({
             success: true,
@@ -40,10 +50,20 @@ export async function POST(request: Request) {
             size: saved.size,
             mime: saved.mime,
             uploadType,
+            media,
         });
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Upload failed';
         const status = message.startsWith('Upload ') ? 403 : 500;
+        console.error('[POST /api/uploads] Upload failed', {
+            uploadType,
+            fileField,
+            fileName: entry.name,
+            fileSize: entry.size,
+            mime: entry.type,
+            status,
+            error,
+        });
         return NextResponse.json({ error: message }, { status });
     }
 }

@@ -335,7 +335,13 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
             });
 
             if (data.success) {
-                const fileUrl = resolveUploadedFileUrl(data.path || data.file, data.url);
+                // Use the persisted media record returned by /api/uploads so the
+                // UI reflects the database-backed upload immediately.
+                const persistedMedia = data.media;
+                const fileUrl = resolveUploadedFileUrl(
+                    persistedMedia?.path || data.path || data.file,
+                    data.url
+                );
                 const nextUploadedImages = [...uploadedImages, { url: fileUrl, type: imageType }];
                 setUploadedImages(nextUploadedImages);
                 void saveDraftSnapshot({ uploadedImages: nextUploadedImages });

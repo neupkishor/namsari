@@ -3,14 +3,13 @@
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteMedia } from '@/actions/media';
-import { uploadFileWithIntent } from '@/lib/uploader';
+import { getMedia, uploadFileWithIntent } from '@/lib/uploader';
 
 type MediaItem = {
     id: number;
-    fileName: string;
+    path: string;
     originalName: string;
-    uploadType: string;
-    url: string;
+    uploadFor: string;
 };
 
 type FilesManagerClientProps = {
@@ -165,7 +164,7 @@ export function FilesManagerClient({ media }: FilesManagerClientProps) {
                     <div>
                         <h2 style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>File manager</h2>
                         <p style={{ color: '#64748b', fontSize: '0.86rem' }}>
-                            Files are stored at <strong>/assets/&lt;id&gt;/filename.ext</strong>.
+                            Files are served from <strong>https://namsari.com/media/</strong>.
                         </p>
                     </div>
 
@@ -180,14 +179,15 @@ export function FilesManagerClient({ media }: FilesManagerClientProps) {
                     <div style={{ display: 'grid', gap: '8px' }}>
                         {media.map(item => (
                             <div key={item.id} style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '8px 6px', borderBottom: '1px solid #e6eef6' }}>
+                                <img src={getMedia(item.path)} alt={item.originalName} style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, border: '1px solid #e2e8f0' }} />
                                 <div style={{ flex: '1 1 auto', minWidth: 0 }}>
                                     <div style={{ fontWeight: 800, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.originalName}</div>
-                                    <div style={{ color: '#64748b', fontSize: '0.86rem' }}>{item.fileName}</div>
-                                    <div style={{ color: '#94a3b8', fontSize: '0.78rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.url}</div>
+                                    <div style={{ color: '#64748b', fontSize: '0.86rem' }}>{item.originalName}</div>
+                                    <div style={{ color: '#94a3b8', fontSize: '0.78rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.path}</div>
                                 </div>
-                                <div style={{ width: 160, color: '#475569' }}><strong>{item.uploadType}</strong></div>
+                                <div style={{ width: 160, color: '#475569' }}><strong>{item.uploadFor}</strong></div>
                                 <div style={{ display: 'flex', gap: 8 }}>
-                                    <a href={item.url} target="_blank" rel="noreferrer" style={{ border: '1px solid #cbd5e1', background: 'white', borderRadius: '8px', padding: '8px 10px', fontWeight: 700, color: '#0f172a', textDecoration: 'none' }}>View</a>
+                                    <a href={getMedia(item.path)} target="_blank" rel="noreferrer" style={{ border: '1px solid #cbd5e1', background: 'white', borderRadius: '8px', padding: '8px 10px', fontWeight: 700, color: '#0f172a', textDecoration: 'none' }}>View</a>
                                     <button type="button" disabled={isPending} onClick={() => {
                                         if (confirm(`Delete ${item.originalName}?`)) {
                                             runAction(async () => deleteMedia(item.id));

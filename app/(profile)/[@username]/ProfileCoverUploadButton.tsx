@@ -101,7 +101,7 @@ export default function ProfileCoverUploadButton({ userId }: ProfileCoverUploadB
                 accept="image/*"
             />
             <span>📷</span>
-            <span>{compressing ? 'Compressing...' : uploading ? `${uploadStatus || 'Uploading cover...'} ${uploadProgress ? `${uploadProgress}%` : ''}` : 'Edit Cover'}</span>
+            <span>{compressing ? 'Processing...' : uploading ? `${uploadStatus || 'Uploading cover...'} ${uploadProgress ? `${uploadProgress}%` : ''}` : 'Edit Cover'}</span>
         </label>
     );
 }

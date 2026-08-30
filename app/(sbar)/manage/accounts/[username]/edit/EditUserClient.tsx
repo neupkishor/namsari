@@ -32,7 +32,7 @@ export default function EditUserClient({ user }: EditUserClientProps) {
             else setUploadingCover(true);
             const setStatus = type === 'profile' ? setProfileUploadStatus : setCoverUploadStatus;
             const setProgress = type === 'profile' ? setProfileUploadProgress : setCoverUploadProgress;
-            setStatus('Compressing image...');
+        setStatus('Processing image...');
             setProgress(0);
 
             const options = { maxSizeMB: 0.5, maxWidthOrHeight: type === 'profile' ? 400 : 1200, useWebWorker: true };

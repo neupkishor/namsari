@@ -210,7 +210,7 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
                                 <img src={uploadProgress.previewUrl} alt={uploadProgress.fileName} className={styles.uploadingPreviewImg} />
                                 <div className={styles.uploadingOverlay}>
                                     {uploadProgress.status === 'compressing'
-                                        ? 'Compressing...'
+                                        ? 'Processing...'
                                         : uploadProgress.status === 'preparing'
                                             ? 'Preparing...'
                                             : `${uploadProgress.progress}%`}

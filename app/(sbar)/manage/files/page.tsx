@@ -29,8 +29,8 @@ export default async function ManageFilesPage({ searchParams }: { searchParams: 
     const q = qParam ? String(qParam).trim() : '';
 
     const mediaWhere: any = {
-        ...(type ? { uploadType: type } : {}),
-        ...(q ? { OR: [ { fileName: { contains: q, mode: 'insensitive' } }, { originalName: { contains: q, mode: 'insensitive' } } ] } : {}),
+        ...(type ? { uploadFor: type } : {}),
+        ...(q ? { originalName: { contains: q, mode: 'insensitive' } } : {}),
     };
 
     const [media, totalCount, uploadTypes] = await Promise.all([
@@ -47,15 +47,15 @@ export default async function ManageFilesPage({ searchParams }: { searchParams: 
                     },
                 },
             },
-            orderBy: { createdAt: "desc" },
+            orderBy: { uploadedAt: "desc" },
             skip,
             take: limit,
         }),
         prisma.media.count({ where: mediaWhere }),
         prisma.media.findMany({
-            distinct: ["uploadType"],
-            orderBy: { uploadType: "asc" },
-            select: { uploadType: true },
+            distinct: ["uploadFor"],
+            orderBy: { uploadFor: "asc" },
+            select: { uploadFor: true },
         }),
     ]);
 
@@ -77,11 +77,11 @@ export default async function ManageFilesPage({ searchParams }: { searchParams: 
                     </Link>
                     {uploadTypes.map(item => (
                         <Link
-                            key={item.uploadType}
-                            href={`/manage/files?type=${encodeURIComponent(item.uploadType)}`}
-                            style={{ padding: "8px 12px", borderRadius: "8px", border: type === item.uploadType ? "1px solid var(--color-primary)" : "1px solid #e2e8f0", color: type === item.uploadType ? "var(--color-primary)" : "#475569", textDecoration: "none", fontWeight: 700, textTransform: "capitalize" }}
+                            key={item.uploadFor}
+                            href={`/manage/files?type=${encodeURIComponent(item.uploadFor)}`}
+                            style={{ padding: "8px 12px", borderRadius: "8px", border: type === item.uploadFor ? "1px solid var(--color-primary)" : "1px solid #e2e8f0", color: type === item.uploadFor ? "var(--color-primary)" : "#475569", textDecoration: "none", fontWeight: 700, textTransform: "capitalize" }}
                         >
-                            {item.uploadType}
+                            {item.uploadFor}
                         </Link>
                     ))}
                 </div>
@@ -90,10 +90,9 @@ export default async function ManageFilesPage({ searchParams }: { searchParams: 
             <FilesManagerClient
                 media={media.map(item => ({
                     id: item.id,
-                    fileName: item.fileName,
+                    path: item.path,
                     originalName: item.originalName,
-                    uploadType: item.uploadType,
-                    url: item.url,
+                    uploadFor: item.uploadFor,
                 }))}
             />
 

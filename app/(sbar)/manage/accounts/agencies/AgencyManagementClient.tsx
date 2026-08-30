@@ -89,7 +89,7 @@ export default function AgencyManagementClient({ yourAgencies, allAgencies, show
         if (!originalFile) return;
 
         try {
-            setUploadStatus('Compressing image...');
+            setUploadStatus('Processing image...');
             setUploadProgress(0);
             const options = { maxSizeMB: 0.5, maxWidthOrHeight: 800, useWebWorker: true };
             const compressedBlob = await imageCompression(originalFile, options);

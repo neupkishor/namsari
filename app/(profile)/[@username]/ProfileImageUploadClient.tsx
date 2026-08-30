@@ -116,7 +116,7 @@ export default function ProfileImageUploadClient({ userId, currentImage, userNam
                         padding: '10px'
                     }}>
                         <div style={{ width: '100%' }}>
-                            <div>{compressing ? 'Compressing...' : uploadProgress ? `${uploadProgress}%` : uploadStatus || 'Uploading...'}</div>
+                            <div>{compressing ? 'Processing...' : uploadProgress ? `${uploadProgress}%` : uploadStatus || 'Uploading...'}</div>
                             {!compressing && (
                                 <div style={{ height: '5px', width: '100%', background: 'rgba(255,255,255,0.35)', borderRadius: '999px', overflow: 'hidden', marginTop: '8px' }}>
                                     <div style={{ height: '100%', width: `${uploadProgress || 12}%`, background: 'white', borderRadius: '999px', transition: 'width 0.2s ease' }} />

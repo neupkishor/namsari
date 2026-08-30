@@ -70,7 +70,7 @@ export default function CreateAdForm() {
 
         try {
             setUploading(true);
-            setUploadStatus('Compressing image...');
+            setUploadStatus('Processing image...');
             setUploadProgress(0);
             const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
             const compressedBlob = await imageCompression(file, options);

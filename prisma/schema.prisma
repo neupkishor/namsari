@@ -47,7 +47,6 @@ model User {
   notifications  Notification[]
   errorLogs      ErrorLog[]
   media          Media[]
-  mediaFolders   MediaFolder[]
   propertyDraftsCreated PropertyDraft[] @relation("PropertyDraftCreatedBy")
   propertyDraftsAccount PropertyDraft[] @relation("PropertyDraftAccount")
   agencyConfig   AgencyConfig? @relation("AgencyConfig")
@@ -391,51 +390,17 @@ model PropertyVideo {
 }
 
 model Media {
-  id                Int      @id @default(autoincrement())
-  uploaderId        Int
-  uploader          User     @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
-
-  url               String
-  path              String?
-  uploadType        String
-  originalName      String
-  fileName          String
-  mime              String?
-  originalSize      Int?
-  compressedSize    Int?
-  storedSize        Int?
-  sha256            String?
-  width             Int?
-  height            Int?
-  providerResponse  Json?
-  folderId          Int?
-  folder            MediaFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  uploaderId   Int
+  uploader     User     @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+  path         String
+  uploadFor    String   @map("upload_for")
+  originalName String   @map("original_name")
+  uploadedAt   DateTime @default(now()) @map("uploaded_at")
 
   @@index([uploaderId])
-  @@index([folderId])
-  @@index([uploadType])
-  @@index([createdAt])
-}
-
-model MediaFolder {
-  id        Int      @id @default(autoincrement())
-  name      String
-  slug      String
-  fullPath  String   @unique
-  parentId  Int?
-  parent    MediaFolder? @relation("MediaFolderChildren", fields: [parentId], references: [id], onDelete: Cascade)
-  children  MediaFolder[] @relation("MediaFolderChildren")
-  media     Media[]
-  createdById Int
-  createdBy User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([parentId, slug])
-  @@index([parentId])
-  @@index([createdById])
+  @@index([uploadFor])
+  @@index([uploadedAt])
 }
 
 model FeaturedInformation {
