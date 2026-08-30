@@ -11,7 +11,6 @@
     "start": "next start -p 6267",
     "lint": "eslint",
     "clean-install": "rm -rf node_modules node_modules/.prisma prisma/generated && npm install && npx prisma generate",
-
     "filebrowser:install": "chmod +x ./setup.sh && ./setup.sh",
     "setup": "cd /home/ubuntu/uploads && sudo filebrowser setup"
   },

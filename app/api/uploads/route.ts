@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { uploadFileToAssetServer } from '@/lib/remote-uploader';
+import { authenticatedUserId } from '@/app/bridge/api.v1/user/_lib';
 
 export const runtime = 'nodejs';
 
@@ -11,18 +12,25 @@ function toExpectedString(value: FormDataEntryValue | null) {
 
 export async function POST(request: Request) {
     const session = await auth();
-    if (!session?.user?.id) {
+    const userId = session?.user?.id ? Number(session.user.id) : authenticatedUserId(request);
+    if (!userId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const formData: any = await request.formData().catch(() => null);
-    if (!formData) {
-        return NextResponse.json({ error: 'Invalid upload payload' }, { status: 400 });
-    }
+    const contentType = request.headers.get('content-type') || '';
+    let uploadType = toExpectedString(request.headers.get('x-upload-type')) || 'unknown';
+    let entry: File | null = null;
 
-    const fileField = toExpectedString(formData.get('fileField')) || 'file';
-    const uploadType = toExpectedString(formData.get('type')) || 'unknown';
-    const entry = formData.get(fileField);
+    if (contentType.toLowerCase().includes('multipart/form-data')) {
+        const formData: any = await request.formData().catch(() => null);
+        if (!formData) return NextResponse.json({ error: 'Invalid upload payload' }, { status: 400 });
+        const fileField = toExpectedString(formData.get('fileField')) || 'file';
+        uploadType = toExpectedString(formData.get('type')) || uploadType;
+        entry = formData.get(fileField);
+    } else if (request.body) {
+        const fileName = request.headers.get('x-file-name') || `upload-${Date.now()}.jpg`;
+        entry = new File([await request.arrayBuffer()], fileName, { type: contentType || 'application/octet-stream' });
+    }
 
     if (!(entry instanceof File)) {
         return NextResponse.json({ error: `No file uploaded with field name: ${fileField}` }, { status: 400 });
@@ -33,12 +41,19 @@ export async function POST(request: Request) {
 
         const media = await prisma.media.create({
             data: {
-                uploaderId: Number(session.user.id),
+                uploaderId: userId,
                 path: saved.path,
                 uploadFor: uploadType,
                 originalName: entry.name,
             },
         });
+
+        if (uploadType === 'users') {
+            await prisma.user.update({
+                where: { id: userId },
+                data: { image: saved.url, profile_picture: saved.url },
+            });
+        }
 
         return NextResponse.json({
             success: true,
