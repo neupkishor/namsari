@@ -20,11 +20,13 @@ export async function POST(request: Request) {
     const contentType = request.headers.get('content-type') || '';
     let uploadType = toExpectedString(request.headers.get('x-upload-type')) || 'unknown';
     let entry: File | null = null;
+    let missingFileLabel = 'request body';
 
     if (contentType.toLowerCase().includes('multipart/form-data')) {
         const formData: any = await request.formData().catch(() => null);
         if (!formData) return NextResponse.json({ error: 'Invalid upload payload' }, { status: 400 });
         const fileField = toExpectedString(formData.get('fileField')) || 'file';
+        missingFileLabel = fileField;
         uploadType = toExpectedString(formData.get('type')) || uploadType;
         entry = formData.get(fileField);
     } else if (request.body) {
@@ -33,7 +35,7 @@ export async function POST(request: Request) {
     }
 
     if (!(entry instanceof File)) {
-        return NextResponse.json({ error: `No file uploaded with field name: ${fileField}` }, { status: 400 });
+        return NextResponse.json({ error: `No file uploaded with field name: ${missingFileLabel}` }, { status: 400 });
     }
 
     try {
