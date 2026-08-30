@@ -54,7 +54,6 @@ export default function AdvertisementManager({ initialAds }: { initialAds: any[]
                 alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
-            console.error(err);
             logUploadError(err, {
                 fileName: file.name,
                 uploadType: 'ads'

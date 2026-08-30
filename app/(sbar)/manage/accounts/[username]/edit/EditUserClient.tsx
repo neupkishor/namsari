@@ -67,7 +67,6 @@ export default function EditUserClient({ user }: EditUserClientProps) {
                 alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
-            console.error(err);
             logUploadError(err, {
                 fileName: file.name,
                 uploadType: 'users',

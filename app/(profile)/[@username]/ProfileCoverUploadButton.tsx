@@ -60,7 +60,6 @@ export default function ProfileCoverUploadButton({ userId }: ProfileCoverUploadB
                 alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (error) {
-            console.error(error);
             logUploadError(error, {
                 fileName: originalFile.name,
                 uploadType: 'users',

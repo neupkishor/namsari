@@ -120,7 +120,6 @@ export default function AgencyManagementClient({ yourAgencies, allAgencies, show
                 alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
-            console.error(err);
             logUploadError(err, {
                 fileName: originalFile.name,
                 uploadType: 'agencies'

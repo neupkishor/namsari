@@ -129,7 +129,6 @@ export default function BlogFormClient({ initialData, isEdit = false }: { initia
                                         if (!url) throw new Error('Upload did not return an image URL');
                                         setFormData(prev => ({ ...prev, cover_image: url }));
                                     } catch (error) {
-                                        console.error('Image upload error:', error);
                                         alert(error instanceof Error ? error.message : 'Failed to upload image');
                                     }
                                 }

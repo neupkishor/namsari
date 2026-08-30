@@ -55,15 +55,6 @@ export async function POST(request: Request) {
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Upload failed';
         const status = message.startsWith('Upload ') ? 403 : 500;
-        console.error('[POST /api/uploads] Upload failed', {
-            uploadType,
-            fileField,
-            fileName: entry.name,
-            fileSize: entry.size,
-            mime: entry.type,
-            status,
-            error,
-        });
         return NextResponse.json({ error: message }, { status });
     }
 }

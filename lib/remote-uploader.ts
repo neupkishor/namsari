@@ -114,17 +114,6 @@ export async function uploadFileToAssetServer(
             cache: 'no-store',
         });
     } catch (error) {
-        console.error('[uploads] Asset server request failed', {
-            url: url.toString(),
-            location: normalizedLocation,
-            fileName: normalizedFileName,
-            originalFileName: fileName,
-            fileSize: file.size,
-            mime:
-                file.type || 'application/octet-stream',
-            error,
-        });
-
         throw new Error(
             error instanceof Error
                 ? `Asset server request failed: ${error.message}`
@@ -144,30 +133,11 @@ export async function uploadFileToAssetServer(
         providerResponse = text;
     }
 
-    console.log('[uploads] Asset server response', {
-        url: url.toString(),
-        status: response.status,
-        ok: response.ok,
-        response: providerResponse,
-    });
-
     if (!response.ok) {
         const detail =
             typeof providerResponse === 'string'
                 ? providerResponse
                 : JSON.stringify(providerResponse);
-
-        console.error('[uploads] Asset server rejected upload', {
-            url: url.toString(),
-            status: response.status,
-            location: normalizedLocation,
-            fileName: normalizedFileName,
-            originalFileName: fileName,
-            fileSize: file.size,
-            mime:
-                file.type || 'application/octet-stream',
-            response: providerResponse,
-        });
 
         throw new Error(
             `Remote upload failed (${response.status}): ${detail}`

@@ -269,7 +269,6 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
                 setFetchingCoords(false);
             },
             (error) => {
-                console.error("Error fetching coordinates:", error);
                 alert("Unable to retrieve your location");
                 setFetchingCoords(false);
             }
@@ -355,7 +354,6 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
                 alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
-            console.error(err);
             logUploadError(err, {
                 imageType,
                 fileName: originalFile.name,

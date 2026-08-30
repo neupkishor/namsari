@@ -101,7 +101,6 @@ export default function CreateAdForm() {
                 alert('Upload failed: ' + (data.message || 'unknown'));
             }
         } catch (err) {
-            console.error(err);
             logUploadError(err, {
                 fileName: file.name,
                 uploadType: 'ads'
