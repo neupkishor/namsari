@@ -10,7 +10,7 @@ export function FloatingActionButton() {
     const isPopupActive = usePopupActive();
     const [isVisible, setIsVisible] = useState(true);
     const lastScrollY = useRef(0);
-    const stopScrollTimer = useRef<NodeJS.Timeout | null>(null);
+    const stopScrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         const handleScroll = () => {

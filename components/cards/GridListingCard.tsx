@@ -10,7 +10,7 @@ interface GridListingCardProps {
 
 export function GridListingCard({ properties, title, className }: GridListingCardProps) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Auto-advance logic
   const nextSlide = () => {

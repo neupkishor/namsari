@@ -84,7 +84,7 @@ export const FeedAd = ({ ad, className }: { ad: Ad; className?: string }) => {
 
 export const HeroCarouselAd = ({ ads }: { ads: Ad[] }) => {
     const [activeIndex, setActiveIndex] = useState(0);
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const timeoutRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [isInView, setIsInView] = useState(false);
 

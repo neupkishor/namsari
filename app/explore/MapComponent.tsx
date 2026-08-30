@@ -122,7 +122,7 @@ function BoundsTracker({ onBoundsChange }: { onBoundsChange?: (bounds: { north: 
     useEffect(() => {
         if (!map || !onBoundsChange) return;
 
-        let timeoutId: NodeJS.Timeout;
+        let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
         const emitBounds = () => {
             const bounds = map.getBounds();
@@ -140,7 +140,7 @@ function BoundsTracker({ onBoundsChange }: { onBoundsChange?: (bounds: { north: 
 
         const handleMoveEnd = () => {
             // Debounce to avoid too many API calls
-            clearTimeout(timeoutId);
+            if (timeoutId) clearTimeout(timeoutId);
             timeoutId = setTimeout(() => {
                 emitBounds();
             }, 1000); // Wait 1 second after user stops moving
@@ -152,7 +152,7 @@ function BoundsTracker({ onBoundsChange }: { onBoundsChange?: (bounds: { north: 
         map.on('zoomend', handleMoveEnd);
 
         return () => {
-            clearTimeout(timeoutId);
+            if (timeoutId) clearTimeout(timeoutId);
             map.off('moveend', handleMoveEnd);
             map.off('zoomend', handleMoveEnd);
         };

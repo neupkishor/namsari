@@ -62,8 +62,8 @@ export async function saveUploadedAsset(file: File, metadata?: { expectedName?: 
     const extension = sanitizeExtension(parsed.ext.replace(/^\./, ''));
     const fileName = `${baseName}${extension ? `.${extension}` : ''}`;
     const relativePath = `/${id}/${fileName}`;
-    const absoluteDir = path.join(getAssetsRoot(), id);
-    const absolutePath = path.join(absoluteDir, fileName);
+    const absoluteDir = path.join(/* turbopackIgnore: true */ getAssetsRoot(), id);
+    const absolutePath = path.join(/* turbopackIgnore: true */ absoluteDir, fileName);
 
     await mkdir(absoluteDir, { recursive: true });
     await writeFile(absolutePath, buffer);
@@ -85,7 +85,7 @@ export async function deleteAssetByRelativePath(relativePath: string) {
     }
 
     const assetsRoot = getAssetsRoot();
-    const absolutePath = path.resolve(assetsRoot, `.${normalized}`);
+    const absolutePath = path.resolve(/* turbopackIgnore: true */ assetsRoot, `.${normalized}`);
     const relativeFromRoot = path.relative(assetsRoot, absolutePath);
     if (relativeFromRoot.startsWith('..') || path.isAbsolute(relativeFromRoot)) {
         throw new Error('Invalid asset path');

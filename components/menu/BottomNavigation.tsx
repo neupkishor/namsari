@@ -42,15 +42,15 @@ export function BottomNavigation({ user }: { user?: any }) {
     const isPopupActive = usePopupActive();
     const [pressedExploreHref, setPressedExploreHref] = useState<string | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
-    const exploreHoldTimer = useRef<NodeJS.Timeout | null>(null);
-    const exploreFeedbackTimer = useRef<NodeJS.Timeout | null>(null);
+    const exploreHoldTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const exploreFeedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const exploreFeedbackShown = useRef(false);
     const exploreHoldReady = useRef(false);
 
     // Dynamic Visibility Logic
     const [isVisible, setIsVisible] = useState(true);
     const lastScrollY = useRef(0);
-    const stopScrollTimer = useRef<NodeJS.Timeout | null>(null);
+    const stopScrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         const handleScroll = () => {
