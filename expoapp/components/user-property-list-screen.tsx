@@ -108,7 +108,7 @@ export function UserPropertyListScreen({ kind, title, emptyTitle, emptyText }: P
   return (
     <ThemedView style={styles.screen}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <View style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.backButton} onPress={() => router.back()}><Text style={styles.backIcon}>‹</Text></Pressable><Text style={styles.topTitle}>{title}</Text><View style={styles.spacer} /></View>
+        <View style={styles.topBar}><Pressable accessibilityLabel="Go back" style={styles.backButton} onPress={() => { if (router.canGoBack()) router.back(); else router.replace('/profile'); }}><Text style={styles.backIcon}>‹</Text></Pressable><Text style={styles.topTitle}>{title}</Text><View style={styles.spacer} /></View>
         {!isLoadingSession && !session ? <View style={styles.state}><Text style={styles.stateTitle}>Sign in required</Text><Text style={styles.stateText}>Sign in to see your properties.</Text><Pressable style={styles.primaryButton} onPress={() => router.push('/auth/signin')}><Text style={styles.primaryButtonText}>Sign in</Text></Pressable></View> :
           loading ? <View style={styles.state}><ActivityIndicator color={colors.primary} size="large" /><Text style={styles.stateText}>Loading properties…</Text></View> :
             error ? <View style={styles.state}><Text style={styles.stateTitle}>Couldn&apos;t load properties</Text><Text style={styles.stateText}>{error}</Text><Pressable style={styles.primaryButton} onPress={() => void load()}><Text style={styles.primaryButtonText}>Try again</Text></Pressable></View> :

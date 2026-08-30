@@ -324,6 +324,10 @@ export function BottomNavigation({ user }: { user?: any }) {
                                     setShowMobileMenu(!showMobileMenu);
                                 } else if (isExploreAction) {
                                     clearExploreHold();
+                                } else if (item.label === 'Post') {
+                                    // Always open the posting chooser at its root, even after
+                                    // the user has navigated deeper into a posting flow.
+                                    router.replace('/post', { scroll: false });
                                 } else {
                                     router.push(itemHref, { scroll: false });
                                 }

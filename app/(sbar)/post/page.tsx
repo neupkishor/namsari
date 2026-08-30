@@ -95,6 +95,7 @@ function MobilePost() {
         'root';
 
     const [step, setStep] = useState<Step>(initialStep);
+    const [pendingStep, setPendingStep] = useState<Exclude<Step, 'root'> | null>(null);
 
     const goToStep = (s: Step) => {
         router.replace(s === 'root' ? '/post' : `/post?type=${s === 'property' ? 'property' : 'requirement'}`, { scroll: false });
@@ -111,8 +112,8 @@ function MobilePost() {
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <button
-                            onClick={() => goToStep('property')}
-                            className="flex flex-col gap-3 rounded-[20px] border border-[color:var(--color-primary)]/12 bg-white p-5 text-left transition-all hover:border-[color:var(--color-primary)]/35 hover:bg-[color:var(--color-primary)]/[0.02] hover:shadow-sm"
+                            onClick={() => setPendingStep('property')}
+                            className={`flex flex-col gap-3 rounded-[20px] border bg-white p-5 text-left transition-all hover:border-[color:var(--color-primary)]/35 hover:bg-[color:var(--color-primary)]/[0.02] hover:shadow-sm ${pendingStep === 'property' ? 'border-[color:var(--color-primary)] ring-2 ring-[color:var(--color-primary)]/20' : 'border-[color:var(--color-primary)]/12'}`}
                         >
                             <IconBox>
                                 <HomeIcon />
@@ -120,8 +121,8 @@ function MobilePost() {
                             <span className="text-[14px] font-bold text-slate-900">Post Property</span>
                         </button>
                         <button
-                            onClick={() => goToStep('requirement')}
-                            className="flex flex-col gap-3 rounded-[20px] border border-[color:var(--color-primary)]/12 bg-white p-5 text-left transition-all hover:border-[color:var(--color-primary)]/35 hover:bg-[color:var(--color-primary)]/[0.02] hover:shadow-sm"
+                            onClick={() => setPendingStep('requirement')}
+                            className={`flex flex-col gap-3 rounded-[20px] border bg-white p-5 text-left transition-all hover:border-[color:var(--color-primary)]/35 hover:bg-[color:var(--color-primary)]/[0.02] hover:shadow-sm ${pendingStep === 'requirement' ? 'border-[color:var(--color-primary)] ring-2 ring-[color:var(--color-primary)]/20' : 'border-[color:var(--color-primary)]/12'}`}
                         >
                             <IconBox>
                                 <SearchIcon />
@@ -129,6 +130,14 @@ function MobilePost() {
                             <span className="text-[14px] font-bold text-slate-900">Post Requirement</span>
                         </button>
                     </div>
+                    <button
+                        type="button"
+                        disabled={!pendingStep}
+                        onClick={() => pendingStep && goToStep(pendingStep)}
+                        className="w-full rounded-2xl bg-[color:var(--color-primary)] px-5 py-3.5 text-sm font-bold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                        Continue to Details
+                    </button>
                 </div>
             )}
 

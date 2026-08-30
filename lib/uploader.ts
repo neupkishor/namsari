@@ -1,4 +1,7 @@
+import imageCompression from 'browser-image-compression';
+
 const DEFAULT_UPLOADER_BASE_URL = '/api/uploads';
+export const MAX_UPLOAD_SIZE = 200 * 1024;
 export function getUploaderBaseUrl() {
     return DEFAULT_UPLOADER_BASE_URL;
 }
@@ -64,6 +67,30 @@ export type UploadIntent = {
     lastModified: number;
     sha256: string;
 };
+
+async function prepareUploadFile(file: File) {
+    if (file.size <= MAX_UPLOAD_SIZE) return file;
+
+    if (!file.type.startsWith('image/')) {
+        throw new Error(`${file.name} is larger than 200 KB and cannot be uploaded.`);
+    }
+
+    const compressed = await imageCompression(file, {
+        maxSizeMB: MAX_UPLOAD_SIZE / (1024 * 1024),
+        maxWidthOrHeight: 2400,
+        useWebWorker: true,
+        initialQuality: 0.8,
+    });
+
+    if (compressed.size > MAX_UPLOAD_SIZE) {
+        throw new Error(`${file.name} could not be compressed below 200 KB and was not uploaded.`);
+    }
+
+    return new File([compressed], file.name, {
+        type: compressed.type || file.type,
+        lastModified: file.lastModified,
+    });
+}
 
 type UploadWithIntentOptions = {
     type: string;
@@ -157,10 +184,11 @@ async function recordUploadedMedia(uploadType: string, file: File, originalFile:
 export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
     const fileField = options.fileField || 'file';
     const originalFile = options.originalFile || options.file;
+    const preparedFile = await prepareUploadFile(options.file);
     options.onStatusChange?.('preparing');
-    const intent = await createUploadIntent(options.file);
+    const intent = await createUploadIntent(preparedFile);
     const formData = options.formData || new FormData();
-    formData.set(fileField, options.file);
+    formData.set(fileField, preparedFile);
     formData.set('fileField', fileField);
     formData.set('type', options.type);
     formData.set('upload_signature', intent.sha256);
@@ -187,7 +215,7 @@ export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
                     if (xhr.status >= 200 && xhr.status < 300) {
                         (async () => {
                             try {
-                                await recordUploadedMedia(options.type, options.file, originalFile, intent, parsed, options.folderId);
+                                await recordUploadedMedia(options.type, preparedFile, originalFile, intent, parsed, options.folderId);
                                 resolve(parsed);
                             } catch (err) {
                                 reject(err instanceof Error ? err : new Error(String(err)));
@@ -216,7 +244,7 @@ export async function uploadFileWithIntent(options: UploadWithIntentOptions) {
         throw new Error(data.message || data.error || `Upload failed with status ${response.status}`);
     }
 
-    await recordUploadedMedia(options.type, options.file, originalFile, intent, data, options.folderId);
+    await recordUploadedMedia(options.type, preparedFile, originalFile, intent, data, options.folderId);
 
     return data;
 }

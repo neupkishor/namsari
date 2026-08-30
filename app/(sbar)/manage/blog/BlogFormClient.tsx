@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { createBlogPost, updateBlogPost } from '@/actions/blog';
-import imageCompression from 'browser-image-compression';
+import { uploadFileWithIntent } from '@/lib/uploader';
 import 'react-quill-new/dist/quill.snow.css';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), {
@@ -124,21 +124,13 @@ export default function BlogFormClient({ initialData, isEdit = false }: { initia
                                 const file = e.target.files?.[0];
                                 if (file) {
                                     try {
-                                        const options = {
-                                            maxSizeMB: 1,
-                                            maxWidthOrHeight: 1200,
-                                            useWebWorker: true,
-                                        };
-                                        const compressedFile = await imageCompression(file, options);
-
-                                        const reader = new FileReader();
-                                        reader.readAsDataURL(compressedFile);
-                                        reader.onloadend = () => {
-                                            setFormData(prev => ({ ...prev, cover_image: reader.result as string }));
-                                        };
+                                        const uploaded = await uploadFileWithIntent({ type: 'blog', file, originalFile: file });
+                                        const url = uploaded?.url || uploaded?.path;
+                                        if (!url) throw new Error('Upload did not return an image URL');
+                                        setFormData(prev => ({ ...prev, cover_image: url }));
                                     } catch (error) {
-                                        console.error("Image compression error:", error);
-                                        alert("Failed to compress image");
+                                        console.error('Image upload error:', error);
+                                        alert(error instanceof Error ? error.message : 'Failed to upload image');
                                     }
                                 }
                             }}

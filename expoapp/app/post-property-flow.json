@@ -1,0 +1,156 @@
+{"confirmationRequired":true,
+    "property": [
+        {
+            "id": "objective",
+            "field": "select",
+            "question": "What is the objective?",
+            "description": "Tell us whether you want to sell, rent, or do both.",
+            "options": [
+                {
+                    "label": "For Sale",
+                    "value": "sale"
+                },
+                {
+                    "label": "For Rent",
+                    "value": "rent"
+                },
+                {
+                    "label": "Both",
+                    "value": "both"
+                }
+            ]
+        },
+        {
+            "id": "location",
+            "field": "location",
+            "question": "Which location is your property in?",
+            "description": "Select a city from the approved province, district, and city list."
+        },
+        {
+            "id": "area",
+            "field": "text",
+            "question": "What area is your property in?",
+            "description": "Add the local area or neighbourhood. This is optional.",
+            "placeholder": "Area (optional)"
+        },
+        {
+            "id": "type",
+            "field": "select",
+            "question": "What is the property type?",
+            "description": "Choose the type that best describes your property.",
+            "options": [
+                {
+                    "label": "House",
+                    "value": "house"
+                },
+                {
+                    "label": "Land",
+                    "value": "land"
+                },
+                {
+                    "label": "Apartment",
+                    "value": "apartment"
+                },
+                {
+                    "label": "Commercial Space",
+                    "value": "commercial space"
+                },
+                {
+                    "label": "Office Space",
+                    "value": "office space"
+                }
+            ]
+        },
+        {
+            "id": "kind",
+            "field": "select",
+            "question": "What is the property kind?",
+            "description": "Choose the nature or use of the property.",
+            "options": [
+                {
+                    "label": "Commercial",
+                    "value": "commercial"
+                },
+                {
+                    "label": "Residential",
+                    "value": "residential"
+                },
+                {
+                    "label": "Semi Commercial",
+                    "value": "semi commercial"
+                },
+                {
+                    "label": "Agricultural",
+                    "value": "agricultural"
+                },
+                {
+                    "label": "Industrial",
+                    "value": "industrial"
+                }
+            ]
+        },
+        {
+            "id": "specifics",
+            "field": "text",
+            "question": "Property specifics",
+            "description": "More property-specific fields will be added here later.",
+            "placeholder": "More details will be added here later"
+        },
+        {
+            "id": "spacings",
+            "field": "text",
+            "question": "Spacings",
+            "description": "Add space and room details here. More fields will be added later.",
+            "placeholder": "More details will be added here later"
+        },
+        {
+            "id": "amenities",
+            "field": "multiselect",
+            "question": "Select the amenities available",
+            "description": "Select every amenity available at the property.",
+            "options": [
+                {
+                    "label": "Parking",
+                    "value": "parking"
+                },
+                {
+                    "label": "Water supply",
+                    "value": "waterSupply"
+                },
+                {
+                    "label": "Electricity",
+                    "value": "electricity"
+                },
+                {
+                    "label": "Security",
+                    "value": "security"
+                }
+            ]
+        },
+        {
+            "id": "images",
+            "field": "images",
+            "question": "Add property images",
+            "description": "Select 1 to 20 images. Each image is compressed below 200 KB before upload.",
+            "min": 1,
+            "max": 20,
+            "maxBytes": 204800
+        },
+        {
+            "id": "price",
+            "field": "number",
+            "question": "What is the price?",
+            "description": "Enter the price in Nepalese rupees.",
+            "placeholder": "Price (NPR)"
+        }
+    ],
+    "requirement": [
+        {
+            "id": "requirement",
+            "field": "text",
+            "question": "What are you looking for?",
+            "description": "Describe the property you need.",
+            "placeholder": "Describe your requirement"
+        }
+    ]
+}

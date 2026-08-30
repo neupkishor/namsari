@@ -1,17 +1,11 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { buildAssetUrl, saveUploadedAsset } from '@/lib/assets';
+import { uploadFileToAssetServer } from '@/lib/remote-uploader';
 
 export const runtime = 'nodejs';
 
 function toExpectedString(value: FormDataEntryValue | null) {
     return typeof value === 'string' && value.trim() ? value.trim() : undefined;
-}
-
-function toExpectedNumber(value: FormDataEntryValue | null) {
-    if (typeof value !== 'string' || !value.trim()) return undefined;
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : undefined;
 }
 
 export async function POST(request: Request) {
@@ -20,7 +14,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const formData = await request.formData().catch(() => null);
+    const formData: any = await request.formData().catch(() => null);
     if (!formData) {
         return NextResponse.json({ error: 'Invalid upload payload' }, { status: 400 });
     }
@@ -34,19 +28,15 @@ export async function POST(request: Request) {
     }
 
     try {
-        const saved = await saveUploadedAsset(entry, {
-            expectedName: toExpectedString(formData.get('upload_name')),
-            expectedSize: toExpectedNumber(formData.get('upload_size')),
-            expectedSha256: toExpectedString(formData.get('upload_signature')),
-        });
+        const saved = await uploadFileToAssetServer(entry);
 
         return NextResponse.json({
             success: true,
-            id: saved.id,
-            name: saved.fileName,
+            id: saved.id || saved.name,
+            name: saved.fileName || saved.name,
             file: saved.path,
             path: saved.path,
-            url: buildAssetUrl(saved.path, new URL(request.url).origin),
+            url: saved.url,
             size: saved.size,
             mime: saved.mime,
             uploadType,
