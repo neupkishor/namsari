@@ -1,4 +1,26 @@
-import React from 'react'; import { Alert, Pressable, StyleSheet, TextInput, View } from 'react-native'; import { router } from 'expo-router'; import { SafeAreaView } from 'react-native-safe-area-context'; import { Text } from '#/components/ui/text'; import { useAuthSession } from '#/core/hooks/useAuthSession'; import { bridgeRequest, updateStoredProfile } from '@/lib/auth';
-const C={red:'#820000',ink:'#191413',line:'#EDE6E3',paper:'#FBF8F6',white:'#FFF',muted:'#786E6B'};
-export default function EditName(){const{session}=useAuthSession();const[value,setValue]=React.useState(session?.profile.name||'');const[saving,setSaving]=React.useState(false);const save=async()=>{if(!session||!value.trim())return;setSaving(true);try{await bridgeRequest(session,'profile/edit','PATCH',{name:value.trim()});await updateStoredProfile(session,{name:value.trim()});router.back()}catch(e){Alert.alert('Could not save',e instanceof Error?e.message:'Please try again')}finally{setSaving(false)}};return <Page title="Name"><Text style={s.hint}>Use the name you want people to see on your profile.</Text><Field label="Full name" value={value} onChangeText={setValue} placeholder="Your name"/><Button disabled={!value.trim()||saving} onPress={save} text={saving?'Saving…':'Save name'}/></Page>}
-function Page({title,children}:{title:string;children:React.ReactNode}){return <SafeAreaView style={s.safe}><View style={s.content}><View style={s.header}><Pressable onPress={()=>router.back()}><Text style={s.back}>‹</Text></Pressable><Text style={s.title}>{title}</Text><View style={{width:28}}/></View>{children}</View></SafeAreaView>}function Field(p:React.ComponentProps<typeof TextInput>&{label:string}){return <View style={s.field}><Text style={s.label}>{p.label}</Text><TextInput {...p} style={s.input}/></View>}function Button({disabled,onPress,text}:{disabled:boolean;onPress:()=>void;text:string}){return <Pressable disabled={disabled} onPress={onPress} style={[s.button,disabled&&s.disabled]}><Text style={s.buttonText}>{text}</Text></Pressable>}const s=StyleSheet.create({safe:{flex:1,backgroundColor:C.paper},content:{padding:20},header:{height:54,flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginBottom:25},back:{fontSize:38,color:C.ink},title:{fontSize:18,fontWeight:'800',color:C.ink},hint:{color:C.muted,fontSize:12,marginBottom:25},field:{marginBottom:20},label:{color:C.ink,fontSize:12,fontWeight:'800',marginBottom:8},input:{backgroundColor:C.white,borderColor:C.line,borderWidth:1,borderRadius:13,padding:14,color:C.ink,fontSize:14},button:{backgroundColor:C.red,borderRadius:14,alignItems:'center',padding:15},disabled:{opacity:.4},buttonText:{color:C.white,fontWeight:'800'}});
+import React from 'react';
+import { Alert, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { router } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text } from '#/components/ui/text';
+import { useAuthSession } from '#/core/hooks/useAuthSession';
+import { bridgeRequest, updateStoredProfile } from '@/lib/auth';
+
+const C = { red: '#820000', ink: '#191413', line: '#EDE6E3', paper: '#FBF8F6', white: '#FFF', muted: '#786E6B' };
+
+export default function EditName() {
+  const { session } = useAuthSession();
+  const [value, setValue] = React.useState('');
+  const [saving, setSaving] = React.useState(false);
+  React.useEffect(() => { setValue(session?.profile.name || ''); }, [session]);
+  async function save() {
+    if (!session || !value.trim()) return;
+    setSaving(true);
+    try { const name = value.trim(); await bridgeRequest(session, 'profile/edit', 'PATCH', { name }); await updateStoredProfile(session, { name }); router.back(); }
+    catch (e) { Alert.alert('Could not save', e instanceof Error ? e.message : 'Please try again'); }
+    finally { setSaving(false); }
+  }
+  return <Page title="Name"><Text style={s.hint}>Use the name you want people to see on your profile.</Text><View style={s.field}><Text style={s.label}>Full name</Text><TextInput value={value} onChangeText={setValue} placeholder="Your name" placeholderTextColor="#A79A95" style={s.input} /></View><Pressable disabled={!value.trim() || saving} onPress={() => void save()} style={[s.button, (!value.trim() || saving) && s.disabled]}><Text style={s.buttonText}>{saving ? 'Saving…' : 'Save name'}</Text></Pressable></Page>;
+}
+function Page({ title, children }: { title: string; children: React.ReactNode }) { return <SafeAreaView style={s.safe}><View style={s.content}><View style={s.header}><Pressable onPress={() => router.back()}><Text style={s.back}>‹</Text></Pressable><Text style={s.title}>{title}</Text><View style={{ width: 28 }} /></View>{children}</View></SafeAreaView>; }
+const s = StyleSheet.create({ safe: { flex: 1, backgroundColor: C.paper }, content: { padding: 20 }, header: { height: 54, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 25 }, back: { fontSize: 38, color: C.ink }, title: { fontSize: 18, fontWeight: '800', color: C.ink }, hint: { color: C.muted, fontSize: 12, marginBottom: 25 }, field: { marginBottom: 20 }, label: { color: C.ink, fontSize: 12, fontWeight: '800', marginBottom: 8 }, input: { backgroundColor: C.white, borderColor: C.line, borderWidth: 1, borderRadius: 13, padding: 14, color: C.ink, fontSize: 14 }, button: { backgroundColor: C.red, borderRadius: 14, alignItems: 'center', padding: 15 }, disabled: { opacity: 0.4 }, buttonText: { color: C.white, fontWeight: '800' } });
