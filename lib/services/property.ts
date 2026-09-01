@@ -246,12 +246,7 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                         create: { name }
                     }))
                 },
-                purposes: {
-                    connectOrCreate: purposes.map(name => ({
-                        where: { name },
-                        create: { name }
-                    }))
-                },
+                purposes,
                 natures: {
                     connectOrCreate: natures.map(name => ({
                         where: { name },

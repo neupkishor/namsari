@@ -286,10 +286,9 @@ model PropertyType {
   updated_at    DateTime  @default(now()) @updatedAt
 }
 
-model PropertyPurpose {
-  id          Int        @id @default(autoincrement())
-  name        String     @unique // sale, rent
-  properties  Property[]
+enum PropertyPurpose {
+  sale
+  rent
 }
 
 model PropertyNature {
