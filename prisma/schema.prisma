@@ -301,7 +301,7 @@ model PropertyAmmenity {
   id         Int      @id @default(autoincrement())
   propertyId Int
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  ammenityId Int
+  ammenityId Int @map("ammenity_id")
   ammenity   MasterAmmenity @relation(fields: [ammenityId], references: [id], onDelete: Restrict)
   status     String   @db.VarChar(24)
   updatedAt  DateTime @default(now()) @updatedAt
