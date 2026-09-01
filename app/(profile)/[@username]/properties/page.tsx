@@ -29,12 +29,13 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
 
     // Fetch user's properties with relations
     const properties = await prisma.property.findMany({
-        where: { listedById: user.id },
+        where: { listedById: user.id, propertyPrices: { some: {} } },
         orderBy: { created_on: 'desc' },
         include: {
             listedBy: true,
             location: true,
-            images: true,
+            propertyMedia: { orderBy: { index: 'asc' } },
+            propertyPrices: { orderBy: { isDefault: 'desc' } },
             features: true,
             property_likes: true
         }
@@ -42,8 +43,9 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
 
     // Enriched properties for the view
     const enrichedProperties = properties.map((p) => {
-        const pricing = legacyPricingFromPrice(p.price as any);
-        const priceValue = pricing?.price || 0;
+        const selectedPrice = p.propertyPrices?.[0];
+        const pricing = { price: Number(String(selectedPrice?.display || '').replace(/[^0-9.]/g, '')) || 0, negotiable: selectedPrice?.negotiable || false };
+        const priceValue = pricing.price;
         const formattedPrice = new Intl.NumberFormat('en-NP', {
             style: 'currency',
             currency: 'NPR',
@@ -64,7 +66,7 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
             slug: p.slug || undefined,
             price: formattedPrice,
             location: locationStr,
-            images: p.images.map((img) => img.url),
+            images: (p.propertyMedia || []).filter((media) => media.type === 'image').map((media) => media.resourceUrl),
             specs: specs,
             author_username: user.username,
             author_name: user.name,

@@ -5,8 +5,9 @@ export async function getBrowseProperties(limit = 60, options?: { onlyMappable?:
     const onlyMappable = options?.onlyMappable === true;
 
     const dbProperties = await prisma.property.findMany({
-        where: onlyMappable ? {
-            OR: [
+        where: {
+            propertyPrices: { some: {} },
+            ...(onlyMappable ? { OR: [
                 {
                     location: {
                         is: {
@@ -23,8 +24,7 @@ export async function getBrowseProperties(limit = 60, options?: { onlyMappable?:
                         }
                     }
                 }
-            ]
-        } : undefined,
+            ] } : {}),
         include: {
             listedBy: {
                 include: {
@@ -33,7 +33,7 @@ export async function getBrowseProperties(limit = 60, options?: { onlyMappable?:
             },
             location: true,
             openHouse: true,
-            images: true,
+            propertyMedia: { orderBy: { index: 'asc' } },
             natures: true,
             features: true,
             comments: {

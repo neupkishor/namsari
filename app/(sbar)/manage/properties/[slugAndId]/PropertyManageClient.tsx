@@ -11,6 +11,7 @@ import { addPropertyPrice, setDefaultPropertyPrice } from '@/actions/property-pr
 const PROPERTY_PRICE_BASES = [
     'flatPrice', 'flatPricePerMonth', 'flatPricePerQuarter', 'flatPricePerSemiAnnually', 'flatPricePerAnnually',
     'pricePerUnit', 'pricePerUnitPerMonth', 'pricePerUnitPerQuarter', 'pricePerUnitPerSemiAnnually', 'pricePerUnitPerAnnually',
+    'priceOnCall',
 ] as const;
 
 interface PropertyManageClientProps {

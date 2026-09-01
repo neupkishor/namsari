@@ -7,6 +7,7 @@ import { getSession } from '@/lib/auth';
 const PROPERTY_PRICE_BASES = [
   'flatPrice', 'flatPricePerMonth', 'flatPricePerQuarter', 'flatPricePerSemiAnnually', 'flatPricePerAnnually',
   'pricePerUnit', 'pricePerUnitPerMonth', 'pricePerUnitPerQuarter', 'pricePerUnitPerSemiAnnually', 'pricePerUnitPerAnnually',
+  'priceOnCall',
 ] as const;
 type PropertyPriceBase = typeof PROPERTY_PRICE_BASES[number];
 
@@ -20,7 +21,21 @@ async function authorized(propertyId: number) {
 export async function addPropertyPrice(propertyId: number, base: string, display: string, negotiable: boolean) {
   if (!(await authorized(propertyId))) throw new Error('Unauthorized');
   if (!PROPERTY_PRICE_BASES.includes(base as PropertyPriceBase)) throw new Error('Invalid price base');
-  await prisma.propertyPrice.create({ data: { propertyId, base, display, negotiable, isDefault: false } });
+  await prisma.$transaction(async (tx) => {
+    const existingDefault = await tx.propertyPrice.count({
+      where: { propertyId, isDefault: true },
+    });
+
+    await tx.propertyPrice.create({
+      data: {
+        propertyId,
+        base,
+        display,
+        negotiable,
+        isDefault: existingDefault === 0,
+      },
+    });
+  });
   revalidatePath(`/manage/properties/${propertyId}`);
 }
 

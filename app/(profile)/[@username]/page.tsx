@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import { PropertyCard } from '@/components/cards/PropertyCard';
+import { PropertyPost } from '@/components/cards/PropertyFeedCard';
 import Link from 'next/link';
 import { AutoScrollCarousel } from '@/components/ui/AutoScrollCarousel';
 import { legacyPricingFromPrice } from '@/lib/pricing';
@@ -36,7 +36,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
 
     // Fetch latest 3 properties
     const properties = await prisma.property.findMany({
-        where: { listedById: user.id },
+        where: { listedById: user.id, propertyPrices: { some: {} } },
         orderBy: { created_on: 'desc' },
         take: 3,
         include: {
@@ -44,20 +44,16 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
             location: true,
             features: true,
             property_likes: true,
-            propertyMedia: { orderBy: { index: 'asc' } }
+            propertyMedia: { orderBy: { index: 'asc' } },
+            propertyPrices: { orderBy: { isDefault: 'desc' } }
         }
     });
 
     // Enriched properties logic
     const enrichedProperties = properties.map((p: any) => {
-        const priceValue = typeof p.price === 'object' && p.price !== null
-            ? Number((p.price as any).price) || 0
-            : Number(p.price) || 0;
-        const formattedPrice = new Intl.NumberFormat('en-NP', {
-            style: 'currency',
-            currency: 'NPR',
-            maximumFractionDigits: 0
-        }).format(Number(priceValue)).replace('NPR', 'NRs.');
+        const selectedPrice = p.propertyPrices?.[0];
+        const priceValue = selectedPrice?.display || 'Price on request';
+        const formattedPrice = selectedPrice?.display || 'Price on request';
 
         const locationStr = p.location
             ? `${p.location.area}, ${p.location.district}`
@@ -69,7 +65,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
 
         return {
             ...p,
-            pricing: legacyPricingFromPrice(p.price as any),
+            pricing: { ...(legacyPricingFromPrice(null) || {}), price: Number(selectedPrice?.base) || 0 },
             price: formattedPrice,
             location: locationStr,
             images: (p.propertyMedia || [])
@@ -223,9 +219,14 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
                 {/* Properties Feed */}
                 <div>
                     {enrichedProperties.length > 0 ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                            {enrichedProperties.map((p: any) => (
-                                <PropertyCard key={p.id} property={p} />
+                        <div className="rounded-[28px] border border-slate-300 bg-white shadow-[var(--shadow-card)] overflow-hidden">
+                            {enrichedProperties.map((p: any, index: number) => (
+                                <PropertyPost
+                                    key={p.id}
+                                    property={p}
+                                    isFirstInSet={index === 0}
+                                    isLastInSet={index === enrichedProperties.length - 1}
+                                />
                             ))}
                         </div>
                     ) : (

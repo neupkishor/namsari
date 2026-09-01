@@ -48,7 +48,7 @@ export default async function HomePage() {
         }),
         import('@/actions/search').then(mod => mod.getTrendingSearches()),
         prisma.property.findMany({
-            where: { isFeatured: true },
+            where: { isFeatured: true, propertyPrices: { some: {} } },
             take: 4,
             include: {
                 listedBy: true,

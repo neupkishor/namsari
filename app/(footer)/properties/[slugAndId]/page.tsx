@@ -63,7 +63,10 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
     const propertyWithLegacyPricing = {
         ...property,
-        pricing: legacyPricingFromPrice((property.propertyPrices?.[0]?.base || null) as any),
+        pricing: {
+            price: Number(String(property.propertyPrices?.[0]?.display || '').replace(/[^0-9.]/g, '')) || 0,
+            negotiable: property.propertyPrices?.[0]?.negotiable || false,
+        },
     } as any;
 
     // Increment view count asynchronously
@@ -80,7 +83,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         ? `${property.location.area}, ${property.location.district}`
         : 'Unspecified';
     const priceValue = propertyWithLegacyPricing.pricing?.price || 0;
-    const formattedPrice = new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(priceValue).replace('NPR', 'Rs.');
+    const formattedPrice = property.propertyPrices?.[0]?.display || new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(priceValue).replace('NPR', 'Rs.');
     const formatDevanagariPrice = (value: number) => {
         if (!Number.isFinite(value) || value <= 0) return 'Price on request';
 
@@ -141,7 +144,10 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         }
     })).map((item: any) => ({
         ...item,
-        pricing: legacyPricingFromPrice((item.propertyPrices?.[0]?.base || null) as any),
+        pricing: {
+            price: Number(String(item.propertyPrices?.[0]?.display || '').replace(/[^0-9.]/g, '')) || 0,
+            negotiable: item.propertyPrices?.[0]?.negotiable || false,
+        },
     }));
     const collectionPresets = [
         'house for sale under 2 crore',
@@ -236,8 +242,10 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 .gallery-side {
                     display: grid;
                     grid-template-rows: 1fr 1fr;
+                    grid-auto-rows: minmax(0, 1fr);
                     gap: 12px;
                     height: 100%;
+                    min-height: 0;
                 }
                 .gallery-item {
                     width: 100%;
@@ -952,15 +960,15 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
                     {images.length > 1 && (
                         <div className="gallery-side" style={{
-                            gridTemplateRows: images.length === 2 ? '1fr' : '1fr 1fr'
+                            gridTemplateRows: images.length === 2 ? '1fr' : 'repeat(2, minmax(0, 1fr))'
                         }}>
-                            <div style={{ position: 'relative', overflow: 'hidden', height: '100%' }}>
+                            <div style={{ position: 'relative', overflow: 'hidden', height: '100%', minHeight: 0 }}>
                                 <InternalPropertyLink href={`/properties/${slugAndId}/gallery`} style={{ display: 'block', height: '100%', width: '100%' }}>
                                     <img src={images[1]} className="gallery-item" alt="View 2" />
                                 </InternalPropertyLink>
                             </div>
                             {images.length > 2 && (
-                                <div style={{ position: 'relative', overflow: 'hidden', height: '100%' }}>
+                                <div style={{ position: 'relative', overflow: 'hidden', height: '100%', minHeight: 0 }}>
                                     <InternalPropertyLink href={`/properties/${slugAndId}/gallery`} style={{ display: 'block', height: '100%', width: '100%', position: 'relative' }}>
                                         <img src={images[2]} className="gallery-item" alt="View 3" />
                                         {images.length > 3 && (
