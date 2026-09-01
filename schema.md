@@ -27,8 +27,7 @@ Database provider: PostgreSQL. Prisma scalar types used below are `Int`, `Float`
 | `roadSize` | String? | optional | Road width/size |
 | `facingDirection` | String? | optional | Direction property faces |
 | `location` | PropertyLocation? | optional relation | One-to-one |
-| `price` | Json? | optional | Current normalized price object |
-| `detailedPrice` | Json? | optional | Array of price objects |
+| `propertyPrices` | PropertyPrice[] | relation | Property price options; homepage uses the default price |
 | `openHouse` | PropertyOpenHouse? | optional relation | One-to-one |
 | `features` | PropertyFeatures? | optional relation | One-to-one |
 | `media` | Json? | optional | Additional media metadata |
@@ -219,6 +218,17 @@ type CreatePropertyInput = {
 ```
 
 ## Pricing schema
+
+### `PropertyPrice`
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | Int | Primary key |
+| `propertyId` | Int | Foreign key to `Property.id`; cascade delete |
+| `base` | Json | Structured price data |
+| `display` | String | Human-readable price shown on cards |
+| `negotiable` | Boolean | Defaults to `false` |
+| `isDefault` | Boolean | The price selected for homepage cards |
 
 Source: [`lib/pricing.ts`](/Users/neupkishor/Code/namsari/lib/pricing.ts:1).
 

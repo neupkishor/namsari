@@ -53,6 +53,10 @@ export default async function HomePage() {
             include: {
                 listedBy: true,
                 location: true,
+                propertyPrices: {
+                    where: { isDefault: true },
+                    take: 1,
+                },
                 natures: true,
                 features: true
             },
@@ -77,7 +81,8 @@ export default async function HomePage() {
     const exploreCategoryStats = cachedListingStats.stats;
     const featuredPropertiesWithLegacyPricing = featuredProperties.map((property: any) => ({
         ...property,
-        pricing: legacyPricingFromPrice(property.price as any),
+        price: property.propertyPrices?.[0]?.display || '',
+        pricing: legacyPricingFromPrice(property.propertyPrices?.[0]?.base as any),
     }));
 
     const categories = propertyTypes.map(pt => ({
