@@ -263,7 +263,6 @@ export async function POST(request: Request) {
         types,
         purposes,
         natures: Array.isArray(body.natures) && body.natures.length > 0 ? body.natures : inferNatures(types),
-        isPrivate: Boolean(body.isPrivate),
         remarks: body.remarks || undefined,
         roadType: body.roadType || undefined,
         roadSize: body.roadSize || undefined,
@@ -410,7 +409,6 @@ export async function PATCH(request: Request) {
             slug: title
                 ? title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
                 : undefined,
-            isPrivate: typeof body.isPrivate === 'boolean' ? body.isPrivate : undefined,
             status: ['pending', 'rejected', 'warned'].includes(String(body.status || '')) ? String(body.status) : undefined,
             soldStatus: ['unsold', 'soldByUs', 'soldByOther'].includes(String(body.soldStatus || '')) ? String(body.soldStatus) : undefined,
             remarks: typeof body.remarks === 'string' ? body.remarks : undefined,

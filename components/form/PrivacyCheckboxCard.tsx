@@ -10,7 +10,7 @@ interface PrivacyCheckboxCardProps {
 
 /**
  * PrivacyCheckboxCard - Interactive card for privacy/visibility settings
- * Used for "Mark as Private" and "Don't show on website" options
+ * Used for listing visibility options.
  */
 export const PrivacyCheckboxCard: React.FC<PrivacyCheckboxCardProps> = ({
     id,

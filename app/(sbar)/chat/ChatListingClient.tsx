@@ -54,7 +54,6 @@ type ChatDraft = {
     roadType?: string;
     roadSize?: string;
     facingDirection?: string;
-    isPrivate?: boolean;
     amenities?: Array<{ type: string; name?: string; distance?: string }>;
     images?: Array<{ url: string; imageOf: string; filename: string }>;
     features?: Record<string, unknown>;

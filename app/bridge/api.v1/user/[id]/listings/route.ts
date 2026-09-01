@@ -13,7 +13,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
         if (!user) return jsonError('User not found', 404);
 
         const listings = await prisma.property.findMany({
-            where: { listedById: id, isPrivate: false },
+            where: { listedById: id },
             include: propertyInclude,
             orderBy: { created_on: 'desc' },
         });

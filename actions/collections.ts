@@ -123,7 +123,6 @@ export async function createCollection(formData: FormData) {
     if (creationMode === 'criteria') {
         const candidates = await prisma.property.findMany({
             where: {
-                isPrivate: false,
                 ...(criteria.status ? { status: criteria.status } : {}),
                 ...(criteria.isFeatured != null ? { isFeatured: criteria.isFeatured } : {}),
                 ...(criteria.isExclusive != null ? { isExclusive: criteria.isExclusive } : {}),

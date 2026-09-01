@@ -21,7 +21,7 @@ export default async function CreateCollectionPage() {
 
     const [availableProperties, propertyTypes, propertyPurposes, propertyNatures] = await Promise.all([
         prisma.property.findMany({
-            where: { isPrivate: false },
+            where: {},
             select: {
                 id: true,
                 propertyId: true,

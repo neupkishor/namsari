@@ -14,10 +14,9 @@ Database provider: PostgreSQL. Prisma scalar types used below are `Int`, `Float`
 |---|---|---|---|
 | `id` | Int | required, primary key, autoincrement | Internal ID |
 | `propertyId` | String? | optional, unique | Public/property identifier |
-| `types` | PropertyType[] | relation | Multiple property types allowed |
-| `purposes` | PropertyPurpose[] | relation | Usually sale or rent |
+| `types` | PropertyType[] | required, default `[]` | PostgreSQL enum array; multiple property types allowed |
+| `purposes` | PropertyPurpose[] | required, default `[]` | PostgreSQL enum array; usually sale or rent |
 | `natures` | PropertyNature[] | relation | Residential, commercial, etc. |
-| `isPrivate` | Boolean | default `false` | Private listing flag |
 | `status` | String | default `pending` | `approved`, `pending`, `rejected`, `warned` |
 | `soldStatus` | String | default `unsold` | `soldByUs`, `soldByOther`, `unsold` |
 | `isFeatured` | Boolean | default `false` | Featured listing flag |
@@ -78,6 +77,14 @@ The database enum uses `commercial_space`; application labels may display this a
 
 
 
+
+#### `PropertyPurpose` enum
+
+```prisma
+enum PropertyPurpose {
+  sale
+  rent
+}
 
 model Property {
   purposes PropertyPurpose[]
@@ -197,7 +204,6 @@ type CreatePropertyInput = {
   natures: string[];
   title: string;
   slug?: string;
-  isPrivate?: boolean;
   status?: string;
   soldStatus?: string;
   isFeatured?: boolean;

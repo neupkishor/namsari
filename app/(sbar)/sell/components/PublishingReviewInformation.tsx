@@ -94,12 +94,6 @@ export const PublishingReviewInformation: React.FC<PublishingReviewInformationPr
                 <FormLabel>Visibility & Privacy</FormLabel>
                 <div className={styles.privacyGrid}>
                     <PrivacyCheckboxCard
-                        id="isPrivate-cb"
-                        name="isPrivate"
-                        title="Mark as Private"
-                        description="Don't add exact images to your private listing if you want to hide details."
-                    />
-                    <PrivacyCheckboxCard
                         id="dontShow-cb"
                         name="dontShowOnWebsite"
                         title="Don't show on website"

@@ -223,7 +223,6 @@ model Property {
   natures                PropertyNature[]
 
   // Listing Data
-  isPrivate               Boolean  @default(false)
   status                  String   @default("pending") // approved, pending, rejected, warned
   soldStatus              String   @default("unsold")  // soldByUs, soldByOther, unsold
   isFeatured              Boolean  @default(false)

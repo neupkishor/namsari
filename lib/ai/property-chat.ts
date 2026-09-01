@@ -80,7 +80,6 @@ const propertyChatDraftSchema = z.object({
     roadType: z.string().optional(),
     roadSize: z.string().optional(),
     facingDirection: z.string().optional(),
-    isPrivate: z.boolean().optional(),
     openHouse: propertyOpenHouseSchema.optional(),
     features: propertyFeatureSchema.optional(),
     amenities: z.array(z.object({

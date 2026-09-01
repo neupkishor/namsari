@@ -32,7 +32,6 @@ export async function createListing(formData: FormData) {
     const natures = formData.getAll('propertyNature') as string[];
 
     // 2. Listing Flags (Admin flags removed from UI)
-    const isPrivate = formData.get('isPrivate') === 'on';
     const remarks = formData.get('remarks') as string || undefined;
 
     // 3. Road and Entrance
@@ -175,7 +174,6 @@ export async function createListing(formData: FormData) {
             types,
             purposes,
             natures,
-            isPrivate,
             remarks,
             roadType,
             roadSize,

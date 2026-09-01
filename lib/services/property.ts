@@ -25,7 +25,6 @@ export interface CreatePropertyInput {
     slug?: string;
 
     // Listing Data
-    isPrivate?: boolean;
     status?: string;
     soldStatus?: string;
     isFeatured?: boolean;

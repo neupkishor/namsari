@@ -90,7 +90,6 @@ function hasEditableDraftFields(draft: any) {
         String(draft.roadType || '').trim() ||
         String(draft.roadSize || '').trim() ||
         String(draft.facingDirection || '').trim() ||
-        typeof draft.isPrivate === 'boolean' ||
         hasPresentValue(draft.features) ||
         hasPresentValue(draft.openHouse) ||
         (Array.isArray(draft.amenities) && draft.amenities.length > 0) ||
@@ -109,7 +108,6 @@ function buildUpdatePayload(draft: any, userPropertyIds: Set<number>) {
         types: Array.isArray(draft.types) && draft.types.length > 0 ? draft.types : undefined,
         purposes: Array.isArray(draft.purposes) && draft.purposes.length > 0 ? draft.purposes : undefined,
         natures: Array.isArray(draft.natures) && draft.natures.length > 0 ? draft.natures : undefined,
-        isPrivate: typeof draft.isPrivate === 'boolean' ? draft.isPrivate : undefined,
         remarks: draft.remarks || undefined,
         status: ['pending', 'rejected', 'warned'].includes(String(draft.status || '')) ? draft.status : undefined,
         soldStatus: draft.soldStatus || undefined,
@@ -288,7 +286,6 @@ export async function POST(request: Request) {
             natures: Array.isArray(response.draft.natures) && response.draft.natures.length > 0
                 ? response.draft.natures
                 : undefined,
-            isPrivate: Boolean(response.draft.isPrivate),
             remarks: generatedRemarks || undefined,
             roadType: response.draft.roadType || undefined,
             roadSize: response.draft.roadSize || undefined,

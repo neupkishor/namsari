@@ -55,7 +55,7 @@ export default async function CollectionsPage({ searchParams }: { searchParams: 
         }),
         prisma.collection.count({ where: { user_id: userId } }),
         prisma.property.findMany({
-            where: { isPrivate: false },
+            where: {},
             select: {
                 id: true,
                 propertyId: true,
