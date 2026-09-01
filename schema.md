@@ -31,8 +31,6 @@ Database provider: PostgreSQL. Prisma scalar types used below are `Int`, `Float`
 | `detailedPrice` | Json? | optional | Array of price objects |
 | `openHouse` | PropertyOpenHouse? | optional relation | One-to-one |
 | `features` | PropertyFeatures? | optional relation | One-to-one |
-| `images` | PropertyImage[] | relation | Property images |
-| `videos` | PropertyVideo[] | relation | Property videos |
 | `media` | Json? | optional | Additional media metadata |
 | `mainMedia` | String? | optional | Main image/media URL |
 | `amenities` | Json? | optional | Nearby/property amenities |

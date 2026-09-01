@@ -426,20 +426,24 @@ function formatCacheTimestamp(value: string | null | undefined) {
 }
 
 async function countPropertyByTypeAndPurpose(typeName: string, purposeName: string) {
+    const type = normalizePropertyType(typeName);
+    if (!type) return 0;
     return prisma.property.count({
         where: {
             status: 'approved',
-            types: { has: typeName.replace(' ', '_') as any },
+            types: { has: type },
             purposes: { has: purposeName as any },
         },
     });
 }
 
 async function countPropertyByTypeAndPurposeAndNature(typeName: string, purposeName: string, natureName: string) {
+    const type = normalizePropertyType(typeName);
+    if (!type) return 0;
     return prisma.property.count({
         where: {
             status: 'approved',
-            types: { has: typeName.replace(' ', '_') as any },
+            types: { has: type },
             purposes: { has: purposeName as any },
             natures: {
                 some: {
@@ -448,6 +452,15 @@ async function countPropertyByTypeAndPurposeAndNature(typeName: string, purposeN
             },
         },
     });
+}
+
+function normalizePropertyType(typeName: string): 'house' | 'bungalow' | 'land' | 'apartment' | 'commercial_space' | 'villa' | 'penthouse' | null {
+    const normalized = typeName.toLowerCase().replace(/\s+/g, '_');
+    if (['house', 'bungalow', 'land', 'apartment', 'commercial_space', 'villa', 'penthouse'].includes(normalized)) {
+        return normalized as ReturnType<typeof normalizePropertyType>;
+    }
+    if (['building', 'business', 'office_space', 'flat'].includes(normalized)) return 'commercial_space';
+    return null;
 }
 
 async function countRequirementByTypeAndPurpose(typeName: string, purposeName: string) {
@@ -557,11 +570,7 @@ export async function computeListingStats(): Promise<ListingStats> {
         prisma.property.count({
             where: {
                 status: 'approved',
-                purposes: {
-                    some: {
-                        name: { equals: 'rent' },
-                    },
-                },
+                purposes: { has: 'rent' },
             },
         }),
         prisma.requirement.count({ where: { status: 'active' } }),

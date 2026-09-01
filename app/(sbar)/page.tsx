@@ -35,7 +35,7 @@ export default async function HomePage() {
                     take: 1,
                     include: {
                         property: {
-                            select: { images: { take: 1, select: { url: true } } }
+                            select: { media: true }
                         }
                     }
                 }
@@ -48,7 +48,6 @@ export default async function HomePage() {
             include: {
                 listedBy: true,
                 location: true,
-                images: true,
                 natures: true,
                 features: true
             },

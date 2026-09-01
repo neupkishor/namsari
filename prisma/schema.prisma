@@ -249,8 +249,6 @@ model Property {
   features               PropertyFeatures?
 
   // Relations
-  images                 PropertyImage[]
-  videos                 PropertyVideo[]
   media                  Json?
   mainMedia              String?
   amenities              Json?
@@ -366,25 +364,6 @@ model PropertyOpenHouse {
   endTime          String?
   latitude         Float?
   longitude        Float?
-}
-
-model PropertyImage {
-  id               Int      @id @default(autoincrement())
-  propertyId       Int
-  property         Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  url              String
-  imageOf          String   // kitchen, bedroom, livingroom, etc.
-  filename         String   // title of the property + image of + uniqueIdentifier
-}
-
-model PropertyVideo {
-  id               Int      @id @default(autoincrement())
-  propertyId       Int
-  property         Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  url              String
-  type             String   // YouTube Video, Instagram Reel, Facebook Reel, YouTube Shorts, Tiktok Shorts
 }
 
 model Media {
