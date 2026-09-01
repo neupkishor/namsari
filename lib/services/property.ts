@@ -240,12 +240,7 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                 ...propertyData,
                 slug,
                 // Handle multi-select relations
-                types: {
-                    connectOrCreate: types.map(name => ({
-                        where: { name },
-                        create: { name }
-                    }))
-                },
+                types,
                 purposes,
                 natures: {
                     connectOrCreate: natures.map(name => ({

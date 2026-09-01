@@ -126,7 +126,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     const recommendedProperties = (await prisma.property.findMany({
         where: {
             id: { not: id },
-            types: { some: { id: { in: property.types.map((t) => t.id) } } }
+            types: { hasSome: property.types }
         },
         take: 8,
         orderBy: { created_on: 'desc' },

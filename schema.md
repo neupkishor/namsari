@@ -51,17 +51,31 @@ Database provider: PostgreSQL. Prisma scalar types used below are `Int`, `Float`
 | `featured_history` | FeaturedInformation[] | relation | Featured status history |
 | `collections` | CollectionProperty[] | relation | Saved collections |
 
-### Lookup tables
+### Lookup tables and enums
 
-#### `PropertyType`
+#### `PropertyType` enum
 
-| Field | Type | Required/default | Notes |
-|---|---|---|---|
-| `id` | Int | primary key, autoincrement | |
-| `name` | String | required, unique | Examples: `house`, `bungalow`, `land`, `apartment`, `commercial space`, `villa`, `penthouse` |
-| `properties` | Property[] | relation | |
-| `propertyCount` | Int | default `0` | Cached count |
-| `updated_at` | DateTime | default `now()`, auto-updated | |
+The former `PropertyType` lookup table has been removed. `Property.types` is now a PostgreSQL enum array:
+
+```prisma
+enum PropertyType {
+  house
+  bungalow
+  land
+  apartment
+  commercial_space
+  villa
+  penthouse
+}
+
+model Property {
+  types PropertyType[]
+}
+```
+
+The database enum uses `commercial_space`; application labels may display this as `commercial space`.
+
+
 
 
 
@@ -71,14 +85,6 @@ model Property {
 ```
 
 Multiple values may be stored, for example `[sale, rent]`.
-
-#### `PropertyNature`
-
-| Field | Type | Required/default | Notes |
-|---|---|---|---|
-| `id` | Int | primary key, autoincrement | |
-| `name` | String | required, unique | Examples: `commercial`, `semi commercial`, `residential`, `agricultural`, `industrial` |
-| `properties` | Property[] | relation | |
 
 ### Detail tables
 

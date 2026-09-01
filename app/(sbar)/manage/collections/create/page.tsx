@@ -53,7 +53,7 @@ export default async function CreateCollectionPage() {
             orderBy: { created_on: 'desc' },
             take: 200
         }),
-        prisma.propertyType.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } }),
+        Promise.resolve(['apartment', 'bungalow', 'commercial_space', 'house', 'land', 'penthouse', 'villa'].map((name, id) => ({ id: id + 1, name }))),
         prisma.propertyPurpose.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } }),
         prisma.propertyNature.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } })
     ]);

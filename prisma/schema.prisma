@@ -276,14 +276,14 @@ model Property {
   collections            CollectionProperty[]
 }
 
-model PropertyType {
-  id          Int        @id @default(autoincrement())
-  name        String     @unique // house, bungalow, land, apartment, commercial space, villa, penthouse
-  properties  Property[]
-  
-  // Cache for quick access
-  propertyCount Int       @default(0)
-  updated_at    DateTime  @default(now()) @updatedAt
+enum PropertyType {
+  house
+  bungalow
+  land
+  apartment
+  commercial_space
+  villa
+  penthouse
 }
 
 enum PropertyPurpose {

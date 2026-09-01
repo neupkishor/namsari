@@ -128,8 +128,8 @@ export async function createCollection(formData: FormData) {
                 ...(criteria.isFeatured != null ? { isFeatured: criteria.isFeatured } : {}),
                 ...(criteria.isExclusive != null ? { isExclusive: criteria.isExclusive } : {}),
                 ...(criteria.isVerified != null ? { isVerified: criteria.isVerified } : {}),
-                ...(criteria.types.length ? { types: { some: { name: { in: criteria.types, mode: 'insensitive' } } } } : {}),
-                ...(criteria.purposes.length ? { purposes: { some: { name: { in: criteria.purposes, mode: 'insensitive' } } } } : {}),
+                ...(criteria.types.length ? { types: { hasSome: criteria.types.map((value) => value.replace(' ', '_')) as any } } : {}),
+                ...(criteria.purposes.length ? { purposes: { hasSome: criteria.purposes as any } } : {}),
                 ...(criteria.natures.length ? { natures: { some: { name: { in: criteria.natures, mode: 'insensitive' } } } } : {}),
                 ...((criteria.district || criteria.cityVillage || criteria.area) ? {
                     location: {

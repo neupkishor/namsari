@@ -429,16 +429,8 @@ async function countPropertyByTypeAndPurpose(typeName: string, purposeName: stri
     return prisma.property.count({
         where: {
             status: 'approved',
-            types: {
-                some: {
-                    name: { equals: typeName },
-                },
-            },
-            purposes: {
-                some: {
-                    name: { equals: purposeName },
-                },
-            },
+            types: { has: typeName.replace(' ', '_') as any },
+            purposes: { has: purposeName as any },
         },
     });
 }
@@ -447,16 +439,8 @@ async function countPropertyByTypeAndPurposeAndNature(typeName: string, purposeN
     return prisma.property.count({
         where: {
             status: 'approved',
-            types: {
-                some: {
-                    name: { equals: typeName },
-                },
-            },
-            purposes: {
-                some: {
-                    name: { equals: purposeName },
-                },
-            },
+            types: { has: typeName.replace(' ', '_') as any },
+            purposes: { has: purposeName as any },
             natures: {
                 some: {
                     name: { equals: natureName },

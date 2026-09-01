@@ -5,6 +5,7 @@ import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 
 const PROPERTY_TYPE_COUNT_TTL_MS = 24 * 60 * 60 * 1000;
+const PROPERTY_TYPES = ['apartment', 'bungalow', 'commercial_space', 'house', 'land', 'penthouse', 'villa'] as const;
 
 async function requireAdmin() {
     const session = await getSession();
@@ -19,51 +20,20 @@ function isPropertyTypeCountStale(updatedAt: Date | null | undefined) {
 }
 
 async function refreshPropertyTypeCounts() {
-    const types = await prisma.propertyType.findMany({
-        orderBy: { name: 'asc' }
-    });
-
-    await Promise.all(
-        types.map(async (type) => {
-            const count = await prisma.property.count({
-                where: {
-                    status: 'approved',
-                    types: {
-                        some: { id: type.id }
-                    }
-                }
-            });
-
-            await prisma.propertyType.update({
-                where: { id: type.id },
-                data: { propertyCount: count }
-            });
-        })
-    );
+    return getPropertyTypeCounts();
 }
 
 export async function getPropertyTypeCounts() {
-    const propertyTypes = await prisma.propertyType.findMany({
-        orderBy: { name: 'asc' }
-    });
-
-    if (propertyTypes.some((type) => isPropertyTypeCountStale(type.updated_at))) {
-        await refreshPropertyTypeCounts();
-        return await prisma.propertyType.findMany({
-            orderBy: { name: 'asc' }
-        });
-    }
-
-    return propertyTypes;
+    return Promise.all(PROPERTY_TYPES.map(async (name, index) => ({
+        id: index + 1,
+        name,
+        propertyCount: await prisma.property.count({ where: { status: 'approved', types: { has: name } } }),
+        updated_at: new Date(),
+    })));
 }
 
 export async function updatePropertyTypeCount(id: number, count: number) {
     await requireAdmin();
-
-    await prisma.propertyType.update({
-        where: { id },
-        data: { propertyCount: count }
-    });
 
     revalidatePath('/manage/settings');
     revalidatePath('/');
