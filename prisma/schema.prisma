@@ -230,7 +230,7 @@ model Property {
   remarks                 String?
 
   // Road and Entrance
-  roadType               String?
+  roadType               RoadType?
   roadSize               Decimal? @db.Decimal(15, 10)
   facingDirection        String?
 
@@ -285,6 +285,17 @@ enum PropertyType {
 enum PropertyPurpose {
   sale
   rent
+}
+
+enum RoadType {
+  blacktopped
+  concrete
+  paved_block
+  gravel_murrum
+  earth_dirt
+  stone_paved
+  brick_paved
+  unknown
 }
 
 model PropertySaleStatus {

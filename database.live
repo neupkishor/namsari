@@ -19,7 +19,7 @@ Fields:
 > isExclusive: boolean, default false;
 > isVerified: boolean, default false;
 > remarks: text, optional;
-> roadType: text, optional;
+> roadType: enum RoadType, optional; values: blacktopped, concrete, paved_block, gravel_murrum, earth_dirt, stone_paved, brick_paved, unknown;
 > roadSize: numeric(15,10), optional;
 > facingDirection: text, optional;
 > mainMedia: text, optional;
