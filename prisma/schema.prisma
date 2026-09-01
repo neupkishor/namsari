@@ -250,7 +250,7 @@ model Property {
   propertyMedia          PropertyMedia[]
   saleStatuses           PropertySaleStatus[]
   mainMedia              String?
-  amenities              Json?
+  propertyAmmenities    PropertyAmmenity[]
 
   // Ownership Details
   listedById             Int
@@ -295,6 +295,28 @@ model PropertySaleStatus {
   updatedOn  DateTime @default(now()) @updatedAt
 
   @@index([propertyId])
+}
+
+model PropertyAmmenity {
+  id         Int      @id @default(autoincrement())
+  propertyId Int
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  ammenityId Int
+  ammenity   MasterAmmenity @relation(fields: [ammenityId], references: [id], onDelete: Restrict)
+  status     String   @db.VarChar(24)
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@map("property_ammenities")
+  @@index([propertyId])
+}
+
+model MasterAmmenity {
+  id          Int              @id @default(autoincrement())
+  name        String
+  status      String
+  ammenities  PropertyAmmenity[]
+
+  @@map("master_ammenities")
 }
 
 model PropertyNature {

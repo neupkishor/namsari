@@ -190,7 +190,7 @@ async function findLikelyDuplicateProperty(input: {
     const existingProperties = await prisma.property.findMany({
         where: {
             listedById: input.listedById,
-            soldStatus: { not: 'soldByUs' },
+            saleStatuses: { none: { status: 'soldByUs' } },
         },
         orderBy: { created_on: 'desc' },
         take: 50,
@@ -410,14 +410,22 @@ export async function PATCH(request: Request) {
                 ? title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
                 : undefined,
             status: ['pending', 'rejected', 'warned'].includes(String(body.status || '')) ? String(body.status) : undefined,
-            soldStatus: ['unsold', 'soldByUs', 'soldByOther'].includes(String(body.soldStatus || '')) ? String(body.soldStatus) : undefined,
+            saleStatuses: body.soldStatus && ['unsold', 'soldByUs', 'soldByOther'].includes(String(body.soldStatus))
+                ? { create: { status: String(body.soldStatus) } }
+                : undefined,
             remarks: typeof body.remarks === 'string' ? body.remarks : undefined,
             roadType: typeof body.roadType === 'string' ? body.roadType : undefined,
             roadSize: typeof body.roadSize === 'string' ? body.roadSize : undefined,
             facingDirection: typeof body.facingDirection === 'string' ? body.facingDirection : undefined,
             price: nextPrice,
             detailedPrice,
-            amenities,
+            propertyAmmenities: amenities ? {
+                deleteMany: {},
+                create: amenities.map((amenity: any) => ({
+                    ammenity: { connectOrCreate: { where: { id: Number(amenity.id) || -1 }, create: { name: String(amenity.name || amenity.type || ''), status: 'active' } } },
+                    status: String(amenity.status || 'active').slice(0, 24),
+                })),
+            } : undefined,
             media: mediaPayload,
             mainMedia: images && images.length > 0 ? images[0].url : undefined,
             types: relationUpdate(types),

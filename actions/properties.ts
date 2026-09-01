@@ -130,9 +130,11 @@ export async function updateSoldStatus(propertyId: number, soldStatus: string) {
         throw new Error("Unauthorized");
     }
 
-    await prisma.property.update({
-        where: { id: propertyId },
-        data: { soldStatus }
+    await prisma.propertySaleStatus.create({
+        data: {
+            propertyId,
+            status: soldStatus,
+        }
     });
     revalidatePath(`/manage/properties/[slugAndId]`, 'page');
 }

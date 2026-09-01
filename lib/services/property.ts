@@ -257,7 +257,12 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                     create: features
                 } : undefined,
                 // Scalar JSON amenities
-                amenities: amenities && amenities.length > 0 ? amenities : undefined,
+                propertyAmmenities: amenities && amenities.length > 0 ? {
+                    create: amenities.map((amenity) => ({
+                        ammenity: { connectOrCreate: { where: { id: Number(amenity.id) || -1 }, create: { name: String(amenity.name || amenity.type || ''), status: 'active' } } },
+                        status: String(amenity.status || 'active').slice(0, 24),
+                    })),
+                } : undefined,
                 propertyMedia: images || videos ? {
                     createMany: {
                         data: [

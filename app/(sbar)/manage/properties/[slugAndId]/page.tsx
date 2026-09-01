@@ -30,6 +30,7 @@ export default async function ManagePropertyDetailPage({ params }: { params: Pro
                 orderBy: { isDefault: 'desc' }
             },
             features: true,
+            propertyAmmenities: true,
             property_likes: true,
             comments: true,
         }

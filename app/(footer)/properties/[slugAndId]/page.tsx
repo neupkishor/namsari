@@ -49,6 +49,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 orderBy: { index: 'asc' },
             },
             features: true,
+            propertyAmmenities: { include: { ammenity: true } },
             comments: {
                 include: { user: true },
                 orderBy: { created_at: 'desc' }
@@ -205,9 +206,9 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             { icon: '/icons/bridge-water.svg', label: 'Drainage' }
         );
     }
-    const nearbyAmenities = Array.isArray(property.amenities)
-        ? property.amenities.filter(isAmenity)
-        : [];
+    const nearbyAmenities = (property.propertyAmmenities || [])
+        .filter((amenity) => amenity.status === 'active')
+        .map((amenity) => ({ name: amenity.ammenity.name, type: amenity.ammenity.name }));
 
     return (
         <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', paddingBottom: '100px', paddingTop: 'var(--header-height, 72px)', overflowX: 'clip' }}>
