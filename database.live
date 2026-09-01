@@ -1,0 +1,105 @@
+# Live PostgreSQL schema queried from the configured server on 2026-09-01.
+# The following tables exist in the public schema:
+# AboutContent, ActivityLog, AdClick, AdImpression, AdRate, Advertisement,
+# Agency, Bank, BankRate, BlogPost, Collection, CollectionProperty, Comment,
+# FeaturedInformation, JobApplication, JobListing, KYC, Like, Media,
+# Notification, Property, PropertyFeatures, PropertyLocation, PropertyMedia,
+# PropertyNature, PropertyOpenHouse, PropertyPrice, PropertySaleStatus, Requirement, Review, Role,
+# RolePermission, SearchTerm, Subscriber, SupportArticle, SystemSettings,
+# Visitor, _PropertyToPropertyNature, _prisma_migrations, accounts,
+# agency_config, errors, listing_stats_cache, location, permissions,
+# property_drafts, role_permission_map, sessions, users, verification_tokens.
+
+Table: Property, Model: Property
+Fields:
+> id: int, primary key, auto incremental;
+> propertyId: text, optional;
+> status: text, default pending;
+> isFeatured: boolean, default false;
+> isExclusive: boolean, default false;
+> isVerified: boolean, default false;
+> remarks: text, optional;
+> roadType: text, optional;
+> roadSize: text, optional;
+> facingDirection: text, optional;
+> mainMedia: text, optional;
+> amenities: jsonb, optional;
+> listedById: int, references users.id;
+> title: text;
+> slug: text, optional;
+> created_on: timestamp, default current_timestamp;
+> updated_at: timestamp;
+> views: int, default 0;
+> shares: int, default 0;
+> locationData: jsonb, optional;
+> purposes: PropertyPurpose[], enum array, default empty;
+> types: PropertyType[], enum array, default empty;
+
+Table: PropertyMedia, Model: PropertyMedia
+Fields:
+> id: int, primary key, auto incremental;
+> propertyId: int, references Property.id, cascade delete;
+> type: text;
+> resourceUrl: text;
+> index: int;
+
+Table: PropertySaleStatus, Model: PropertySaleStatus
+Fields:
+> id: int, primary key, auto incremental;
+> propertyId: int, references Property.id, cascade delete;
+> status: text;
+> updatedOn: timestamp, default current_timestamp, auto-updated;
+
+Table: Media, Model: Media
+Fields:
+> id: int, primary key, auto incremental;
+> uploaderId: int, references users.id;
+> path: text;
+> upload_for: text;
+> original_name: text;
+> uploaded_at: timestamp, default current_timestamp;
+
+Table: PropertyFeatures, Model: PropertyFeatures
+Fields:
+> id: int, primary key, auto incremental;
+> propertyId: int, references Property.id;
+> bedrooms: int, optional;
+> bathrooms: int, optional;
+> kitchens: int, optional;
+> livingRooms: int, optional;
+> floorNumber: int, optional;
+> totalFloors: int, optional;
+> furnishing: text, optional;
+> builtUpArea: double precision, optional;
+> builtUpAreaUnit: text, optional;
+> parkingAvailable: boolean, optional;
+> elevator: boolean, optional;
+> security: boolean, optional;
+> waterSupply: boolean, optional;
+> electricity: boolean, optional;
+
+Table: PropertyLocation, Model: PropertyLocation
+Fields:
+> id: int, primary key, auto incremental;
+> propertyId: int, references Property.id;
+> latitude: double precision, optional;
+> longitude: double precision, optional;
+> country: text, default Nepal;
+> province: text;
+> district: text;
+> cityVillage: text;
+> area: text, optional;
+> ward: text, optional;
+> landmark: text, optional;
+> distanceFrom: text, optional;
+
+Table: PropertyPrice, Model: PropertyPrice
+Fields:
+> id: int, primary key, auto incremental;
+> propertyId: int, references Property.id;
+> base: text;
+> display: text;
+> negotiable: boolean, default false;
+> isDefault: boolean, default false;
+
+Note: Property.media JSON is not present on the live server. Property media is stored in PropertyMedia. Property.soldStatus was replaced by PropertySaleStatus. The table inventory above was confirmed from information_schema.columns.

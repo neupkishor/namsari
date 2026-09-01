@@ -224,7 +224,6 @@ model Property {
 
   // Listing Data
   status                  String   @default("pending") // approved, pending, rejected, warned
-  soldStatus              String   @default("unsold")  // soldByUs, soldByOther, unsold
   isFeatured              Boolean  @default(false)
   isExclusive             Boolean  @default(false)
   isVerified              Boolean  @default(false)
@@ -249,6 +248,7 @@ model Property {
 
   // Relations
   propertyMedia          PropertyMedia[]
+  saleStatuses           PropertySaleStatus[]
   mainMedia              String?
   amenities              Json?
 
@@ -285,6 +285,16 @@ enum PropertyType {
 enum PropertyPurpose {
   sale
   rent
+}
+
+model PropertySaleStatus {
+  id         Int      @id @default(autoincrement())
+  propertyId Int
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  status     String
+  updatedOn  DateTime @default(now()) @updatedAt
+
+  @@index([propertyId])
 }
 
 model PropertyNature {
