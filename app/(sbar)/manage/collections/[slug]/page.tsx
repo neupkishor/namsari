@@ -37,7 +37,6 @@ export default async function CollectionManagePage(props: { params: Promise<{ sl
                                 take: 1,
                                 orderBy: { id: 'asc' }
                             },
-                            types: true,
                             listedBy: true
                         }
                     }

@@ -29,7 +29,6 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
                         include: {
                             location: true,
                             images: { take: 5, orderBy: { id: 'asc' } }, // Take more images for social view
-                            types: true,
                             features: true
                         }
                     }

@@ -49,7 +49,6 @@ export default async function HomePage() {
                 listedBy: true,
                 location: true,
                 images: true,
-                types: true,
                 natures: true,
                 features: true
             },

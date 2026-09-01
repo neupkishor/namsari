@@ -43,7 +43,6 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
             listedBy: true,
             location: true,
             images: true,
-            types: true,
             features: true,
             property_likes: true
         }

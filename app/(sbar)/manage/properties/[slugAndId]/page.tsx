@@ -26,7 +26,6 @@ export default async function ManagePropertyDetailPage({ params }: { params: Pro
             images: {
                 orderBy: { id: 'asc' }
             },
-            types: true,
             features: true,
             property_likes: true,
             comments: true,

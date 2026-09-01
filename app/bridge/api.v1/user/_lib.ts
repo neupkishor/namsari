@@ -6,7 +6,6 @@ export const propertyInclude = {
     location: true,
     openHouse: true,
     images: true,
-    types: true,
     natures: true,
     features: true,
     property_likes: true,

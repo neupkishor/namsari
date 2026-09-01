@@ -286,7 +286,6 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                 features: true,
                 images: true,
                 videos: true,
-                types: true,
                 purposes: true,
                 natures: true,
                 listedBy: {

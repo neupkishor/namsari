@@ -34,7 +34,6 @@ export async function getBrowseProperties(limit = 60, options?: { onlyMappable?:
             location: true,
             openHouse: true,
             images: true,
-            types: true,
             natures: true,
             features: true,
             comments: {

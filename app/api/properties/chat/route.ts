@@ -197,7 +197,6 @@ async function findLikelyDuplicateProperty(input: {
         include: {
             location: true,
             features: true,
-            types: true,
             purposes: true,
         },
     });
@@ -331,7 +330,6 @@ export async function PATCH(request: Request) {
             features: true,
             openHouse: true,
             images: true,
-            types: true,
             purposes: true,
             natures: true,
         },
@@ -496,7 +494,6 @@ export async function PATCH(request: Request) {
                 location: true,
                 features: true,
                 images: true,
-                types: true,
                 purposes: true,
                 natures: true,
             },

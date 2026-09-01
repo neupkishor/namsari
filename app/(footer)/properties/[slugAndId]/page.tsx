@@ -43,7 +43,6 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             listedBy: true,
             location: true,
             images: true,
-            types: true,
             features: true,
             comments: {
                 include: { user: true },

@@ -56,7 +56,6 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
                 listedBy: true,
                 location: true,
                 images: true,
-                types: true
             },
             orderBy: { created_on: 'desc' },
             skip,

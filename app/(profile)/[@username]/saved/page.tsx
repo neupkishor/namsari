@@ -51,7 +51,6 @@ export default async function ProfileSavedPage({ params }: PageProps) {
                 include: {
                     listedBy: true, // Need this for author info
                     images: true,
-                    types: true,
                     location: true,
                     features: true,
                     property_likes: true // Count likes
