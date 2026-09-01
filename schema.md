@@ -225,7 +225,7 @@ type CreatePropertyInput = {
 |---|---|---|
 | `id` | Int | Primary key |
 | `propertyId` | Int | Foreign key to `Property.id`; cascade delete |
-| `base` | Json | Structured price data |
+| `base` | String | One of the ten supported pricing bases: `flatPrice`, `flatPricePerMonth`, `flatPricePerQuarter`, `flatPricePerSemiAnnually`, `flatPricePerAnnually`, `pricePerUnit`, `pricePerUnitPerMonth`, `pricePerUnitPerQuarter`, `pricePerUnitPerSemiAnnually`, `pricePerUnitPerAnnually` |
 | `display` | String | Human-readable price shown on cards |
 | `negotiable` | Boolean | Defaults to `false` |
 | `isDefault` | Boolean | The price selected for homepage cards |

@@ -46,12 +46,12 @@ export async function addPropertyImage(propertyId: number, url: string, imageOf:
         throw new Error("Unauthorized");
     }
 
-    await prisma.propertyImage.create({
+    await prisma.propertyMedia.create({
         data: {
             propertyId,
-            url,
-            imageOf,
-            filename: `prop_${propertyId}_${Date.now()}`
+            type: 'image',
+            resourceUrl: url,
+            index: (await prisma.propertyMedia.count({ where: { propertyId } }))
         }
     });
     revalidatePath(`/manage/properties/[slugAndId]`, 'page');
@@ -59,7 +59,7 @@ export async function addPropertyImage(propertyId: number, url: string, imageOf:
 
 export async function removePropertyImage(imageId: number) {
     // Need to find propertyId from imageId first
-    const image = await prisma.propertyImage.findUnique({
+    const image = await prisma.propertyMedia.findUnique({
         where: { id: imageId },
         select: { propertyId: true }
     });
@@ -71,7 +71,7 @@ export async function removePropertyImage(imageId: number) {
         throw new Error("Unauthorized");
     }
 
-    await prisma.propertyImage.delete({
+    await prisma.propertyMedia.delete({
         where: { id: imageId }
     });
     revalidatePath(`/manage/properties/[slugAndId]`, 'page');
@@ -85,10 +85,9 @@ export async function reorderPropertyImages(propertyId: number, orderedImageIds:
 
     if (!Array.isArray(orderedImageIds) || orderedImageIds.length === 0) return;
 
-    const images = await prisma.propertyImage.findMany({
+    const images = await prisma.propertyMedia.findMany({
         where: { propertyId },
-        select: { id: true, url: true, imageOf: true, filename: true },
-        orderBy: { id: 'asc' }
+        orderBy: { index: 'asc' }
     });
 
     if (images.length !== orderedImageIds.length) {
@@ -102,17 +101,12 @@ export async function reorderPropertyImages(propertyId: number, orderedImageIds:
         throw new Error("Invalid image ordering payload");
     }
 
-    await prisma.$transaction(async (tx) => {
-        await tx.propertyImage.deleteMany({ where: { propertyId } });
-        await tx.propertyImage.createMany({
-            data: reordered.map((img) => ({
-                propertyId,
-                url: img.url,
-                imageOf: img.imageOf,
-                filename: img.filename
-            }))
-        });
-    });
+    await prisma.$transaction(
+        reordered.map((img, index) => prisma.propertyMedia.update({
+            where: { id: img.id },
+            data: { index }
+        }))
+    );
 
     revalidatePath(`/manage/properties/[slugAndId]`, 'page');
 }

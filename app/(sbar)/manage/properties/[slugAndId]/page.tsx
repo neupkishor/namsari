@@ -23,8 +23,11 @@ export default async function ManagePropertyDetailPage({ params }: { params: Pro
         include: {
             listedBy: true,
             location: true,
-            images: {
-                orderBy: { id: 'asc' }
+            propertyMedia: {
+                orderBy: { index: 'asc' }
+            },
+            propertyPrices: {
+                orderBy: { isDefault: 'desc' }
             },
             features: true,
             property_likes: true,
@@ -36,7 +39,10 @@ export default async function ManagePropertyDetailPage({ params }: { params: Pro
 
     const propertyWithLegacyPricing = {
         ...property,
-        pricing: legacyPricingFromPrice(property.price as any),
+        pricing: legacyPricingFromPrice((property.propertyPrices?.[0]?.base || null) as any),
+        images: property.propertyMedia
+            .filter((media) => media.type === 'image')
+            .map((media) => ({ id: media.id, url: media.resourceUrl })),
     } as any;
 
     const session = await getSession();

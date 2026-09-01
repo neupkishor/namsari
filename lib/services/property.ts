@@ -236,7 +236,13 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                 },
                 propertyPrices: {
                     create: {
-                        base: primaryPrice,
+                        base: primaryPrice.rate === 'total'
+                            ? 'flatPrice'
+                            : primaryPrice.rate === 'perMonth'
+                                ? 'flatPricePerMonth'
+                                : primaryPrice.rate === 'perUnit'
+                                    ? 'pricePerUnit'
+                                    : 'pricePerUnitPerMonth',
                         display: String(primaryPrice.price),
                         negotiable: Boolean(pricing?.negotiable),
                         isDefault: true,

@@ -6,6 +6,12 @@ import { useRouter } from 'next/navigation';
 import imageCompression from 'browser-image-compression';
 import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
 import { logUploadError } from '@/lib/client-error-logger';
+import { addPropertyPrice, setDefaultPropertyPrice } from '@/actions/property-prices';
+
+const PROPERTY_PRICE_BASES = [
+    'flatPrice', 'flatPricePerMonth', 'flatPricePerQuarter', 'flatPricePerSemiAnnually', 'flatPricePerAnnually',
+    'pricePerUnit', 'pricePerUnitPerMonth', 'pricePerUnitPerQuarter', 'pricePerUnitPerSemiAnnually', 'pricePerUnitPerAnnually',
+] as const;
 
 interface PropertyManageClientProps {
     property: any;
@@ -22,6 +28,8 @@ export default function PropertyManageClient({ property, canDelete }: PropertyMa
     const [draggingImageId, setDraggingImageId] = useState<number | null>(null);
     const [savingOrder, setSavingOrder] = useState(false);
     const [deletingProperty, setDeletingProperty] = useState(false);
+    const [priceBase, setPriceBase] = useState('');
+    const [priceDisplay, setPriceDisplay] = useState('');
 
     const stats = [
         { label: 'Views', value: property.views || 0, color: '#10b981' },
@@ -46,6 +54,14 @@ export default function PropertyManageClient({ property, canDelete }: PropertyMa
         property.features?.waterSupply ? 'Water supply' : null,
         property.features?.electricity ? 'Electricity' : null,
     ].filter(Boolean) as string[];
+
+    const prices = property.propertyPrices || [];
+    const addPrice = async (event: React.FormEvent) => {
+        event.preventDefault();
+        if (!priceBase || !priceDisplay) return;
+        await addPropertyPrice(property.id, priceBase, priceDisplay, false);
+        setPriceBase(''); setPriceDisplay(''); router.refresh();
+    };
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
         const originalFile = e.target.files?.[0];
@@ -173,6 +189,26 @@ export default function PropertyManageClient({ property, canDelete }: PropertyMa
                     </div>
                 ))}
             </div>
+
+            <section style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '20px' }}>
+                <h2 style={{ fontSize: '1.1rem', fontWeight: 850, marginBottom: '14px' }}>Property Prices</h2>
+                <div style={{ display: 'grid', gap: '10px', marginBottom: '16px' }}>
+                    {prices.map((price: any) => (
+                        <div key={price.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '10px' }}>
+                            <div><strong>{price.display}</strong>{price.negotiable ? ' · Negotiable' : ''}{price.isDefault ? ' · Default' : ''}</div>
+                            {!price.isDefault && <button type="button" onClick={async () => { await setDefaultPropertyPrice(property.id, price.id); router.refresh(); }} style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid #cbd5e1', background: 'white', fontWeight: 700 }}>Set default</button>}
+                        </div>
+                    ))}
+                </div>
+                <form onSubmit={addPrice} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <select value={priceBase} onChange={(e) => setPriceBase(e.target.value)} required style={{ padding: '9px', border: '1px solid #cbd5e1', borderRadius: '7px' }}>
+                        <option value="">Select price base</option>
+                        {PROPERTY_PRICE_BASES.map((base) => <option key={base} value={base}>{base}</option>)}
+                    </select>
+                    <input value={priceDisplay} onChange={(e) => setPriceDisplay(e.target.value)} placeholder="Display price" required style={{ padding: '9px', border: '1px solid #cbd5e1', borderRadius: '7px' }} />
+                    <button type="submit" style={{ padding: '9px 13px', border: 0, borderRadius: '7px', background: 'var(--color-primary)', color: 'white', fontWeight: 800 }}>Add price</button>
+                </form>
+            </section>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.65fr) minmax(320px, 0.85fr)', gap: '20px', alignItems: 'start' }}>
                 <section style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '14px', overflow: 'hidden' }}>

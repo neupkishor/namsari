@@ -42,7 +42,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         include: {
             listedBy: true,
             location: true,
-            images: true,
+            propertyPrices: {
+                orderBy: { isDefault: 'desc' },
+            },
+            propertyMedia: {
+                orderBy: { index: 'asc' },
+            },
             features: true,
             comments: {
                 include: { user: true },
@@ -54,9 +59,11 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
     if (!property) return notFound();
 
+    const canEditProperty = currentUser?.id === property.listedById;
+
     const propertyWithLegacyPricing = {
         ...property,
-        pricing: legacyPricingFromPrice(property.price as any),
+        pricing: legacyPricingFromPrice((property.propertyPrices?.[0]?.base || null) as any),
     } as any;
 
     // Increment view count asynchronously
@@ -66,12 +73,9 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     });
 
     const isLiked = session && property.property_likes.some((l) => l.user_id === Number(session.id));
-    const mediaImages = Array.isArray((property as any).media?.images)
-        ? (property as any).media.images
-            .map((m: any) => m?.url)
-            .filter((u: any) => typeof u === 'string' && u.length > 0)
-        : [];
-    const images = mediaImages.length > 0 ? mediaImages : property.images.map((img) => img.url);
+    const images = property.propertyMedia
+        .filter((media) => media.type === 'image')
+        .map((media) => media.resourceUrl);
     const locationStr = property.location
         ? `${property.location.area}, ${property.location.district}`
         : 'Unspecified';
@@ -130,13 +134,14 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         take: 8,
         orderBy: { created_on: 'desc' },
         include: {
-            images: true,
+            propertyPrices: { orderBy: { isDefault: 'desc' } },
+            propertyMedia: { orderBy: { index: 'asc' } },
             location: true,
             features: true
         }
     })).map((item: any) => ({
         ...item,
-        pricing: legacyPricingFromPrice(item.price as any),
+        pricing: legacyPricingFromPrice((item.propertyPrices?.[0]?.base || null) as any),
     }));
     const collectionPresets = [
         'house for sale under 2 crore',
@@ -1131,6 +1136,16 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                                 </a>
                             </div>
 
+                            {canEditProperty && (
+                                <Link
+                                    href={`/manage/properties/${slugAndId}`}
+                                    className="action-btn btn-outline"
+                                    style={{ display: 'flex', justifyContent: 'center', marginTop: '12px', textDecoration: 'none' }}
+                                >
+                                    Edit Property
+                                </Link>
+                            )}
+
                             <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '24px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', color: '#4b5563' }}>
                                     <span style={{ fontSize: '1.2rem' }}>❤</span>
@@ -1169,7 +1184,9 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         listedAt: p.created_on,
                         location: p.location ? `${p.location.area}, ${p.location.district}` : 'Unspecified',
                         specs: `${p.features?.bedrooms || 0} beds • ${p.features?.bathrooms || 0} baths`,
-                        images: p.images.map((img: { url: string }) => img.url)
+                        images: (p.propertyMedia || [])
+                            .filter((media: { type: string }) => media.type === 'image')
+                            .map((media: { resourceUrl: string }) => media.resourceUrl)
                     }))}
                 />
 

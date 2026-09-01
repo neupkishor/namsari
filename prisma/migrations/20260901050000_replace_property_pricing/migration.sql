@@ -2,7 +2,7 @@
 CREATE TABLE "PropertyPrice" (
     "id" SERIAL NOT NULL,
     "propertyId" INTEGER NOT NULL,
-    "base" JSONB NOT NULL,
+    "base" TEXT NOT NULL,
     "display" TEXT NOT NULL,
     "negotiable" BOOLEAN NOT NULL DEFAULT false,
     "isDefault" BOOLEAN NOT NULL DEFAULT false,

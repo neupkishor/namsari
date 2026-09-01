@@ -394,7 +394,7 @@ model PropertyPrice {
   id         Int      @id @default(autoincrement())
   propertyId Int
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  base       Json
+  base       String
   display    String
   negotiable Boolean  @default(false)
   isDefault  Boolean  @default(false)
