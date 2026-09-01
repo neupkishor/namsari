@@ -2,9 +2,7 @@ import prisma from '@/lib/prisma';
 import {
     Property,
     PropertyLocation,
-    PropertyOpenHouse,
-    PropertyImage,
-    PropertyVideo
+    PropertyOpenHouse
 } from '@prisma/client';
 import {
     LegacyPricingInput,
@@ -214,21 +212,6 @@ export async function createPropertyListing(input: CreatePropertyInput) {
 
     const detailedPrices = normalizeDetailedPropertyPrices(detailedPrice);
 
-    const mediaPayload = {
-        images: (images || []).map((img, idx) => ({
-            kind: 'image',
-            url: img.url,
-            label: img.imageOf,
-            filename: img.filename,
-            sort: idx + 1,
-        })),
-        videos: (videos || []).map((vid, idx) => ({
-            kind: 'video',
-            url: vid.url,
-            label: vid.type,
-            sort: idx + 1,
-        })),
-    };
     const mainMedia = images && images.length > 0 ? images[0].url : undefined;
 
     // 3. Wrap in a transaction to ensure atomic operations across multiple tables
@@ -251,8 +234,14 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                 location: {
                     create: location
                 },
-                price: primaryPrice,
-                detailedPrice: detailedPrices,
+                propertyPrices: {
+                    create: {
+                        base: primaryPrice,
+                        display: String(primaryPrice.price),
+                        negotiable: Boolean(pricing?.negotiable),
+                        isDefault: true,
+                    }
+                },
                 // Nested create for open house if provided
                 openHouse: openHouse ? {
                     create: openHouse
@@ -263,19 +252,22 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                 } : undefined,
                 // Scalar JSON amenities
                 amenities: amenities && amenities.length > 0 ? amenities : undefined,
-                // Nested create for images
-                images: images && images.length > 0 ? {
+                propertyMedia: images || videos ? {
                     createMany: {
-                        data: images
+                        data: [
+                            ...(images || []).map((img, index) => ({
+                                type: 'image',
+                                resourceUrl: img.url,
+                                index,
+                            })),
+                            ...(videos || []).map((video, index) => ({
+                                type: 'video',
+                                resourceUrl: video.url,
+                                index: (images || []).length + index,
+                            })),
+                        ]
                     }
                 } : undefined,
-                // Nested create for videos
-                videos: videos && videos.length > 0 ? {
-                    createMany: {
-                        data: videos
-                    }
-                } : undefined,
-                media: mediaPayload,
                 mainMedia,
                 locationData,
             },
@@ -283,9 +275,7 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                 location: true,
                 openHouse: true,
                 features: true,
-                images: true,
-                videos: true,
-                purposes: true,
+                propertyMedia: true,
                 natures: true,
                 listedBy: {
                     include: { kyc: true }

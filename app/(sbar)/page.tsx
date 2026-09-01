@@ -35,7 +35,12 @@ export default async function HomePage() {
                     take: 1,
                     include: {
                         property: {
-                            select: { media: true }
+                            select: {
+                                propertyMedia: {
+                                    take: 1,
+                                    orderBy: { index: 'asc' },
+                                },
+                            }
                         }
                     }
                 }

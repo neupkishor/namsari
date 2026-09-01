@@ -137,26 +137,6 @@ Multiple values may be stored, for example `[sale, rent]`.
 | `startTime`, `endTime` | String? | optional | Time strings |
 | `latitude`, `longitude` | Float? | optional | Event coordinates |
 
-#### `PropertyImage`
-
-| Field | Type | Required/default | Notes |
-|---|---|---|---|
-| `id` | Int | primary key, autoincrement | |
-| `propertyId` | Int | required | FK; cascade delete |
-| `property` | Property | required relation | |
-| `url` | String | required | Image URL |
-| `imageOf` | String | required | Examples: kitchen, bedroom, livingroom |
-| `filename` | String | required | Standardized stored filename |
-
-#### `PropertyVideo`
-
-| Field | Type | Required/default | Notes |
-|---|---|---|---|
-| `id` | Int | primary key, autoincrement | |
-| `propertyId` | Int | required | FK; cascade delete |
-| `property` | Property | required relation | |
-| `url` | String | required | Video URL |
-| `type` | String | required | YouTube, Instagram Reel, Facebook Reel, Shorts, TikTok, etc. |
 
 ### Property interaction and organization tables
 

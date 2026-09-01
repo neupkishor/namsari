@@ -239,8 +239,7 @@ model Property {
   location               PropertyLocation?
   
   // Pricing Details
-  price                  Json?
-  detailedPrice          Json?
+  propertyPrices         PropertyPrice[]
 
   // Open House
   openHouse              PropertyOpenHouse?
@@ -249,7 +248,7 @@ model Property {
   features               PropertyFeatures?
 
   // Relations
-  media                  Json?
+  propertyMedia          PropertyMedia[]
   mainMedia              String?
   amenities              Json?
 
@@ -378,6 +377,30 @@ model Media {
   @@index([uploaderId])
   @@index([uploadFor])
   @@index([uploadedAt])
+}
+
+model PropertyMedia {
+  id         Int      @id @default(autoincrement())
+  propertyId Int
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  type       String
+  resourceUrl String
+  index      Int
+
+  @@index([propertyId])
+}
+
+model PropertyPrice {
+  id         Int      @id @default(autoincrement())
+  propertyId Int
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  base       Json
+  display    String
+  negotiable Boolean  @default(false)
+  isDefault  Boolean  @default(false)
+
+  @@index([propertyId])
+  @@index([propertyId, isDefault])
 }
 
 model FeaturedInformation {

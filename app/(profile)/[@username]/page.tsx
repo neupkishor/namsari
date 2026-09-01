@@ -42,15 +42,17 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
         include: {
             listedBy: true,
             location: true,
-            images: true,
             features: true,
-            property_likes: true
+            property_likes: true,
+            propertyMedia: { orderBy: { index: 'asc' } }
         }
     });
 
     // Enriched properties logic
     const enrichedProperties = properties.map((p: any) => {
-        const priceValue = p.pricing?.price || 0;
+        const priceValue = typeof p.price === 'object' && p.price !== null
+            ? Number((p.price as any).price) || 0
+            : Number(p.price) || 0;
         const formattedPrice = new Intl.NumberFormat('en-NP', {
             style: 'currency',
             currency: 'NPR',
@@ -70,7 +72,9 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
             pricing: legacyPricingFromPrice(p.price as any),
             price: formattedPrice,
             location: locationStr,
-            images: p.images.map((img: any) => img.url),
+            images: (p.propertyMedia || [])
+                .filter((media: any) => media.type === 'image')
+                .map((media: any) => media.resourceUrl),
             specs: specs,
             author_username: user.username,
             author_name: user.name,
