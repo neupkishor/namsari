@@ -20,7 +20,7 @@ Fields:
 > isVerified: boolean, default false;
 > remarks: text, optional;
 > roadType: text, optional;
-> roadSize: text, optional;
+> roadSize: numeric(15,10), optional;
 > facingDirection: text, optional;
 > mainMedia: text, optional;
 > listedById: int, references users.id;

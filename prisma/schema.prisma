@@ -231,7 +231,7 @@ model Property {
 
   // Road and Entrance
   roadType               String?
-  roadSize               String?
+  roadSize               Decimal? @db.Decimal(15, 10)
   facingDirection        String?
 
   // Location Information
