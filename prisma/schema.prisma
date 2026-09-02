@@ -11,74 +11,74 @@ datasource db {
 }
 
 model User {
-  id             Int      @id @default(autoincrement())
-  username       String?  @unique
-  name           String?
-  email          String?  @unique
-  emailVerified  DateTime?
-  image          String?
-  contact_number String?
-  type           String   @default("user") // agency, self (user?), bank, agent, admin
-  bio            String?
+  id              Int       @id @default(autoincrement())
+  username        String?   @unique
+  name            String?
+  email           String?   @unique
+  emailVerified   DateTime?
+  image           String?
+  contact_number  String?
+  type            String    @default("user") // agency, self (user?), bank, agent, admin
+  bio             String?
   profile_picture String?
-  cover_image    String?
-  status         String   @default("active") // active, warned, suspended, banned
-  moreInfo       String?  // JSON: { suspensionCount, suspendedUntil, warnings: [] }
-  created_on     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+  cover_image     String?
+  status          String    @default("active") // active, warned, suspended, banned
+  moreInfo        String? // JSON: { suspensionCount, suspendedUntil, warnings: [] }
+  created_on      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
 
-  kyc            KYC?
-  
+  kyc KYC?
+
   // Relations
-  listedProperties    Property[] @relation("ListedBy")
-  advertisements      Advertisement[]
-  
-  comments       Comment[]
-  user_likes     Like[]
-  collections    Collection[]
-  requirements   Requirement[]
-  
+  listedProperties Property[]      @relation("ListedBy")
+  advertisements   Advertisement[]
+
+  comments     Comment[]
+  user_likes   Like[]
+  collections  Collection[]
+  requirements Requirement[]
+
   // Agency Relation
-  agency_id      Int?
-  agency         User?    @relation("AgencyAgents", fields: [agency_id], references: [id])
-  agents         User[]   @relation("AgencyAgents")
-  
+  agency_id Int?
+  agency    User?  @relation("AgencyAgents", fields: [agency_id], references: [id])
+  agents    User[] @relation("AgencyAgents")
+
   // Notifications
-  notifications  Notification[]
-  errorLogs      ErrorLog[]
-  media          Media[]
+  notifications         Notification[]
+  errorLogs             ErrorLog[]
+  media                 Media[]
   propertyDraftsCreated PropertyDraft[] @relation("PropertyDraftCreatedBy")
   propertyDraftsAccount PropertyDraft[] @relation("PropertyDraftAccount")
-  agencyConfig   AgencyConfig? @relation("AgencyConfig")
+  agencyConfig          AgencyConfig?   @relation("AgencyConfig")
 
   // Reviews
   reviews_received Review[] @relation("ReviewReceiver")
   reviews_written  Review[] @relation("ReviewAuthor")
 
   // Permissions & Auth
-  roleId         Int?
-  role           Role?    @relation(fields: [roleId], references: [id])
+  roleId Int?
+  role   Role? @relation(fields: [roleId], references: [id])
 
-  permissionsGiven UserPermission[] @relation("ResourceOwner")
+  permissionsGiven    UserPermission[] @relation("ResourceOwner")
   permissionsReceived UserPermission[] @relation("Actor")
 
-  sessions       Session[]
-  
-  @@map("users")
+  sessions Session[]
+
   @@index([type])
+  @@map("users")
 }
 
 model PropertyDraft {
-  id          Int      @id @default(autoincrement())
-  changes     Json
-  doing       String   @default("creation") // creation, edit
-  created_by  Int
-  createdBy   User     @relation("PropertyDraftCreatedBy", fields: [created_by], references: [id], onDelete: Cascade)
-  account_id  Int
-  account     User     @relation("PropertyDraftAccount", fields: [account_id], references: [id], onDelete: Cascade)
-  status      String   @default("draft") // draft, published, discarded
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  changes    Json
+  doing      String   @default("creation") // creation, edit
+  created_by Int
+  createdBy  User     @relation("PropertyDraftCreatedBy", fields: [created_by], references: [id], onDelete: Cascade)
+  account_id Int
+  account    User     @relation("PropertyDraftAccount", fields: [account_id], references: [id], onDelete: Cascade)
+  status     String   @default("draft") // draft, published, discarded
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@index([account_id, status])
   @@index([created_by])
@@ -103,7 +103,7 @@ model AgencyConfig {
 }
 
 model Account {
-  id                  String             @id @default(cuid())
+  id                  String           @id @default(cuid())
   type                AccountType
   provider            AccountProvider?
   provider_account_id String
@@ -111,7 +111,7 @@ model Account {
   access_token        String?
   password_hash       String?
   role                Int?
-  rolePermission      RolePermission?    @relation(fields: [role], references: [id], onDelete: SetNull)
+  rolePermission      RolePermission?  @relation(fields: [role], references: [id], onDelete: SetNull)
 
   @@unique([provider, provider_account_id])
   @@map("accounts")
@@ -137,41 +137,41 @@ enum AccountProvider {
 }
 
 model UserPermission {
-  id             Int      @id @default(autoincrement())
-  
-  ownerId        Int      // account_of
-  owner          User  @relation("ResourceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  id Int @id @default(autoincrement())
 
-  actorId        Int      // permit_to
-  actor          User  @relation("Actor", fields: [actorId], references: [id], onDelete: Cascade)
+  ownerId Int // account_of
+  owner   User @relation("ResourceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
 
-  permissions    String   // JSON string of permissions
-  
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+  actorId Int // permit_to
+  actor   User @relation("Actor", fields: [actorId], references: [id], onDelete: Cascade)
+
+  permissions String // JSON string of permissions
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@unique([ownerId, actorId])
   @@map("permissions")
 }
 
 model Role {
-  id          Int      @id @default(autoincrement())
-  role        String   @unique
-  description String?
-  permissions Json?
-  users       User[]
+  id             Int                 @id @default(autoincrement())
+  role           String              @unique
+  description    String?
+  permissions    Json?
+  users          User[]
   permissionMaps RolePermissionMap[]
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  created_at     DateTime            @default(now())
+  updated_at     DateTime            @updatedAt
 }
 
 model RolePermission {
-  id          Int      @id @default(autoincrement())
-  resource    String   // e.g., "blog", "user", "property"
-  action      String   // "readOnly", "read&write", "read&write&delete", "read&delete"
+  id           Int                 @id @default(autoincrement())
+  resource     String // e.g., "blog", "user", "property"
+  action       String // "readOnly", "read&write", "read&write&delete", "read&delete"
   accountRoles Account[]
-  roleMaps    RolePermissionMap[]
-  
+  roleMaps     RolePermissionMap[]
+
   @@unique([resource, action])
 }
 
@@ -187,89 +187,91 @@ model RolePermissionMap {
 }
 
 model Review {
-  id          Int      @id @default(autoincrement())
-  rating      Int      @default(5)
-  comment     String?
-  
-  author_id   Int
-  author      User     @relation("ReviewAuthor", fields: [author_id], references: [id])
-  
+  id      Int     @id @default(autoincrement())
+  rating  Int     @default(5)
+  comment String?
+
+  author_id Int
+  author    User @relation("ReviewAuthor", fields: [author_id], references: [id])
+
   receiver_id Int
-  receiver    User     @relation("ReviewReceiver", fields: [receiver_id], references: [id])
-  
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  receiver    User @relation("ReviewReceiver", fields: [receiver_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model KYC {
-  id             Int      @id @default(autoincrement())
-  userId         Int      @unique
-  user           User     @relation(fields: [userId], references: [id])
-  name           String
-  email          String
-  phone          String
+  id         Int      @id @default(autoincrement())
+  userId     Int      @unique
+  user       User     @relation(fields: [userId], references: [id])
+  name       String
+  email      String
+  phone      String
   // Additional KYC fields
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model Property {
-  id                      Int      @id @default(autoincrement())
-  propertyId              String?  @unique // if unfilled (same as the id) - logic in app
-  
+  id         Int     @id @default(autoincrement())
+  propertyId String? @unique // if unfilled (same as the id) - logic in app
+
   // Relations for multi-selection
-  types                  PropertyType[]
-  purposes               PropertyPurpose[]
-  natures                PropertyNature[]
+  types    PropertyType[]
+  purposes PropertyPurpose[]
+  natures  PropertyNature[]
 
   // Listing Data
-  status                  String   @default("pending") // approved, pending, rejected, warned
-  isFeatured              Boolean  @default(false)
-  isExclusive             Boolean  @default(false)
-  isVerified              Boolean  @default(false)
-  remarks                 String?
+  status      String  @default("pending") // approved, pending, rejected, warned
+  isFeatured  Boolean @default(false)
+  isExclusive Boolean @default(false)
+  isVerified  Boolean @default(false)
+  remarks     String?
 
   // Road and Entrance
-  roadType               RoadType?
-  roadSize               Decimal? @db.Decimal(15, 10)
-  facingDirection        String?
+  roadType RoadType?
+  roadSize Decimal?  @db.Decimal(15, 10)
 
   // Location Information
-  location               PropertyLocation?
-  
+  location PropertyLocation?
+
   // Pricing Details
-  propertyPrices         PropertyPrice[]
+  propertyPrices PropertyPrice[]
 
   // Open House
-  openHouse              PropertyOpenHouse?
+  openHouse PropertyOpenHouse?
 
   // Specific Features (varying by property type)
-  features               PropertyFeatures?
+  features         PropertyFeatures?
+  landDetails      PropertyDetailsLand?
+  houseDetails     PropertyDetailsHouse?
+  apartmentDetails PropertyDetailsApartment?
+  spaceDetails     PropertyDetailsSpace?
 
   // Relations
-  propertyMedia          PropertyMedia[]
-  saleStatuses           PropertySaleStatus[]
-  mainMedia              String?
-  propertyAmmenities    PropertyAmmenity[]
+  propertyMedia      PropertyMedia[]
+  saleStatuses       PropertySaleStatus[]
+  propertyAmmenities PropertyAmmenity[]
 
   // Ownership Details
-  listedById             Int
-  listedBy               User     @relation("ListedBy", fields: [listedById], references: [id])
+  listedById Int
+  listedBy   User @relation("ListedBy", fields: [listedById], references: [id])
 
   // Core metadata
-  title                  String
-  slug                   String?
-  locationData           Json?
-  created_on             DateTime @default(now())
-  updated_at             DateTime @updatedAt
+  title        String
+  slug         String?
+  locationData Json?
+  created_on   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 
   // Interactive
-  views                  Int      @default(0)
-  shares                 Int      @default(0)
-  comments               Comment[]
-  property_likes         Like[]
-  featured_history       FeaturedInformation[]
-  collections            CollectionProperty[]
+  views            Int                   @default(0)
+  shares           Int                   @default(0)
+  comments         Comment[]
+  property_likes   Like[]
+  featured_history FeaturedInformation[]
+  collections      CollectionProperty[]
 }
 
 enum PropertyType {
@@ -309,52 +311,51 @@ model PropertySaleStatus {
 }
 
 model PropertyAmmenity {
-  id         Int      @id @default(autoincrement())
+  id         Int            @id @default(autoincrement())
   propertyId Int
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  ammenityId Int @map("ammenity_id")
+  property   Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  ammenityId Int            @map("ammenity_id")
   ammenity   MasterAmmenity @relation(fields: [ammenityId], references: [id], onDelete: Restrict)
-  status     String   @db.VarChar(24)
-  updatedAt  DateTime @default(now()) @updatedAt
+  status     String         @db.VarChar(24)
+  updatedAt  DateTime       @default(now()) @updatedAt
 
-  @@map("property_ammenities")
   @@index([propertyId])
+  @@map("property_ammenities")
 }
 
 model MasterAmmenity {
-  id          Int              @id @default(autoincrement())
-  name        String
-  status      String
-  ammenities  PropertyAmmenity[]
+  id         Int                @id @default(autoincrement())
+  name       String
+  status     String
+  ammenities PropertyAmmenity[]
 
   @@map("master_ammenities")
 }
 
 model PropertyNature {
-  id          Int        @id @default(autoincrement())
-  name        String     @unique // commercial, semi commercial, residential, agricultural, industrial
-  properties  Property[]
+  id         Int        @id @default(autoincrement())
+  name       String     @unique // commercial, semi commercial, residential, agricultural, industrial
+  properties Property[]
 }
 
-
 model PropertyFeatures {
-  id               Int      @id @default(autoincrement())
-  propertyId       Int      @unique
-  property         Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  id         Int      @id @default(autoincrement())
+  propertyId Int      @unique
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   // Residential/Building (House, Apartment)
-  bedrooms         Int?
-  bathrooms        Int?
-  kitchens         Int?
-  livingRooms      Int?
-  floorNumber      Int?
-  totalFloors      Int?
-  furnishing       String? // Unfurnished, Semi-furnished, Full-furnished
-  
+  bedrooms    Int?
+  bathrooms   Int?
+  kitchens    Int?
+  livingRooms Int?
+  floorNumber Int?
+  totalFloors Int?
+  furnishing  String? // Unfurnished, Semi-furnished, Full-furnished
+
   // Size/Area details (Additional to Pricing)
-  builtUpArea      Float?
-  builtUpAreaUnit  String? // sqft, sqm, aana, ropani
-  
+  builtUpArea     Float?
+  builtUpAreaUnit String? // sqft, sqm, aana, ropani
+
   // Commercial/Space specific
   parkingAvailable Boolean?
   elevator         Boolean?
@@ -363,49 +364,133 @@ model PropertyFeatures {
   electricity      Boolean?
 }
 
+model PropertyDetailsLand {
+  id          Int      @id @default(autoincrement())
+  propertyId  Int      @unique
+  property    Property @relation(fields: [propertyId], references: [id])
+  landArea    Decimal  @db.Decimal(18, 10)
+  dimension   String   @db.VarChar(48)
+  plotNumber  String
+  moreDetails Json     @db.JsonB
+
+  @@map("property_details_land")
+}
+
+model PropertyDetailsHouse {
+  id          Int             @id @default(autoincrement())
+  propertyId  Int             @unique
+  property    Property        @relation(fields: [propertyId], references: [id])
+  builtUpArea Decimal         @db.Decimal(18, 10)
+  bedrooms    Int             @db.SmallInt
+  bathrooms   Int             @db.SmallInt
+  kitchens    Int             @db.SmallInt
+  livingRooms Int             @db.SmallInt
+  diningRooms Int             @db.SmallInt
+  totalRooms  Int             @db.SmallInt
+  totalFloors Decimal         @db.Decimal(18, 10)
+  yearBuilt   DateTime
+  furnishing  HouseFurnishing
+  parking     Int             @db.SmallInt
+  moreDetails Json            @db.JsonB
+
+  @@map("property_details_house")
+}
+
+enum HouseFurnishing {
+  unfurnsihed
+  semifurnished
+  furnished
+}
+
+model PropertyDetailsApartment {
+  id          Int                 @id @default(autoincrement())
+  propertyId  Int                 @unique
+  property    Property            @relation(fields: [propertyId], references: [id])
+  builtUpArea Decimal             @db.Decimal(18, 10)
+  bedrooms    Int                 @db.SmallInt
+  bathrooms   Int                 @db.SmallInt
+  kitchens    Int                 @db.SmallInt
+  livingRooms Int                 @db.SmallInt
+  diningRooms Int                 @db.SmallInt
+  floorNumber Int                 @db.SmallInt
+  furnishing  ApartmentFurnishing
+  hasBalcony  Boolean
+  parking     Int                 @db.SmallInt
+  yearBuilt   DateTime
+  moreDetails Json                @db.JsonB
+
+  @@map("property_details_apartment")
+}
+
+enum ApartmentFurnishing {
+  fullFurnished
+  semiFurnished
+  unfurnished
+}
+
+model PropertyDetailsSpace {
+  id          Int             @id @default(autoincrement())
+  propertyId  Int             @unique
+  property    Property        @relation(fields: [propertyId], references: [id])
+  spaceType   String          @db.VarChar
+  totalArea   Decimal         @db.Decimal(18, 10)
+  onFloor     Int             @db.SmallInt
+  furnishing  SpaceFurnishing
+  bathrooms   Int             @db.SmallInt
+  parking     Int             @db.SmallInt
+  moreDetails Json            @db.JsonB
+
+  @@map("property_details_space")
+}
+
+enum SpaceFurnishing {
+  fullFurnished
+  semiFurnished
+  unfurnished
+}
 
 model PropertyLocation {
-  id               Int      @id @default(autoincrement())
-  propertyId       Int      @unique
-  property         Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  latitude         Float?
-  longitude        Float?
-  country          String   @default("Nepal")
-  province         String
-  district         String
-  cityVillage      String
-  area             String?
-  ward             String?
-  landmark         String?
-  distanceFrom     String? // suggestions (swyambhunath, pashupatinath, fewataal, 0km, ringroad, bouddha, bhatbhateni)
+  id         Int      @id @default(autoincrement())
+  propertyId Int      @unique
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  latitude     Float?
+  longitude    Float?
+  country      String  @default("Nepal")
+  province     String
+  district     String
+  cityVillage  String
+  area         String?
+  ward         String?
+  landmark     String?
+  distanceFrom String? // suggestions (swyambhunath, pashupatinath, fewataal, 0km, ringroad, bouddha, bhatbhateni)
 }
 
 model Location {
-  id         Int       @id @default(autoincrement())
-  name       String
-  type       String
-  parentId   Int?      @map("parent_id")
-  parent     Location? @relation("LocationTree", fields: [parentId], references: [id], onDelete: SetNull)
-  children   Location[] @relation("LocationTree")
-  details    Json?
+  id       Int        @id @default(autoincrement())
+  name     String
+  type     String
+  parentId Int?       @map("parent_id")
+  parent   Location?  @relation("LocationTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children Location[] @relation("LocationTree")
+  details  Json?
 
-  @@index([parentId])
   @@unique([name, type, parentId])
+  @@index([parentId])
   @@map("location")
 }
 
 model PropertyOpenHouse {
-  id               Int      @id @default(autoincrement())
-  propertyId       Int      @unique
-  property         Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  markOpenHouse    Boolean  @default(false)
-  date             DateTime?
-  startTime        String?
-  endTime          String?
-  latitude         Float?
-  longitude        Float?
+  id         Int      @id @default(autoincrement())
+  propertyId Int      @unique
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  markOpenHouse Boolean   @default(false)
+  date          DateTime?
+  startTime     String?
+  endTime       String?
+  latitude      Float?
+  longitude     Float?
 }
 
 model Media {
@@ -423,12 +508,12 @@ model Media {
 }
 
 model PropertyMedia {
-  id         Int      @id @default(autoincrement())
-  propertyId Int
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  type       String
+  id          Int      @id @default(autoincrement())
+  propertyId  Int
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  type        String
   resourceUrl String
-  index      Int
+  index       Int
 
   @@index([propertyId])
 }
@@ -447,154 +532,153 @@ model PropertyPrice {
 }
 
 model FeaturedInformation {
-  id              Int       @id @default(autoincrement())
-  property_id     Int
-  property        Property  @relation(fields: [property_id], references: [id])
-  is_active       Boolean   @default(true)
-  featured_on     DateTime  @default(now())
-  featured_till   DateTime?
+  id            Int       @id @default(autoincrement())
+  property_id   Int
+  property      Property  @relation(fields: [property_id], references: [id])
+  is_active     Boolean   @default(true)
+  featured_on   DateTime  @default(now())
+  featured_till DateTime?
 }
 
 model Comment {
-  id          Int      @id @default(autoincrement())
-  content     String
-  created_at  DateTime @default(now())
-  
+  id         Int      @id @default(autoincrement())
+  content    String
+  created_at DateTime @default(now())
+
   property_id Int
   property    Property @relation(fields: [property_id], references: [id])
-  
-  user_id     Int
-  user        User     @relation(fields: [user_id], references: [id])
+
+  user_id Int
+  user    User @relation(fields: [user_id], references: [id])
 }
 
 model Like {
-  id          Int      @id @default(autoincrement())
-  created_at  DateTime @default(now())
-  
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now())
+
   property_id Int
   property    Property @relation(fields: [property_id], references: [id])
-  
-  user_id     Int
-  user        User     @relation(fields: [user_id], references: [id])
+
+  user_id Int
+  user    User @relation(fields: [user_id], references: [id])
 
   @@unique([property_id, user_id])
 }
 
 model Agency {
-  id              Int      @id @default(autoincrement())
+  id              Int     @id @default(autoincrement())
   name            String
-  username        String   @unique
+  username        String  @unique
   profile_picture String?
   email           String?
   phone           String?
   bio             String?
   website         String?
-  
+
   // Social Medias
-  facebook        String?
-  instagram       String?
-  twitter         String?
-  linkedin        String?
-  
+  facebook  String?
+  instagram String?
+  twitter   String?
+  linkedin  String?
+
   // Status
-  is_verified     Boolean  @default(false)
-  
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
+  is_verified Boolean @default(false)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model SystemSettings {
-  id                      Int      @id @default(1)
-  view_mode               String   @default("classic") // classic, social
-  show_like_button        Boolean  @default(true)
-  show_share_button       Boolean  @default(true)
-  show_comment_button     Boolean  @default(true)
-  show_contact_agent      Boolean  @default(true)
-  show_featured_properties  Boolean  @default(true)
-  show_sponsored_deals      Boolean  @default(true)
-  show_property_collection  Boolean  @default(true)
-  show_explore_categories   Boolean  @default(true)
-  show_hero_carousel_ad     Boolean  @default(true)
-  show_feed_ad              Boolean  @default(true)
-  homepage_config         String?  // JSON: HomepageSection[]
-  updated_at              DateTime @updatedAt
+  id                       Int      @id @default(1)
+  view_mode                String   @default("classic") // classic, social
+  show_like_button         Boolean  @default(true)
+  show_share_button        Boolean  @default(true)
+  show_comment_button      Boolean  @default(true)
+  show_contact_agent       Boolean  @default(true)
+  show_featured_properties Boolean  @default(true)
+  show_sponsored_deals     Boolean  @default(true)
+  show_property_collection Boolean  @default(true)
+  show_explore_categories  Boolean  @default(true)
+  show_hero_carousel_ad    Boolean  @default(true)
+  show_feed_ad             Boolean  @default(true)
+  homepage_config          String? // JSON: HomepageSection[]
+  updated_at               DateTime @updatedAt
 }
 
 model AboutContent {
-  id              Int      @id @default(1)
-  title           String   @default("About Namsari")
-  description     String?  
-  mission         String?
-  vision          String?
-  standard        String?  
-  group_info      String?  
-  content         String?  
-  updated_at      DateTime @updatedAt
+  id          Int      @id @default(1)
+  title       String   @default("About Namsari")
+  description String?
+  mission     String?
+  vision      String?
+  standard    String?
+  group_info  String?
+  content     String?
+  updated_at  DateTime @updatedAt
 }
 
 model Collection {
-  id          Int        @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   name        String
-  slug        String     @unique @default(cuid())
+  slug        String  @unique @default(cuid())
   description String?
-  type        String     @default("user_generated") // user_generated, system_generated
-  
+  type        String  @default("user_generated") // user_generated, system_generated
+
   // For system generated collections, we store filter conditions here as JSON
-  moreInfo    String?    // JSON string for conditions: { type, nature, purpose, priceMin, priceMax, unit, etc. }
-  
-  is_public   Boolean    @default(true)
-  view_mode   String     @default("classic") // classic, social
-  created_at  DateTime   @default(now())
-  updated_at  DateTime   @updatedAt
+  moreInfo String? // JSON string for conditions: { type, nature, purpose, priceMin, priceMax, unit, etc. }
 
-  user_id     Int
-  user        User       @relation(fields: [user_id], references: [id])
+  is_public  Boolean  @default(true)
+  view_mode  String   @default("classic") // classic, social
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  properties  CollectionProperty[]
+  user_id Int
+  user    User @relation(fields: [user_id], references: [id])
+
+  properties CollectionProperty[]
 }
 
 model CollectionProperty {
   id            Int        @id @default(autoincrement())
   collection_id Int
   collection    Collection @relation(fields: [collection_id], references: [id], onDelete: Cascade)
-  
-  property_id   Int
-  property      Property   @relation(fields: [property_id], references: [id], onDelete: Cascade)
 
-  added_at      DateTime   @default(now())
+  property_id Int
+  property    Property @relation(fields: [property_id], references: [id], onDelete: Cascade)
+
+  added_at DateTime @default(now())
 
   @@unique([collection_id, property_id])
 }
 
-
 model Requirement {
-  id                Int      @id @default(autoincrement())
-  userId            Int?
-  user              User?    @relation(fields: [userId], references: [id])
-  
-  mode              String   @default("simple") // simple, detailed
-  content           String?  // For simple mode
-  
+  id     Int   @id @default(autoincrement())
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id])
+
+  mode    String  @default("simple") // simple, detailed
+  content String? // For simple mode
+
   // Detailed Mode Fields
-  propertyTypes     String?  // Comma separated list
-  purposes          String?  // Comma separated list
-  natures           String?  // Comma separated list
-  facings           String?  // Comma separated list
-  district          String?
-  cityVillage       String?
-  area              String?
-  roadAccess        String?
-  minPrice          Float?
-  maxPrice          Float?
-  pricingUnit       String?
-  latitude          Float?
-  longitude         Float?
-  remarks           String?
-  
-  is_public         Boolean  @default(true)
-  status            String   @default("active")
-  created_at        DateTime @default(now())
-  updated_at        DateTime @updatedAt
+  propertyTypes String? // Comma separated list
+  purposes      String? // Comma separated list
+  natures       String? // Comma separated list
+  facings       String? // Comma separated list
+  district      String?
+  cityVillage   String?
+  area          String?
+  roadAccess    String?
+  minPrice      Float?
+  maxPrice      Float?
+  pricingUnit   String?
+  latitude      Float?
+  longitude     Float?
+  remarks       String?
+
+  is_public  Boolean  @default(true)
+  status     String   @default("active")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model Subscriber {
@@ -618,8 +702,8 @@ model JobListing {
   slug              String           @unique
   department        String
   location          String
-  type              String           // Full-time, Part-time, Contract, etc.
-  description       String           
+  type              String // Full-time, Part-time, Contract, etc.
+  description       String
   requirements      String?
   salary_range      String?
   application_steps String?          @default("[]") // JSON string of steps and questions
@@ -630,55 +714,55 @@ model JobListing {
 }
 
 model JobApplication {
-  id                 Int           @id @default(autoincrement())
+  id                 Int        @id @default(autoincrement())
   application_for_id Int
-  application_for    JobListing    @relation(fields: [application_for_id], references: [id])
+  application_for    JobListing @relation(fields: [application_for_id], references: [id])
   applicant_name     String
   applicant_email    String
   applicant_phone    String
-  resume_url         String?       
+  resume_url         String?
   cover_letter       String?
-  moreinformation    String?       @default("[]") 
-  status             String        @default("pending") // pending, reviewed, rejected, hired
-  created_at         DateTime      @default(now())
+  moreinformation    String?    @default("[]")
+  status             String     @default("pending") // pending, reviewed, rejected, hired
+  created_at         DateTime   @default(now())
 }
 
 model SupportArticle {
-  id          Int      @id @default(autoincrement())
-  title       String
-  slug        String   @unique
-  category    String   // General, Technical, Billing, etc.
-  content     String   // Markdown or HTML
-  emoji       String?
-  status      String   @default("published") // published, draft
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  title      String
+  slug       String   @unique
+  category   String // General, Technical, Billing, etc.
+  content    String // Markdown or HTML
+  emoji      String?
+  status     String   @default("published") // published, draft
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model BlogPost {
   id          Int      @id @default(autoincrement())
   title       String
   slug        String   @unique
-  content     String   // HTML content
+  content     String // HTML content
   excerpt     String?
   cover_image String?
   category    String?
-  author      String?  // Simple text field for the author's name
+  author      String? // Simple text field for the author's name
   status      String   @default("draft") // draft, published
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 }
 
 model Bank {
-  id          Int        @id @default(autoincrement())
-  slug        String     @unique @default(cuid())
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique @default(cuid())
   name        String
   icon        String?
   description String?
-  created_at  DateTime   @default(now())
-  updated_at  DateTime   @updatedAt
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 
-  rates       BankRate[]
+  rates BankRate[]
 }
 
 model BankRate {
@@ -693,91 +777,91 @@ model BankRate {
 }
 
 model Advertisement {
-  id            Int      @id @default(autoincrement())
-  title         String?  // Title for internal reference
-  image         String   // URL of the advertisement image
-  link          String?  // Redirect URL (renamed from takes_to for clarity)
+  id             Int     @id @default(autoincrement())
+  title          String? // Title for internal reference
+  image          String // URL of the advertisement image
+  link           String? // Redirect URL (renamed from takes_to for clarity)
   isSponsoredRel Boolean @default(true)
-  
+
   // Relations
-  userId        Int?
-  user          User?    @relation(fields: [userId], references: [id])
-  
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id])
+
   // Status & Approval
-  status        String   @default("pending") // pending, approved, rejected, active, paused, ended
+  status          String  @default("pending") // pending, approved, rejected, active, paused, ended
   rejectionReason String?
-  
+
   // Placement & Configuration
-  position      String   @default("feed") // feed, sidebar, banner_top
-  
+  position String @default("feed") // feed, sidebar, banner_top
+
   // Budget & Duration
-  budget        Float?
-  durationDays  Int?
-  targetViews   Int?     // Calculated limit
-  startDate     DateTime?
-  endDate       DateTime?
+  budget       Float?
+  durationDays Int?
+  targetViews  Int? // Calculated limit
+  startDate    DateTime?
+  endDate      DateTime?
 
   // Stats (Aggregated for quick access)
-  views         Int      @default(0)
-  clicks        Int      @default(0)
-  
-  // Detailed Tracking
-  impressions   AdImpression[]
-  ad_clicks     AdClick[]
+  views  Int @default(0)
+  clicks Int @default(0)
 
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+  // Detailed Tracking
+  impressions AdImpression[]
+  ad_clicks   AdClick[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model AdRate {
   id          Int      @id @default(autoincrement())
-  name        String   // e.g. "Standard Feed", "Premium Banner"
+  name        String // e.g. "Standard Feed", "Premium Banner"
   description String?
   price       Float
-  duration    Int      // in days
-  position    String   // feed, sidebar, banner_top
+  duration    Int // in days
+  position    String // feed, sidebar, banner_top
   is_active   Boolean  @default(true)
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 }
 
 model AdImpression {
-  id          Int      @id @default(autoincrement())
-  adId        Int
-  ad          Advertisement @relation(fields: [adId], references: [id], onDelete: Cascade)
-  
-  viewerId    Int?     // If logged in
-  sessionId   String?  // For anonymous tracking
-  device      String?  // mobile, desktop, tablet
-  userAgent   String?
-  ipAddress   String?
-  
-  created_at  DateTime @default(now())
-  
+  id   Int           @id @default(autoincrement())
+  adId Int
+  ad   Advertisement @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  viewerId  Int? // If logged in
+  sessionId String? // For anonymous tracking
+  device    String? // mobile, desktop, tablet
+  userAgent String?
+  ipAddress String?
+
+  created_at DateTime @default(now())
+
   @@index([adId, created_at])
 }
 
 model AdClick {
-  id          Int      @id @default(autoincrement())
-  adId        Int
-  ad          Advertisement @relation(fields: [adId], references: [id], onDelete: Cascade)
-  
-  viewerId    Int?
-  sessionId   String?
-  userAgent   String?
-  
-  created_at  DateTime @default(now())
-  
+  id   Int           @id @default(autoincrement())
+  adId Int
+  ad   Advertisement @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  viewerId  Int?
+  sessionId String?
+  userAgent String?
+
+  created_at DateTime @default(now())
+
   @@index([adId, created_at])
 }
 
 model Visitor {
-  id          Int      @id @default(autoincrement())
-  session_id  String   // Cookie ID
-  page_url    String
-  user_agent  String?
-  ip_address  String?  // Anonymized or hashed if needed
-  created_at  DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  session_id String // Cookie ID
+  page_url   String
+  user_agent String?
+  ip_address String? // Anonymized or hashed if needed
+  created_at DateTime @default(now())
 }
 
 model Session {
@@ -788,11 +872,11 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Custom fields from old session
-  sessionKey   String?
-  operatingId  Int?     // If null, operating as self
-  ipAddress    String?
-  userAgent    String?
-  lastActive   DateTime @updatedAt
+  sessionKey  String?
+  operatingId Int? // If null, operating as self
+  ipAddress   String?
+  userAgent   String?
+  lastActive  DateTime @updatedAt
 
   @@map("sessions")
 }
@@ -807,20 +891,20 @@ model VerificationToken {
 }
 
 model Notification {
-  id          Int      @id @default(autoincrement())
-  userId      Int      // Recipient
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  title       String
-  message     String
-  type        String   // system, invite, exclusive_request, info
-  
+  id     Int  @id @default(autoincrement())
+  userId Int // Recipient
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title   String
+  message String
+  type    String // system, invite, exclusive_request, info
+
   // Action related (e.g. for invites)
-  actionLink  String?
-  actionId    Int?     // e.g. agencyId or memberId
-  
-  isRead      Boolean  @default(false)
-  created_at  DateTime @default(now())
+  actionLink String?
+  actionId   Int? // e.g. agencyId or memberId
+
+  isRead     Boolean  @default(false)
+  created_at DateTime @default(now())
 }
 
 model ActivityLog {
@@ -830,11 +914,11 @@ model ActivityLog {
   activity_on     DateTime @default(now())
   activity_type   String
   description     String
-  
+
   // Metadata for tracking
-  ip_address      String?
-  user_agent      String?
-  device_type     String? // mobile, tablet, desktop
+  ip_address  String?
+  user_agent  String?
+  device_type String? // mobile, tablet, desktop
 }
 
 model ErrorLog {
@@ -847,8 +931,8 @@ model ErrorLog {
   occurred_at DateTime @default(now())
   created_at  DateTime @default(now())
 
-  userId      Int?
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([occurred_at])
   @@index([source])

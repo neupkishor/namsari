@@ -3,12 +3,68 @@
 # AboutContent, ActivityLog, AdClick, AdImpression, AdRate, Advertisement,
 # Agency, Bank, BankRate, BlogPost, Collection, CollectionProperty, Comment,
 # FeaturedInformation, JobApplication, JobListing, KYC, Like, Media,
-# Notification, Property, PropertyFeatures, PropertyLocation, PropertyMedia,
+# Notification, Property, PropertyDetailsApartment, PropertyDetailsHouse,
+# PropertyDetailsLand, PropertyDetailsSpace, PropertyFeatures, PropertyLocation, PropertyMedia,
 # PropertyNature, PropertyOpenHouse, PropertyPrice, PropertySaleStatus, Requirement, Review, Role,
 # RolePermission, SearchTerm, Subscriber, SupportArticle, SystemSettings,
 # Visitor, _PropertyToPropertyNature, _prisma_migrations, accounts,
 # agency_config, errors, listing_stats_cache, location, permissions,
 # property_drafts, role_permission_map, sessions, users, verification_tokens.
+
+Table: property_details_land, Model: PropertyDetailsLand
+Fields:
+> id: int, primary key, auto incremental;
+> propertyId: int, unique, references Property.id;
+> landArea: numeric(18,10);
+> dimension: varchar(48);
+> plotNumber: text;
+> moreDetails: jsonb;
+
+Table: property_details_house, Model: PropertyDetailsHouse
+Fields:
+> id: int, primary key, auto incremental;
+> propertyId: int, unique, references Property.id;
+> builtUpArea: numeric(18,10);
+> bedrooms: smallint;
+> bathrooms: smallint;
+> kitchens: smallint;
+> livingRooms: smallint;
+> diningRooms: smallint;
+> totalRooms: smallint;
+> totalFloors: numeric(18,10);
+> yearBuilt: timestamp;
+> furnishing: enum HouseFurnishing (unfurnsihed, semifurnished, furnished);
+> parking: smallint;
+> moreDetails: jsonb;
+
+Table: property_details_apartment, Model: PropertyDetailsApartment
+Fields:
+> id: int, primary key, auto incremental;
+> propertyId: int, unique, references Property.id;
+> builtUpArea: numeric(18,10);
+> bedrooms: smallint;
+> bathrooms: smallint;
+> kitchens: smallint;
+> livingRooms: smallint;
+> diningRooms: smallint;
+> floorNumber: smallint;
+> furnishing: enum ApartmentFurnishing (fullFurnished, semiFurnished, unfurnished);
+> hasBalcony: boolean;
+> parking: smallint;
+> yearBuilt: timestamp;
+> moreDetails: jsonb;
+
+Table: property_details_space, Model: PropertyDetailsSpace
+Fields:
+> id: int, primary key, auto incremental;
+> propertyId: int, unique, references Property.id;
+> spaceType: varchar;
+> totalArea: numeric(18,10);
+> onFloor: smallint;
+> furnishing: enum SpaceFurnishing (fullFurnished, semiFurnished, unfurnished);
+> bathrooms: smallint;
+> parking: smallint;
+> moreDetails: jsonb;
 
 Table: Property, Model: Property
 Fields:
@@ -21,8 +77,6 @@ Fields:
 > remarks: text, optional;
 > roadType: enum RoadType, optional; values: blacktopped, concrete, paved_block, gravel_murrum, earth_dirt, stone_paved, brick_paved, unknown;
 > roadSize: numeric(15,10), optional;
-> facingDirection: text, optional;
-> mainMedia: text, optional;
 > listedById: int, references users.id;
 > title: text;
 > slug: text, optional;
