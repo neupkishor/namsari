@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
-import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
 
 type PropertyImageCarouselProps = {
     images: string[];
@@ -10,6 +9,7 @@ type PropertyImageCarouselProps = {
 
 export default function PropertyImageCarousel({ images, galleryHref }: PropertyImageCarouselProps) {
     const [activeIndex, setActiveIndex] = useState(0);
+    const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
     const scrollerRef = useRef<HTMLDivElement | null>(null);
     const safeImages = useMemo(() => (images.length > 0 ? images : ['/images/not_found_mansion.png']), [images]);
 
@@ -23,15 +23,13 @@ export default function PropertyImageCarousel({ images, galleryHref }: PropertyI
 
     return (
         <div className="mobile-property-carousel">
-            <InternalPropertyLink href={galleryHref} style={{ display: 'block', textDecoration: 'none' }}>
-                <div className="mobile-property-carousel-track" ref={scrollerRef} onScroll={handleScroll}>
+            <div className="mobile-property-carousel-track" ref={scrollerRef} onScroll={handleScroll} onClick={(event) => { const src = (event.target as HTMLImageElement).src; const index = safeImages.indexOf(src); if (index >= 0) setLightboxIndex(index); }}>
                     {safeImages.map((src, idx) => (
                         <div key={`${src}-${idx}`} className="mobile-property-carousel-slide">
                             <img src={src} alt={`Property image ${idx + 1}`} className="mobile-property-carousel-image" />
                         </div>
                     ))}
-                </div>
-            </InternalPropertyLink>
+            </div>
 
             <div className="mobile-property-carousel-top">
                 <span className="mobile-property-carousel-count">
@@ -46,6 +44,7 @@ export default function PropertyImageCarousel({ images, galleryHref }: PropertyI
                     ))}
                 </div>
             </div>
+            {lightboxIndex !== null && <div className="property-lightbox" role="dialog" aria-modal="true" onClick={() => setLightboxIndex(null)}><button type="button" className="property-lightbox-close" onClick={() => setLightboxIndex(null)}>×</button><img src={safeImages[lightboxIndex]} alt={`Property image ${lightboxIndex + 1}`} onClick={(event) => event.stopPropagation()} /><button type="button" className="property-lightbox-nav property-lightbox-prev" onClick={(event) => { event.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + safeImages.length) % safeImages.length); }}>‹</button><button type="button" className="property-lightbox-nav property-lightbox-next" onClick={(event) => { event.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % safeImages.length); }}>›</button></div>}
         </div>
     );
 }

@@ -78,6 +78,14 @@ h3.font-extrabold {
   font-weight: 700;
 }
 
+.property-lightbox { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.94); padding: 24px; }
+.property-lightbox img { max-width: 92vw; max-height: 92vh; object-fit: contain; }
+.property-lightbox-close, .property-lightbox-nav { position: absolute; border: 0; color: white; background: rgba(255,255,255,.15); cursor: pointer; border-radius: 999px; }
+.property-lightbox-close { top: 20px; right: 20px; width: 44px; height: 44px; font-size: 30px; }
+.property-lightbox-nav { top: 50%; width: 48px; height: 48px; font-size: 38px; line-height: 1; transform: translateY(-50%); }
+.property-lightbox-prev { left: 20px; }
+.property-lightbox-next { right: 20px; }
+
 @layer utilities {
   .leaflet-container {
     z-index: 0;

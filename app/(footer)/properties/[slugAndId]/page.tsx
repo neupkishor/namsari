@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
 import PropertyMap from './PropertyMap';
 import PropertyImageCarousel from './PropertyImageCarousel';
+import PropertyGalleryLightbox from './PropertyGalleryLightbox';
 import { NearbyAmenitiesSection } from './NearbyAmenitiesSection';
 import type { Amenity } from './NearbyAmenitiesSection';
 import PropertyOverviewGrid from './PropertyOverviewGrid';
@@ -972,13 +973,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             <div className="property-page-container">
                 {/* Header Info (Mobile Only - usually good to have title first on mobile, but preserving consistent DOM) */}
 
-                <PropertyImageCarousel images={images} galleryHref={`/properties/${slugAndId}/gallery`} />
+                <PropertyImageCarousel images={images} galleryHref="" />
 
                 {/* Image Gallery */}
                 {/* Image Gallery */}
-                <div className="gallery-grid" style={{
-                    gridTemplateColumns: images.length <= 1 ? '1fr' : images.length === 2 ? '1fr 1fr' : '2fr 1fr'
-                }}>
+                <PropertyGalleryLightbox images={images} />
+                {/*
                     <div className="gallery-main">
                         {images.length > 0 ? (
                             <InternalPropertyLink href={`/properties/${slugAndId}/gallery`} style={{ display: 'block', height: '100%', width: '100%' }}>
@@ -1012,7 +1012,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                             )}
                         </div>
                     )}
-                </div>
+                </div> */}
 
                 <div className="content-split">
                     {/* Main Details */}
