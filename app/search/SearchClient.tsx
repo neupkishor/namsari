@@ -19,6 +19,20 @@ function splitFilters(value: string | null): string[] {
     return value.split(',').map((item) => item.trim().toLowerCase()).filter(Boolean);
 }
 
+function sortProperties(properties: any[], sortBy: string | null) {
+    if (sortBy !== 'price' && sortBy !== 'date') return properties;
+
+    return [...properties].sort((left, right) => {
+        if (sortBy === 'date') {
+            return new Date(right.created_on || right.createdAt || 0).getTime() - new Date(left.created_on || left.createdAt || 0).getTime();
+        }
+
+        const leftPrice = Number(left.pricing?.price || left.price || 0);
+        const rightPrice = Number(right.pricing?.price || right.price || 0);
+        return leftPrice - rightPrice;
+    });
+}
+
 export default function SearchClient({ initialUser, initialQuery = '', initialProperties = [] }: { initialUser: any, initialQuery?: string, initialProperties?: any[] }) {
     const router = useRouter();
     const pathname = usePathname();
@@ -47,12 +61,13 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
         const rawMaxPrice = searchParams.get('modifiedMaxPrice') || searchParams.get('rawMaxPrice');
         const minPrice = rawMinPrice ? Number(rawMinPrice) : null;
         const maxPrice = rawMaxPrice ? Number(rawMaxPrice) : null;
+        const sortBy = searchParams.get('sortBy');
 
         if (!q && selectedLocations.length === 0 && !listedByFilter && typeFilters.length === 0 && !categoryFilter && minSize === null && maxSize === null && minPrice === null && maxPrice === null) {
-            return properties;
+            return sortProperties(properties, sortBy);
         }
 
-        return properties.filter((property) => {
+        return sortProperties(properties.filter((property) => {
             const values = [
                 property.title,
                 property.location,
@@ -78,7 +93,7 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
             const matchesPrice = (minPrice === null || Number.isNaN(propertyPrice) || propertyPrice >= minPrice) && (maxPrice === null || Number.isNaN(propertyPrice) || propertyPrice <= maxPrice);
 
             return matchesQuery && matchesLocation && matchesListedBy && matchesType && matchesCategory && matchesSize && matchesPrice;
-        });
+        }), sortBy);
     }, [properties, query, searchParams]);
 
     const categoryLinks = [

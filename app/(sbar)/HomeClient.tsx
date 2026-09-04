@@ -89,7 +89,7 @@ function matchesPriceRange(value: number | null | undefined, minPrice?: number |
     return true;
 }
 
-type HomeSearchPanel = 'type' | 'price' | 'location' | 'size' | 'listedBy' | 'category' | null;
+type HomeSearchPanel = 'type' | 'price' | 'location' | 'size' | 'listedBy' | 'category' | 'sort' | null;
 type CategoryType = 'residential' | 'commercial' | 'semi-commercial';
 type ListedByType = 'owner' | 'agent' | 'agency';
 type AreaPriceUnit = 'peraana' | 'persqm' | 'perkattha' | 'perdhur';
@@ -381,6 +381,7 @@ function HomeSearchHero() {
     const [sizeMin, setSizeMin] = useState('');
     const [sizeMax, setSizeMax] = useState('');
     const [sizeUnit, setSizeUnit] = useState<SizeUnit>('sqm');
+    const [sortBy, setSortBy] = useState<'price' | 'date' | null>(null);
 
     useEffect(() => {
         let mounted = true;
@@ -496,6 +497,7 @@ function HomeSearchHero() {
     const currentTypeLabel = selectedPropertyType
         ? selectedPropertyType.charAt(0).toUpperCase() + selectedPropertyType.slice(1)
         : 'Any type';
+    const currentSortLabel = sortBy === 'price' ? 'Price' : sortBy === 'date' ? 'Date Posted' : 'Any sort';
 
     const HOME_PROPERTY_TYPE_OPTIONS = purposes.has('rent') && !purposes.has('sale')
         ? HOME_PROPERTY_TYPE_OPTIONS_RENT
@@ -522,6 +524,7 @@ function HomeSearchHero() {
         if (sizeMin) params.set('sizeMin', sizeMin);
         if (sizeMax) params.set('sizeMax', sizeMax);
         if (sizeUnit) params.set('sizeUnit', sizeUnit);
+        if (sortBy) params.set('sortBy', sortBy);
         if (options?.view) params.set('view', options.view);
 
         return params;
@@ -836,6 +839,29 @@ function HomeSearchHero() {
             );
         }
 
+        if (panel === 'sort') {
+            return (
+                <div className="space-y-4">
+                    <div className="flex items-start justify-between gap-3">
+                        <div>
+                            <h3 className="text-[15px] font-black text-slate-900">Sort By</h3>
+                            <p className="text-[13px] text-slate-500">Choose how you want the listings ordered.</p>
+                        </div>
+                        {sortBy && (
+                            <button type="button" onClick={() => setSortBy(null)} className="rounded-full border border-[color:var(--color-primary)]/12 bg-[color:var(--color-primary)]/4 px-4 py-2 text-[12px] font-bold text-slate-600">Clear</button>
+                        )}
+                    </div>
+                    <div className="flex flex-wrap gap-2.5">
+                        {([['price', 'Price'], ['date', 'Date Posted']] as const).map(([value, label]) => (
+                            <button key={value} type="button" onClick={() => setSortBy(sortBy === value ? null : value)} className={`rounded-full border px-4 py-2.5 text-[13px] font-bold transition-all duration-200 ${sortBy === value ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)] text-white' : 'border-[color:var(--color-primary)]/12 bg-white text-slate-700 hover:border-[color:var(--color-primary)]'}`}>
+                                {label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
         return null;
     };
 
@@ -891,8 +917,9 @@ function HomeSearchHero() {
                             ['size', 'Area', currentSizeLabel],
                             ['category', 'Category', currentCategoryLabel],
                             ['listedBy', 'Posted by', currentListedByLabel],
+                            ['sort', 'Sort By', currentSortLabel],
                         ] as Array<[Exclude<HomeSearchPanel, null>, string, string]>).map(([key, label, value], index, arr) => {
-                                    const hasValue = value !== 'Any type' && value !== 'Any budget' && value !== 'Any location' && value !== 'Any size' && value !== 'Any category' && value !== 'Any posted by';
+                                    const hasValue = value !== 'Any type' && value !== 'Any budget' && value !== 'Any location' && value !== 'Any size' && value !== 'Any category' && value !== 'Any posted by' && value !== 'Any sort';
                             const isLast = index === arr.length - 1;
                                     return (
                                 <button
@@ -989,6 +1016,7 @@ function HomeSearchHero() {
                                 {activePanel === 'size' && 'Size'}
                                 {activePanel === 'listedBy' && 'Listed by'}
                                 {activePanel === 'category' && 'Category'}
+                                {activePanel === 'sort' && 'Sort By'}
                             </span>
                             <button
                                 type="button"
@@ -1437,16 +1465,13 @@ function ExploreCategoriesSection({
         {
             label: 'Requirement types',
             items: [
-                { icon: '/icons/house-chimney.svg', label: 'House', count: scopedRequirementStats?.purchaseByType.house ?? stats.requirements.purchaseByType?.house ?? 0, href: withCategory('/?tab=requirements&purpose=sale&type=house') },
-                { icon: '/icons/land-location.svg', label: 'Land', count: scopedRequirementStats?.purchaseByType.land ?? stats.requirements.purchaseByType?.land ?? 0, href: withCategory('/?tab=requirements&purpose=sale&type=land') },
-                { icon: '/icons/apartment.svg', label: 'Apartment', count: scopedRequirementStats?.purchaseByType.apartment ?? stats.requirements.purchaseByType?.apartment ?? 0, href: withCategory('/?tab=requirements&purpose=sale&type=apartment') },
-                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: scopedRequirementStats?.purchaseByType.business ?? stats.requirements.purchaseByType?.business ?? 0, href: withCategory('/?tab=requirements&purpose=sale&type=business') },
-                { icon: '/icons/apartment.svg', label: 'Flat', count: scopedRequirementStats?.rentalByType.flat ?? stats.requirements.rentalByType?.flat ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=flat') },
-                { icon: '/icons/house-chimney.svg', label: 'House', count: scopedRequirementStats?.rentalByType.house ?? stats.requirements.rentalByType?.house ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=house') },
-                { icon: '/icons/apartment.svg', label: 'Apartment', count: scopedRequirementStats?.rentalByType.apartment ?? stats.requirements.rentalByType?.apartment ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=apartment') },
-                { icon: '/icons/apartment.svg', label: 'Commercial Space', count: scopedRequirementStats?.rentalByType.commercialSpace ?? stats.requirements.rentalByType?.commercialSpace ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=commercial-space') },
-                { icon: '/icons/note.svg', label: 'Office Space', count: scopedRequirementStats?.rentalByType.officeSpace ?? stats.requirements.rentalByType?.officeSpace ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=office-space') },
-                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: scopedRequirementStats?.rentalByType.business ?? stats.requirements.rentalByType?.business ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=business') },
+                { icon: '/icons/house-chimney.svg', label: 'House', count: (scopedRequirementStats?.purchaseByType.house ?? stats.requirements.purchaseByType?.house ?? 0) + (scopedRequirementStats?.rentalByType.house ?? stats.requirements.rentalByType?.house ?? 0), href: withCategory('/?tab=requirements&type=house') },
+                { icon: '/icons/land-location.svg', label: 'Land', count: scopedRequirementStats?.purchaseByType.land ?? stats.requirements.purchaseByType?.land ?? 0, href: withCategory('/?tab=requirements&type=land') },
+                { icon: '/icons/apartment.svg', label: 'Apartment', count: (scopedRequirementStats?.purchaseByType.apartment ?? stats.requirements.purchaseByType?.apartment ?? 0) + (scopedRequirementStats?.rentalByType.apartment ?? stats.requirements.rentalByType?.apartment ?? 0), href: withCategory('/?tab=requirements&type=apartment') },
+                { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: (scopedRequirementStats?.purchaseByType.business ?? stats.requirements.purchaseByType?.business ?? 0) + (scopedRequirementStats?.rentalByType.business ?? stats.requirements.rentalByType?.business ?? 0), href: withCategory('/?tab=requirements&type=business') },
+                { icon: '/icons/apartment.svg', label: 'Flat', count: scopedRequirementStats?.rentalByType.flat ?? stats.requirements.rentalByType?.flat ?? 0, href: withCategory('/?tab=requirements&type=flat') },
+                { icon: '/icons/apartment.svg', label: 'Commercial Space', count: scopedRequirementStats?.rentalByType.commercialSpace ?? stats.requirements.rentalByType?.commercialSpace ?? 0, href: withCategory('/?tab=requirements&type=commercial-space') },
+                { icon: '/icons/note.svg', label: 'Office Space', count: scopedRequirementStats?.rentalByType.officeSpace ?? stats.requirements.rentalByType?.officeSpace ?? 0, href: withCategory('/?tab=requirements&type=office-space') },
                 ...requirementCategoryItems,
             ],
         },
