@@ -63,11 +63,22 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
         return {
             ...p,
             pricing,
+            features: p.features
+                ? {
+                    bedrooms: p.features.bedrooms ?? undefined,
+                    bathrooms: p.features.bathrooms ?? undefined,
+                    builtUpArea: p.features.builtUpArea ?? undefined,
+                    builtUpAreaUnit: p.features.builtUpAreaUnit ?? undefined
+                }
+                : undefined,
             slug: p.slug || undefined,
             price: formattedPrice,
             location: locationStr,
             images: (p.propertyMedia || []).filter((media) => media.type === 'image').map((media) => media.resourceUrl),
             specs: specs,
+            listedBy: p.listedBy
+                ? { name: p.listedBy.name ?? undefined }
+                : undefined,
             author_username: user.username,
             author_name: user.name,
             author_avatar: user.profile_picture || (user.name || 'U')[0]

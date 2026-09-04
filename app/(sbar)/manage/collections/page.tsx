@@ -38,9 +38,9 @@ export default async function CollectionsPage({ searchParams }: { searchParams: 
                         property: {
                             select: {
                                 id: true,
-                                images: {
+                                propertyMedia: {
                                     take: 1,
-                                    select: { url: true }
+                                    select: { resourceUrl: true }
                                 }
                             }
                         }
@@ -61,7 +61,7 @@ export default async function CollectionsPage({ searchParams }: { searchParams: 
                 propertyId: true,
                 title: true,
                 status: true,
-                price: true,
+                propertyPrices: { orderBy: { isDefault: 'desc' }, take: 1 },
                 location: {
                     select: {
                         area: true,
@@ -69,13 +69,13 @@ export default async function CollectionsPage({ searchParams }: { searchParams: 
                         district: true
                     }
                 },
-                images: {
+                propertyMedia: {
                     take: 1,
-                    orderBy: { id: 'asc' },
-                    select: { url: true }
+                    orderBy: { index: 'asc' },
+                    select: { resourceUrl: true }
                 },
-                types: { select: { name: true } },
-                purposes: { select: { name: true } },
+                types: true,
+                purposes: true,
                 natures: { select: { name: true } },
                 features: {
                     select: {
@@ -88,9 +88,17 @@ export default async function CollectionsPage({ searchParams }: { searchParams: 
             take: 200
         }),
         Promise.resolve(['apartment', 'bungalow', 'commercial_space', 'house', 'land', 'penthouse', 'villa'].map((name, id) => ({ id: id + 1, name }))),
-        prisma.propertyPurpose.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } }),
+        Promise.resolve(['sale', 'rent'].map((name, id) => ({ id: id + 1, name }))),
         prisma.propertyNature.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } })
     ]);
+
+    const normalizedProperties = availableProperties.map((property) => ({
+        ...property,
+        price: { price: Number(String(property.propertyPrices[0]?.display || '').replace(/[^0-9.]/g, '')) || 0 },
+        images: property.propertyMedia.map((media) => ({ url: media.resourceUrl })),
+        types: property.types.map((name) => ({ name })),
+        purposes: property.purposes.map((name) => ({ name }))
+    }));
 
     const totalPages = Math.ceil(totalCount / limit);
 
@@ -100,7 +108,7 @@ export default async function CollectionsPage({ searchParams }: { searchParams: 
         propertyCount: c._count?.properties ?? 0,
         properties: c.properties.map((cp: any) => ({
             id: cp.property.id,
-            images: cp.property.images
+            images: cp.property.propertyMedia.map((media: { resourceUrl: string }) => ({ url: media.resourceUrl }))
         }))
     }));
 
@@ -109,7 +117,7 @@ export default async function CollectionsPage({ searchParams }: { searchParams: 
             initialCollections={collections}
             userId={userId}
             totalPages={totalPages}
-            availableProperties={availableProperties}
+            availableProperties={normalizedProperties}
             filterOptions={{
                 types: propertyTypes,
                 purposes: propertyPurposes,

@@ -25,7 +25,8 @@ type CollectionCriteria = {
 
 type CollectionCandidate = {
     id: number;
-    price: unknown;
+    price?: unknown;
+    propertyPrices?: Array<{ display: string; isDefault: boolean }>;
     features: {
         bedrooms: number | null;
         bathrooms: number | null;
@@ -67,7 +68,11 @@ function getPropertyPriceValue(price: unknown) {
 }
 
 function matchesCriteria(property: CollectionCandidate, criteria: CollectionCriteria) {
-    const price = getPropertyPriceValue(property.price);
+    const storedPrice = property.propertyPrices?.find((item) => item.isDefault) || property.propertyPrices?.[0];
+    const storedDisplay = storedPrice?.display?.trim() || '';
+    const price = getPropertyPriceValue(property.price) ?? (
+        storedDisplay ? Number(storedDisplay.replace(/[^0-9.]/g, '')) : null
+    );
 
     if (criteria.minPrice != null && (price == null || price < criteria.minPrice)) return false;
     if (criteria.maxPrice != null && (price == null || price > criteria.maxPrice)) return false;
@@ -141,7 +146,12 @@ export async function createCollection(formData: FormData) {
                 } : {})
             },
             include: {
-                features: true
+                features: true,
+                propertyPrices: {
+                    where: { isDefault: true },
+                    select: { display: true, isDefault: true },
+                    take: 1,
+                },
             }
         });
 

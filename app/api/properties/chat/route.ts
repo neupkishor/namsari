@@ -197,7 +197,6 @@ async function findLikelyDuplicateProperty(input: {
         include: {
             location: true,
             features: true,
-            purposes: true,
         },
     });
 
@@ -322,14 +321,14 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: 'Property id is required' }, { status: 400 });
     }
 
-    const existing = await prisma.property.findUnique({
+    const existing: any = await prisma.property.findUnique({
         where: { id: propertyId },
         include: {
             location: true,
             features: true,
             openHouse: true,
-            images: true,
-            purposes: true,
+            propertyMedia: true,
+            propertyPrices: true,
             natures: true,
         },
     });
@@ -393,12 +392,12 @@ export async function PATCH(request: Request) {
     const updated = await prisma.$transaction(async (tx) => {
         if (images) {
             if (images.length > 0) {
-                await tx.propertyImage.createMany({
+                await tx.propertyMedia.createMany({
                     data: images.map((img: any) => ({
                         propertyId,
-                        url: String(img.url),
-                        imageOf: String(img.imageOf || 'property'),
-                        filename: String(img.filename || `prop_${propertyId}_${Date.now()}`),
+                        resourceUrl: String(img.url),
+                        type: 'image',
+                        index: 0,
                     })),
                 });
             }
@@ -499,8 +498,8 @@ export async function PATCH(request: Request) {
             include: {
                 location: true,
                 features: true,
-                images: true,
-                purposes: true,
+                propertyMedia: true,
+                propertyPrices: true,
                 natures: true,
             },
         });

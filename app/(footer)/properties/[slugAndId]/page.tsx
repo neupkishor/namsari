@@ -121,7 +121,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     const formattedDevanagariPrice = formatDevanagariPrice(priceValue);
     const categorySuggestions = Array.from(
         new Set([
-            ...(property.types?.map((t) => t.name).filter(Boolean) || []),
+            ...(property.types?.map((t) => typeof t === 'string' ? t : String(t)).filter(Boolean) || []),
             'House',
             'Land',
             'Apartment',
@@ -181,13 +181,14 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     const builtUpUnit = property.features?.builtUpAreaUnit || 'sqft';
     const builtUpAreaNumeric = property.features?.builtUpArea ?? null;
     const builtUpValue = formatNumberValue(builtUpAreaNumeric);
+    const facingDirection = (property.locationData as { facingDirection?: string } | null)?.facingDirection || '-';
     const overviewItems = [
         { icon: '/icons/house-chimney.svg', value: formatNumberValue(property.features?.bedrooms), label: 'bedrooms', displayValue: formatCountLabel(formatNumberValue(property.features?.bedrooms), 'bedrooms') },
         { icon: '/icons/info.svg', value: formatNumberValue(property.features?.bathrooms), label: 'bathrooms', displayValue: formatCountLabel(formatNumberValue(property.features?.bathrooms), 'bathrooms') },
         { icon: '/icons/land-layer-location.svg', value: builtUpValue, label: 'area', displayValue: `${builtUpValue} ${builtUpUnit.toLowerCase()}` },
         { icon: '/icons/calendar.svg', value: String(new Date(property.created_on).getFullYear()), label: 'Year', displayValue: String(new Date(property.created_on).getFullYear()) },
-        { icon: '/icons/land-location.svg', value: property.roadSize || '-', label: 'Road Access', displayValue: property.roadSize || '-' },
-        { icon: '/icons/three-direction.svg', value: property.facingDirection || '-', label: 'Facing', displayValue: property.facingDirection || '-' },
+        { icon: '/icons/land-location.svg', value: property.roadSize != null ? String(property.roadSize) : '-', label: 'Road Access', displayValue: property.roadSize != null ? String(property.roadSize) : '-' },
+        { icon: '/icons/three-direction.svg', value: facingDirection, label: 'Facing', displayValue: facingDirection },
         { icon: '/icons/apartment.svg', value: formatNumberValue(property.features?.totalFloors), label: 'floors', displayValue: formatCountLabel(formatNumberValue(property.features?.totalFloors), 'floors') },
         { icon: '/icons/note.svg', value: property.features?.furnishing || '-', label: 'Furnish Status', displayValue: String(property.features?.furnishing || '-').toLowerCase() }
     ];
@@ -199,7 +200,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     if (property.features?.waterSupply) amenityMainFeatures.push({ icon: '/icons/faucet.svg', label: 'Water Supply' });
     if (property.features?.electricity) amenityMainFeatures.push({ icon: '/icons/plug-alt.svg', label: 'Electricity' });
     if (property.roadType) amenityMainFeatures.push({ icon: '/icons/land-location.svg', label: 'Road Type', detail: property.roadType });
-    if (property.roadSize) amenityMainFeatures.push({ icon: '/icons/land-layer-location.svg', label: 'Road Size', detail: property.roadSize });
+    if (property.roadSize) amenityMainFeatures.push({ icon: '/icons/land-layer-location.svg', label: 'Road Size', detail: String(property.roadSize) });
     if (amenityMainFeatures.length === 0) {
         amenityMainFeatures.push(
             { icon: '/icons/faucet.svg', label: 'Water Supply' },
@@ -209,7 +210,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     }
     const nearbyAmenities = (property.propertyAmmenities || [])
         .filter((amenity) => amenity.status === 'active')
-        .map((amenity) => ({ name: amenity.ammenity.name, type: amenity.ammenity.name }));
+        .map((amenity) => ({ id: amenity.id, name: amenity.ammenity.name, type: amenity.ammenity.name }));
 
     return (
         <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', paddingBottom: '100px', paddingTop: 'var(--header-height, 72px)', overflowX: 'clip' }}>

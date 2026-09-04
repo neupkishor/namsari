@@ -28,7 +28,8 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
                     property: {
                         include: {
                             location: true,
-                            images: { take: 5, orderBy: { id: 'asc' } }, // Take more images for social view
+                            propertyMedia: { take: 5, orderBy: { index: 'asc' } }, // Take more images for social view
+                            propertyPrices: { orderBy: { isDefault: 'desc' } },
                             features: true
                         }
                     }
@@ -46,7 +47,13 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
             ...item,
             property: {
                 ...item.property,
-                pricing: legacyPricingFromPrice(item.property.price as any),
+                pricing: legacyPricingFromPrice({
+                    price: Number(String(item.property.propertyPrices?.[0]?.display || '').replace(/[^0-9.]/g, '')) || 0,
+                    rate: 'total'
+                }),
+                images: item.property.propertyMedia
+                    .filter((media: { type: string }) => media.type === 'image')
+                    .map((media: { resourceUrl: string }) => media.resourceUrl),
             }
         }))
     } as any;

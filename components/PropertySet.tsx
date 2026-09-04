@@ -80,7 +80,7 @@ export function PropertyCard({ property }: { property: PropertySetItem }) {
                         <span className="inline-flex rounded-full border border-white/20 bg-white/92 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-700 backdrop-blur">{typeLabel}</span>
                         <span className="inline-flex rounded-full border border-white/15 bg-slate-950/55 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur">Featured</span>
                     </div>
-                    <div className="absolute bottom-4 left-4 right-4"><span className="inline-flex rounded-full border border-white/15 bg-slate-950/70 px-3.5 py-2 text-sm font-semibold text-white shadow-lg backdrop-blur">{formatNPR(property.pricing?.price || property.price)}</span></div>
+                    <div className="absolute bottom-4 left-4 right-4"><span className="inline-flex rounded-full border border-white/15 bg-slate-950/70 px-3.5 py-2 text-sm font-semibold text-white shadow-lg backdrop-blur">{formatNPR(property.pricing?.price || property.price || 0)}</span></div>
                 </div>
                 {images.length > 1 && <div className="relative z-10 grid grid-cols-3 gap-1 bg-white p-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
                     {images.slice(1, 4).map((url, index) => <div key={`${url}-${index}`} className="relative aspect-[4/3] min-h-[48px] overflow-hidden rounded-[4px] bg-slate-100"><img src={url} alt={`${property.title} image ${index + 2}`} className="absolute inset-0 h-full w-full object-cover" /></div>)}

@@ -24,7 +24,7 @@ export default async function FeaturedManagementPage({ searchParams }: { searchP
         prisma.property.findMany({
             include: {
                 location: true,
-                images: true
+                propertyMedia: true
             },
             orderBy: { created_on: 'desc' },
             skip,
@@ -38,7 +38,7 @@ export default async function FeaturedManagementPage({ searchParams }: { searchP
     const serializedProperties = properties.map((p: any) => ({
         ...p,
         location: p.location ? `${p.location.area}, ${p.location.district}` : 'Unspecified',
-        images: p.images.map((img: any) => img.url),
+        images: p.propertyMedia.map((img: any) => img.resourceUrl),
     }));
 
     return <FeaturedManagementClient properties={serializedProperties} totalPages={totalPages} />;

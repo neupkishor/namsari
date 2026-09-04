@@ -32,6 +32,7 @@ export default async function ManagePropertyDetailPage({ params }: { params: Pro
             features: true,
             propertyAmmenities: true,
             property_likes: true,
+            saleStatuses: true,
             comments: true,
         }
     });
@@ -68,7 +69,7 @@ export default async function ManagePropertyDetailPage({ params }: { params: Pro
     const locationLabel = property.location
         ? [property.location.area, property.location.cityVillage, property.location.district].filter(Boolean).join(', ')
         : 'Location unspecified';
-    const typeLabel = property.types?.map((type) => type.name).join(', ') || 'Property';
+    const typeLabel = property.types?.join(', ') || 'Property';
 
     return (
         <div style={{ paddingBottom: '100px', display: 'grid', gap: '24px' }}>
@@ -107,7 +108,7 @@ export default async function ManagePropertyDetailPage({ params }: { params: Pro
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
                     <SummaryMetric label="Price" value={formattedPrice} />
                     <SummaryMetric label="Listing status" value={property.status} tone={property.status === 'approved' ? 'green' : property.status === 'rejected' ? 'red' : 'amber'} />
-                    <SummaryMetric label="Market status" value={property.soldStatus || 'unsold'} />
+                    <SummaryMetric label="Market status" value={property.saleStatuses?.[0]?.status || 'unsold'} />
                     <SummaryMetric label="Listed by" value={property.listedBy?.name || 'Unknown'} />
                 </div>
             </header>

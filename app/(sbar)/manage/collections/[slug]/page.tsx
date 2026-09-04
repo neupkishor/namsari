@@ -33,10 +33,11 @@ export default async function CollectionManagePage(props: { params: Promise<{ sl
                     property: {
                         include: {
                             location: true,
-                            images: {
+                            propertyMedia: {
                                 take: 1,
-                                orderBy: { id: 'asc' }
+                                orderBy: { index: 'asc' }
                             },
+                            propertyPrices: { orderBy: { isDefault: 'desc' } },
                             listedBy: true
                         }
                     }
@@ -56,7 +57,11 @@ export default async function CollectionManagePage(props: { params: Promise<{ sl
             ...item,
             property: {
                 ...item.property,
-                pricing: legacyPricingFromPrice(item.property.price as any),
+                pricing: legacyPricingFromPrice({
+                    price: Number(String(item.property.propertyPrices?.[0]?.display || '').replace(/[^0-9.]/g, '')) || 0,
+                    rate: 'total'
+                }),
+                images: item.property.propertyMedia.map((media: { resourceUrl: string }) => ({ url: media.resourceUrl })),
             }
         }))
     } as any;

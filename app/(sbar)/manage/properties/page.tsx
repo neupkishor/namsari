@@ -55,7 +55,7 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
             include: {
                 listedBy: true,
                 location: true,
-                images: true,
+                propertyMedia: true,
             },
             orderBy: { created_on: 'desc' },
             skip,
@@ -94,7 +94,7 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
             author_username: p.listedBy?.username || '',
             author_avatar: p.listedBy?.profile_picture || (p.listedBy?.name || 'U')[0],
             main_category: mainCategory,
-            images: p.images.map((img: any) => img.url),
+            images: p.propertyMedia.map((img: any) => img.resourceUrl),
         };
     });
 
@@ -189,7 +189,7 @@ export default async function ManagePropertiesPage({ searchParams }: { searchPar
                                             <td style={{ padding: '14px 18px' }}>
                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-start' }}>
                                                     <span style={{ background: statusBg, color: statusColor, padding: '4px 9px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'capitalize' }}>{p.status}</span>
-                                                    <span style={{ color: '#64748b', fontSize: '0.78rem', textTransform: 'capitalize' }}>{p.soldStatus || 'unsold'}</span>
+                                                    <span style={{ color: '#64748b', fontSize: '0.78rem', textTransform: 'capitalize' }}>{p.saleStatuses?.[0]?.status || 'unsold'}</span>
                                                 </div>
                                             </td>
                                             <td style={{ padding: '14px 18px', textAlign: 'right', color: 'var(--color-primary-light)', fontWeight: 800 }}>{p.price}</td>

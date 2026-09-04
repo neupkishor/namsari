@@ -14,12 +14,17 @@ export default async function GalleryPage({ params }: { params: Promise<{ slugAn
 
     const property = await prisma.property.findUnique({
         where: { id },
-        include: { images: true }
+        include: {
+            propertyMedia: {
+                where: { type: 'image' },
+                orderBy: { index: 'asc' },
+            },
+        }
     });
 
     if (!property) return notFound();
 
-    const images = property.images.map((img: any) => img.url);
+    const images = property.propertyMedia.map((img) => img.resourceUrl);
 
     return (
         <div style={{ backgroundColor: 'black', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>

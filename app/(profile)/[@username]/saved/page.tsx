@@ -2,7 +2,6 @@ import prisma from '@/lib/prisma';
 import { notFound, redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import { SavedPropertyCard } from '@/components/cards/SavedPropertyCard';
-import { legacyPricingFromPrice } from '@/lib/pricing';
 
 interface PageProps {
     params: Promise<{
@@ -50,7 +49,8 @@ export default async function ProfileSavedPage({ params }: PageProps) {
             property: {
                 include: {
                     listedBy: true, // Need this for author info
-                    images: true,
+                    propertyMedia: { orderBy: { index: 'asc' } },
+                    propertyPrices: { orderBy: { isDefault: 'desc' } },
                     location: true,
                     features: true,
                     property_likes: true // Count likes
@@ -64,8 +64,8 @@ export default async function ProfileSavedPage({ params }: PageProps) {
         const p = like.property;
         const authorUser = p.listedBy;
 
-        const pricing = legacyPricingFromPrice(p.price as any);
-        const priceValue = pricing?.price || 0;
+        const selectedPrice = p.propertyPrices?.[0];
+        const priceValue = Number(String(selectedPrice?.display || '').replace(/[^0-9.]/g, '')) || 0;
         const formattedPrice = new Intl.NumberFormat('en-NP', {
             style: 'currency',
             currency: 'NPR',
@@ -82,11 +82,12 @@ export default async function ProfileSavedPage({ params }: PageProps) {
 
         return {
             ...p,
-            pricing,
             slug: p.slug || undefined,
             price: formattedPrice,
             location: locationStr,
-            images: p.images.map((img) => img.url),
+            images: p.propertyMedia
+                .filter((media) => media.type === 'image')
+                .map((media) => media.resourceUrl),
             specs: specs,
             likes_count: p.property_likes?.length || 0,
             // Proper author info from the property lister
