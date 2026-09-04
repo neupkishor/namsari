@@ -1395,49 +1395,59 @@ function ExploreCategoriesSection({
         const query = params.toString();
         return query ? `${pathname}?${query}` : pathname;
     };
+    const categoryItems: ExploreCategoryItem[] = categoryLinks.map((item) => ({
+        icon: '/icons/growth-chart-invest.svg',
+        label: item.label,
+        count: Object.values(stats.byNatureTypePurpose[item.value]).reduce(
+            (total, typeStats) => total + typeStats.sale + typeStats.rent,
+            0,
+        ),
+        href: getCategoryHref(item.value),
+    }));
+    const requirementCategoryItems: ExploreCategoryItem[] = categoryLinks.map((item) => {
+        const categoryStats = stats.requirements.byNatureType[item.value];
+        const countRequirements = (values: Record<string, number>) =>
+            Object.values(values).reduce((total, count) => total + count, 0);
+
+        return {
+            icon: '/icons/growth-chart-invest.svg',
+            label: item.label,
+            count: countRequirements(categoryStats.purchaseByType) + countRequirements(categoryStats.rentalByType),
+            href: getCategoryHref(item.value),
+        };
+    });
 
     const propertyGroups: ExploreCategoryGroup[] = [
         {
-            label: 'For Sale',
+            label: 'Property types',
             items: [
                 { icon: '/icons/house-chimney.svg', label: 'House', count: scopedStats?.house.sale ?? stats.forSale.house ?? 0, href: withCategory('/search?purposes=sale&types=house') },
                 { icon: '/icons/land-location.svg', label: 'Land', count: scopedStats?.land.sale ?? stats.forSale.land ?? 0, href: withCategory('/search?purposes=sale&types=land') },
                 { icon: '/icons/apartment.svg', label: 'Apartment', count: scopedStats?.apartment.sale ?? stats.forSale.apartment ?? stats.forSale.building ?? 0, href: withCategory('/search?purposes=sale&types=apartment') },
                 { icon: '/icons/growth-chart-invest.svg', label: 'Commercial Buildings', count: scopedStats?.building.sale ?? stats.byTypePurpose.building.sale ?? 0, href: withCategory('/search?purposes=sale&types=building') },
-            ],
-        },
-        {
-            label: 'For Rent',
-            items: [
                 { icon: '/icons/apartment.svg', label: 'Flat', count: scopedStats?.flat.rent ?? stats.forRent.flat ?? 0, href: withCategory('/search?purposes=rent&types=flat') },
-                { icon: '/icons/house-chimney.svg', label: 'House', count: scopedStats?.house.rent ?? stats.forRent.house ?? 0, href: withCategory('/search?purposes=rent&types=house') },
-                { icon: '/icons/apartment.svg', label: 'Apartment', count: scopedStats?.apartment.rent ?? stats.forRent.apartment ?? 0, href: withCategory('/search?purposes=rent&types=apartment') },
-                { icon: '/icons/land-location.svg', label: 'Land', count: scopedStats?.land.rent ?? stats.byTypePurpose.land.rent ?? 0, href: withCategory('/search?purposes=rent&types=land') },
                 { icon: '/icons/note.svg', label: 'Office Space', count: scopedStats?.officeSpace.rent ?? stats.forRent.officeSpace ?? 0, href: withCategory('/search?purposes=rent&types=office-space') },
                 { icon: '/icons/growth-chart-invest.svg', label: 'Shop', count: scopedStats?.business.rent ?? stats.forRent.business ?? 0, href: withCategory('/search?purposes=rent&types=business') },
+                ...categoryItems,
             ],
         },
     ];
 
     const requirementGroups: ExploreCategoryGroup[] = [
         {
-            label: 'For Sale',
+            label: 'Requirement types',
             items: [
                 { icon: '/icons/house-chimney.svg', label: 'House', count: scopedRequirementStats?.purchaseByType.house ?? stats.requirements.purchaseByType?.house ?? 0, href: withCategory('/?tab=requirements&purpose=sale&type=house') },
                 { icon: '/icons/land-location.svg', label: 'Land', count: scopedRequirementStats?.purchaseByType.land ?? stats.requirements.purchaseByType?.land ?? 0, href: withCategory('/?tab=requirements&purpose=sale&type=land') },
                 { icon: '/icons/apartment.svg', label: 'Apartment', count: scopedRequirementStats?.purchaseByType.apartment ?? stats.requirements.purchaseByType?.apartment ?? 0, href: withCategory('/?tab=requirements&purpose=sale&type=apartment') },
                 { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: scopedRequirementStats?.purchaseByType.business ?? stats.requirements.purchaseByType?.business ?? 0, href: withCategory('/?tab=requirements&purpose=sale&type=business') },
-            ],
-        },
-        {
-            label: 'For Rent',
-            items: [
                 { icon: '/icons/apartment.svg', label: 'Flat', count: scopedRequirementStats?.rentalByType.flat ?? stats.requirements.rentalByType?.flat ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=flat') },
                 { icon: '/icons/house-chimney.svg', label: 'House', count: scopedRequirementStats?.rentalByType.house ?? stats.requirements.rentalByType?.house ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=house') },
                 { icon: '/icons/apartment.svg', label: 'Apartment', count: scopedRequirementStats?.rentalByType.apartment ?? stats.requirements.rentalByType?.apartment ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=apartment') },
                 { icon: '/icons/apartment.svg', label: 'Commercial Space', count: scopedRequirementStats?.rentalByType.commercialSpace ?? stats.requirements.rentalByType?.commercialSpace ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=commercial-space') },
                 { icon: '/icons/note.svg', label: 'Office Space', count: scopedRequirementStats?.rentalByType.officeSpace ?? stats.requirements.rentalByType?.officeSpace ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=office-space') },
                 { icon: '/icons/growth-chart-invest.svg', label: 'Business', count: scopedRequirementStats?.rentalByType.business ?? stats.requirements.rentalByType?.business ?? 0, href: withCategory('/?tab=requirements&purpose=rent&type=business') },
+                ...requirementCategoryItems,
             ],
         },
     ];
@@ -1449,9 +1459,7 @@ function ExploreCategoriesSection({
         <div className="space-y-3">
             {groups.map((group) => (
                 <div key={group.label} className="space-y-2">
-                    <h3 className="text-sm font-bold text-slate-700">{group.label}</h3>
-                    <div className="overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                        <div className="inline-flex min-w-max gap-2">
+                    <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:flex-wrap lg:overflow-visible">
                             {group.items.map((item) => {
                                 const hasCount = typeof item.count === 'number';
                                 const desktopNoun = noun === 'property'
@@ -1465,7 +1473,7 @@ function ExploreCategoriesSection({
                                     <Link
                                         key={`${group.label}-${item.label}`}
                                         href={item.href}
-                                        className="group flex w-fit items-stretch gap-2.5 rounded-2xl border border-slate-200 bg-white py-2.5 pl-3 pr-4 shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[color:var(--color-primary)]/35 hover:shadow-md"
+                                        className="group flex w-fit items-stretch gap-2 rounded-2xl border border-slate-200 bg-white py-2.5 px-2.5 shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[color:var(--color-primary)]/35 hover:shadow-md sm:gap-2.5 sm:px-3"
                                     >
                                         <div className="flex w-9 shrink-0 items-center justify-center">
                                             <span
@@ -1483,7 +1491,7 @@ function ExploreCategoriesSection({
                                                 }}
                                             />
                                         </div>
-                                        <div className="flex min-w-0 flex-col justify-center gap-0">
+                                        <div className="flex flex-col justify-center gap-0">
                                             <div className="whitespace-nowrap text-[13px] font-semibold text-slate-800 transition-colors group-hover:text-slate-900">
                                                 {item.label}
                                             </div>
@@ -1500,7 +1508,6 @@ function ExploreCategoriesSection({
                                     </Link>
                                 );
                             })}
-                        </div>
                     </div>
                 </div>
             ))}
@@ -1511,45 +1518,19 @@ function ExploreCategoriesSection({
         <section className="w-full space-y-10">
             <div className="mb-5 space-y-0.5">
                 <h2 className="text-lg font-bold text-slate-900">Browse by category</h2>
-                <div className="flex flex-wrap items-center gap-x-2 text-sm text-slate-400">
-                    <span>Browse</span>
-                    {categoryLinks.map((item, index) => (
-                        <React.Fragment key={item.label}>
-                            <span className="text-slate-300">|</span>
-                            <Link
-                                href={getCategoryHref(item.value)}
-                                className={`transition-colors hover:text-[color:var(--color-primary)] ${selectedCategory === item.value ? 'font-semibold text-[color:var(--color-primary)]' : ''}`}
-                            >
-                                {item.label}
-                            </Link>
-                        </React.Fragment>
-                    ))}
-                    <span>properties</span>
-                </div>
             </div>
 
-            {renderGroups(propertyGroups, 'property')}
+            <div className="space-y-2">
+                {renderGroups(propertyGroups, 'property')}
+            </div>
 
             <div className="space-y-5">
                 <div className="space-y-0.5">
                     <h2 className="text-lg font-bold text-slate-900">See what people are looking for</h2>
-                    <div className="flex flex-wrap items-center gap-x-2 text-sm text-slate-400">
-                        <span>Browse</span>
-                        {categoryLinks.map((item) => (
-                            <React.Fragment key={`requirements-${item.label}`}>
-                                <span className="text-slate-300">|</span>
-                                <Link
-                                    href={getCategoryHref(item.value)}
-                                    className={`transition-colors hover:text-[color:var(--color-primary)] ${selectedCategory === item.value ? 'font-semibold text-[color:var(--color-primary)]' : ''}`}
-                                >
-                                    {item.label}
-                                </Link>
-                            </React.Fragment>
-                        ))}
-                        <span>requirements</span>
-                    </div>
                 </div>
-                {renderGroups(requirementGroups, 'requirement')}
+                <div className="space-y-2">
+                    {renderGroups(requirementGroups, 'requirement')}
+                </div>
             </div>
         </section>
     );
