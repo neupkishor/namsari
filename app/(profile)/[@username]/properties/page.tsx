@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import { PropertyCard } from '@/components/cards/PropertyCard';
+import { PropertySet } from '@/components/PropertySet';
 import { legacyPricingFromPrice } from '@/lib/pricing';
 
 interface PageProps {
@@ -79,16 +79,12 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
             <div className="card" style={{ padding: '60px 40px', textAlign: 'center', background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px' }}>
                 <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🏘️</div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '8px' }}>No active listings</h3>
-                <p style={{ color: 'var(--color-text-muted)', maxWidth: '300px', margin: '0 auto' }}>This user hasn't posted any properties for sale or rent yet.</p>
+            <p style={{ color: 'var(--color-text-muted)', maxWidth: '300px', margin: '0 auto' }}>This user hasn&apos;t posted any properties for sale or rent yet.</p>
             </div>
         );
     }
 
     return (
-        <div className="profile-property-grid">
-            {enrichedProperties.map((p) => (
-                <PropertyCard key={p.id} property={p} />
-            ))}
-        </div>
+        <PropertySet properties={enrichedProperties} className="profile-property-grid" />
     );
 }

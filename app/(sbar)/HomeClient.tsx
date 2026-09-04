@@ -9,6 +9,7 @@ import { TrendingSearches } from '@/components/cards/TrendingSearches';
 import { HeroCarouselAd, FeedAd } from '@/components/cards/AdvertisementCard';
 import { SectionTitleFeed } from '@/components/sections/SectionTitleFeed';
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
+import { PropertySet } from '@/components/PropertySet';
 import { AreaUnit, areaUnitLabel } from '@/lib/area-units';
 import { formatNPR } from '@/lib/formatters';
 import { matchesAnyLocationFilter } from '@/lib/location-filters';
@@ -23,38 +24,9 @@ const FEATURED_FALLBACK_IMAGES = [
 ];
 
 function getPropertyImageUrls(property: any): string[] {
-    return (property.images || [])
-        .map((image: any) => typeof image === 'string' ? image : image?.url)
+    return (property.images || property.propertyMedia || [])
+        .map((image: any) => typeof image === 'string' ? image : image?.url || image?.resourceUrl)
         .filter(Boolean);
-}
-
-function getPropertyLocationLabel(property: any): string {
-    const location = property.location;
-    if (!location) return 'Location unavailable';
-
-    if (typeof location === 'string') return location;
-
-    return [
-        location.area,
-        location.cityVillage,
-        location.city,
-        location.district,
-    ].filter(Boolean).slice(0, 2).join(', ') || 'Location unavailable';
-}
-
-function getPropertyFactBadges(property: any): string[] {
-    const features = property.features;
-    if (!features) return [];
-
-    const badges: string[] = [];
-
-    if (features.bedrooms) badges.push(`${features.bedrooms} bed`);
-    if (features.bathrooms) badges.push(`${features.bathrooms} bath`);
-    if (features.builtUpArea) {
-        badges.push(`${features.builtUpArea} ${features.builtUpAreaUnit || 'sq.ft.'}`);
-    }
-
-    return badges.slice(0, 3);
 }
 
 function resolveFeaturedCards(properties: any[]) {
@@ -115,73 +87,6 @@ function matchesPriceRange(value: number | null | undefined, minPrice?: number |
     if (minPrice != null && value < minPrice) return false;
     if (maxPrice != null && value > maxPrice) return false;
     return true;
-}
-
-function FeaturedSmallCard({ property }: { property: any }) {
-    const slug = property.slug || property.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    const propertyUrl = `/properties/${slug}-${property.id}`;
-    const factBadges = getPropertyFactBadges(property);
-    const typeLabel = property.types?.[0]?.name || 'Property';
-    const priceLabel = formatNPR(property.pricing?.price || property.price);
-    
-    return (
-        <InternalPropertyLink href={propertyUrl} className="group block h-full overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[var(--shadow-card)] transition-colors duration-300 hover:border-[color:var(--color-primary)]/40 hover:ring-1 hover:ring-[color:var(--color-primary)]/20">
-            <div className="aspect-[4/3] overflow-hidden relative border-b border-slate-200">
-                <img 
-                    src={property._displayImage} 
-                    alt={property.title} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
-                <div className="absolute left-4 right-4 top-4 flex items-start justify-between gap-3">
-                    <span className="inline-flex rounded-full border border-white/20 bg-white/92 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-700 backdrop-blur">
-                        {typeLabel}
-                    </span>
-                    <span className="inline-flex rounded-full border border-white/15 bg-slate-950/55 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur">
-                        Featured
-                    </span>
-                </div>
-                <div className="absolute bottom-4 left-4 right-4">
-                    <div className="inline-flex rounded-full border border-white/15 bg-slate-950/70 px-3.5 py-2 text-sm font-semibold text-white shadow-lg backdrop-blur">
-                        {priceLabel}
-                    </div>
-                </div>
-            </div>
-            <div className="flex h-[184px] flex-col gap-3 p-4">
-                <div className="space-y-1.5">
-                    <h4 className="text-[15px] font-bold leading-tight text-slate-900 line-clamp-2 group-hover:text-[color:var(--color-primary)] transition-colors duration-300">
-                        {property.title}
-                    </h4>
-                    <div className="flex items-center gap-2 text-[12px] text-slate-500">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                            <circle cx="12" cy="10" r="3" />
-                        </svg>
-                        <span className="truncate">{getPropertyLocationLabel(property)}</span>
-                    </div>
-                </div>
-
-                {factBadges.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                        {factBadges.map((fact) => (
-                            <span key={fact} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600">
-                                {fact}
-                            </span>
-                        ))}
-                    </div>
-                )}
-
-                <div className="mt-auto flex items-center justify-between text-[12px] font-semibold">
-                    <span className="text-slate-400">
-                        {property.listedBy?.name || 'Verified listing'}
-                    </span>
-                    <span className="text-[color:var(--color-primary)] transition-transform duration-200 group-hover:translate-x-0.5">
-                        View details
-                    </span>
-                </div>
-            </div>
-        </InternalPropertyLink>
-    );
 }
 
 type HomeSearchPanel = 'type' | 'price' | 'location' | 'size' | 'listedBy' | 'category' | null;
@@ -1866,11 +1771,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                     ctaText="View more"
                                     ctaHref="/search"
                                 />
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                                    {visibleFeaturedCards.slice(0, 4).map((prop: any) => (
-                                        <FeaturedSmallCard key={prop.id} property={prop} />
-                                    ))}
-                                </div>
+                                <PropertySet properties={visibleFeaturedCards} />
                             </section>
                         )}
 

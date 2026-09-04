@@ -159,7 +159,8 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     ];
     const collectionCards = collectionPresets.map((title, index) => {
         const currentMainImage = (property as any).mainMedia || '';
-        const primaryImage = currentMainImage || recommendedProperties[index]?.images?.[0]?.url || property.images[index]?.url || property.images[0]?.url || '';
+        const recommendedImage = recommendedProperties[index]?.propertyMedia?.find((media: any) => media.type === 'image')?.resourceUrl || '';
+        const primaryImage = currentMainImage || recommendedImage || images[index] || images[0] || '';
         return {
             key: `${title}-${index}`,
             title,

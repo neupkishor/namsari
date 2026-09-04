@@ -1,9 +1,9 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import { PropertyPost } from '@/components/cards/PropertyFeedCard';
 import Link from 'next/link';
 import { AutoScrollCarousel } from '@/components/ui/AutoScrollCarousel';
 import { legacyPricingFromPrice } from '@/lib/pricing';
+import { PropertySet } from '@/components/PropertySet';
 
 interface PageProps {
     params: Promise<{
@@ -220,14 +220,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
                 <div>
                     {enrichedProperties.length > 0 ? (
                         <div className="rounded-[28px] border border-slate-300 bg-white shadow-[var(--shadow-card)] overflow-hidden">
-                            {enrichedProperties.map((p: any, index: number) => (
-                                <PropertyPost
-                                    key={p.id}
-                                    property={p}
-                                    isFirstInSet={index === 0}
-                                    isLastInSet={index === enrichedProperties.length - 1}
-                                />
-                            ))}
+                            <PropertySet properties={enrichedProperties} />
                         </div>
                     ) : (
                         <div className="card" style={{ padding: '40px', textAlign: 'center', color: '#64748b', background: 'white', borderRadius: '24px', border: '1px dashed #cbd5e1' }}>

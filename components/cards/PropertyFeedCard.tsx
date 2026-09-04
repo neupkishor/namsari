@@ -181,9 +181,9 @@ export function PropertyPost({
       ? formatNepaliPrice(price)
       : price || 'Price on Request';
 
-  const pricingUnit = property.pricing?.unit
-    ? `per ${property.pricing.unit}`
-    : 'per aana';
+  const pricingUnit = property.pricing?.rate === 'perMonth' || property.pricing?.rate === 'perUnitPerMonth'
+    ? 'per month'
+    : '';
 
   const locationParts = [
     property.location?.area,

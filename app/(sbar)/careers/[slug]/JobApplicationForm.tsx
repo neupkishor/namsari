@@ -105,7 +105,20 @@ export default function JobApplicationForm({ job, steps, currentStepIndex, sessi
     if (currentStepIndex === 0) {
         return (
             <div className="card" style={{ padding: '40px' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '24px' }}>Let's start with the basics</h2>
+                <div style={{ marginBottom: '28px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
+                        <span style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--color-gold)', textTransform: 'uppercase' }}>
+                            Getting started
+                        </span>
+                        <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
+                            0% complete
+                        </span>
+                    </div>
+                    <div role="progressbar" aria-label="Application progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={0} style={{ height: '8px', width: '100%', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: '0%', background: 'var(--color-gold)', transition: 'width 0.3s' }} />
+                    </div>
+                </div>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '24px' }}>Let&apos;s start with the basics</h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontWeight: '700', fontSize: '0.9rem' }}>Full Name</label>
@@ -145,7 +158,7 @@ export default function JobApplicationForm({ job, steps, currentStepIndex, sessi
                     <span style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--color-gold)', textTransform: 'uppercase' }}>
                         Step {currentStepIndex} of {steps.length}
                     </span>
-                    <div style={{ height: '8px', width: '200px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div role="progressbar" aria-label="Application progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round((currentStepIndex / steps.length) * 100)} style={{ height: '8px', width: 'min(200px, 42vw)', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
                         <div style={{ height: '100%', width: `${(currentStepIndex / steps.length) * 100}%`, background: 'var(--color-gold)', transition: 'width 0.3s' }}></div>
                     </div>
                 </div>

@@ -12,10 +12,16 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
             {children}
             <Suspense fallback={null}>
                 <ProgressBar
-                    height="4px"
-                    color="#2563eb"
-                    options={{ showSpinner: false }}
-                    shallowRouting
+                    height="3px"
+                    color="#820000"
+                    options={{
+                        showSpinner: false,
+                        minimum: 0.08,
+                        speed: 420,
+                        trickleSpeed: 520,
+                        easing: 'ease',
+                        trickle: true,
+                    }}
                 />
             </Suspense>
         </SessionProvider>
