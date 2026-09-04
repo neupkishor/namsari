@@ -188,7 +188,7 @@ export const bottomNavItems = (user: any): MenuItem[] => [
     { label: 'Home', icon: '/icons/house-chimney.svg', href: '/' },
     { label: 'Maps', icon: '/icons/land-layer-location.svg', href: '/maps' },
     { label: 'Post', icon: '/icons/note.svg', href: '/post' },
-    { label: 'Profile', icon: '/icons/info.svg', href: user ? `/@${user.username}` : '/auth/login' }
+    { label: 'Profile', icon: '/icons/info.svg', href: user ? `/manage/accounts/${user.username}` : '/auth/login' }
 ];
 
 export const footerPlatformItems: MenuItem[] = [
