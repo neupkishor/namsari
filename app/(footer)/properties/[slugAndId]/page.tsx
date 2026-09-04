@@ -84,7 +84,25 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         ? `${property.location.area}, ${property.location.district}`
         : 'Unspecified';
     const priceValue = propertyWithLegacyPricing.pricing?.price || 0;
-    const formattedPrice = property.propertyPrices?.[0]?.display || new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(priceValue).replace('NPR', 'Rs.');
+    const storedPriceDisplay = property.propertyPrices?.[0]?.display;
+    const formattedNumericPrice = storedPriceDisplay && /^\s*\d+(?:\.\d+)?\s*$/.test(String(storedPriceDisplay))
+        ? new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(Number(storedPriceDisplay)).replace('NPR', 'Rs.')
+        : storedPriceDisplay || new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(priceValue).replace('NPR', 'Rs.');
+    const formatReadableAmount = (value: number) => {
+        if (!Number.isFinite(value) || value <= 0) return '';
+        const units = [[1_00_00_000, 'Crore'], [1_00_000, 'Lakhs'], [1_000, 'Thousand']] as const;
+        let remainder = Math.floor(value);
+        const parts: string[] = [];
+        for (const [unit, label] of units) {
+            if (remainder >= unit) {
+                parts.push(`${Math.floor(remainder / unit)} ${label}`);
+                remainder %= unit;
+            }
+        }
+        if (remainder > 0 || parts.length === 0) parts.push(String(remainder));
+        return parts.join(' ');
+    };
+    const readableAmount = formatReadableAmount(priceValue);
     const formatDevanagariPrice = (value: number) => {
         if (!Number.isFinite(value) || value <= 0) return 'Price on request';
 
@@ -173,6 +191,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         where: { listedById: property.listedById }
     });
     const contactNumber = property.listedBy?.contact_number || '';
+    const agentProfileHref = property.listedBy?.username ? `/@${property.listedBy.username}/properties` : null;
     const formatNumberValue = (value?: number | null) => {
         if (value === null || value === undefined) return '-';
         return Number.isInteger(value) ? String(value) : String(value);
@@ -646,7 +665,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     background: white;
                 }
                 .price-display {
-                    font-size: 1.75rem;
+                    font-size: 1.5rem;
                     font-weight: 800;
                     color: #1a1a1a;
                     margin-bottom: 24px;
@@ -880,7 +899,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         flex-shrink: 0;
                     }
                     .mobile-floating-agent-price {
-                        font-size: 0.98rem;
+                        font-size: 0.9rem;
                         font-weight: 800;
                         color: #0f172a;
                         line-height: 1.1;
@@ -1040,16 +1059,16 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
                         <div style={{ marginBottom: '40px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
-                                <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#f3f4f6', overflow: 'hidden' }}>
+                                <Link href={agentProfileHref || '#'} aria-label={`View ${property.listedBy?.name || 'agent'} profile`} style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#f3f4f6', overflow: 'hidden', display: 'block' }}>
                                     {property.listedBy?.profile_picture ? (
                                         <img src={property.listedBy.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={property.listedBy.name || 'User'} />
                                     ) : (
                                         <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>👤</div>
                                     )}
-                                </div>
+                                </Link>
                                 <div>
-                                    <div style={{ fontWeight: '700', fontSize: '1.1rem', color: '#1a1a1a' }}>{property.listedBy?.name || 'Agent'}</div>
-                                    <div style={{ color: 'var(--color-primary)', fontSize: '0.9rem', fontWeight: 700 }}>{agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}</div>
+                                    <Link href={agentProfileHref || '#'} style={{ display: 'block', fontWeight: '700', fontSize: '1.1rem', color: '#1a1a1a', textDecoration: 'none' }}>{property.listedBy?.name || 'Agent'}</Link>
+                                    <Link href={agentProfileHref || '#'} style={{ display: 'block', color: 'var(--color-primary)', fontSize: '0.9rem', fontWeight: 700, textDecoration: 'none' }}>{agentPropertyCount} {agentPropertyCount === 1 ? 'property' : 'properties'}</Link>
                                 </div>
                                 {contactNumber && (
                                     <a
@@ -1105,22 +1124,23 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     <div className="sidebar-sticky">
                         <div className="agent-card">
                             <div className="price-display">
-                                {formattedPrice}
+                                <div>{formattedNumericPrice}</div>
+                                {readableAmount && <div style={{ fontSize: '0.9rem', color: '#6b7280', fontWeight: '500', marginTop: '4px' }}>{readableAmount}</div>}
                                 <span style={{ fontSize: '1rem', color: '#6b7280', fontWeight: '500', marginLeft: '5px' }}>
                                     {propertyWithLegacyPricing.pricing?.negotiable ? '(Negotiable)' : ''}
                                 </span>
                             </div>
 
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #f3f4f6' }}>
-                                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#f3f4f6', overflow: 'hidden', flexShrink: 0 }}>
+                                <Link href={agentProfileHref || '#'} aria-label={`View ${property.listedBy?.name || 'agent'} profile`} style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#f3f4f6', overflow: 'hidden', flexShrink: 0, display: 'block' }}>
                                     {property.listedBy?.profile_picture ? (
                                         <img src={property.listedBy.profile_picture} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={property.listedBy.name || 'User'} />
                                     ) : (
                                         <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>👤</div>
                                     )}
-                                </div>
+                                </Link>
                                 <div>
-                                    <div style={{ fontWeight: '800', fontSize: '1.25rem', color: '#1a1a1a', lineHeight: '1.2' }}>{property.listedBy?.name || 'Agent'}</div>
+                                    <Link href={agentProfileHref || '#'} style={{ fontWeight: '800', fontSize: '1.25rem', color: '#1a1a1a', lineHeight: '1.2', textDecoration: 'none' }}>{property.listedBy?.name || 'Agent'}</Link>
                                     <div style={{ color: '#6b7280', fontSize: '0.9rem', marginTop: '4px' }}>
                                         {(property.listedBy as any)?.type ? (property.listedBy as any).type.charAt(0).toUpperCase() + (property.listedBy as any).type.slice(1) : 'Host'} • Joined {new Date(property.listedBy?.created_on || Date.now()).getFullYear()}
                                     </div>
@@ -1137,7 +1157,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                                 </a>
 
                                 <a
-                                    href={`https://wa.me/${property.listedBy?.contact_number?.replace(/[^0-9]/g, '') || ''}?text=${encodeURIComponent(`I'm interested in the ${property.title} [#${property.id}], For the property, I'm willing to offer a price of ${formattedPrice}`)}`}
+                                        href={`https://wa.me/${property.listedBy?.contact_number?.replace(/[^0-9]/g, '') || ''}?text=${encodeURIComponent(`I'm interested in the ${property.title} [#${property.id}], For the property, I'm willing to offer a price of ${formattedNumericPrice}`)}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="action-btn"
@@ -1260,7 +1280,10 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     </div>
                     <div style={{ minWidth: 0 }}>
                         <div className="mobile-floating-agent-title">{property.title}</div>
-                        <div className="mobile-floating-agent-price">{formattedDevanagariPrice}</div>
+                        <div className="mobile-floating-agent-price">
+                            <div>{formattedNumericPrice}</div>
+                            {readableAmount && <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>{readableAmount}</div>}
+                        </div>
                     </div>
                 </div>
 
