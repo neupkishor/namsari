@@ -58,7 +58,7 @@ export default async function ProfileAgentsPage({ params }: PageProps) {
     return (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '24px' }}>
             {agents.map((agent: any) => (
-                <Link href={`/@${agent.username}`} key={agent.id} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link href={`/manage/accounts/${agent.username}`} key={agent.id} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <div
                         className="card"
                         style={{

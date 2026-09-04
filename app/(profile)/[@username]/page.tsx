@@ -168,7 +168,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
                 <section>
                     <AutoScrollCarousel itemWidth="260px" gap="16px" desktopItemCount={4} tabletItemCount={2} mobileItemCount={1}>
                         {agents.map((agent: any) => (
-                            <Link key={agent.id} href={`/@${agent.username}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                            <Link key={agent.id} href={`/manage/accounts/${agent.username}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
                                 <div
                                     className="card"
                                     style={{
