@@ -191,7 +191,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         { icon: '/icons/three-direction.svg', value: facingDirection, label: 'Facing', displayValue: facingDirection },
         { icon: '/icons/apartment.svg', value: formatNumberValue(property.features?.totalFloors), label: 'floors', displayValue: formatCountLabel(formatNumberValue(property.features?.totalFloors), 'floors') },
         { icon: '/icons/note.svg', value: property.features?.furnishing || '-', label: 'Furnish Status', displayValue: String(property.features?.furnishing || '-').toLowerCase() }
-    ];
+    ].filter((item) => item.displayValue.trim() !== '-');
 
     const amenityMainFeatures: { icon: string; label: string; detail?: string }[] = [];
     if (property.features?.parkingAvailable) amenityMainFeatures.push({ icon: '/icons/house-chimney.svg', label: 'Parking' });
@@ -728,22 +728,31 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                         padding: 16px 12px 108px;
                     }
                     .overview-grid {
-                        flex-wrap: nowrap;
-                        overflow-x: auto;
-                        overflow-y: hidden;
-                        scroll-snap-type: x proximity;
-                        -webkit-overflow-scrolling: touch;
-                        overscroll-behavior-x: contain;
-                        touch-action: pan-x;
-                        -ms-overflow-style: none;
-                        scrollbar-width: none;
-                    }
-                    .overview-grid::-webkit-scrollbar {
-                        display: none;
+                        display: grid;
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
+                        gap: 8px;
+                        overflow: visible;
+                        padding-bottom: 2px;
                     }
                     .overview-card {
-                        flex: 0 0 auto;
+                        min-width: 0;
                         max-width: none;
+                        min-height: 62px;
+                        padding: 8px 10px;
+                    }
+                    .overview-content {
+                        gap: 6px;
+                    }
+                    .overview-icon-chip {
+                        width: 24px;
+                        height: 24px;
+                    }
+                    .overview-icon {
+                        width: 16px;
+                        height: 16px;
+                    }
+                    .overview-value {
+                        font-size: 0.76rem;
                     }
                     .amenity-grid {
                         max-height: calc((72px * 3) + (12px * 2));
