@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 type PropertyImageCarouselProps = {
     images: string[];
@@ -10,8 +10,24 @@ type PropertyImageCarouselProps = {
 export default function PropertyImageCarousel({ images, galleryHref }: PropertyImageCarouselProps) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+    const touchStartX = useRef<number | null>(null);
     const scrollerRef = useRef<HTMLDivElement | null>(null);
     const safeImages = useMemo(() => (images.length > 0 ? images : ['/images/not_found_mansion.png']), [images]);
+
+    useEffect(() => {
+        if (lightboxIndex === null) return;
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                event.stopPropagation();
+                setLightboxIndex(null);
+            }
+            if (event.key === 'ArrowLeft') setLightboxIndex((current) => current === null ? current : (current - 1 + safeImages.length) % safeImages.length);
+            if (event.key === 'ArrowRight') setLightboxIndex((current) => current === null ? current : (current + 1) % safeImages.length);
+        };
+        document.addEventListener('keydown', handleKeyDown, true);
+        return () => document.removeEventListener('keydown', handleKeyDown, true);
+    }, [lightboxIndex, safeImages.length]);
 
     const handleScroll = () => {
         const node = scrollerRef.current;
@@ -44,7 +60,7 @@ export default function PropertyImageCarousel({ images, galleryHref }: PropertyI
                     ))}
                 </div>
             </div>
-            {lightboxIndex !== null && <div className="property-lightbox" role="dialog" aria-modal="true" onClick={() => setLightboxIndex(null)}><button type="button" className="property-lightbox-close" onClick={() => setLightboxIndex(null)}>×</button><img src={safeImages[lightboxIndex]} alt={`Property image ${lightboxIndex + 1}`} onClick={(event) => event.stopPropagation()} /><button type="button" className="property-lightbox-nav property-lightbox-prev" onClick={(event) => { event.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + safeImages.length) % safeImages.length); }}>‹</button><button type="button" className="property-lightbox-nav property-lightbox-next" onClick={(event) => { event.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % safeImages.length); }}>›</button></div>}
+            {lightboxIndex !== null && <div className="property-lightbox" role="dialog" aria-modal="true" onClick={() => setLightboxIndex(null)} onTouchStart={event => { touchStartX.current = event.touches[0].clientX; }} onTouchEnd={event => { if (touchStartX.current === null) return; const distance = event.changedTouches[0].clientX - touchStartX.current; touchStartX.current = null; if (Math.abs(distance) > 50) { event.stopPropagation(); setLightboxIndex((lightboxIndex + (distance < 0 ? 1 : -1) + safeImages.length) % safeImages.length); } }}><button type="button" className="property-lightbox-close" onClick={() => setLightboxIndex(null)}>×</button><img key={safeImages[lightboxIndex]} className="property-lightbox-image" src={safeImages[lightboxIndex]} alt={`Property image ${lightboxIndex + 1}`} onClick={(event) => event.stopPropagation()} /><div className="property-lightbox-thumbnails" onClick={event => event.stopPropagation()}>{safeImages.map((src, i) => <button type="button" key={`${src}-${i}`} className={i === lightboxIndex ? 'active' : ''} onClick={() => setLightboxIndex(i)}><img src={src} alt={`Thumbnail ${i + 1}`} /></button>)}</div><button type="button" className="property-lightbox-nav property-lightbox-prev" onClick={(event) => { event.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + safeImages.length) % safeImages.length); }}>‹</button><button type="button" className="property-lightbox-nav property-lightbox-next" onClick={(event) => { event.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % safeImages.length); }}>›</button></div>}
         </div>
     );
 }
