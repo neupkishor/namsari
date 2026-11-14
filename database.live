@@ -5,7 +5,7 @@
 # FeaturedInformation, JobApplication, JobListing, KYC, Like, Media,
 # Notification, Property, PropertyDetailsApartment, PropertyDetailsHouse,
 # PropertyDetailsLand, PropertyDetailsSpace, PropertyFeatures, PropertyLocation, PropertyMedia,
-# PropertyNature, PropertyOpenHouse, PropertyPrice, PropertySaleStatus, Requirement, Review, Role,
+# PropertyNature, PropertyOpenHouse, PropertySaleStatus, Requirement, Review, Role,
 # RolePermission, SearchTerm, Subscriber, SupportArticle, SystemSettings,
 # Visitor, _PropertyToPropertyNature, _prisma_migrations, accounts,
 # agency_config, errors, listing_stats_cache, location, permissions,
@@ -87,6 +87,9 @@ Fields:
 > locationData: jsonb, optional;
 > purposes: PropertyPurpose[], enum array, default empty;
 > types: PropertyType[], enum array, default empty;
+> price_basis: enum PropertyPriceBasis, default total;
+> price_listed: numeric(18,2), optional;
+> price_negotiable: boolean, default false;
 
 Table: PropertyMedia, Model: PropertyMedia
 Fields:
@@ -160,13 +163,7 @@ Fields:
 > landmark: text, optional;
 > distanceFrom: text, optional;
 
-Table: PropertyPrice, Model: PropertyPrice
-Fields:
-> id: int, primary key, auto incremental;
-> propertyId: int, references Property.id;
-> base: text;
-> display: text;
-> negotiable: boolean, default false;
-> isDefault: boolean, default false;
+Enum: PropertyPriceBasis
+Values: total, perUnit, perMonth, perYear, perUnitPerMonth, perUnitPerYear
 
 Note: Property.media JSON is not present on the live server. Property media is stored in PropertyMedia. Property.soldStatus was replaced by PropertySaleStatus. The table inventory above was confirmed from information_schema.columns.

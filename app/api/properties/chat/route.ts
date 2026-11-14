@@ -103,7 +103,7 @@ function existingPropertySummary(property: any) {
     const location = [property.location?.area, property.location?.cityVillage, property.location?.district].filter(Boolean).join(', ');
     const types = property.types?.map((type: any) => type.name).filter(Boolean).join(', ');
     const purposes = property.purposes?.map((purpose: any) => purpose.name).filter(Boolean).join(', ');
-    const price = comparableNumber(property.price?.price);
+    const price = comparableNumber(property.price_listed);
 
     return [
         property.title ? `#${property.id} ${property.title}` : `#${property.id}`,
@@ -165,7 +165,7 @@ function isLikelyDuplicateProperty(input: {
     compareDetail(input.features?.builtUpArea, existing.features?.builtUpArea, true);
     compareDetail(input.features?.builtUpAreaUnit, existing.features?.builtUpAreaUnit);
 
-    const similarPrice = pricesAreSimilar(input.price, existing.price);
+    const similarPrice = pricesAreSimilar(input.price, { price: existing.price_listed });
     if (similarPrice) matchingDetails += 1;
 
     if (conflictingDetails > 0) return false;
@@ -287,15 +287,7 @@ export async function POST(request: Request) {
             totalUnit: normalizeOptionalNumber(body.price?.totalUnit),
             totalPrice: normalizeOptionalNumber(body.price?.totalPrice),
         },
-        detailedPrice: Array.isArray(body.detailedPrice)
-            ? body.detailedPrice.map((entry: any) => ({
-                price: normalizeOptionalNumber(entry?.price) || 0,
-                rate: String(entry?.rate || 'total') as any,
-                unit: entry?.unit || undefined,
-                totalUnit: normalizeOptionalNumber(entry?.totalUnit),
-                totalPrice: normalizeOptionalNumber(entry?.totalPrice),
-            }))
-            : [],
+        pricing: { price: normalizeOptionalNumber(body.price?.price) || 0, negotiable: Boolean(body.price?.negotiable) },
         openHouse: body.openHouse,
         listedById: userId,
         amenities: Array.isArray(body.amenities) ? body.amenities : [],
@@ -328,7 +320,6 @@ export async function PATCH(request: Request) {
             features: true,
             openHouse: true,
             propertyMedia: true,
-            propertyPrices: true,
             natures: true,
         },
     });
@@ -347,31 +338,16 @@ export async function PATCH(request: Request) {
     const title = typeof body.title === 'string' && body.title.trim() ? body.title.trim() : undefined;
     const location = body.location || undefined;
     const pricePatch = body.price || undefined;
+    const priceNegotiable = typeof body.price?.negotiable === 'boolean' ? body.price.negotiable : undefined;
     const features = body.features || undefined;
     const openHouse = body.openHouse || undefined;
     const images = Array.isArray(body.images) ? body.images : undefined;
     const amenities = Array.isArray(body.amenities) ? body.amenities : undefined;
 
-    const nextPrice = pricePatch
-        ? cleanUndefined({
-            ...((existing.price || {}) as Record<string, unknown>),
-            price: normalizeOptionalNumber(pricePatch.price),
-            rate: pricePatch.rate ? String(pricePatch.rate) : undefined,
-            unit: pricePatch.unit ? String(pricePatch.unit) : undefined,
-            totalUnit: normalizeOptionalNumber(pricePatch.totalUnit),
-            totalPrice: normalizeOptionalNumber(pricePatch.totalPrice),
-        })
-        : undefined;
-
-    const detailedPrice = Array.isArray(body.detailedPrice)
-        ? body.detailedPrice.map((entry: any) => cleanUndefined({
-            price: normalizeOptionalNumber(entry?.price) || 0,
-            rate: String(entry?.rate || 'total'),
-            unit: entry?.unit || undefined,
-            totalUnit: normalizeOptionalNumber(entry?.totalUnit),
-            totalPrice: normalizeOptionalNumber(entry?.totalPrice),
-        }))
-        : undefined;
+    const nextPrice = pricePatch ? {
+        price_listed: normalizeOptionalNumber(pricePatch.price) ?? null,
+        price_basis: String(pricePatch.rate || existing.price_basis || 'total'),
+    } : undefined;
 
     const mediaPayload = images
         ? {
@@ -416,8 +392,8 @@ export async function PATCH(request: Request) {
             roadType: typeof body.roadType === 'string' ? body.roadType : undefined,
             roadSize: typeof body.roadSize === 'string' ? body.roadSize : undefined,
             facingDirection: typeof body.facingDirection === 'string' ? body.facingDirection : undefined,
-            price: nextPrice,
-            detailedPrice,
+            ...(nextPrice || {}),
+            ...(priceNegotiable !== undefined ? { price_negotiable: priceNegotiable } : {}),
             propertyAmmenities: amenities ? {
                 deleteMany: {},
                 create: amenities.map((amenity: any) => ({
@@ -499,7 +475,6 @@ export async function PATCH(request: Request) {
                 location: true,
                 features: true,
                 propertyMedia: true,
-                propertyPrices: true,
                 natures: true,
             },
         });

@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
-import { legacyPricingFromPrice } from '@/lib/pricing';
+import { legacyPricingFromProperty } from '@/lib/pricing';
 
 import { Property, User } from '@prisma/client';
 import { getSession } from '@/lib/auth';
@@ -41,10 +41,6 @@ export async function GET(request: Request) {
                 }
             },
                 location: true,
-                propertyPrices: {
-                    where: { isDefault: true },
-                    take: 1,
-                },
                 propertyMedia: {
                     orderBy: { index: 'asc' }
                 },
@@ -78,15 +74,8 @@ export async function GET(request: Request) {
             else if (minutes > 0) timestamp = `${minutes}m ago`;
 
             // Format price
-            const storedPrice = p.propertyPrices?.[0];
-            const displayPrice = typeof storedPrice?.display === 'string'
-                ? storedPrice.display.trim()
-                : '';
-            const priceValue = Number(displayPrice.replace(/[^0-9.]/g, ''));
-            const hasNumericPrice = displayPrice.length > 0 && Number.isFinite(priceValue);
-            const displayRate = String(storedPrice?.base || '').includes('PerMonth')
-                ? 'perMonth'
-                : 'total';
+            const priceValue = Number(p.price_listed || 0);
+            const hasNumericPrice = p.price_listed != null && Number.isFinite(priceValue);
             const formattedPrice = new Intl.NumberFormat('en-NP', {
                 style: 'currency',
                 currency: 'NPR',
@@ -105,9 +94,9 @@ export async function GET(request: Request) {
             return {
                 ...p,
                 pricing: hasNumericPrice
-                    ? legacyPricingFromPrice({ price: priceValue, rate: displayRate })
+                    ? legacyPricingFromProperty(p)
                     : null,
-                price: hasNumericPrice ? formattedPrice : (displayPrice || ''),
+                price: hasNumericPrice ? formattedPrice : '',
                 location: locationStr,
                 latitude: p.location?.latitude,
                 longitude: p.location?.longitude,

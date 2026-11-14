@@ -6,7 +6,7 @@ import PropertyManageClient from '@/app/(sbar)/manage/properties/[slugAndId]/Pro
 import { getSession } from '@/lib/auth';
 import { getAgencyConfigByAgencyId } from '@/actions/agency-config';
 import { resolveActiveAgencyId } from '@/lib/agency-config';
-import { legacyPricingFromPrice } from '@/lib/pricing';
+import { legacyPricingFromProperty } from '@/lib/pricing';
 
 export default async function ManagePropertyDetailPage({ params }: { params: Promise<{ slugAndId: string }> }) {
     const resolvedParams = await params;
@@ -26,9 +26,6 @@ export default async function ManagePropertyDetailPage({ params }: { params: Pro
             propertyMedia: {
                 orderBy: { index: 'asc' }
             },
-            propertyPrices: {
-                orderBy: { isDefault: 'desc' }
-            },
             features: true,
             propertyAmmenities: true,
             property_likes: true,
@@ -41,7 +38,7 @@ export default async function ManagePropertyDetailPage({ params }: { params: Pro
 
     const propertyWithLegacyPricing = {
         ...property,
-        pricing: legacyPricingFromPrice((property.propertyPrices?.[0]?.base || null) as any),
+        pricing: legacyPricingFromProperty(property),
         images: property.propertyMedia
             .filter((media) => media.type === 'image')
             .map((media) => ({ id: media.id, url: media.resourceUrl })),

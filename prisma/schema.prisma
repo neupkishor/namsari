@@ -237,7 +237,9 @@ model Property {
   location PropertyLocation?
 
   // Pricing Details
-  propertyPrices PropertyPrice[]
+  price_basis     PropertyPriceBasis @default(total)
+  price_listed    Decimal?           @db.Decimal(18, 2)
+  price_negotiable Boolean            @default(false)
 
   // Open House
   openHouse PropertyOpenHouse?
@@ -518,17 +520,13 @@ model PropertyMedia {
   @@index([propertyId])
 }
 
-model PropertyPrice {
-  id         Int      @id @default(autoincrement())
-  propertyId Int
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  base       String
-  display    String
-  negotiable Boolean  @default(false)
-  isDefault  Boolean  @default(false)
-
-  @@index([propertyId])
-  @@index([propertyId, isDefault])
+enum PropertyPriceBasis {
+  total
+  perUnit
+  perMonth
+  perYear
+  perUnitPerMonth
+  perUnitPerYear
 }
 
 model FeaturedInformation {

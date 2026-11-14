@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import { SocialCollectionView } from './views/SocialCollectionView';
-import { legacyPricingFromPrice } from '@/lib/pricing';
+import { legacyPricingFromProperty } from '@/lib/pricing';
 
 export default async function CollectionPublicPage(props: { params: Promise<{ slug: string }>, searchParams: Promise<{ view?: string }> }) {
     const params = await props.params;
@@ -29,7 +29,6 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
                         include: {
                             location: true,
                             propertyMedia: { take: 5, orderBy: { index: 'asc' } }, // Take more images for social view
-                            propertyPrices: { orderBy: { isDefault: 'desc' } },
                             features: true
                         }
                     }
@@ -47,10 +46,7 @@ export default async function CollectionPublicPage(props: { params: Promise<{ sl
             ...item,
             property: {
                 ...item.property,
-                pricing: legacyPricingFromPrice({
-                    price: Number(String(item.property.propertyPrices?.[0]?.display || '').replace(/[^0-9.]/g, '')) || 0,
-                    rate: 'total'
-                }),
+                pricing: legacyPricingFromProperty(item.property),
                 images: item.property.propertyMedia
                     .filter((media: { type: string }) => media.type === 'image')
                     .map((media: { resourceUrl: string }) => media.resourceUrl),

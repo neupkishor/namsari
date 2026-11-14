@@ -2,7 +2,7 @@ import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { AutoScrollCarousel } from '@/components/ui/AutoScrollCarousel';
-import { legacyPricingFromPrice } from '@/lib/pricing';
+import { legacyPricingFromProperty } from '@/lib/pricing';
 import { PropertySet } from '@/components/PropertySet';
 
 interface PageProps {
@@ -36,7 +36,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
 
     // Fetch latest 3 properties
     const properties = await prisma.property.findMany({
-        where: { listedById: user.id, propertyPrices: { some: {} } },
+        where: { listedById: user.id, price_listed: { not: null } },
         orderBy: { created_on: 'desc' },
         take: 3,
         include: {
@@ -45,15 +45,13 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
             features: true,
             property_likes: true,
             propertyMedia: { orderBy: { index: 'asc' } },
-            propertyPrices: { orderBy: { isDefault: 'desc' } }
         }
     });
 
     // Enriched properties logic
     const enrichedProperties = properties.map((p: any) => {
-        const selectedPrice = p.propertyPrices?.[0];
-        const priceValue = selectedPrice?.display || 'Price on request';
-        const formattedPrice = selectedPrice?.display || 'Price on request';
+        const priceValue = Number(p.price_listed || 0);
+        const formattedPrice = priceValue ? String(priceValue) : 'Price on request';
 
         const locationStr = p.location
             ? `${p.location.area}, ${p.location.district}`
@@ -65,7 +63,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
 
         return {
             ...p,
-            pricing: { ...(legacyPricingFromPrice(null) || {}), price: Number(selectedPrice?.base) || 0 },
+            pricing: legacyPricingFromProperty(p),
             price: formattedPrice,
             location: locationStr,
             images: (p.propertyMedia || [])

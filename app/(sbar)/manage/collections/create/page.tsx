@@ -27,7 +27,7 @@ export default async function CreateCollectionPage() {
                 propertyId: true,
                 title: true,
                 status: true,
-                propertyPrices: { orderBy: { isDefault: 'desc' }, take: 1 },
+                price_listed: true,
                 location: {
                     select: {
                         area: true,
@@ -60,9 +60,7 @@ export default async function CreateCollectionPage() {
 
     const normalizedProperties = availableProperties.map((property) => ({
         ...property,
-        price: {
-            price: Number(String(property.propertyPrices[0]?.display || '').replace(/[^0-9.]/g, '')) || 0
-        },
+            price: { price: Number(property.price_listed || 0) },
         images: property.propertyMedia.map((media) => ({ url: media.resourceUrl })),
         types: property.types.map((name) => ({ name })),
         purposes: property.purposes.map((name) => ({ name }))

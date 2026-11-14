@@ -8,7 +8,7 @@ const ai = genkit({
 
 export const AI_AGENT_OCCUPIED_MESSAGE = "Sorry, let's connect after a few time. Our AI agent seem to be occupied as of now.";
 
-export const propertyPriceRateSchema = z.enum(['total', 'perUnit', 'perMonth', 'perUnitPerMonth']);
+export const propertyPriceRateSchema = z.enum(['total', 'perUnit', 'perMonth', 'perYear', 'perUnitPerMonth', 'perUnitPerYear']);
 
 export const propertyChatMessageSchema = z.object({
     role: z.enum(['user', 'assistant']),

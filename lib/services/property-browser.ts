@@ -1,12 +1,12 @@
 import prisma from '@/lib/prisma';
-import { legacyPricingFromPrice } from '@/lib/pricing';
+import { legacyPricingFromProperty } from '@/lib/pricing';
 
 export async function getBrowseProperties(limit = 60, options?: { onlyMappable?: boolean }) {
     const onlyMappable = options?.onlyMappable === true;
 
     const dbProperties = await prisma.property.findMany({
         where: {
-            propertyPrices: { some: {} },
+            price_listed: { not: null },
             ...(onlyMappable ? { OR: [
                 {
                     location: {
@@ -48,7 +48,7 @@ export async function getBrowseProperties(limit = 60, options?: { onlyMappable?:
     });
 
     return dbProperties.map((property: any) => {
-        const priceValue = property.pricing?.price || 0;
+        const priceValue = Number(property.price_listed || 0);
         const latitude = property.location?.latitude ?? property.openHouse?.latitude ?? null;
         const longitude = property.location?.longitude ?? property.openHouse?.longitude ?? null;
 
@@ -70,7 +70,7 @@ export async function getBrowseProperties(limit = 60, options?: { onlyMappable?:
 
         return {
             ...property,
-            pricing: legacyPricingFromPrice(property.price as any),
+            pricing: legacyPricingFromProperty(property),
             price: formattedPrice,
             location: locationStr,
             latitude,

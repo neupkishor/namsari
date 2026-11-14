@@ -1,4 +1,4 @@
-export type PropertyPriceRate = 'total' | 'perUnit' | 'perMonth' | 'perUnitPerMonth';
+export type PropertyPriceRate = 'total' | 'perUnit' | 'perMonth' | 'perYear' | 'perUnitPerMonth' | 'perUnitPerYear';
 
 export type PropertyPriceInput = {
     price: number;
@@ -69,13 +69,8 @@ export function normalizePropertyPriceInput(input: PropertyPriceInput): Property
         };
     }
 
-    if (rate === 'perMonth') {
-        return {
-            price: basePrice,
-            rate,
-            unit,
-            totalUnit,
-        };
+    if (rate === 'perMonth' || rate === 'perYear') {
+        return { price: basePrice, rate, unit, totalUnit };
     }
 
     return {
@@ -101,6 +96,39 @@ export function legacyPricingFromPrice(price?: PropertyPriceInput | null) {
         priceInWords: undefined,
         priceNegotiable: undefined,
         priceNegotiableInWords: undefined,
-        rentPrice: price.rate === 'perMonth' || price.rate === 'perUnitPerMonth' ? price.price : undefined,
+        rentPrice: ['perMonth', 'perUnitPerMonth', 'perYear', 'perUnitPerYear'].includes(price.rate) ? price.price : undefined,
     };
+}
+
+// Builds the legacy card pricing shape from the new Property columns.
+export function legacyPricingFromProperty(property: { price_listed?: unknown; price_basis?: PropertyPriceRate; price_negotiable?: boolean }) {
+    const amount = Number(property.price_listed || 0);
+    const pricing = legacyPricingFromPrice({
+        price: Number.isFinite(amount) ? amount : 0,
+        rate: property.price_basis || 'total',
+    } as PropertyPriceInput) && {
+        ...legacyPricingFromPrice({ price: Number.isFinite(amount) ? amount : 0, rate: property.price_basis || 'total' }),
+        negotiable: Boolean(property.price_negotiable),
+    };
+    return pricing;
+}
+
+// Converts legacy price labels into the property table's supported pricing basis.
+export function propertyPriceBasisFromLegacyBase(base?: string | null): PropertyPriceRate {
+    const normalized = String(base || '').toLowerCase();
+    if (normalized === 'priceoncall') return 'total';
+    if (normalized.includes('perunit') && (normalized.includes('annually') || normalized.includes('year'))) return 'perUnitPerYear';
+    if (normalized.includes('perunit') && (normalized.includes('month') || normalized.includes('quarter') || normalized.includes('semiannually'))) return 'perUnitPerMonth';
+    if (normalized.includes('perunit')) return 'perUnit';
+    if (normalized.includes('annually') || normalized.includes('year')) return 'perYear';
+    if (normalized.includes('month') || normalized.includes('quarter') || normalized.includes('semiannually')) return 'perMonth';
+    return 'total';
+}
+
+// Extracts a numeric amount from legacy display strings.
+export function numericPriceFromDisplay(display?: string | null): number | null {
+    const normalized = String(display || '').replace(/,/g, '').replace(/[^0-9.]/g, '');
+    if (!normalized) return null;
+    const amount = Number(normalized);
+    return Number.isFinite(amount) ? amount : null;
 }

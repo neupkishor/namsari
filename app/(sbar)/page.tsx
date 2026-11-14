@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma';
 import { getActiveAdvertisements } from '@/actions/advertisements';
 import { getPropertyTypeCounts, getSiteSettings } from '@/actions/settings';
 import { getCachedListingStats } from '@/actions/listing-stats';
-import { legacyPricingFromPrice } from '@/lib/pricing';
+import { legacyPricingFromProperty } from '@/lib/pricing';
 
 export default async function HomePage() {
     const session = await getSession();
@@ -48,15 +48,11 @@ export default async function HomePage() {
         }),
         import('@/actions/search').then(mod => mod.getTrendingSearches()),
         prisma.property.findMany({
-            where: { isFeatured: true, propertyPrices: { some: {} } },
+            where: { isFeatured: true, price_listed: { not: null } },
             take: 4,
             include: {
                 listedBy: true,
                 location: true,
-                propertyPrices: {
-                    where: { isDefault: true },
-                    take: 1,
-                },
                 natures: true,
                 features: true,
                 propertyMedia: {
@@ -84,27 +80,13 @@ export default async function HomePage() {
 
     const exploreCategoryStats = cachedListingStats.stats;
     const featuredPropertiesWithLegacyPricing = featuredProperties.map((property: any) => {
-        const storedPrice = property.propertyPrices?.[0];
-        // `base` stores the pricing basis (for example, `flatPrice`), not the
-        // amount. The amount used by the homepage is stored in `display`.
-        const displayPrice = typeof storedPrice?.display === 'string'
-            ? storedPrice.display.trim()
-            : '';
-        const numericPrice = Number(displayPrice.replace(/[^0-9.]/g, ''));
-        const hasNumericPrice = displayPrice.length > 0 && Number.isFinite(numericPrice);
-        const pricingBase = String(storedPrice?.base || '');
-        // Homepage cards intentionally omit the unit (for example, “per aana”).
-        // Keep the monthly qualifier for flat monthly prices.
-        const displayRate = pricingBase.includes('PerMonth') ? 'perMonth' : 'total';
-
+        const numericPrice = Number(property.price_listed || 0);
+        const hasNumericPrice = numericPrice > 0;
         return {
             ...property,
-            price: displayPrice || '',
+            price: hasNumericPrice ? String(numericPrice) : '',
             pricing: hasNumericPrice
-                ? legacyPricingFromPrice({
-                    price: numericPrice,
-                    rate: displayRate,
-                })
+                ? legacyPricingFromProperty(property)
                 : null,
         };
     });

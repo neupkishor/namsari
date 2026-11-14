@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { removePropertyFromCollectionWithSlug } from '@/actions/collections';
 import { LoginPromptCard } from '@/components/cards/LoginPromptCard';
-import { legacyPricingFromPrice } from '@/lib/pricing';
+import { legacyPricingFromProperty } from '@/lib/pricing';
 
 export default async function CollectionManagePage(props: { params: Promise<{ slug: string }> }) {
     const params = await props.params;
@@ -37,7 +37,6 @@ export default async function CollectionManagePage(props: { params: Promise<{ sl
                                 take: 1,
                                 orderBy: { index: 'asc' }
                             },
-                            propertyPrices: { orderBy: { isDefault: 'desc' } },
                             listedBy: true
                         }
                     }
@@ -57,10 +56,7 @@ export default async function CollectionManagePage(props: { params: Promise<{ sl
             ...item,
             property: {
                 ...item.property,
-                pricing: legacyPricingFromPrice({
-                    price: Number(String(item.property.propertyPrices?.[0]?.display || '').replace(/[^0-9.]/g, '')) || 0,
-                    rate: 'total'
-                }),
+                pricing: legacyPricingFromProperty(item.property),
                 images: item.property.propertyMedia.map((media: { resourceUrl: string }) => ({ url: media.resourceUrl })),
             }
         }))

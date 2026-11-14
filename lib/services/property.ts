@@ -8,8 +8,6 @@ import {
     LegacyPricingInput,
     PropertyPriceInput,
     getDefaultPropertyPriceRate,
-    legacyPricingFromPrice,
-    normalizeDetailedPropertyPrices,
     normalizePropertyPriceInput,
 } from '@/lib/pricing';
 
@@ -59,7 +57,6 @@ export interface CreatePropertyInput {
 
     // Pricing Details
     price?: PropertyPriceInput;
-    detailedPrice?: PropertyPriceInput[];
     pricing?: LegacyPricingInput;
 
     // Open House
@@ -175,7 +172,6 @@ export async function createPropertyListing(input: CreatePropertyInput) {
         location,
         locationData,
         price,
-        detailedPrice,
         pricing,
         openHouse,
         features,
@@ -198,7 +194,8 @@ export async function createPropertyListing(input: CreatePropertyInput) {
             price: Number(pricing.price || pricing.rentPrice || 0),
             rate: pricing.pricingType === 'flat'
                 ? 'total'
-                : getDefaultPropertyPriceRate(types, purposes),
+                : pricing.pricingType === 'perUnit' ? 'perUnit'
+                    : getDefaultPropertyPriceRate(types, purposes),
             unit: pricing.unit,
             totalUnit: pricing.pricingType === 'flat' ? Number(pricing.price || pricing.rentPrice || 0) : undefined,
             totalPrice: pricing.pricingType === 'flat' ? Number(pricing.price || pricing.rentPrice || 0) : undefined,
@@ -210,7 +207,6 @@ export async function createPropertyListing(input: CreatePropertyInput) {
         rate: getDefaultPropertyPriceRate(types, purposes),
     });
 
-    const detailedPrices = normalizeDetailedPropertyPrices(detailedPrice);
 
     const mainMedia = images && images.length > 0 ? images[0].url : undefined;
 
@@ -234,20 +230,9 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                 location: {
                     create: location
                 },
-                propertyPrices: {
-                    create: {
-                        base: primaryPrice.rate === 'total'
-                            ? 'flatPrice'
-                            : primaryPrice.rate === 'perMonth'
-                                ? 'flatPricePerMonth'
-                                : primaryPrice.rate === 'perUnit'
-                                    ? 'pricePerUnit'
-                                    : 'pricePerUnitPerMonth',
-                        display: String(primaryPrice.price),
-                        negotiable: Boolean(pricing?.negotiable),
-                        isDefault: true,
-                    }
-                },
+                price_basis: primaryPrice.rate,
+                price_listed: primaryPrice.price,
+                price_negotiable: Boolean(pricing?.negotiable),
                 // Nested create for open house if provided
                 openHouse: openHouse ? {
                     create: openHouse

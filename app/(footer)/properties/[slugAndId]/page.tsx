@@ -14,7 +14,7 @@ import { RecommendedProperties } from '@/components/sections/RecommendedProperti
 import { PropertyEmiSection } from '@/components/sections/PropertyEmiSection';
 import { SectionTitleFeed } from '@/components/sections/SectionTitleFeed';
 import { AutoScrollCarousel } from '@/components/ui/AutoScrollCarousel';
-import { legacyPricingFromPrice } from '@/lib/pricing';
+import { legacyPricingFromProperty } from '@/lib/pricing';
 
 function isAmenity(value: unknown): value is Amenity {
     if (!value || typeof value !== 'object') return false;
@@ -43,9 +43,6 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         include: {
             listedBy: true,
             location: true,
-            propertyPrices: {
-                orderBy: { isDefault: 'desc' },
-            },
             propertyMedia: {
                 orderBy: { index: 'asc' },
             },
@@ -65,10 +62,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
     const propertyWithLegacyPricing = {
         ...property,
-        pricing: {
-            price: Number(String(property.propertyPrices?.[0]?.display || '').replace(/[^0-9.]/g, '')) || 0,
-            negotiable: property.propertyPrices?.[0]?.negotiable || false,
-        },
+        pricing: legacyPricingFromProperty(property),
     } as any;
 
     // Increment view count asynchronously
@@ -85,7 +79,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         ? `${property.location.area}, ${property.location.district}`
         : 'Unspecified';
     const priceValue = propertyWithLegacyPricing.pricing?.price || 0;
-    const storedPriceDisplay = property.propertyPrices?.[0]?.display;
+    const storedPriceDisplay = property.price_listed?.toString();
     const formattedNumericPrice = storedPriceDisplay && /^\s*\d+(?:\.\d+)?\s*$/.test(String(storedPriceDisplay))
         ? new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(Number(storedPriceDisplay)).replace('NPR', 'Rs.')
         : storedPriceDisplay || new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(priceValue).replace('NPR', 'Rs.');
@@ -157,17 +151,13 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         take: 8,
         orderBy: { created_on: 'desc' },
         include: {
-            propertyPrices: { orderBy: { isDefault: 'desc' } },
             propertyMedia: { orderBy: { index: 'asc' } },
             location: true,
             features: true
         }
     })).map((item: any) => ({
         ...item,
-        pricing: {
-            price: Number(String(item.propertyPrices?.[0]?.display || '').replace(/[^0-9.]/g, '')) || 0,
-            negotiable: item.propertyPrices?.[0]?.negotiable || false,
-        },
+        pricing: legacyPricingFromProperty(item),
     }));
     const collectionPresets = [
         'house for sale under 2 crore',

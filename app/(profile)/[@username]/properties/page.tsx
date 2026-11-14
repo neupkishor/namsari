@@ -29,13 +29,12 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
 
     // Fetch user's properties with relations
     const properties = await prisma.property.findMany({
-        where: { listedById: user.id, propertyPrices: { some: {} } },
+        where: { listedById: user.id, price_listed: { not: null } },
         orderBy: { created_on: 'desc' },
         include: {
             listedBy: true,
             location: true,
             propertyMedia: { orderBy: { index: 'asc' } },
-            propertyPrices: { orderBy: { isDefault: 'desc' } },
             features: true,
             property_likes: true
         }
@@ -43,8 +42,7 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
 
     // Enriched properties for the view
     const enrichedProperties = properties.map((p) => {
-        const selectedPrice = p.propertyPrices?.[0];
-        const pricing = { price: Number(String(selectedPrice?.display || '').replace(/[^0-9.]/g, '')) || 0, negotiable: selectedPrice?.negotiable || false };
+        const pricing = { price: Number(p.price_listed || 0), negotiable: p.price_negotiable };
         const priceValue = pricing.price;
         const formattedPrice = new Intl.NumberFormat('en-NP', {
             style: 'currency',

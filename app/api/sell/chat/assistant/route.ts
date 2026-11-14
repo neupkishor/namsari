@@ -182,7 +182,8 @@ async function getPropertyChatUserContext(userId: number) {
                 title: true,
                 status: true,
                 saleStatuses: true,
-                propertyPrices: { orderBy: { isDefault: 'desc' }, take: 1 },
+                price_listed: true,
+                price_basis: true,
                 types: true,
                 purposes: true,
                 location: {
@@ -221,7 +222,7 @@ async function getPropertyChatUserContext(userId: number) {
             title: property.title,
             status: property.status,
             soldStatus: property.saleStatuses?.[0]?.status || null,
-            price: { price: Number(String(property.propertyPrices?.[0]?.display || '').replace(/[^0-9.]/g, '')) || 0 },
+            price: { price: Number(property.price_listed || 0) },
             types: property.types,
             purposes: property.purposes,
             district: property.location?.district || null,

@@ -50,7 +50,6 @@ export default async function ProfileSavedPage({ params }: PageProps) {
                 include: {
                     listedBy: true, // Need this for author info
                     propertyMedia: { orderBy: { index: 'asc' } },
-                    propertyPrices: { orderBy: { isDefault: 'desc' } },
                     location: true,
                     features: true,
                     property_likes: true // Count likes
@@ -64,8 +63,7 @@ export default async function ProfileSavedPage({ params }: PageProps) {
         const p = like.property;
         const authorUser = p.listedBy;
 
-        const selectedPrice = p.propertyPrices?.[0];
-        const priceValue = Number(String(selectedPrice?.display || '').replace(/[^0-9.]/g, '')) || 0;
+        const priceValue = Number(p.price_listed || 0);
         const formattedPrice = new Intl.NumberFormat('en-NP', {
             style: 'currency',
             currency: 'NPR',
