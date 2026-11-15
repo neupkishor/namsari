@@ -432,8 +432,15 @@ export async function PATCH(request: Request) {
             propertyAmmenities: amenities ? {
                 deleteMany: {},
                 create: amenities.map((amenity: any) => ({
-                    ammenity: { connectOrCreate: { where: { id: Number(amenity.id) || -1 }, create: { name: String(amenity.name || amenity.type || ''), status: 'active' } } },
-                    status: String(amenity.status || 'active').slice(0, 24),
+                    ammenity: {
+                        connectOrCreate: {
+                            where: { name: String(amenity.name || amenity.type || '').slice(0, 48) },
+                            create: {
+                                name: String(amenity.name || amenity.type || '').slice(0, 48),
+                                icon: '/icons/land-location.svg',
+                            },
+                        },
+                    },
                 })),
             } : undefined,
             nearbyLocations: amenities ? {

@@ -410,7 +410,7 @@ export const ModelName = {
   Property: 'Property',
   PropertySaleStatus: 'PropertySaleStatus',
   PropertyAmmenity: 'PropertyAmmenity',
-  MasterAmmenity: 'MasterAmmenity',
+  MasterDataPropertyAmmenity: 'MasterDataPropertyAmmenity',
   MasterDataNearbyLocation: 'MasterDataNearbyLocation',
   PropertyNearbyLocation: 'PropertyNearbyLocation',
   PropertyNature: 'PropertyNature',
@@ -465,7 +465,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "propertyDraft" | "agencyConfig" | "account" | "userPermission" | "role" | "rolePermission" | "rolePermissionMap" | "review" | "kYC" | "property" | "propertySaleStatus" | "propertyAmmenity" | "masterAmmenity" | "masterDataNearbyLocation" | "propertyNearbyLocation" | "propertyNature" | "propertyFeatures" | "propertyDetailsLand" | "propertyDetailsHouse" | "propertyDetailsApartment" | "propertyDetailsSpace" | "propertyLocation" | "location" | "propertyOpenHouse" | "media" | "propertyMedia" | "featuredInformation" | "comment" | "like" | "agency" | "systemSettings" | "aboutContent" | "collection" | "collectionProperty" | "requirement" | "subscriber" | "searchTerm" | "jobListing" | "jobApplication" | "supportArticle" | "blogPost" | "bank" | "bankRate" | "advertisement" | "adRate" | "adImpression" | "adClick" | "visitor" | "session" | "verificationToken" | "notification" | "activityLog"
+    modelProps: "user" | "propertyDraft" | "agencyConfig" | "account" | "userPermission" | "role" | "rolePermission" | "rolePermissionMap" | "review" | "kYC" | "property" | "propertySaleStatus" | "propertyAmmenity" | "masterDataPropertyAmmenity" | "masterDataNearbyLocation" | "propertyNearbyLocation" | "propertyNature" | "propertyFeatures" | "propertyDetailsLand" | "propertyDetailsHouse" | "propertyDetailsApartment" | "propertyDetailsSpace" | "propertyLocation" | "location" | "propertyOpenHouse" | "media" | "propertyMedia" | "featuredInformation" | "comment" | "like" | "agency" | "systemSettings" | "aboutContent" | "collection" | "collectionProperty" | "requirement" | "subscriber" | "searchTerm" | "jobListing" | "jobApplication" | "supportArticle" | "blogPost" | "bank" | "bankRate" | "advertisement" | "adRate" | "adImpression" | "adClick" | "visitor" | "session" | "verificationToken" | "notification" | "activityLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1431,77 +1431,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    MasterAmmenity: {
-      payload: Prisma.$MasterAmmenityPayload<ExtArgs>
-      fields: Prisma.MasterAmmenityFieldRefs
+    MasterDataPropertyAmmenity: {
+      payload: Prisma.$MasterDataPropertyAmmenityPayload<ExtArgs>
+      fields: Prisma.MasterDataPropertyAmmenityFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.MasterAmmenityFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterAmmenityPayload> | null
+          args: Prisma.MasterDataPropertyAmmenityFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterDataPropertyAmmenityPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.MasterAmmenityFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterAmmenityPayload>
+          args: Prisma.MasterDataPropertyAmmenityFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterDataPropertyAmmenityPayload>
         }
         findFirst: {
-          args: Prisma.MasterAmmenityFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterAmmenityPayload> | null
+          args: Prisma.MasterDataPropertyAmmenityFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterDataPropertyAmmenityPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.MasterAmmenityFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterAmmenityPayload>
+          args: Prisma.MasterDataPropertyAmmenityFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterDataPropertyAmmenityPayload>
         }
         findMany: {
-          args: Prisma.MasterAmmenityFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterAmmenityPayload>[]
+          args: Prisma.MasterDataPropertyAmmenityFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterDataPropertyAmmenityPayload>[]
         }
         create: {
-          args: Prisma.MasterAmmenityCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterAmmenityPayload>
+          args: Prisma.MasterDataPropertyAmmenityCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterDataPropertyAmmenityPayload>
         }
         createMany: {
-          args: Prisma.MasterAmmenityCreateManyArgs<ExtArgs>
+          args: Prisma.MasterDataPropertyAmmenityCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.MasterAmmenityCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterAmmenityPayload>[]
+          args: Prisma.MasterDataPropertyAmmenityCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterDataPropertyAmmenityPayload>[]
         }
         delete: {
-          args: Prisma.MasterAmmenityDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterAmmenityPayload>
+          args: Prisma.MasterDataPropertyAmmenityDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterDataPropertyAmmenityPayload>
         }
         update: {
-          args: Prisma.MasterAmmenityUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterAmmenityPayload>
+          args: Prisma.MasterDataPropertyAmmenityUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterDataPropertyAmmenityPayload>
         }
         deleteMany: {
-          args: Prisma.MasterAmmenityDeleteManyArgs<ExtArgs>
+          args: Prisma.MasterDataPropertyAmmenityDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.MasterAmmenityUpdateManyArgs<ExtArgs>
+          args: Prisma.MasterDataPropertyAmmenityUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.MasterAmmenityUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterAmmenityPayload>[]
+          args: Prisma.MasterDataPropertyAmmenityUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterDataPropertyAmmenityPayload>[]
         }
         upsert: {
-          args: Prisma.MasterAmmenityUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterAmmenityPayload>
+          args: Prisma.MasterDataPropertyAmmenityUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasterDataPropertyAmmenityPayload>
         }
         aggregate: {
-          args: Prisma.MasterAmmenityAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateMasterAmmenity>
+          args: Prisma.MasterDataPropertyAmmenityAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMasterDataPropertyAmmenity>
         }
         groupBy: {
-          args: Prisma.MasterAmmenityGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MasterAmmenityGroupByOutputType>[]
+          args: Prisma.MasterDataPropertyAmmenityGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MasterDataPropertyAmmenityGroupByOutputType>[]
         }
         count: {
-          args: Prisma.MasterAmmenityCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MasterAmmenityCountAggregateOutputType> | number
+          args: Prisma.MasterDataPropertyAmmenityCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MasterDataPropertyAmmenityCountAggregateOutputType> | number
         }
       }
     }
@@ -4607,21 +4607,19 @@ export type PropertySaleStatusScalarFieldEnum = (typeof PropertySaleStatusScalar
 export const PropertyAmmenityScalarFieldEnum = {
   id: 'id',
   propertyId: 'propertyId',
-  ammenityId: 'ammenityId',
-  status: 'status',
-  updatedAt: 'updatedAt'
+  ammenityId: 'ammenityId'
 } as const
 
 export type PropertyAmmenityScalarFieldEnum = (typeof PropertyAmmenityScalarFieldEnum)[keyof typeof PropertyAmmenityScalarFieldEnum]
 
 
-export const MasterAmmenityScalarFieldEnum = {
+export const MasterDataPropertyAmmenityScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  status: 'status'
+  icon: 'icon'
 } as const
 
-export type MasterAmmenityScalarFieldEnum = (typeof MasterAmmenityScalarFieldEnum)[keyof typeof MasterAmmenityScalarFieldEnum]
+export type MasterDataPropertyAmmenityScalarFieldEnum = (typeof MasterDataPropertyAmmenityScalarFieldEnum)[keyof typeof MasterDataPropertyAmmenityScalarFieldEnum]
 
 
 export const MasterDataNearbyLocationScalarFieldEnum = {
@@ -5627,7 +5625,7 @@ export type GlobalOmitConfig = {
   property?: Prisma.PropertyOmit
   propertySaleStatus?: Prisma.PropertySaleStatusOmit
   propertyAmmenity?: Prisma.PropertyAmmenityOmit
-  masterAmmenity?: Prisma.MasterAmmenityOmit
+  masterDataPropertyAmmenity?: Prisma.MasterDataPropertyAmmenityOmit
   masterDataNearbyLocation?: Prisma.MasterDataNearbyLocationOmit
   propertyNearbyLocation?: Prisma.PropertyNearbyLocationOmit
   propertyNature?: Prisma.PropertyNatureOmit

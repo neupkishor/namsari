@@ -215,7 +215,7 @@ model KYC {
 
 model Property {
   id         Int     @id @default(autoincrement())
-  propertyId String? @unique // if unfilled (same as the id) - logic in app
+  propertyId String @default(uuid()) @unique @map("property_id") @db.Uuid
 
   // Relations for multi-selection
   types    PropertyType[]
@@ -314,25 +314,23 @@ model PropertySaleStatus {
 }
 
 model PropertyAmmenity {
-  id         Int            @id @default(autoincrement())
-  propertyId Int
-  property   Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  ammenityId Int            @map("ammenity_id")
-  ammenity   MasterAmmenity @relation(fields: [ammenityId], references: [id], onDelete: Restrict)
-  status     String         @db.VarChar(24)
-  updatedAt  DateTime       @default(now()) @updatedAt
+  id         String           @id @default(uuid()) @db.Uuid
+  propertyId String           @map("property_id") @db.Uuid
+  property   Property         @relation(fields: [propertyId], references: [propertyId], onDelete: Cascade)
+  ammenityId String           @map("ammenity_id") @db.Uuid
+  ammenity   MasterDataPropertyAmmenity @relation(fields: [ammenityId], references: [id], onDelete: Restrict)
 
   @@index([propertyId])
   @@map("property_ammenities")
 }
 
-model MasterAmmenity {
-  id         Int                @id @default(autoincrement())
-  name       String
-  status     String
+model MasterDataPropertyAmmenity {
+  id         String             @id @default(uuid()) @db.Uuid
+  name       String             @unique @db.VarChar(48)
+  icon       String             @db.VarChar(256)
   ammenities PropertyAmmenity[]
 
-  @@map("master_ammenities")
+  @@map("master_data__property_ammenities")
 }
 
 model MasterDataNearbyLocation {
@@ -349,8 +347,8 @@ model PropertyNearbyLocation {
   id         String                  @id @default(uuid()) @db.Uuid
   locationId String                  @map("location_id") @db.Uuid
   location   MasterDataNearbyLocation @relation(fields: [locationId], references: [id], onDelete: Restrict)
-  propertyId Int                     @map("property_id")
-  property   Property                @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  propertyId String                  @map("property_id") @db.Uuid
+  property   Property                @relation(fields: [propertyId], references: [propertyId], onDelete: Cascade)
   distance   String
 
   @@index([propertyId])

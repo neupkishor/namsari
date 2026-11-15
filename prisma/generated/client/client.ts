@@ -107,10 +107,10 @@ export type PropertySaleStatus = Prisma.PropertySaleStatusModel
  */
 export type PropertyAmmenity = Prisma.PropertyAmmenityModel
 /**
- * Model MasterAmmenity
+ * Model MasterDataPropertyAmmenity
  *
  */
-export type MasterAmmenity = Prisma.MasterAmmenityModel
+export type MasterDataPropertyAmmenity = Prisma.MasterDataPropertyAmmenityModel
 /**
  * Model MasterDataNearbyLocation
  *

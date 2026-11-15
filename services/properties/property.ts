@@ -252,11 +252,18 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                 features: features ? {
                     create: features
                 } : undefined,
-                // Scalar JSON amenities
+                // Save selected amenities through the master data relation.
                 propertyAmmenities: amenities && amenities.length > 0 ? {
                     create: amenities.map((amenity) => ({
-                        ammenity: { connectOrCreate: { where: { id: Number((amenity as any).id) || -1 }, create: { name: String((amenity as any).name || amenity.type || ''), status: 'active' } } },
-                        status: String((amenity as any).status || 'active').slice(0, 24),
+                        ammenity: {
+                            connectOrCreate: {
+                                where: { name: String(amenity.name || amenity.type || '').slice(0, 48) },
+                                create: {
+                                    name: String(amenity.name || amenity.type || '').slice(0, 48),
+                                    icon: getNearbyLocationIcon(amenity.name || amenity.type || ''),
+                                },
+                            },
+                        },
                     })),
                 } : undefined,
                 nearbyLocations: amenities && amenities.some((amenity) => amenity.distance) ? {
@@ -302,17 +309,7 @@ export async function createPropertyListing(input: CreatePropertyInput) {
             }
         });
 
-        // 4. Handle propertyId logic: if unfilled (same as the id)
-        const typedProperty = property as any;
-        if (!typedProperty.propertyId) {
-            await (tx as any).property.update({
-                where: { id: property.id },
-                data: { propertyId: property.id.toString() }
-            });
-            typedProperty.propertyId = property.id.toString();
-        }
-
-        return typedProperty;
+        return property;
     }, {
         maxWait: 10000,
         timeout: 20000,

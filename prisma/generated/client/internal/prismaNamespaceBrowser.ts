@@ -64,7 +64,7 @@ export const ModelName = {
   Property: 'Property',
   PropertySaleStatus: 'PropertySaleStatus',
   PropertyAmmenity: 'PropertyAmmenity',
-  MasterAmmenity: 'MasterAmmenity',
+  MasterDataPropertyAmmenity: 'MasterDataPropertyAmmenity',
   MasterDataNearbyLocation: 'MasterDataNearbyLocation',
   PropertyNearbyLocation: 'PropertyNearbyLocation',
   PropertyNature: 'PropertyNature',
@@ -299,21 +299,19 @@ export type PropertySaleStatusScalarFieldEnum = (typeof PropertySaleStatusScalar
 export const PropertyAmmenityScalarFieldEnum = {
   id: 'id',
   propertyId: 'propertyId',
-  ammenityId: 'ammenityId',
-  status: 'status',
-  updatedAt: 'updatedAt'
+  ammenityId: 'ammenityId'
 } as const
 
 export type PropertyAmmenityScalarFieldEnum = (typeof PropertyAmmenityScalarFieldEnum)[keyof typeof PropertyAmmenityScalarFieldEnum]
 
 
-export const MasterAmmenityScalarFieldEnum = {
+export const MasterDataPropertyAmmenityScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  status: 'status'
+  icon: 'icon'
 } as const
 
-export type MasterAmmenityScalarFieldEnum = (typeof MasterAmmenityScalarFieldEnum)[keyof typeof MasterAmmenityScalarFieldEnum]
+export type MasterDataPropertyAmmenityScalarFieldEnum = (typeof MasterDataPropertyAmmenityScalarFieldEnum)[keyof typeof MasterDataPropertyAmmenityScalarFieldEnum]
 
 
 export const MasterDataNearbyLocationScalarFieldEnum = {

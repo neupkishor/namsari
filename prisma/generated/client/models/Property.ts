@@ -295,7 +295,7 @@ export type PropertyGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 
 export type PropertyGroupByOutputType = {
   id: number
-  propertyId: string | null
+  propertyId: string
   types: $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status: string
@@ -343,7 +343,7 @@ export type PropertyWhereInput = {
   OR?: Prisma.PropertyWhereInput[]
   NOT?: Prisma.PropertyWhereInput | Prisma.PropertyWhereInput[]
   id?: Prisma.IntFilter<"Property"> | number
-  propertyId?: Prisma.StringNullableFilter<"Property"> | string | null
+  propertyId?: Prisma.UuidFilter<"Property"> | string
   types?: Prisma.EnumPropertyTypeNullableListFilter<"Property">
   purpose?: Prisma.EnumPropertyPurposeFilter<"Property"> | $Enums.PropertyPurpose
   status?: Prisma.StringFilter<"Property"> | string
@@ -385,7 +385,7 @@ export type PropertyWhereInput = {
 
 export type PropertyOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  propertyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  propertyId?: Prisma.SortOrder
   types?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -472,7 +472,7 @@ export type PropertyWhereUniqueInput = Prisma.AtLeast<{
 
 export type PropertyOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  propertyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  propertyId?: Prisma.SortOrder
   types?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -505,7 +505,7 @@ export type PropertyScalarWhereWithAggregatesInput = {
   OR?: Prisma.PropertyScalarWhereWithAggregatesInput[]
   NOT?: Prisma.PropertyScalarWhereWithAggregatesInput | Prisma.PropertyScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Property"> | number
-  propertyId?: Prisma.StringNullableWithAggregatesFilter<"Property"> | string | null
+  propertyId?: Prisma.UuidWithAggregatesFilter<"Property"> | string
   types?: Prisma.EnumPropertyTypeNullableListFilter<"Property">
   purpose?: Prisma.EnumPropertyPurposeWithAggregatesFilter<"Property"> | $Enums.PropertyPurpose
   status?: Prisma.StringWithAggregatesFilter<"Property"> | string
@@ -529,7 +529,7 @@ export type PropertyScalarWhereWithAggregatesInput = {
 }
 
 export type PropertyCreateInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -570,7 +570,7 @@ export type PropertyCreateInput = {
 
 export type PropertyUncheckedCreateInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -610,7 +610,7 @@ export type PropertyUncheckedCreateInput = {
 }
 
 export type PropertyUpdateInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -651,7 +651,7 @@ export type PropertyUpdateInput = {
 
 export type PropertyUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -692,7 +692,7 @@ export type PropertyUncheckedUpdateInput = {
 
 export type PropertyCreateManyInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -716,7 +716,7 @@ export type PropertyCreateManyInput = {
 }
 
 export type PropertyUpdateManyMutationInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -740,7 +740,7 @@ export type PropertyUpdateManyMutationInput = {
 
 export type PropertyUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1199,7 +1199,7 @@ export type PropertyUpdateOneRequiredWithoutCollectionsNestedInput = {
 }
 
 export type PropertyCreateWithoutListedByInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -1239,7 +1239,7 @@ export type PropertyCreateWithoutListedByInput = {
 
 export type PropertyUncheckedCreateWithoutListedByInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -1308,7 +1308,7 @@ export type PropertyScalarWhereInput = {
   OR?: Prisma.PropertyScalarWhereInput[]
   NOT?: Prisma.PropertyScalarWhereInput | Prisma.PropertyScalarWhereInput[]
   id?: Prisma.IntFilter<"Property"> | number
-  propertyId?: Prisma.StringNullableFilter<"Property"> | string | null
+  propertyId?: Prisma.UuidFilter<"Property"> | string
   types?: Prisma.EnumPropertyTypeNullableListFilter<"Property">
   purpose?: Prisma.EnumPropertyPurposeFilter<"Property"> | $Enums.PropertyPurpose
   status?: Prisma.StringFilter<"Property"> | string
@@ -1332,7 +1332,7 @@ export type PropertyScalarWhereInput = {
 }
 
 export type PropertyCreateWithoutSaleStatusesInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -1372,7 +1372,7 @@ export type PropertyCreateWithoutSaleStatusesInput = {
 
 export type PropertyUncheckedCreateWithoutSaleStatusesInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -1427,7 +1427,7 @@ export type PropertyUpdateToOneWithWhereWithoutSaleStatusesInput = {
 }
 
 export type PropertyUpdateWithoutSaleStatusesInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1467,7 +1467,7 @@ export type PropertyUpdateWithoutSaleStatusesInput = {
 
 export type PropertyUncheckedUpdateWithoutSaleStatusesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1506,7 +1506,7 @@ export type PropertyUncheckedUpdateWithoutSaleStatusesInput = {
 }
 
 export type PropertyCreateWithoutPropertyAmmenitiesInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -1546,7 +1546,7 @@ export type PropertyCreateWithoutPropertyAmmenitiesInput = {
 
 export type PropertyUncheckedCreateWithoutPropertyAmmenitiesInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -1601,7 +1601,7 @@ export type PropertyUpdateToOneWithWhereWithoutPropertyAmmenitiesInput = {
 }
 
 export type PropertyUpdateWithoutPropertyAmmenitiesInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1641,7 +1641,7 @@ export type PropertyUpdateWithoutPropertyAmmenitiesInput = {
 
 export type PropertyUncheckedUpdateWithoutPropertyAmmenitiesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1680,7 +1680,7 @@ export type PropertyUncheckedUpdateWithoutPropertyAmmenitiesInput = {
 }
 
 export type PropertyCreateWithoutNearbyLocationsInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -1720,7 +1720,7 @@ export type PropertyCreateWithoutNearbyLocationsInput = {
 
 export type PropertyUncheckedCreateWithoutNearbyLocationsInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -1775,7 +1775,7 @@ export type PropertyUpdateToOneWithWhereWithoutNearbyLocationsInput = {
 }
 
 export type PropertyUpdateWithoutNearbyLocationsInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1815,7 +1815,7 @@ export type PropertyUpdateWithoutNearbyLocationsInput = {
 
 export type PropertyUncheckedUpdateWithoutNearbyLocationsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1854,7 +1854,7 @@ export type PropertyUncheckedUpdateWithoutNearbyLocationsInput = {
 }
 
 export type PropertyCreateWithoutNaturesInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -1894,7 +1894,7 @@ export type PropertyCreateWithoutNaturesInput = {
 
 export type PropertyUncheckedCreateWithoutNaturesInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -1954,7 +1954,7 @@ export type PropertyUpdateManyWithWhereWithoutNaturesInput = {
 }
 
 export type PropertyCreateWithoutFeaturesInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -1994,7 +1994,7 @@ export type PropertyCreateWithoutFeaturesInput = {
 
 export type PropertyUncheckedCreateWithoutFeaturesInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -2049,7 +2049,7 @@ export type PropertyUpdateToOneWithWhereWithoutFeaturesInput = {
 }
 
 export type PropertyUpdateWithoutFeaturesInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2089,7 +2089,7 @@ export type PropertyUpdateWithoutFeaturesInput = {
 
 export type PropertyUncheckedUpdateWithoutFeaturesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2128,7 +2128,7 @@ export type PropertyUncheckedUpdateWithoutFeaturesInput = {
 }
 
 export type PropertyCreateWithoutLandDetailsInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -2168,7 +2168,7 @@ export type PropertyCreateWithoutLandDetailsInput = {
 
 export type PropertyUncheckedCreateWithoutLandDetailsInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -2223,7 +2223,7 @@ export type PropertyUpdateToOneWithWhereWithoutLandDetailsInput = {
 }
 
 export type PropertyUpdateWithoutLandDetailsInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2263,7 +2263,7 @@ export type PropertyUpdateWithoutLandDetailsInput = {
 
 export type PropertyUncheckedUpdateWithoutLandDetailsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2302,7 +2302,7 @@ export type PropertyUncheckedUpdateWithoutLandDetailsInput = {
 }
 
 export type PropertyCreateWithoutHouseDetailsInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -2342,7 +2342,7 @@ export type PropertyCreateWithoutHouseDetailsInput = {
 
 export type PropertyUncheckedCreateWithoutHouseDetailsInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -2397,7 +2397,7 @@ export type PropertyUpdateToOneWithWhereWithoutHouseDetailsInput = {
 }
 
 export type PropertyUpdateWithoutHouseDetailsInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2437,7 +2437,7 @@ export type PropertyUpdateWithoutHouseDetailsInput = {
 
 export type PropertyUncheckedUpdateWithoutHouseDetailsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2476,7 +2476,7 @@ export type PropertyUncheckedUpdateWithoutHouseDetailsInput = {
 }
 
 export type PropertyCreateWithoutApartmentDetailsInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -2516,7 +2516,7 @@ export type PropertyCreateWithoutApartmentDetailsInput = {
 
 export type PropertyUncheckedCreateWithoutApartmentDetailsInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -2571,7 +2571,7 @@ export type PropertyUpdateToOneWithWhereWithoutApartmentDetailsInput = {
 }
 
 export type PropertyUpdateWithoutApartmentDetailsInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2611,7 +2611,7 @@ export type PropertyUpdateWithoutApartmentDetailsInput = {
 
 export type PropertyUncheckedUpdateWithoutApartmentDetailsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2650,7 +2650,7 @@ export type PropertyUncheckedUpdateWithoutApartmentDetailsInput = {
 }
 
 export type PropertyCreateWithoutSpaceDetailsInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -2690,7 +2690,7 @@ export type PropertyCreateWithoutSpaceDetailsInput = {
 
 export type PropertyUncheckedCreateWithoutSpaceDetailsInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -2745,7 +2745,7 @@ export type PropertyUpdateToOneWithWhereWithoutSpaceDetailsInput = {
 }
 
 export type PropertyUpdateWithoutSpaceDetailsInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2785,7 +2785,7 @@ export type PropertyUpdateWithoutSpaceDetailsInput = {
 
 export type PropertyUncheckedUpdateWithoutSpaceDetailsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2824,7 +2824,7 @@ export type PropertyUncheckedUpdateWithoutSpaceDetailsInput = {
 }
 
 export type PropertyCreateWithoutLocationInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -2864,7 +2864,7 @@ export type PropertyCreateWithoutLocationInput = {
 
 export type PropertyUncheckedCreateWithoutLocationInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -2919,7 +2919,7 @@ export type PropertyUpdateToOneWithWhereWithoutLocationInput = {
 }
 
 export type PropertyUpdateWithoutLocationInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2959,7 +2959,7 @@ export type PropertyUpdateWithoutLocationInput = {
 
 export type PropertyUncheckedUpdateWithoutLocationInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2998,7 +2998,7 @@ export type PropertyUncheckedUpdateWithoutLocationInput = {
 }
 
 export type PropertyCreateWithoutOpenHouseInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -3038,7 +3038,7 @@ export type PropertyCreateWithoutOpenHouseInput = {
 
 export type PropertyUncheckedCreateWithoutOpenHouseInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -3093,7 +3093,7 @@ export type PropertyUpdateToOneWithWhereWithoutOpenHouseInput = {
 }
 
 export type PropertyUpdateWithoutOpenHouseInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3133,7 +3133,7 @@ export type PropertyUpdateWithoutOpenHouseInput = {
 
 export type PropertyUncheckedUpdateWithoutOpenHouseInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3172,7 +3172,7 @@ export type PropertyUncheckedUpdateWithoutOpenHouseInput = {
 }
 
 export type PropertyCreateWithoutPropertyMediaInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -3212,7 +3212,7 @@ export type PropertyCreateWithoutPropertyMediaInput = {
 
 export type PropertyUncheckedCreateWithoutPropertyMediaInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -3267,7 +3267,7 @@ export type PropertyUpdateToOneWithWhereWithoutPropertyMediaInput = {
 }
 
 export type PropertyUpdateWithoutPropertyMediaInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3307,7 +3307,7 @@ export type PropertyUpdateWithoutPropertyMediaInput = {
 
 export type PropertyUncheckedUpdateWithoutPropertyMediaInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3346,7 +3346,7 @@ export type PropertyUncheckedUpdateWithoutPropertyMediaInput = {
 }
 
 export type PropertyCreateWithoutFeatured_historyInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -3386,7 +3386,7 @@ export type PropertyCreateWithoutFeatured_historyInput = {
 
 export type PropertyUncheckedCreateWithoutFeatured_historyInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -3441,7 +3441,7 @@ export type PropertyUpdateToOneWithWhereWithoutFeatured_historyInput = {
 }
 
 export type PropertyUpdateWithoutFeatured_historyInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3481,7 +3481,7 @@ export type PropertyUpdateWithoutFeatured_historyInput = {
 
 export type PropertyUncheckedUpdateWithoutFeatured_historyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3520,7 +3520,7 @@ export type PropertyUncheckedUpdateWithoutFeatured_historyInput = {
 }
 
 export type PropertyCreateWithoutCommentsInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -3560,7 +3560,7 @@ export type PropertyCreateWithoutCommentsInput = {
 
 export type PropertyUncheckedCreateWithoutCommentsInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -3615,7 +3615,7 @@ export type PropertyUpdateToOneWithWhereWithoutCommentsInput = {
 }
 
 export type PropertyUpdateWithoutCommentsInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3655,7 +3655,7 @@ export type PropertyUpdateWithoutCommentsInput = {
 
 export type PropertyUncheckedUpdateWithoutCommentsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3694,7 +3694,7 @@ export type PropertyUncheckedUpdateWithoutCommentsInput = {
 }
 
 export type PropertyCreateWithoutProperty_likesInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -3734,7 +3734,7 @@ export type PropertyCreateWithoutProperty_likesInput = {
 
 export type PropertyUncheckedCreateWithoutProperty_likesInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -3789,7 +3789,7 @@ export type PropertyUpdateToOneWithWhereWithoutProperty_likesInput = {
 }
 
 export type PropertyUpdateWithoutProperty_likesInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3829,7 +3829,7 @@ export type PropertyUpdateWithoutProperty_likesInput = {
 
 export type PropertyUncheckedUpdateWithoutProperty_likesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3868,7 +3868,7 @@ export type PropertyUncheckedUpdateWithoutProperty_likesInput = {
 }
 
 export type PropertyCreateWithoutCollectionsInput = {
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -3908,7 +3908,7 @@ export type PropertyCreateWithoutCollectionsInput = {
 
 export type PropertyUncheckedCreateWithoutCollectionsInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -3963,7 +3963,7 @@ export type PropertyUpdateToOneWithWhereWithoutCollectionsInput = {
 }
 
 export type PropertyUpdateWithoutCollectionsInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4003,7 +4003,7 @@ export type PropertyUpdateWithoutCollectionsInput = {
 
 export type PropertyUncheckedUpdateWithoutCollectionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4043,7 +4043,7 @@ export type PropertyUncheckedUpdateWithoutCollectionsInput = {
 
 export type PropertyCreateManyListedByInput = {
   id?: number
-  propertyId?: string | null
+  propertyId?: string
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
   purpose: $Enums.PropertyPurpose
   status?: string
@@ -4066,7 +4066,7 @@ export type PropertyCreateManyListedByInput = {
 }
 
 export type PropertyUpdateWithoutListedByInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4106,7 +4106,7 @@ export type PropertyUpdateWithoutListedByInput = {
 
 export type PropertyUncheckedUpdateWithoutListedByInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4146,7 +4146,7 @@ export type PropertyUncheckedUpdateWithoutListedByInput = {
 
 export type PropertyUncheckedUpdateManyWithoutListedByInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4169,7 +4169,7 @@ export type PropertyUncheckedUpdateManyWithoutListedByInput = {
 }
 
 export type PropertyUpdateWithoutNaturesInput = {
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4209,7 +4209,7 @@ export type PropertyUpdateWithoutNaturesInput = {
 
 export type PropertyUncheckedUpdateWithoutNaturesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4249,7 +4249,7 @@ export type PropertyUncheckedUpdateWithoutNaturesInput = {
 
 export type PropertyUncheckedUpdateManyWithoutNaturesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
   purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4546,7 +4546,7 @@ export type $PropertyPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    propertyId: string | null
+    propertyId: string
     types: $Enums.PropertyType[]
     purpose: $Enums.PropertyPurpose
     status: string

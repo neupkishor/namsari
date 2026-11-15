@@ -20,31 +20,21 @@ export type PropertyNearbyLocationModel = runtime.Types.Result.DefaultSelection<
 
 export type AggregatePropertyNearbyLocation = {
   _count: PropertyNearbyLocationCountAggregateOutputType | null
-  _avg: PropertyNearbyLocationAvgAggregateOutputType | null
-  _sum: PropertyNearbyLocationSumAggregateOutputType | null
   _min: PropertyNearbyLocationMinAggregateOutputType | null
   _max: PropertyNearbyLocationMaxAggregateOutputType | null
-}
-
-export type PropertyNearbyLocationAvgAggregateOutputType = {
-  propertyId: number | null
-}
-
-export type PropertyNearbyLocationSumAggregateOutputType = {
-  propertyId: number | null
 }
 
 export type PropertyNearbyLocationMinAggregateOutputType = {
   id: string | null
   locationId: string | null
-  propertyId: number | null
+  propertyId: string | null
   distance: string | null
 }
 
 export type PropertyNearbyLocationMaxAggregateOutputType = {
   id: string | null
   locationId: string | null
-  propertyId: number | null
+  propertyId: string | null
   distance: string | null
 }
 
@@ -56,14 +46,6 @@ export type PropertyNearbyLocationCountAggregateOutputType = {
   _all: number
 }
 
-
-export type PropertyNearbyLocationAvgAggregateInputType = {
-  propertyId?: true
-}
-
-export type PropertyNearbyLocationSumAggregateInputType = {
-  propertyId?: true
-}
 
 export type PropertyNearbyLocationMinAggregateInputType = {
   id?: true
@@ -125,18 +107,6 @@ export type PropertyNearbyLocationAggregateArgs<ExtArgs extends runtime.Types.Ex
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    *
-   * Select which fields to average
-  **/
-  _avg?: PropertyNearbyLocationAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   *
-   * Select which fields to sum
-  **/
-  _sum?: PropertyNearbyLocationSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   *
    * Select which fields to find the minimum value
   **/
   _min?: PropertyNearbyLocationMinAggregateInputType
@@ -167,8 +137,6 @@ export type PropertyNearbyLocationGroupByArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   _count?: PropertyNearbyLocationCountAggregateInputType | true
-  _avg?: PropertyNearbyLocationAvgAggregateInputType
-  _sum?: PropertyNearbyLocationSumAggregateInputType
   _min?: PropertyNearbyLocationMinAggregateInputType
   _max?: PropertyNearbyLocationMaxAggregateInputType
 }
@@ -176,11 +144,9 @@ export type PropertyNearbyLocationGroupByArgs<ExtArgs extends runtime.Types.Exte
 export type PropertyNearbyLocationGroupByOutputType = {
   id: string
   locationId: string
-  propertyId: number
+  propertyId: string
   distance: string
   _count: PropertyNearbyLocationCountAggregateOutputType | null
-  _avg: PropertyNearbyLocationAvgAggregateOutputType | null
-  _sum: PropertyNearbyLocationSumAggregateOutputType | null
   _min: PropertyNearbyLocationMinAggregateOutputType | null
   _max: PropertyNearbyLocationMaxAggregateOutputType | null
 }
@@ -206,7 +172,7 @@ export type PropertyNearbyLocationWhereInput = {
   NOT?: Prisma.PropertyNearbyLocationWhereInput | Prisma.PropertyNearbyLocationWhereInput[]
   id?: Prisma.UuidFilter<"PropertyNearbyLocation"> | string
   locationId?: Prisma.UuidFilter<"PropertyNearbyLocation"> | string
-  propertyId?: Prisma.IntFilter<"PropertyNearbyLocation"> | number
+  propertyId?: Prisma.UuidFilter<"PropertyNearbyLocation"> | string
   distance?: Prisma.StringFilter<"PropertyNearbyLocation"> | string
   location?: Prisma.XOR<Prisma.MasterDataNearbyLocationScalarRelationFilter, Prisma.MasterDataNearbyLocationWhereInput>
   property?: Prisma.XOR<Prisma.PropertyScalarRelationFilter, Prisma.PropertyWhereInput>
@@ -227,7 +193,7 @@ export type PropertyNearbyLocationWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.PropertyNearbyLocationWhereInput[]
   NOT?: Prisma.PropertyNearbyLocationWhereInput | Prisma.PropertyNearbyLocationWhereInput[]
   locationId?: Prisma.UuidFilter<"PropertyNearbyLocation"> | string
-  propertyId?: Prisma.IntFilter<"PropertyNearbyLocation"> | number
+  propertyId?: Prisma.UuidFilter<"PropertyNearbyLocation"> | string
   distance?: Prisma.StringFilter<"PropertyNearbyLocation"> | string
   location?: Prisma.XOR<Prisma.MasterDataNearbyLocationScalarRelationFilter, Prisma.MasterDataNearbyLocationWhereInput>
   property?: Prisma.XOR<Prisma.PropertyScalarRelationFilter, Prisma.PropertyWhereInput>
@@ -239,10 +205,8 @@ export type PropertyNearbyLocationOrderByWithAggregationInput = {
   propertyId?: Prisma.SortOrder
   distance?: Prisma.SortOrder
   _count?: Prisma.PropertyNearbyLocationCountOrderByAggregateInput
-  _avg?: Prisma.PropertyNearbyLocationAvgOrderByAggregateInput
   _max?: Prisma.PropertyNearbyLocationMaxOrderByAggregateInput
   _min?: Prisma.PropertyNearbyLocationMinOrderByAggregateInput
-  _sum?: Prisma.PropertyNearbyLocationSumOrderByAggregateInput
 }
 
 export type PropertyNearbyLocationScalarWhereWithAggregatesInput = {
@@ -251,7 +215,7 @@ export type PropertyNearbyLocationScalarWhereWithAggregatesInput = {
   NOT?: Prisma.PropertyNearbyLocationScalarWhereWithAggregatesInput | Prisma.PropertyNearbyLocationScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"PropertyNearbyLocation"> | string
   locationId?: Prisma.UuidWithAggregatesFilter<"PropertyNearbyLocation"> | string
-  propertyId?: Prisma.IntWithAggregatesFilter<"PropertyNearbyLocation"> | number
+  propertyId?: Prisma.UuidWithAggregatesFilter<"PropertyNearbyLocation"> | string
   distance?: Prisma.StringWithAggregatesFilter<"PropertyNearbyLocation"> | string
 }
 
@@ -265,7 +229,7 @@ export type PropertyNearbyLocationCreateInput = {
 export type PropertyNearbyLocationUncheckedCreateInput = {
   id?: string
   locationId: string
-  propertyId: number
+  propertyId: string
   distance: string
 }
 
@@ -279,14 +243,14 @@ export type PropertyNearbyLocationUpdateInput = {
 export type PropertyNearbyLocationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   locationId?: Prisma.StringFieldUpdateOperationsInput | string
-  propertyId?: Prisma.IntFieldUpdateOperationsInput | number
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   distance?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type PropertyNearbyLocationCreateManyInput = {
   id?: string
   locationId: string
-  propertyId: number
+  propertyId: string
   distance: string
 }
 
@@ -298,7 +262,7 @@ export type PropertyNearbyLocationUpdateManyMutationInput = {
 export type PropertyNearbyLocationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   locationId?: Prisma.StringFieldUpdateOperationsInput | string
-  propertyId?: Prisma.IntFieldUpdateOperationsInput | number
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   distance?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -319,10 +283,6 @@ export type PropertyNearbyLocationCountOrderByAggregateInput = {
   distance?: Prisma.SortOrder
 }
 
-export type PropertyNearbyLocationAvgOrderByAggregateInput = {
-  propertyId?: Prisma.SortOrder
-}
-
 export type PropertyNearbyLocationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   locationId?: Prisma.SortOrder
@@ -335,10 +295,6 @@ export type PropertyNearbyLocationMinOrderByAggregateInput = {
   locationId?: Prisma.SortOrder
   propertyId?: Prisma.SortOrder
   distance?: Prisma.SortOrder
-}
-
-export type PropertyNearbyLocationSumOrderByAggregateInput = {
-  propertyId?: Prisma.SortOrder
 }
 
 export type PropertyNearbyLocationCreateNestedManyWithoutPropertyInput = {
@@ -469,7 +425,7 @@ export type PropertyNearbyLocationScalarWhereInput = {
   NOT?: Prisma.PropertyNearbyLocationScalarWhereInput | Prisma.PropertyNearbyLocationScalarWhereInput[]
   id?: Prisma.UuidFilter<"PropertyNearbyLocation"> | string
   locationId?: Prisma.UuidFilter<"PropertyNearbyLocation"> | string
-  propertyId?: Prisma.IntFilter<"PropertyNearbyLocation"> | number
+  propertyId?: Prisma.UuidFilter<"PropertyNearbyLocation"> | string
   distance?: Prisma.StringFilter<"PropertyNearbyLocation"> | string
 }
 
@@ -481,7 +437,7 @@ export type PropertyNearbyLocationCreateWithoutLocationInput = {
 
 export type PropertyNearbyLocationUncheckedCreateWithoutLocationInput = {
   id?: string
-  propertyId: number
+  propertyId: string
   distance: string
 }
 
@@ -537,7 +493,7 @@ export type PropertyNearbyLocationUncheckedUpdateManyWithoutPropertyInput = {
 
 export type PropertyNearbyLocationCreateManyLocationInput = {
   id?: string
-  propertyId: number
+  propertyId: string
   distance: string
 }
 
@@ -549,13 +505,13 @@ export type PropertyNearbyLocationUpdateWithoutLocationInput = {
 
 export type PropertyNearbyLocationUncheckedUpdateWithoutLocationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  propertyId?: Prisma.IntFieldUpdateOperationsInput | number
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   distance?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type PropertyNearbyLocationUncheckedUpdateManyWithoutLocationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  propertyId?: Prisma.IntFieldUpdateOperationsInput | number
+  propertyId?: Prisma.StringFieldUpdateOperationsInput | string
   distance?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -618,7 +574,7 @@ export type $PropertyNearbyLocationPayload<ExtArgs extends runtime.Types.Extensi
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     locationId: string
-    propertyId: number
+    propertyId: string
     distance: string
   }, ExtArgs["result"]["propertyNearbyLocation"]>
   composites: {}
@@ -1047,7 +1003,7 @@ export interface Prisma__PropertyNearbyLocationClient<T, Null = never, ExtArgs e
 export interface PropertyNearbyLocationFieldRefs {
   readonly id: Prisma.FieldRef<"PropertyNearbyLocation", 'String'>
   readonly locationId: Prisma.FieldRef<"PropertyNearbyLocation", 'String'>
-  readonly propertyId: Prisma.FieldRef<"PropertyNearbyLocation", 'Int'>
+  readonly propertyId: Prisma.FieldRef<"PropertyNearbyLocation", 'String'>
   readonly distance: Prisma.FieldRef<"PropertyNearbyLocation", 'String'>
 }
 

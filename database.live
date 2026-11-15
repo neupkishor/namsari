@@ -69,7 +69,7 @@ Fields:
 Table: Property, Model: Property
 Fields:
 > id: int, primary key, auto incremental;
-> propertyId: text, optional;
+> property_id: uuid, unique, default uuid;
 > status: text, default pending;
 > isFeatured: boolean, default false;
 > isExclusive: boolean, default false;
@@ -115,19 +115,17 @@ Fields:
 > status: text;
 > updatedOn: timestamp, default current_timestamp, auto-updated;
 
+Table: master_data__property_ammenities, Model: MasterDataPropertyAmmenity
+Fields:
+> id: uuid, primary key, default uuid;
+> name: varchar(48), unique;
+> icon: varchar(256);
+
 Table: property_ammenities, Model: PropertyAmmenity
 Fields:
-> id: int, primary key, auto incremental;
-> propertyId: int, references Property.id, cascade delete;
-> ammenity_id: int, references master_ammenities.id;
-> status: varchar(24);
-> updatedAt: timestamp, default current_timestamp, auto-updated;
-
-Table: master_ammenities, Model: MasterAmmenity
-Fields:
-> id: int, primary key, auto incremental;
-> name: string;
-> status: string;
+> id: uuid, primary key, default uuid;
+> property_id: uuid, references Property.property_id, cascade delete;
+> ammenity_id: uuid, references master_data__property_ammenities.id;
 
 Table: master_data__nearby_locations, Model: MasterDataNearbyLocation
 Fields:
@@ -139,7 +137,7 @@ Table: property_nearby_locations, Model: PropertyNearbyLocation
 Fields:
 > id: uuid, primary key, default uuid;
 > location_id: uuid, references master_data__nearby_locations.id;
-> property_id: int, references Property.id, cascade delete;
+> property_id: uuid, references Property.property_id, cascade delete;
 > distance: text;
 
 Table: Media, Model: Media
