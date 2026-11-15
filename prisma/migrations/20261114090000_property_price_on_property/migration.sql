@@ -1,1 +1,0 @@
--- The table is dropped by the following dedicated migration after the data script runs.
