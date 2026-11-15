@@ -1,5 +1,5 @@
 import React from 'react';
-import SearchClient from './SearchClient';
+import SearchClient from './layout.client';
 import { getSession } from '@/lib/auth';
 import { getBrowseProperties } from '@/lib/services/property-browser';
 

@@ -39,7 +39,9 @@ function getListedPrice(property: any): number | null {
     return Number.isFinite(listedPrice) ? listedPrice : null;
 }
 
-export default function SearchClient({ initialUser, initialQuery = '', initialProperties = [] }: { initialUser: any, initialQuery?: string, initialProperties?: any[] }) {
+export default function SearchClient({ children, initialUser, initialQuery = '', initialProperties = [] }: { children?: React.ReactNode, initialUser?: any, initialQuery?: string, initialProperties?: any[] }) {
+    if (children !== undefined) return <>{children}</>;
+
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -189,7 +191,9 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
     };
 
     return (
-        <main className="min-h-screen bg-[#f7f8fa] pb-14 pt-[var(--header-height)]">
+        <>
+            <main className="min-h-screen bg-[#f7f8fa] pb-14 pt-[var(--header-height)]">
+                {children}
             <section className="relative overflow-hidden border-b border-border bg-white">
                 <div className="pointer-events-none absolute -right-24 -top-32 h-80 w-80 rounded-full bg-[color:var(--color-primary)]/[0.045] blur-3xl" />
                 <div className="relative mx-auto max-w-[var(--container-max)] px-4 py-9 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
@@ -363,6 +367,7 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
                 </div>
 
             </section>
-        </main>
+            </main>
+        </>
     );
 }
