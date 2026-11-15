@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
-import { TrendingSearches } from '@/components/cards/TrendingSearches';
-import { PopularCategories } from '@/components/cards/PopularCategories';
 import { convertAreaValue, normalizeAreaUnit } from '@/lib/area-units';
 import { matchesAnyLocationFilter, splitLocationFilterValues } from '@/lib/location-filters';
 
@@ -47,12 +45,35 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
     const searchParams = useSearchParams();
 
     const [query, setQuery] = useState(initialQuery);
+    const [locations, setLocations] = useState(searchParams.get('locations') || '');
+    const [types, setTypes] = useState(splitFilters(searchParams.get('types')));
+    const [category, setCategory] = useState(searchParams.get('category') || '');
+    const [listedBy, setListedBy] = useState(searchParams.get('listedBy') || '');
+    const [minPrice, setMinPrice] = useState(searchParams.get('modifiedMinPrice') || searchParams.get('rawMinPrice') || '');
+    const [maxPrice, setMaxPrice] = useState(searchParams.get('modifiedMaxPrice') || searchParams.get('rawMaxPrice') || '');
+    const [minSize, setMinSize] = useState(searchParams.get('sizeMin') || '');
+    const [maxSize, setMaxSize] = useState(searchParams.get('sizeMax') || '');
+    const [sizeUnit, setSizeUnit] = useState(normalizeAreaUnit(searchParams.get('sizeUnit')));
+    const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || '');
     const properties = initialProperties;
     const loading = false;
 
     useEffect(() => {
         setQuery(initialQuery);
     }, [initialQuery]);
+
+    useEffect(() => {
+        setLocations(searchParams.get('locations') || '');
+        setTypes(splitFilters(searchParams.get('types')));
+        setCategory(searchParams.get('category') || '');
+        setListedBy(searchParams.get('listedBy') || '');
+        setMinPrice(searchParams.get('modifiedMinPrice') || searchParams.get('rawMinPrice') || '');
+        setMaxPrice(searchParams.get('modifiedMaxPrice') || searchParams.get('rawMaxPrice') || '');
+        setMinSize(searchParams.get('sizeMin') || '');
+        setMaxSize(searchParams.get('sizeMax') || '');
+        setSizeUnit(normalizeAreaUnit(searchParams.get('sizeUnit')));
+        setSortBy(searchParams.get('sortBy') || '');
+    }, [searchParams]);
 
     const filteredProperties = useMemo(() => {
         const q = query.trim().toLowerCase();
@@ -62,7 +83,7 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
         const categoryFilter = (searchParams.get('category') || '').trim().toLowerCase();
         const sizeMin = searchParams.get('sizeMin');
         const sizeMax = searchParams.get('sizeMax');
-        const sizeUnit = normalizeAreaUnit(searchParams.get('sizeUnit'));
+        const activeSizeUnit = normalizeAreaUnit(searchParams.get('sizeUnit'));
         const minSize = sizeMin ? Number(sizeMin) : null;
         const maxSize = sizeMax ? Number(sizeMax) : null;
         const rawMinPrice = searchParams.get('modifiedMinPrice') || searchParams.get('rawMinPrice');
@@ -89,12 +110,12 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
             const locationParts = locationLabel.split(',').map((item) => item.trim()).filter(Boolean);
             const matchesLocation = matchesAnyLocationFilter(locationParts, selectedLocations);
             const matchesListedBy = !listedByFilter || normalize(property.listedBy?.type) === listedByFilter;
-            const propertyTypes = (property.property_types || []).map((item: string) => normalize(item));
-            const matchesType = typeFilters.length === 0 || typeFilters.some((type) => propertyTypes.some((item: string) => item.includes(type) || type.includes(item)));
+            const propertyTypes = (property.property_types || []).map((item: string) => normalize(item).replace(/_/g, ' '));
+            const matchesType = typeFilters.length === 0 || typeFilters.some((type) => propertyTypes.some((item: string) => item.includes(type.replace(/_/g, ' ')) || type.replace(/_/g, ' ').includes(item)));
             const propertyNatures = (property.property_natures || []).map((item: string) => normalize(item).replace(/\s+/g, '-'));
             const matchesCategory = !categoryFilter || propertyNatures.some((item: string) => item === categoryFilter);
             const propertyArea = Number.isFinite(Number(property.features?.builtUpArea))
-                ? convertAreaValue(Number(property.features?.builtUpArea), property.features?.builtUpAreaUnit, sizeUnit)
+                ? convertAreaValue(Number(property.features?.builtUpArea), property.features?.builtUpAreaUnit, activeSizeUnit)
                 : null;
             const matchesSize = (minSize === null || propertyArea === null || propertyArea >= minSize) && (maxSize === null || propertyArea === null || propertyArea <= maxSize);
             const propertyPrice = getListedPrice(property);
@@ -103,13 +124,6 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
             return matchesQuery && matchesLocation && matchesListedBy && matchesType && matchesCategory && matchesSize && matchesPrice;
         }), sortBy);
     }, [properties, query, searchParams]);
-
-    const categoryLinks = [
-        { label: 'House', href: '/search?q=house' },
-        { label: 'Land', href: '/search?q=land' },
-        { label: 'Apartment', href: '/search?q=apartment' },
-        { label: 'Office Space', href: '/search?q=office' },
-    ];
 
     const submitSearch = () => {
         const params = new URLSearchParams(searchParams?.toString() || '');
@@ -121,6 +135,57 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
         params.delete('q');
         const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
         router.replace(nextUrl, { scroll: false });
+    };
+
+    // Applies the visible search filters to the URL so the result state is shareable.
+    const applyFilters = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const params = new URLSearchParams(searchParams?.toString() || '');
+        const locationValues = locations.split(',').map((value) => value.trim()).filter(Boolean);
+
+        params.delete('q');
+        if (query.trim()) params.set('rawQuery', query.trim());
+        else params.delete('rawQuery');
+        if (locationValues.length) params.set('locations', locationValues.join(','));
+        else params.delete('locations');
+        if (types.length) params.set('types', types.join(','));
+        else params.delete('types');
+        if (category) params.set('category', category);
+        else params.delete('category');
+        if (listedBy) params.set('listedBy', listedBy);
+        else params.delete('listedBy');
+        if (minPrice) params.set('modifiedMinPrice', minPrice);
+        else params.delete('modifiedMinPrice');
+        if (maxPrice) params.set('modifiedMaxPrice', maxPrice);
+        else params.delete('modifiedMaxPrice');
+        if (minSize) params.set('sizeMin', minSize);
+        else params.delete('sizeMin');
+        if (maxSize) params.set('sizeMax', maxSize);
+        else params.delete('sizeMax');
+        if (sizeUnit) params.set('sizeUnit', sizeUnit);
+        else params.delete('sizeUnit');
+        if (sortBy) params.set('sortBy', sortBy);
+        else params.delete('sortBy');
+
+        const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+        router.replace(nextUrl, { scroll: false });
+    };
+
+    // Clears all visible filters while retaining the current search query.
+    const clearFilters = () => {
+        setLocations('');
+        setTypes([]);
+        setCategory('');
+        setListedBy('');
+        setMinPrice('');
+        setMaxPrice('');
+        setMinSize('');
+        setMaxSize('');
+        setSizeUnit('sqm');
+        setSortBy('');
+        const params = new URLSearchParams();
+        if (query.trim()) params.set('rawQuery', query.trim());
+        router.replace(params.toString() ? `${pathname}?${params.toString()}` : pathname, { scroll: false });
     };
 
     return (
@@ -168,23 +233,91 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
                             </Link>
                     </div>
 
-                    <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-                            <span className="mr-1 text-[11px] font-bold uppercase tracking-wider text-text-muted">Popular:</span>
-                            {categoryLinks.map((item) => (
-                                <Link
-                                    key={item.label}
-                                    href={item.href}
-                                        className="rounded-full border border-border bg-[#fafafa] px-3.5 py-2 text-xs font-bold text-text-main outline-none transition hover:border-[color:var(--color-primary)]/30 hover:bg-[color:var(--color-primary)]/[0.04] hover:text-[color:var(--color-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)]/20"
-                                >
-                                    {item.label}
-                                </Link>
-                            ))}
-                        </div>
                     </div>
                     </div>
             </section>
 
-            <section className="mx-auto grid max-w-[var(--container-max)] gap-7 px-4 pt-7 sm:px-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:px-8 lg:pt-9">
+            <section className="mx-auto grid max-w-[var(--container-max)] gap-7 px-4 pt-7 sm:px-6 lg:grid-cols-[270px_minmax(0,1fr)] lg:px-8 lg:pt-9">
+                <aside className="h-fit rounded-2xl border border-border bg-white p-5 shadow-sm lg:sticky lg:top-[calc(var(--header-height)+24px)]">
+                    <form onSubmit={applyFilters} className="space-y-5">
+                        <div className="flex items-center justify-between gap-3">
+                            <h2 className="text-lg font-black text-text-main">Filters</h2>
+                            <button type="button" onClick={clearFilters} className="text-xs font-bold text-[color:var(--color-primary)] hover:underline">Clear all</button>
+                        </div>
+
+                        <label className="block space-y-1.5">
+                            <span className="text-xs font-bold text-text-main">Location</span>
+                            <input value={locations} onChange={(event) => setLocations(event.target.value)} placeholder="Kathmandu, Lalitpur" className="w-full rounded-xl border border-border px-3 py-2.5 text-sm outline-none focus:border-[color:var(--color-primary)]" />
+                            <span className="block text-[11px] text-text-muted">Separate locations with commas.</span>
+                        </label>
+
+                        <fieldset className="space-y-2">
+                            <legend className="mb-2 text-xs font-bold text-text-main">Property type</legend>
+                            {['house', 'land', 'apartment', 'office space'].map((type) => (
+                                <label key={type} className="flex items-center gap-2 text-sm capitalize text-text-main">
+                                    <input type="checkbox" checked={types.includes(type)} onChange={(event) => setTypes((current) => event.target.checked ? [...current, type] : current.filter((item) => item !== type))} className="accent-[color:var(--color-primary)]" />
+                                    {type}
+                                </label>
+                            ))}
+                        </fieldset>
+
+                        <label className="block space-y-1.5">
+                            <span className="text-xs font-bold text-text-main">Category</span>
+                            <select value={category} onChange={(event) => setCategory(event.target.value)} className="w-full rounded-xl border border-border bg-white px-3 py-2.5 text-sm outline-none focus:border-[color:var(--color-primary)]">
+                                <option value="">All categories</option>
+                                <option value="residential">Residential</option>
+                                <option value="commercial">Commercial</option>
+                                <option value="semi-commercial">Semi-commercial</option>
+                            </select>
+                        </label>
+
+                        <label className="block space-y-1.5">
+                            <span className="text-xs font-bold text-text-main">Listed by</span>
+                            <select value={listedBy} onChange={(event) => setListedBy(event.target.value)} className="w-full rounded-xl border border-border bg-white px-3 py-2.5 text-sm outline-none focus:border-[color:var(--color-primary)]">
+                                <option value="">Anyone</option>
+                                <option value="owner">Owner</option>
+                                <option value="agent">Agent</option>
+                                <option value="agency">Agency</option>
+                            </select>
+                        </label>
+
+                        <fieldset className="space-y-2">
+                            <legend className="mb-2 text-xs font-bold text-text-main">Price range (NPR)</legend>
+                            <div className="grid grid-cols-2 gap-2">
+                                <input type="number" min="0" value={minPrice} onChange={(event) => setMinPrice(event.target.value)} placeholder="Min" aria-label="Minimum price" className="min-w-0 rounded-xl border border-border px-3 py-2.5 text-sm outline-none focus:border-[color:var(--color-primary)]" />
+                                <input type="number" min="0" value={maxPrice} onChange={(event) => setMaxPrice(event.target.value)} placeholder="Max" aria-label="Maximum price" className="min-w-0 rounded-xl border border-border px-3 py-2.5 text-sm outline-none focus:border-[color:var(--color-primary)]" />
+                            </div>
+                        </fieldset>
+
+                        <fieldset className="space-y-2">
+                            <legend className="mb-2 text-xs font-bold text-text-main">Size range</legend>
+                            <div className="grid grid-cols-2 gap-2">
+                                <input type="number" min="0" value={minSize} onChange={(event) => setMinSize(event.target.value)} placeholder="Min" aria-label="Minimum size" className="min-w-0 rounded-xl border border-border px-3 py-2.5 text-sm outline-none focus:border-[color:var(--color-primary)]" />
+                                <input type="number" min="0" value={maxSize} onChange={(event) => setMaxSize(event.target.value)} placeholder="Max" aria-label="Maximum size" className="min-w-0 rounded-xl border border-border px-3 py-2.5 text-sm outline-none focus:border-[color:var(--color-primary)]" />
+                            </div>
+                            <select value={sizeUnit} onChange={(event) => setSizeUnit(normalizeAreaUnit(event.target.value))} aria-label="Size unit" className="w-full rounded-xl border border-border bg-white px-3 py-2.5 text-sm outline-none focus:border-[color:var(--color-primary)]">
+                                <option value="sqm">Square meters</option>
+                                <option value="sqft">Square feet</option>
+                                <option value="aana">Aana</option>
+                                <option value="ropani">Ropani</option>
+                                <option value="kattha">Kattha</option>
+                                <option value="dhur">Dhur</option>
+                            </select>
+                        </fieldset>
+
+                        <label className="block space-y-1.5">
+                            <span className="text-xs font-bold text-text-main">Sort by</span>
+                            <select value={sortBy} onChange={(event) => setSortBy(event.target.value)} className="w-full rounded-xl border border-border bg-white px-3 py-2.5 text-sm outline-none focus:border-[color:var(--color-primary)]">
+                                <option value="">Most recent</option>
+                                <option value="price">Price: low to high</option>
+                                <option value="date">Date: newest first</option>
+                            </select>
+                        </label>
+
+                        <button type="submit" className="w-full rounded-xl bg-[color:var(--color-primary)] px-4 py-3 text-sm font-bold text-white transition hover:bg-[color:var(--color-primary-light)]">Apply filters</button>
+                    </form>
+                </aside>
+
                 <div className="min-w-0">
                     <div className="mb-4 flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-border bg-white px-5 py-4 shadow-sm">
                         <div>
@@ -224,29 +357,6 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
                     </div>
                 </div>
 
-                <aside className="space-y-4 lg:sticky lg:top-[calc(var(--header-height)+24px)] lg:self-start">
-                    <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-text-muted">Quick jump</div>
-                                <h3 className="mt-1 text-lg font-black text-text-main">Need the map?</h3>
-                            </div>
-                            <Link href="/maps" className="rounded-full bg-[color:var(--color-primary)] px-4 py-2 text-xs font-black uppercase tracking-widest text-white transition hover:bg-[color:var(--color-primary-light)]">
-                                Maps
-                            </Link>
-                        </div>
-                        <p className="mt-3 text-sm leading-6 text-text-muted">
-                            Explore listings by location and see what is nearby on the interactive map.
-                        </p>
-                    </div>
-
-                    <TrendingSearches
-                        className="!bg-white"
-                        searches={['Kathmandu', 'Lalitpur', 'Apartment', 'Land', 'House', 'Office Space']}
-                    />
-
-                    <PopularCategories />
-                </aside>
             </section>
         </main>
     );

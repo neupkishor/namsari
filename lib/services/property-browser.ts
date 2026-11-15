@@ -49,15 +49,9 @@ export async function getBrowseProperties(limit = 60, options?: { onlyMappable?:
     });
 
     return dbProperties.map((property: any) => {
-        const priceValue = Number(property.price_listed || 0);
+        const listedPrice = property.price_listed == null ? null : Number(property.price_listed);
         const latitude = property.location?.latitude ?? property.openHouse?.latitude ?? null;
         const longitude = property.location?.longitude ?? property.openHouse?.longitude ?? null;
-
-        const formattedPrice = new Intl.NumberFormat('en-NP', {
-            style: 'currency',
-            currency: 'NPR',
-            maximumFractionDigits: 0
-        }).format(Number(priceValue)).replace('NPR', 'NRs.');
 
         const locationStr = property.location
             ? [property.location.area, property.location.cityVillage, property.location.district]
@@ -71,8 +65,10 @@ export async function getBrowseProperties(limit = 60, options?: { onlyMappable?:
 
         return {
             ...property,
+            roadSize: property.roadSize == null ? null : Number(property.roadSize),
+            price_listed: listedPrice,
             pricing: legacyPricingFromProperty(property),
-            price: formattedPrice,
+            price: listedPrice,
             location: locationStr,
             latitude,
             longitude,

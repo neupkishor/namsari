@@ -102,12 +102,16 @@ export function legacyPricingFromPrice(price?: PropertyPriceInput | null) {
 
 // Builds the legacy card pricing shape from the new Property columns.
 export function legacyPricingFromProperty(property: { price_listed?: unknown; price_basis?: PropertyPriceRate; price_negotiable?: boolean }) {
-    const amount = Number(property.price_listed || 0);
+    if (property.price_listed == null || property.price_listed === '') return null;
+
+    const amount = Number(property.price_listed);
+    if (!Number.isFinite(amount)) return null;
+
     const pricing = legacyPricingFromPrice({
-        price: Number.isFinite(amount) ? amount : 0,
+        price: amount,
         rate: property.price_basis || 'total',
     } as PropertyPriceInput) && {
-        ...legacyPricingFromPrice({ price: Number.isFinite(amount) ? amount : 0, rate: property.price_basis || 'total' }),
+        ...legacyPricingFromPrice({ price: amount, rate: property.price_basis || 'total' }),
         negotiable: Boolean(property.price_negotiable),
     };
     return pricing;
