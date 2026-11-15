@@ -1,4 +1,4 @@
-# Live PostgreSQL schema queried from the configured server on 2026-09-01.
+# Live PostgreSQL schema snapshot from 2026-09-01 with the pending location migration documented below.
 # The following tables exist in the public schema:
 # AboutContent, ActivityLog, AdClick, AdImpression, AdRate, Advertisement,
 # Agency, Bank, BankRate, BlogPost, Collection, CollectionProperty, Comment,
@@ -8,7 +8,7 @@
 # PropertyNature, PropertyOpenHouse, PropertySaleStatus, Requirement, Review, Role,
 # RolePermission, SearchTerm, Subscriber, SupportArticle, SystemSettings,
 # Visitor, _PropertyToPropertyNature, _prisma_migrations, accounts,
-# agency_config, listing_stats_cache, location, permissions,
+# agency_config, listing_stats_cache, permissions,
 # property_drafts, role_permission_map, sessions, users, verification_tokens.
 
 Table: property_details_land, Model: PropertyDetailsLand
@@ -90,6 +90,15 @@ Fields:
 > price_basis: enum PropertyPriceBasis, default total;
 > price_listed: numeric(18,2), optional;
 > price_negotiable: boolean, default false;
+
+Table: location, Model: Location
+Fields:
+> id: int, primary key, auto incremental;
+> name: text;
+> type: text;
+> parent_id: int, optional, references location.id, on delete set null;
+> details: jsonb, optional;
+> unique: (name, type, parent_id);
 
 Table: PropertyMedia, Model: PropertyMedia
 Fields:

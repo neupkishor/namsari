@@ -194,7 +194,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     const overviewItems = [
         { icon: '/icons/house-chimney.svg', value: formatNumberValue(property.features?.bedrooms), label: 'bedrooms', displayValue: formatCountLabel(formatNumberValue(property.features?.bedrooms), 'bedrooms') },
         { icon: '/icons/info.svg', value: formatNumberValue(property.features?.bathrooms), label: 'bathrooms', displayValue: formatCountLabel(formatNumberValue(property.features?.bathrooms), 'bathrooms') },
-        { icon: '/icons/land-layer-location.svg', value: builtUpValue, label: 'area', displayValue: `${builtUpValue} ${builtUpUnit.toLowerCase()}` },
+                    { icon: '/icons/land-layer-location.svg', value: builtUpValue, label: 'area', displayValue: `${builtUpValue} m²` },
         { icon: '/icons/calendar.svg', value: String(new Date(property.created_on).getFullYear()), label: 'Year', displayValue: String(new Date(property.created_on).getFullYear()) },
         { icon: '/icons/land-location.svg', value: property.roadSize != null ? String(Number(property.roadSize).toFixed(2)) : '-', label: 'Road Access', displayValue: property.roadSize != null ? `${Number(property.roadSize).toFixed(2)} m` : '-' },
         { icon: '/icons/three-direction.svg', value: facingDirection, label: 'Facing', displayValue: facingDirection },
