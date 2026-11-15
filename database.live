@@ -15,7 +15,7 @@ Table: property_details_land, Model: PropertyDetailsLand
 Fields:
 > id: int, primary key, auto incremental;
 > propertyId: int, unique, references Property.id;
-> landArea: numeric(18,10);
+> landArea: numeric(18,10), stored in square meters;
 > dimension: varchar(48);
 > plotNumber: text;
 > moreDetails: jsonb;
@@ -24,7 +24,7 @@ Table: property_details_house, Model: PropertyDetailsHouse
 Fields:
 > id: int, primary key, auto incremental;
 > propertyId: int, unique, references Property.id;
-> builtUpArea: numeric(18,10);
+> builtUpArea: numeric(18,10), stored in square meters;
 > bedrooms: smallint;
 > bathrooms: smallint;
 > kitchens: smallint;
@@ -41,7 +41,7 @@ Table: property_details_apartment, Model: PropertyDetailsApartment
 Fields:
 > id: int, primary key, auto incremental;
 > propertyId: int, unique, references Property.id;
-> builtUpArea: numeric(18,10);
+> builtUpArea: numeric(18,10), stored in square meters;
 > bedrooms: smallint;
 > bathrooms: smallint;
 > kitchens: smallint;
@@ -59,7 +59,7 @@ Fields:
 > id: int, primary key, auto incremental;
 > propertyId: int, unique, references Property.id;
 > spaceType: varchar;
-> totalArea: numeric(18,10);
+> totalArea: numeric(18,10), stored in square meters;
 > onFloor: smallint;
 > furnishing: enum SpaceFurnishing (fullFurnished, semiFurnished, unfurnished);
 > bathrooms: smallint;
@@ -76,7 +76,7 @@ Fields:
 > isVerified: boolean, default false;
 > remarks: text, optional;
 > roadType: enum RoadType, optional; values: blacktopped, concrete, paved_block, gravel_murrum, earth_dirt, stone_paved, brick_paved, unknown;
-> roadSize: numeric(15,10), optional;
+> roadSize: numeric(18,10), optional, stored in meters;
 > listedById: int, references users.id;
 > title: text;
 > slug: text, optional;
@@ -140,8 +140,7 @@ Fields:
 > floorNumber: int, optional;
 > totalFloors: int, optional;
 > furnishing: text, optional;
-> builtUpArea: double precision, optional;
-> builtUpAreaUnit: text, optional;
+> builtUpArea: numeric(18,10), optional, stored in square meters;
 > parkingAvailable: boolean, optional;
 > elevator: boolean, optional;
 > security: boolean, optional;

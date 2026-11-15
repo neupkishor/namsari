@@ -300,7 +300,7 @@ export default function ChatListingClient({
         const featureSummary = [
             typeof features.bedrooms === 'number' ? `${features.bedrooms} bed` : '',
             typeof features.bathrooms === 'number' ? `${features.bathrooms} bath` : '',
-            typeof features.builtUpArea === 'number' ? `${features.builtUpArea} ${features.builtUpAreaUnit || ''}`.trim() : '',
+            Number.isFinite(Number(features.builtUpArea)) ? `${Number(features.builtUpArea)} m²`.trim() : '',
         ].filter(Boolean).join(' · ');
 
         return [

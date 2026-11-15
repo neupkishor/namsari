@@ -26,24 +26,10 @@ function toNumberOrNull(value: string | null): number | null {
     return Number.isFinite(parsed) ? parsed : null;
 }
 
-function normalizeAreaToSqm(area: number | null | undefined, unit?: string): number | null {
+function normalizeAreaToSqm(area: number | null | undefined): number | null {
     if (area === null || area === undefined || Number.isNaN(Number(area))) return null;
 
     const numericArea = Number(area);
-    const normalizedUnit = (unit || '').toLowerCase().trim();
-
-    if (!normalizedUnit || normalizedUnit === 'm2' || normalizedUnit === 'm²' || normalizedUnit.includes('meter')) {
-        return numericArea;
-    }
-
-    if (normalizedUnit.includes('sqft') || normalizedUnit.includes('sq.ft')) {
-        return numericArea / 10.7639;
-    }
-
-    if (normalizedUnit.includes('aana')) {
-        return numericArea * AANA_TO_SQM;
-    }
-
     return numericArea;
 }
 
@@ -277,12 +263,12 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialT
         const locationLabel = getLocationLabel(p).toLowerCase();
         const locationParts = locationLabel.split(',').map((item: string) => item.trim()).filter(Boolean);
         const propertyPrice = Number(p.pricing?.price || p.price || NaN);
-        const propertyAreaSqm = normalizeAreaToSqm(p.features?.builtUpArea, p.features?.builtUpAreaUnit);
+        const propertyAreaSqm = normalizeAreaToSqm(p.features?.builtUpArea);
         const propertyPerSqmPrice = Number.isFinite(propertyPrice) && propertyAreaSqm && propertyAreaSqm > 0
             ? propertyPrice / propertyAreaSqm
             : null;
         const propertyArea = Number.isFinite(Number(p.features?.builtUpArea))
-            ? convertAreaValue(Number(p.features?.builtUpArea), p.features?.builtUpAreaUnit, sizeUnitParam)
+            ? convertAreaValue(Number(p.features?.builtUpArea), 'sqm', sizeUnitParam)
             : null;
         const sellerType = (p.listedBy?.type || '').toLowerCase();
 

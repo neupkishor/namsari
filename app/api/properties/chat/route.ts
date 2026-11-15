@@ -4,6 +4,8 @@ import { getSession } from '@/services/auth/session';
 import { createPropertyListing } from '@/services/properties/property';
 import { getDefaultPropertyPriceRate } from '@/services/properties/pricing';
 import { revalidatePath } from 'next/cache';
+import { convertAreaToSquareMeters } from '@/services/properties/area-units';
+import { convertLengthToMeters } from '@/services/properties/length-units';
 
 function inferNatures(types: string[]) {
     const normalized = types.map((type) => type.toLowerCase());
@@ -21,6 +23,37 @@ function normalizeOptionalNumber(value: unknown) {
     if (value === null || value === undefined || value === '') return undefined;
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+// Parses chat measurements that may include their unit in the value string.
+function parseMeasurement(value: unknown, unitHint: unknown, defaultUnit: string) {
+    const text = String(value ?? '').trim();
+    const match = text.match(/^([+-]?(?:\d+\.?\d*|\.\d+))\s*([a-zA-Z².' ]*)$/);
+    const numericValue = normalizeOptionalNumber(value) ?? (match ? Number(match[1]) : undefined);
+
+    return numericValue === undefined
+        ? null
+        : { value: numericValue, unit: String(unitHint || match?.[2] || defaultUnit).trim() };
+}
+
+// Converts a chat payload's built-up area to the canonical square-meter value.
+function normalizeFeaturesForStorage(features: any) {
+    if (!features || typeof features !== 'object') return features;
+
+    const { builtUpArea, builtUpAreaUnit, ...otherFeatures } = features;
+    const parsedArea = parseMeasurement(builtUpArea, builtUpAreaUnit, 'aana');
+
+    return {
+        ...otherFeatures,
+        ...(builtUpArea === null ? { builtUpArea: null } : {}),
+        ...(parsedArea ? { builtUpArea: convertAreaToSquareMeters(parsedArea.value, parsedArea.unit) } : {}),
+    };
+}
+
+// Converts a chat payload's road width to meters.
+function normalizeRoadSizeForStorage(value: unknown, unitHint?: unknown) {
+    const parsedSize = parseMeasurement(value, unitHint, 'ft');
+    return parsedSize ? convertLengthToMeters(parsedSize.value, parsedSize.unit) : undefined;
 }
 
 function cleanUndefined<T extends Record<string, any>>(value: T): Partial<T> {
@@ -162,8 +195,8 @@ function isLikelyDuplicateProperty(input: {
     compareDetail(input.features?.livingRooms, existing.features?.livingRooms, true);
     compareDetail(input.features?.floorNumber, existing.features?.floorNumber, true);
     compareDetail(input.features?.totalFloors, existing.features?.totalFloors, true);
-    compareDetail(input.features?.builtUpArea, existing.features?.builtUpArea, true);
-    compareDetail(input.features?.builtUpAreaUnit, existing.features?.builtUpAreaUnit);
+    const normalizedFeatures = normalizeFeaturesForStorage(input.features);
+    compareDetail(normalizedFeatures?.builtUpArea, existing.features?.builtUpArea, true);
 
     const similarPrice = pricesAreSimilar(input.price, { price: existing.price_listed });
     if (similarPrice) matchingDetails += 1;
@@ -236,7 +269,7 @@ export async function POST(request: Request) {
         price: body.price,
         features: body.features || {},
         roadType: body.roadType,
-        roadSize: body.roadSize,
+        roadSize: normalizeRoadSizeForStorage(body.roadSize, body.roadSizeUnit),
         facingDirection: body.facingDirection,
     });
 
@@ -264,7 +297,7 @@ export async function POST(request: Request) {
         natures: Array.isArray(body.natures) && body.natures.length > 0 ? body.natures : inferNatures(types),
         remarks: body.remarks || undefined,
         roadType: body.roadType || undefined,
-        roadSize: body.roadSize || undefined,
+        roadSize: normalizeRoadSizeForStorage(body.roadSize, body.roadSizeUnit),
         facingDirection: body.facingDirection || undefined,
         status: 'pending',
         location: {
@@ -292,7 +325,7 @@ export async function POST(request: Request) {
         listedById: userId,
         amenities: Array.isArray(body.amenities) ? body.amenities : [],
         images: Array.isArray(body.images) ? body.images : [],
-        features: body.features || undefined,
+        features: normalizeFeaturesForStorage(body.features) || undefined,
     });
 
     return NextResponse.json({ success: true, property: created });
@@ -339,7 +372,7 @@ export async function PATCH(request: Request) {
     const location = body.location || undefined;
     const pricePatch = body.price || undefined;
     const priceNegotiable = typeof body.price?.negotiable === 'boolean' ? body.price.negotiable : undefined;
-    const features = body.features || undefined;
+    const features = normalizeFeaturesForStorage(body.features) || undefined;
     const openHouse = body.openHouse || undefined;
     const images = Array.isArray(body.images) ? body.images : undefined;
     const amenities = Array.isArray(body.amenities) ? body.amenities : undefined;
@@ -390,7 +423,7 @@ export async function PATCH(request: Request) {
                 : undefined,
             remarks: typeof body.remarks === 'string' ? body.remarks : undefined,
             roadType: typeof body.roadType === 'string' ? body.roadType : undefined,
-            roadSize: typeof body.roadSize === 'string' ? body.roadSize : undefined,
+            roadSize: normalizeRoadSizeForStorage(body.roadSize, body.roadSizeUnit),
             facingDirection: typeof body.facingDirection === 'string' ? body.facingDirection : undefined,
             ...(nextPrice || {}),
             ...(priceNegotiable !== undefined ? { price_negotiable: priceNegotiable } : {}),

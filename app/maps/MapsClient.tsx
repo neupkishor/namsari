@@ -105,7 +105,7 @@ export default function MapsClient({ initialUser: _initialUser, initialQuery = '
             const propertyTypes = (property.property_types || []).map((item: string) => normalize(item));
             const matchesType = typeFilters.length === 0 || typeFilters.some((type) => propertyTypes.some((item: string) => item.includes(type) || type.includes(item)));
             const propertyArea = Number.isFinite(Number(property.features?.builtUpArea))
-                ? convertAreaValue(Number(property.features?.builtUpArea), property.features?.builtUpAreaUnit, sizeUnit)
+                ? convertAreaValue(Number(property.features?.builtUpArea), 'sqm', sizeUnit)
                 : null;
             const matchesSize = (minSize === null || propertyArea === null || propertyArea >= minSize) && (maxSize === null || propertyArea === null || propertyArea <= maxSize);
             const propertyPrice = Number(property.pricing?.price || property.price || NaN);

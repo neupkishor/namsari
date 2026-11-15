@@ -119,7 +119,8 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
                 </div>
 
                 <div className={styles.subBlock}>
-                    <Input label="Road Size" name="roadSize" placeholder={`e.g. 13 ${roadSizeUnit || 'ft'}`} value={roadSize} onChange={(e) => setRoadSize(e.target.value)} />
+                    <Input label="Road Size" name="roadSize" type="number" placeholder={`e.g. 13 ${roadSizeUnit || 'ft'}`} value={roadSize} onChange={(e) => setRoadSize(e.target.value)} />
+                    <input type="hidden" name="roadSizeUnit" value={roadSizeUnit || 'ft'} />
                     <div className={styles.helper}>Default unit: {roadSizeUnit || 'ft'}</div>
                 </div>
 

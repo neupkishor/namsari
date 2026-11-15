@@ -557,6 +557,14 @@ export type PropertyLocationUncheckedUpdateOneWithoutPropertyNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PropertyLocationUpdateToOneWithWhereWithoutPropertyInput, Prisma.PropertyLocationUpdateWithoutPropertyInput>, Prisma.PropertyLocationUncheckedUpdateWithoutPropertyInput>
 }
 
+export type NullableFloatFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type PropertyLocationCreateWithoutPropertyInput = {
   latitude?: number | null
   longitude?: number | null

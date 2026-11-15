@@ -75,7 +75,7 @@ export default async function ProfileSavedPage({ params }: PageProps) {
             : 'Unspecified';
 
         const specs = p.features
-            ? `${p.features.bedrooms || 0}BHK • ${p.features.bathrooms || 0} Bath • ${p.features.builtUpArea || 0} ${p.features.builtUpAreaUnit || ''}`
+            ? `${p.features.bedrooms || 0}BHK • ${p.features.bathrooms || 0} Bath • ${p.features.builtUpArea || 0} m²`
             : 'Details unspecified';
 
         return {

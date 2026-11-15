@@ -168,22 +168,6 @@ export function mergeDraftDefaults(draft: Record<string, any>, config: any) {
     };
 }
 
-export function formatRoadSizeValue(value: string, config: any) {
-    const snapshot = normalizeAgencyConfig(config);
-    const unit = snapshot ? snapshot.defUnits.find(item => item.field === 'roadSize')?.unit : '';
-    const trimmed = toTrimmedString(value);
-    if (!trimmed || !unit) return trimmed;
-
-    const numericValue = Number(trimmed.replace(/[^0-9.-]/g, ''));
-    if (!Number.isFinite(numericValue)) return trimmed;
-
-    if (new RegExp(`\\b${unit.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(trimmed)) {
-        return trimmed;
-    }
-
-    return `${trimmed} ${unit}`.trim();
-}
-
 export function isEmptyConfigValue(value: unknown) {
     if (value === null || value === undefined) return true;
     if (typeof value === 'string') return value.trim().length === 0;

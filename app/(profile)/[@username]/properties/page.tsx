@@ -55,7 +55,7 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
             : 'Unspecified';
 
         const specs = p.features
-            ? `${p.features.bedrooms || 0}BHK • ${p.features.bathrooms || 0} Bath • ${p.features.builtUpArea || 0} ${p.features.builtUpAreaUnit || ''}`
+            ? `${p.features.bedrooms || 0}BHK • ${p.features.bathrooms || 0} Bath • ${p.features.builtUpArea || 0} m²`
             : 'Details unspecified';
 
         return {
@@ -65,8 +65,7 @@ export default async function ProfilePropertiesPage({ params }: PageProps) {
                 ? {
                     bedrooms: p.features.bedrooms ?? undefined,
                     bathrooms: p.features.bathrooms ?? undefined,
-                    builtUpArea: p.features.builtUpArea ?? undefined,
-                    builtUpAreaUnit: p.features.builtUpAreaUnit ?? undefined
+                    builtUpArea: p.features.builtUpArea == null ? undefined : Number(p.features.builtUpArea),
                 }
                 : undefined,
             slug: p.slug || undefined,

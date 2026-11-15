@@ -18,7 +18,6 @@ export interface PropertySetItem {
         bedrooms?: number | string;
         bathrooms?: number | string;
         builtUpArea?: number | string;
-        builtUpAreaUnit?: string;
     };
     location?: string | { area?: string; cityVillage?: string; city?: string; district?: string };
     listedBy?: { name?: string };
@@ -60,7 +59,7 @@ function factBadges(property: PropertySetItem) {
     return [
         features.bedrooms && `${features.bedrooms} bed`,
         features.bathrooms && `${features.bathrooms} bath`,
-        features.builtUpArea && `${features.builtUpArea} ${features.builtUpAreaUnit || 'sq.ft.'}`,
+        features.builtUpArea && `${features.builtUpArea} m²`,
     ].filter(Boolean).slice(0, 3) as string[];
 }
 

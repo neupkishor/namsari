@@ -296,8 +296,3 @@ export type Notification = Prisma.NotificationModel
  * 
  */
 export type ActivityLog = Prisma.ActivityLogModel
-/**
- * Model ErrorLog
- * 
- */
-export type ErrorLog = Prisma.ErrorLogModel

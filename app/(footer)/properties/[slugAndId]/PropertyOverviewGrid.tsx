@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { convertAreaValue, normalizeAreaUnit } from '@/services/properties/area-units';
 
 type OverviewItem = {
     icon: string;
@@ -12,14 +13,13 @@ type OverviewItem = {
 type PropertyOverviewGridProps = {
     items: OverviewItem[];
     builtUpAreaValue?: number | null;
-    builtUpAreaUnit?: string | null;
 };
 
 const UNIT_SEQUENCE = ['sqft', 'sqm', 'aana', 'kattha', 'dhur', 'ropani'] as const;
 
 const TO_SQFT: Record<string, number> = {
     sqft: 1,
-    sqm: 10.7639,
+    sqm: 10.763910416709722,
     aana: 342.25,
     kattha: 3645,
     dhur: 182.25,
@@ -27,11 +27,7 @@ const TO_SQFT: Record<string, number> = {
 };
 
 function normalizeUnit(unit?: string | null) {
-    const normalized = (unit || '').trim().toLowerCase();
-    if (normalized === 'square feet' || normalized === 'sq feet' || normalized === 'ft2') return 'sqft';
-    if (normalized === 'square meter' || normalized === 'square meters' || normalized === 'm2') return 'sqm';
-    if (normalized === 'katha' || normalized === 'katha' || normalized === 'katta') return 'kattha';
-    return normalized;
+    return normalizeAreaUnit(unit);
 }
 
 function readCookie(name: string) {
@@ -143,10 +139,9 @@ function formatDhurSystem(dhurValue: number) {
 export default function PropertyOverviewGrid({
     items,
     builtUpAreaValue,
-    builtUpAreaUnit
 }: PropertyOverviewGridProps) {
-    const sourceUnit = normalizeUnit(builtUpAreaUnit || 'sqft');
-    const canConvertArea = Number.isFinite(builtUpAreaValue) && !!TO_SQFT[sourceUnit];
+    const sourceUnit = 'sqm';
+    const canConvertArea = Number.isFinite(builtUpAreaValue);
 
     const [prefUnit, setPrefUnit] = useState<string>(sourceUnit);
     const [prefLang, setPrefLang] = useState<'english' | 'romanized'>('english');
@@ -165,9 +160,8 @@ export default function PropertyOverviewGrid({
 
     const areaDisplayValue = useMemo(() => {
         if (!canConvertArea || builtUpAreaValue == null) return null;
-        const nextUnit = UNIT_SEQUENCE.includes(prefUnit as typeof UNIT_SEQUENCE[number]) ? prefUnit : sourceUnit;
-        const sqftValue = builtUpAreaValue * TO_SQFT[sourceUnit];
-        const converted = sqftValue / TO_SQFT[nextUnit];
+        const nextUnit = normalizeUnit(UNIT_SEQUENCE.includes(prefUnit as typeof UNIT_SEQUENCE[number]) ? prefUnit : sourceUnit);
+        const converted = convertAreaValue(builtUpAreaValue, 'sqm', nextUnit);
         return formatArea(converted, nextUnit);
     }, [builtUpAreaValue, canConvertArea, prefUnit, sourceUnit]);
 

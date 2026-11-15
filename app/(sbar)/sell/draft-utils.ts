@@ -1,4 +1,6 @@
 import { getConfiguredDefaultUnit, mergeDraftDefaults } from '@/services/agencies/agency-config';
+import { convertAreaValue } from '@/services/properties/area-units';
+import { convertLengthValue } from '@/services/properties/length-units';
 
 export type PropertyDraftChanges = Record<string, any>;
 
@@ -50,13 +52,13 @@ export function createBlankPropertyDraftChanges(initialPurpose?: string, agencyC
     }, agencyConfig);
 }
 
-export function createPropertyDraftChangesFromProperty(property: any, initialPurpose?: string): PropertyDraftChanges {
+export function createPropertyDraftChangesFromProperty(property: any, initialPurpose?: string, agencyConfig?: any): PropertyDraftChanges {
     const location = property.location || {};
     const pricing = property.pricing || property.price || {};
     const features = property.features || {};
 
     return {
-        ...createBlankPropertyDraftChanges(initialPurpose),
+        ...createBlankPropertyDraftChanges(initialPurpose, agencyConfig),
         doing: 'edit',
         selectedTypes: (property.types || []).map((item: any) => item.name).filter(Boolean),
         selectedPurposes: (property.purposes || []).map((item: any) => item.name).filter(Boolean),
@@ -77,17 +79,21 @@ export function createPropertyDraftChangesFromProperty(property: any, initialPur
                 ? `${location.latitude}, ${location.longitude}`
                 : '',
         roadType: property.roadType || 'Blacktopped',
-        roadSize: property.roadSize || '',
+        roadSize: property.roadSize != null
+            ? String(convertLengthValue(Number(property.roadSize), getConfiguredDefaultUnit(agencyConfig, 'roadSize') || 'ft'))
+            : '',
         facingDirection: property.facingDirection || 'East',
         furnishing: features.furnishing || 'Unfurnished',
-        builtUpAreaUnit: features.builtUpAreaUnit || 'sqft',
+        builtUpAreaUnit: getConfiguredDefaultUnit(agencyConfig, 'builtUpArea') || 'sqft',
         bedrooms: features.bedrooms != null ? String(features.bedrooms) : '',
         bathrooms: features.bathrooms != null ? String(features.bathrooms) : '',
         kitchens: features.kitchens != null ? String(features.kitchens) : '',
         livingRooms: features.livingRooms != null ? String(features.livingRooms) : '',
         floorNumber: features.floorNumber != null ? String(features.floorNumber) : '',
         totalFloors: features.totalFloors != null ? String(features.totalFloors) : '',
-        builtUpArea: features.builtUpArea != null ? String(features.builtUpArea) : '',
+        builtUpArea: features.builtUpArea != null
+            ? String(convertAreaValue(Number(features.builtUpArea), 'sqm', getConfiguredDefaultUnit(agencyConfig, 'builtUpArea') || 'sqft'))
+            : '',
         parkingAvailable: Boolean(features.parkingAvailable),
         elevator: Boolean(features.elevator),
         security: Boolean(features.security),

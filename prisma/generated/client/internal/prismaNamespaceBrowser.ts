@@ -101,8 +101,7 @@ export const ModelName = {
   Session: 'Session',
   VerificationToken: 'VerificationToken',
   Notification: 'Notification',
-  ActivityLog: 'ActivityLog',
-  ErrorLog: 'ErrorLog'
+  ActivityLog: 'ActivityLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -334,7 +333,6 @@ export const PropertyFeaturesScalarFieldEnum = {
   totalFloors: 'totalFloors',
   furnishing: 'furnishing',
   builtUpArea: 'builtUpArea',
-  builtUpAreaUnit: 'builtUpAreaUnit',
   parkingAvailable: 'parkingAvailable',
   elevator: 'elevator',
   security: 'security',
@@ -864,21 +862,6 @@ export const ActivityLogScalarFieldEnum = {
 } as const
 
 export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
-
-
-export const ErrorLogScalarFieldEnum = {
-  id: 'id',
-  message: 'message',
-  source: 'source',
-  page: 'page',
-  stack: 'stack',
-  log: 'log',
-  occurred_at: 'occurred_at',
-  created_at: 'created_at',
-  userId: 'userId'
-} as const
-
-export type ErrorLogScalarFieldEnum = (typeof ErrorLogScalarFieldEnum)[keyof typeof ErrorLogScalarFieldEnum]
 
 
 export const SortOrder = {

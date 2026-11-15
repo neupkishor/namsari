@@ -7,7 +7,9 @@ import { createPropertyListing } from '@/services/properties/property';
 import { logActivity } from '@/services/analytics/activity';
 import { publishPropertyDraft } from '@/services/properties/drafts';
 import { getAgencyConfigByAgencyId } from '@/services/agencies/config';
-import { formatRoadSizeValue, getConfiguredDefaultUnit, normalizeAgencyConfig, resolveActiveAgencyId } from '@/services/agencies/agency-config';
+import { getConfiguredDefaultUnit, normalizeAgencyConfig, resolveActiveAgencyId } from '@/services/agencies/agency-config';
+import { convertAreaToSquareMeters } from '@/services/properties/area-units';
+import { convertLengthToMeters } from '@/services/properties/length-units';
 
 export async function createListing(formData: FormData) {
     const session = await getSession();
@@ -36,7 +38,12 @@ export async function createListing(formData: FormData) {
 
     // 3. Road and Entrance
     const roadType = formData.get('roadType') as string || undefined;
-    const roadSize = formatRoadSizeValue(formData.get('roadSize') as string || '', agencyConfig) || undefined;
+    const roadSizeInput = formData.get('roadSize');
+    const roadSizeUnit = formData.get('roadSizeUnit') as string || getConfiguredDefaultUnit(agencyConfig, 'roadSize') || 'ft';
+    const roadSizeValue = roadSizeInput ? Number(roadSizeInput) : undefined;
+    const roadSize = roadSizeValue !== undefined && Number.isFinite(roadSizeValue)
+        ? convertLengthToMeters(roadSizeValue, roadSizeUnit)
+        : undefined;
     const facingDirection = formData.get('facingDirection') as string || undefined;
 
     // 4. Location Information
@@ -98,6 +105,10 @@ export async function createListing(formData: FormData) {
     const price = parseFloatNum(formData.get('price')) || 0;
     const priceNegotiable = parseFloatNum(formData.get('priceNegotiable'));
     const rentPrice = parseFloatNum(formData.get('rentPrice'));
+    const enteredBuiltUpArea = parseFloatNum(formData.get('builtUpArea'));
+    const enteredBuiltUpAreaUnit = formData.get('builtUpAreaUnit') as string
+        || getConfiguredDefaultUnit(agencyConfig, 'builtUpArea')
+        || 'sqft';
 
     const requiredFieldValues: Record<string, unknown> = {
         propertyType: types,
@@ -125,7 +136,6 @@ export async function createListing(formData: FormData) {
         floorNumber: formData.get('floorNumber'),
         totalFloors: formData.get('totalFloors'),
         builtUpArea: formData.get('builtUpArea'),
-        builtUpAreaUnit: formData.get('builtUpAreaUnit') || getConfiguredDefaultUnit(agencyConfig, 'builtUpArea'),
         image_url: imageUrls,
     };
 
@@ -155,8 +165,9 @@ export async function createListing(formData: FormData) {
         floorNumber: parseNum(formData.get('floorNumber')),
         totalFloors: parseNum(formData.get('totalFloors')),
         furnishing: formData.get('furnishing') as string || undefined,
-        builtUpArea: parseFloatNum(formData.get('builtUpArea')),
-        builtUpAreaUnit: formData.get('builtUpAreaUnit') as string || undefined,
+        builtUpArea: enteredBuiltUpArea !== undefined && Number.isFinite(enteredBuiltUpArea)
+            ? convertAreaToSquareMeters(enteredBuiltUpArea, enteredBuiltUpAreaUnit)
+            : undefined,
         parkingAvailable: formData.get('parkingAvailable') === 'on',
         elevator: formData.get('elevator') === 'on',
         security: formData.get('security') === 'on',

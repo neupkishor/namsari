@@ -330,7 +330,6 @@ export type UserWhereInput = {
   agency?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   agents?: Prisma.UserListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
-  errorLogs?: Prisma.ErrorLogListRelationFilter
   media?: Prisma.MediaListRelationFilter
   propertyDraftsCreated?: Prisma.PropertyDraftListRelationFilter
   propertyDraftsAccount?: Prisma.PropertyDraftListRelationFilter
@@ -371,7 +370,6 @@ export type UserOrderByWithRelationInput = {
   agency?: Prisma.UserOrderByWithRelationInput
   agents?: Prisma.UserOrderByRelationAggregateInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
-  errorLogs?: Prisma.ErrorLogOrderByRelationAggregateInput
   media?: Prisma.MediaOrderByRelationAggregateInput
   propertyDraftsCreated?: Prisma.PropertyDraftOrderByRelationAggregateInput
   propertyDraftsAccount?: Prisma.PropertyDraftOrderByRelationAggregateInput
@@ -415,7 +413,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   agency?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   agents?: Prisma.UserListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
-  errorLogs?: Prisma.ErrorLogListRelationFilter
   media?: Prisma.MediaListRelationFilter
   propertyDraftsCreated?: Prisma.PropertyDraftListRelationFilter
   propertyDraftsAccount?: Prisma.PropertyDraftListRelationFilter
@@ -501,7 +498,6 @@ export type UserCreateInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -541,7 +537,6 @@ export type UserUncheckedCreateInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -578,7 +573,6 @@ export type UserUpdateInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -618,7 +612,6 @@ export type UserUncheckedUpdateInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -1153,22 +1146,6 @@ export type UserUpdateOneRequiredWithoutNotificationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationsInput, Prisma.UserUpdateWithoutNotificationsInput>, Prisma.UserUncheckedUpdateWithoutNotificationsInput>
 }
 
-export type UserCreateNestedOneWithoutErrorLogsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutErrorLogsInput, Prisma.UserUncheckedCreateWithoutErrorLogsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutErrorLogsInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneWithoutErrorLogsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutErrorLogsInput, Prisma.UserUncheckedCreateWithoutErrorLogsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutErrorLogsInput
-  upsert?: Prisma.UserUpsertWithoutErrorLogsInput
-  disconnect?: Prisma.UserWhereInput | boolean
-  delete?: Prisma.UserWhereInput | boolean
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutErrorLogsInput, Prisma.UserUpdateWithoutErrorLogsInput>, Prisma.UserUncheckedUpdateWithoutErrorLogsInput>
-}
-
 export type UserCreateWithoutAgentsInput = {
   username?: string | null
   name?: string | null
@@ -1193,7 +1170,6 @@ export type UserCreateWithoutAgentsInput = {
   requirements?: Prisma.RequirementCreateNestedManyWithoutUserInput
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -1232,7 +1208,6 @@ export type UserUncheckedCreateWithoutAgentsInput = {
   collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutUserInput
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -1273,7 +1248,6 @@ export type UserCreateWithoutAgencyInput = {
   requirements?: Prisma.RequirementCreateNestedManyWithoutUserInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -1312,7 +1286,6 @@ export type UserUncheckedCreateWithoutAgencyInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -1369,7 +1342,6 @@ export type UserUpdateWithoutAgentsInput = {
   requirements?: Prisma.RequirementUpdateManyWithoutUserNestedInput
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -1408,7 +1380,6 @@ export type UserUncheckedUpdateWithoutAgentsInput = {
   collections?: Prisma.CollectionUncheckedUpdateManyWithoutUserNestedInput
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -1484,7 +1455,6 @@ export type UserCreateWithoutPropertyDraftsCreatedInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
   agencyConfig?: Prisma.AgencyConfigCreateNestedOneWithoutAgencyInput
@@ -1523,7 +1493,6 @@ export type UserUncheckedCreateWithoutPropertyDraftsCreatedInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
   agencyConfig?: Prisma.AgencyConfigUncheckedCreateNestedOneWithoutAgencyInput
@@ -1564,7 +1533,6 @@ export type UserCreateWithoutPropertyDraftsAccountInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   agencyConfig?: Prisma.AgencyConfigCreateNestedOneWithoutAgencyInput
@@ -1603,7 +1571,6 @@ export type UserUncheckedCreateWithoutPropertyDraftsAccountInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   agencyConfig?: Prisma.AgencyConfigUncheckedCreateNestedOneWithoutAgencyInput
@@ -1655,7 +1622,6 @@ export type UserUpdateWithoutPropertyDraftsCreatedInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
   agencyConfig?: Prisma.AgencyConfigUpdateOneWithoutAgencyNestedInput
@@ -1694,7 +1660,6 @@ export type UserUncheckedUpdateWithoutPropertyDraftsCreatedInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
   agencyConfig?: Prisma.AgencyConfigUncheckedUpdateOneWithoutAgencyNestedInput
@@ -1741,7 +1706,6 @@ export type UserUpdateWithoutPropertyDraftsAccountInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   agencyConfig?: Prisma.AgencyConfigUpdateOneWithoutAgencyNestedInput
@@ -1780,7 +1744,6 @@ export type UserUncheckedUpdateWithoutPropertyDraftsAccountInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   agencyConfig?: Prisma.AgencyConfigUncheckedUpdateOneWithoutAgencyNestedInput
@@ -1816,7 +1779,6 @@ export type UserCreateWithoutAgencyConfigInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -1855,7 +1817,6 @@ export type UserUncheckedCreateWithoutAgencyConfigInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -1907,7 +1868,6 @@ export type UserUpdateWithoutAgencyConfigInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -1946,7 +1906,6 @@ export type UserUncheckedUpdateWithoutAgencyConfigInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -1982,7 +1941,6 @@ export type UserCreateWithoutPermissionsGivenInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -2021,7 +1979,6 @@ export type UserUncheckedCreateWithoutPermissionsGivenInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -2062,7 +2019,6 @@ export type UserCreateWithoutPermissionsReceivedInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -2101,7 +2057,6 @@ export type UserUncheckedCreateWithoutPermissionsReceivedInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -2153,7 +2108,6 @@ export type UserUpdateWithoutPermissionsGivenInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -2192,7 +2146,6 @@ export type UserUncheckedUpdateWithoutPermissionsGivenInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -2239,7 +2192,6 @@ export type UserUpdateWithoutPermissionsReceivedInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -2278,7 +2230,6 @@ export type UserUncheckedUpdateWithoutPermissionsReceivedInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -2314,7 +2265,6 @@ export type UserCreateWithoutRoleInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -2352,7 +2302,6 @@ export type UserUncheckedCreateWithoutRoleInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -2415,7 +2364,6 @@ export type UserCreateWithoutReviews_writtenInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -2454,7 +2402,6 @@ export type UserUncheckedCreateWithoutReviews_writtenInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -2495,7 +2442,6 @@ export type UserCreateWithoutReviews_receivedInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -2534,7 +2480,6 @@ export type UserUncheckedCreateWithoutReviews_receivedInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -2586,7 +2531,6 @@ export type UserUpdateWithoutReviews_writtenInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -2625,7 +2569,6 @@ export type UserUncheckedUpdateWithoutReviews_writtenInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -2672,7 +2615,6 @@ export type UserUpdateWithoutReviews_receivedInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -2711,7 +2653,6 @@ export type UserUncheckedUpdateWithoutReviews_receivedInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -2746,7 +2687,6 @@ export type UserCreateWithoutKycInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -2785,7 +2725,6 @@ export type UserUncheckedCreateWithoutKycInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -2837,7 +2776,6 @@ export type UserUpdateWithoutKycInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -2876,7 +2814,6 @@ export type UserUncheckedUpdateWithoutKycInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -2912,7 +2849,6 @@ export type UserCreateWithoutListedPropertiesInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -2951,7 +2887,6 @@ export type UserUncheckedCreateWithoutListedPropertiesInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -3003,7 +2938,6 @@ export type UserUpdateWithoutListedPropertiesInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -3042,7 +2976,6 @@ export type UserUncheckedUpdateWithoutListedPropertiesInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -3079,7 +3012,6 @@ export type UserCreateWithoutMediaInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
   agencyConfig?: Prisma.AgencyConfigCreateNestedOneWithoutAgencyInput
@@ -3118,7 +3050,6 @@ export type UserUncheckedCreateWithoutMediaInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
   agencyConfig?: Prisma.AgencyConfigUncheckedCreateNestedOneWithoutAgencyInput
@@ -3170,7 +3101,6 @@ export type UserUpdateWithoutMediaInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
   agencyConfig?: Prisma.AgencyConfigUpdateOneWithoutAgencyNestedInput
@@ -3209,7 +3139,6 @@ export type UserUncheckedUpdateWithoutMediaInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
   agencyConfig?: Prisma.AgencyConfigUncheckedUpdateOneWithoutAgencyNestedInput
@@ -3244,7 +3173,6 @@ export type UserCreateWithoutCommentsInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -3283,7 +3211,6 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -3335,7 +3262,6 @@ export type UserUpdateWithoutCommentsInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -3374,7 +3300,6 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -3410,7 +3335,6 @@ export type UserCreateWithoutUser_likesInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -3449,7 +3373,6 @@ export type UserUncheckedCreateWithoutUser_likesInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -3501,7 +3424,6 @@ export type UserUpdateWithoutUser_likesInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -3540,7 +3462,6 @@ export type UserUncheckedUpdateWithoutUser_likesInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -3576,7 +3497,6 @@ export type UserCreateWithoutCollectionsInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -3615,7 +3535,6 @@ export type UserUncheckedCreateWithoutCollectionsInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -3667,7 +3586,6 @@ export type UserUpdateWithoutCollectionsInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -3706,7 +3624,6 @@ export type UserUncheckedUpdateWithoutCollectionsInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -3742,7 +3659,6 @@ export type UserCreateWithoutRequirementsInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -3781,7 +3697,6 @@ export type UserUncheckedCreateWithoutRequirementsInput = {
   collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -3833,7 +3748,6 @@ export type UserUpdateWithoutRequirementsInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -3872,7 +3786,6 @@ export type UserUncheckedUpdateWithoutRequirementsInput = {
   collections?: Prisma.CollectionUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -3908,7 +3821,6 @@ export type UserCreateWithoutAdvertisementsInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -3947,7 +3859,6 @@ export type UserUncheckedCreateWithoutAdvertisementsInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -3999,7 +3910,6 @@ export type UserUpdateWithoutAdvertisementsInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -4038,7 +3948,6 @@ export type UserUncheckedUpdateWithoutAdvertisementsInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -4075,7 +3984,6 @@ export type UserCreateWithoutSessionsInput = {
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -4114,7 +4022,6 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -4166,7 +4073,6 @@ export type UserUpdateWithoutSessionsInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -4205,7 +4111,6 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -4240,7 +4145,6 @@ export type UserCreateWithoutNotificationsInput = {
   requirements?: Prisma.RequirementCreateNestedManyWithoutUserInput
   agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
   agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
-  errorLogs?: Prisma.ErrorLogCreateNestedManyWithoutUserInput
   media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
@@ -4279,7 +4183,6 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutUserInput
   requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
   agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
-  errorLogs?: Prisma.ErrorLogUncheckedCreateNestedManyWithoutUserInput
   media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
@@ -4331,7 +4234,6 @@ export type UserUpdateWithoutNotificationsInput = {
   requirements?: Prisma.RequirementUpdateManyWithoutUserNestedInput
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -4370,173 +4272,6 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   collections?: Prisma.CollectionUncheckedUpdateManyWithoutUserNestedInput
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
-  media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
-  propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
-  propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
-  agencyConfig?: Prisma.AgencyConfigUncheckedUpdateOneWithoutAgencyNestedInput
-  reviews_received?: Prisma.ReviewUncheckedUpdateManyWithoutReceiverNestedInput
-  reviews_written?: Prisma.ReviewUncheckedUpdateManyWithoutAuthorNestedInput
-  permissionsGiven?: Prisma.UserPermissionUncheckedUpdateManyWithoutOwnerNestedInput
-  permissionsReceived?: Prisma.UserPermissionUncheckedUpdateManyWithoutActorNestedInput
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutErrorLogsInput = {
-  username?: string | null
-  name?: string | null
-  email?: string | null
-  emailVerified?: Date | string | null
-  image?: string | null
-  contact_number?: string | null
-  type?: string
-  bio?: string | null
-  profile_picture?: string | null
-  cover_image?: string | null
-  status?: string
-  moreInfo?: string | null
-  created_on?: Date | string
-  updated_at?: Date | string
-  kyc?: Prisma.KYCCreateNestedOneWithoutUserInput
-  listedProperties?: Prisma.PropertyCreateNestedManyWithoutListedByInput
-  advertisements?: Prisma.AdvertisementCreateNestedManyWithoutUserInput
-  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
-  user_likes?: Prisma.LikeCreateNestedManyWithoutUserInput
-  collections?: Prisma.CollectionCreateNestedManyWithoutUserInput
-  requirements?: Prisma.RequirementCreateNestedManyWithoutUserInput
-  agency?: Prisma.UserCreateNestedOneWithoutAgentsInput
-  agents?: Prisma.UserCreateNestedManyWithoutAgencyInput
-  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  media?: Prisma.MediaCreateNestedManyWithoutUploaderInput
-  propertyDraftsCreated?: Prisma.PropertyDraftCreateNestedManyWithoutCreatedByInput
-  propertyDraftsAccount?: Prisma.PropertyDraftCreateNestedManyWithoutAccountInput
-  agencyConfig?: Prisma.AgencyConfigCreateNestedOneWithoutAgencyInput
-  reviews_received?: Prisma.ReviewCreateNestedManyWithoutReceiverInput
-  reviews_written?: Prisma.ReviewCreateNestedManyWithoutAuthorInput
-  role?: Prisma.RoleCreateNestedOneWithoutUsersInput
-  permissionsGiven?: Prisma.UserPermissionCreateNestedManyWithoutOwnerInput
-  permissionsReceived?: Prisma.UserPermissionCreateNestedManyWithoutActorInput
-  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutErrorLogsInput = {
-  id?: number
-  username?: string | null
-  name?: string | null
-  email?: string | null
-  emailVerified?: Date | string | null
-  image?: string | null
-  contact_number?: string | null
-  type?: string
-  bio?: string | null
-  profile_picture?: string | null
-  cover_image?: string | null
-  status?: string
-  moreInfo?: string | null
-  created_on?: Date | string
-  updated_at?: Date | string
-  agency_id?: number | null
-  roleId?: number | null
-  kyc?: Prisma.KYCUncheckedCreateNestedOneWithoutUserInput
-  listedProperties?: Prisma.PropertyUncheckedCreateNestedManyWithoutListedByInput
-  advertisements?: Prisma.AdvertisementUncheckedCreateNestedManyWithoutUserInput
-  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
-  user_likes?: Prisma.LikeUncheckedCreateNestedManyWithoutUserInput
-  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutUserInput
-  requirements?: Prisma.RequirementUncheckedCreateNestedManyWithoutUserInput
-  agents?: Prisma.UserUncheckedCreateNestedManyWithoutAgencyInput
-  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  media?: Prisma.MediaUncheckedCreateNestedManyWithoutUploaderInput
-  propertyDraftsCreated?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutCreatedByInput
-  propertyDraftsAccount?: Prisma.PropertyDraftUncheckedCreateNestedManyWithoutAccountInput
-  agencyConfig?: Prisma.AgencyConfigUncheckedCreateNestedOneWithoutAgencyInput
-  reviews_received?: Prisma.ReviewUncheckedCreateNestedManyWithoutReceiverInput
-  reviews_written?: Prisma.ReviewUncheckedCreateNestedManyWithoutAuthorInput
-  permissionsGiven?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutOwnerInput
-  permissionsReceived?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutActorInput
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutErrorLogsInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutErrorLogsInput, Prisma.UserUncheckedCreateWithoutErrorLogsInput>
-}
-
-export type UserUpsertWithoutErrorLogsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutErrorLogsInput, Prisma.UserUncheckedUpdateWithoutErrorLogsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutErrorLogsInput, Prisma.UserUncheckedCreateWithoutErrorLogsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutErrorLogsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutErrorLogsInput, Prisma.UserUncheckedUpdateWithoutErrorLogsInput>
-}
-
-export type UserUpdateWithoutErrorLogsInput = {
-  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contact_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  profile_picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cover_image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  moreInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  created_on?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  kyc?: Prisma.KYCUpdateOneWithoutUserNestedInput
-  listedProperties?: Prisma.PropertyUpdateManyWithoutListedByNestedInput
-  advertisements?: Prisma.AdvertisementUpdateManyWithoutUserNestedInput
-  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
-  user_likes?: Prisma.LikeUpdateManyWithoutUserNestedInput
-  collections?: Prisma.CollectionUpdateManyWithoutUserNestedInput
-  requirements?: Prisma.RequirementUpdateManyWithoutUserNestedInput
-  agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
-  agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
-  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
-  propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
-  propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
-  agencyConfig?: Prisma.AgencyConfigUpdateOneWithoutAgencyNestedInput
-  reviews_received?: Prisma.ReviewUpdateManyWithoutReceiverNestedInput
-  reviews_written?: Prisma.ReviewUpdateManyWithoutAuthorNestedInput
-  role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
-  permissionsGiven?: Prisma.UserPermissionUpdateManyWithoutOwnerNestedInput
-  permissionsReceived?: Prisma.UserPermissionUpdateManyWithoutActorNestedInput
-  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutErrorLogsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contact_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  profile_picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cover_image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  moreInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  created_on?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  agency_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  roleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  kyc?: Prisma.KYCUncheckedUpdateOneWithoutUserNestedInput
-  listedProperties?: Prisma.PropertyUncheckedUpdateManyWithoutListedByNestedInput
-  advertisements?: Prisma.AdvertisementUncheckedUpdateManyWithoutUserNestedInput
-  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
-  user_likes?: Prisma.LikeUncheckedUpdateManyWithoutUserNestedInput
-  collections?: Prisma.CollectionUncheckedUpdateManyWithoutUserNestedInput
-  requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
-  agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
-  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -4591,7 +4326,6 @@ export type UserUpdateWithoutAgencyInput = {
   requirements?: Prisma.RequirementUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -4630,7 +4364,6 @@ export type UserUncheckedUpdateWithoutAgencyInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -4705,7 +4438,6 @@ export type UserUpdateWithoutRoleInput = {
   agency?: Prisma.UserUpdateOneWithoutAgentsNestedInput
   agents?: Prisma.UserUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUpdateManyWithoutAccountNestedInput
@@ -4743,7 +4475,6 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   requirements?: Prisma.RequirementUncheckedUpdateManyWithoutUserNestedInput
   agents?: Prisma.UserUncheckedUpdateManyWithoutAgencyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  errorLogs?: Prisma.ErrorLogUncheckedUpdateManyWithoutUserNestedInput
   media?: Prisma.MediaUncheckedUpdateManyWithoutUploaderNestedInput
   propertyDraftsCreated?: Prisma.PropertyDraftUncheckedUpdateManyWithoutCreatedByNestedInput
   propertyDraftsAccount?: Prisma.PropertyDraftUncheckedUpdateManyWithoutAccountNestedInput
@@ -4788,7 +4519,6 @@ export type UserCountOutputType = {
   requirements: number
   agents: number
   notifications: number
-  errorLogs: number
   media: number
   propertyDraftsCreated: number
   propertyDraftsAccount: number
@@ -4808,7 +4538,6 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   requirements?: boolean | UserCountOutputTypeCountRequirementsArgs
   agents?: boolean | UserCountOutputTypeCountAgentsArgs
   notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
-  errorLogs?: boolean | UserCountOutputTypeCountErrorLogsArgs
   media?: boolean | UserCountOutputTypeCountMediaArgs
   propertyDraftsCreated?: boolean | UserCountOutputTypeCountPropertyDraftsCreatedArgs
   propertyDraftsAccount?: boolean | UserCountOutputTypeCountPropertyDraftsAccountArgs
@@ -4883,13 +4612,6 @@ export type UserCountOutputTypeCountAgentsArgs<ExtArgs extends runtime.Types.Ext
  */
 export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.NotificationWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountErrorLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ErrorLogWhereInput
 }
 
 /**
@@ -4977,7 +4699,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   agency?: boolean | Prisma.User$agencyArgs<ExtArgs>
   agents?: boolean | Prisma.User$agentsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
-  errorLogs?: boolean | Prisma.User$errorLogsArgs<ExtArgs>
   media?: boolean | Prisma.User$mediaArgs<ExtArgs>
   propertyDraftsCreated?: boolean | Prisma.User$propertyDraftsCreatedArgs<ExtArgs>
   propertyDraftsAccount?: boolean | Prisma.User$propertyDraftsAccountArgs<ExtArgs>
@@ -5067,7 +4788,6 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   agency?: boolean | Prisma.User$agencyArgs<ExtArgs>
   agents?: boolean | Prisma.User$agentsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
-  errorLogs?: boolean | Prisma.User$errorLogsArgs<ExtArgs>
   media?: boolean | Prisma.User$mediaArgs<ExtArgs>
   propertyDraftsCreated?: boolean | Prisma.User$propertyDraftsCreatedArgs<ExtArgs>
   propertyDraftsAccount?: boolean | Prisma.User$propertyDraftsAccountArgs<ExtArgs>
@@ -5102,7 +4822,6 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     agency: Prisma.$UserPayload<ExtArgs> | null
     agents: Prisma.$UserPayload<ExtArgs>[]
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
-    errorLogs: Prisma.$ErrorLogPayload<ExtArgs>[]
     media: Prisma.$MediaPayload<ExtArgs>[]
     propertyDraftsCreated: Prisma.$PropertyDraftPayload<ExtArgs>[]
     propertyDraftsAccount: Prisma.$PropertyDraftPayload<ExtArgs>[]
@@ -5536,7 +5255,6 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   agency<T extends Prisma.User$agencyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$agencyArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   agents<T extends Prisma.User$agentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$agentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  errorLogs<T extends Prisma.User$errorLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$errorLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ErrorLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   media<T extends Prisma.User$mediaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$mediaArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MediaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   propertyDraftsCreated<T extends Prisma.User$propertyDraftsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$propertyDraftsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PropertyDraftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   propertyDraftsAccount<T extends Prisma.User$propertyDraftsAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$propertyDraftsAccountArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PropertyDraftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -6221,30 +5939,6 @@ export type User$notificationsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
-}
-
-/**
- * User.errorLogs
- */
-export type User$errorLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ErrorLog
-   */
-  select?: Prisma.ErrorLogSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ErrorLog
-   */
-  omit?: Prisma.ErrorLogOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ErrorLogInclude<ExtArgs> | null
-  where?: Prisma.ErrorLogWhereInput
-  orderBy?: Prisma.ErrorLogOrderByWithRelationInput | Prisma.ErrorLogOrderByWithRelationInput[]
-  cursor?: Prisma.ErrorLogWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ErrorLogScalarFieldEnum | Prisma.ErrorLogScalarFieldEnum[]
 }
 
 /**

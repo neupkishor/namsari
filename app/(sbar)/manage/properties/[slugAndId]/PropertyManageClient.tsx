@@ -43,7 +43,7 @@ export default function PropertyManageClient({ property, canDelete }: PropertyMa
     const featureSummary = [
         property.features?.bedrooms != null ? `${property.features.bedrooms} beds` : null,
         property.features?.bathrooms != null ? `${property.features.bathrooms} baths` : null,
-        property.features?.builtUpArea ? `${property.features.builtUpArea} ${property.features.builtUpAreaUnit || ''}`.trim() : null,
+        property.features?.builtUpArea ? `${property.features.builtUpArea} m²`.trim() : null,
     ].filter(Boolean).join(' · ') || 'No feature summary';
     const amenityLabels = [
         property.features?.parkingAvailable ? 'Parking' : null,
@@ -322,7 +322,7 @@ export default function PropertyManageClient({ property, canDelete }: PropertyMa
                 <h2 style={{ fontSize: '1.1rem', fontWeight: 850, color: '#0f172a', marginBottom: '18px' }}>Listing Information</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '18px' }}>
                     <InfoBlock title="Location" lines={[locationLabel, `Ward: ${property.location?.ward || 'N/A'}`, `Landmark: ${property.location?.landmark || 'None'}`]} />
-                    <InfoBlock title="Road & Entrance" lines={[`${property.roadType || 'Unspecified'} road`, `Width: ${property.roadSize || 'N/A'}`, `Facing: ${property.facingDirection || 'N/A'}`]} />
+                    <InfoBlock title="Road & Entrance" lines={[`${property.roadType || 'Unspecified'} road`, `Width: ${property.roadSize != null ? `${Number(property.roadSize).toFixed(2)} m` : 'N/A'}`, `Facing: ${property.facingDirection || 'N/A'}`]} />
                     <InfoBlock title="Specifications" lines={[featureSummary, `Floor: ${property.features?.floorNumber || 'N/A'} of ${property.features?.totalFloors || 'N/A'}`, `Furnishing: ${property.features?.furnishing || 'Unspecified'}`]} />
                     <div>
                         <div style={{ color: '#64748b', fontSize: '0.76rem', fontWeight: 850, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '9px' }}>Amenities</div>

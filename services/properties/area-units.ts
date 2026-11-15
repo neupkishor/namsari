@@ -1,12 +1,12 @@
 export type AreaUnit = 'sqm' | 'sqft' | 'aana' | 'kattha' | 'dhur' | 'ropani';
 
-const SQFT_PER_UNIT: Record<AreaUnit, number> = {
-    sqm: 10.7639,
-    sqft: 1,
-    aana: 342.25,
-    kattha: 3645,
-    dhur: 182.25,
-    ropani: 5476,
+const SQUARE_METERS_PER_UNIT: Record<AreaUnit, number> = {
+    sqm: 1,
+    sqft: 0.09290304,
+    aana: 31.79606544,
+    kattha: 338.6315808,
+    dhur: 16.93157904,
+    ropani: 508.73704704,
 };
 
 const AREA_UNIT_LABELS: Record<AreaUnit, string> = {
@@ -26,10 +26,10 @@ export function normalizeAreaUnit(unit?: string | null): AreaUnit {
         normalized === 'sqm' ||
         normalized === 'sq.m' ||
         normalized === 'sq m' ||
+        normalized === 'm²' ||
         normalized === 'square meter' ||
         normalized === 'square meters' ||
         normalized === 'm2' ||
-        normalized === 'm²' ||
         normalized.includes('meter')
     ) {
         return 'sqm';
@@ -41,6 +41,7 @@ export function normalizeAreaUnit(unit?: string | null): AreaUnit {
         normalized === 'sq ft' ||
         normalized === 'ft2' ||
         normalized === 'square feet' ||
+        normalized === 'sq.ft.' ||
         normalized.includes('sqft')
     ) {
         return 'sqft';
@@ -62,9 +63,16 @@ export function convertAreaValue(value: number, fromUnit?: string | null, toUnit
     if (!Number.isFinite(value)) return NaN;
 
     const sourceUnit = normalizeAreaUnit(fromUnit);
-    const sourceSqft = SQFT_PER_UNIT[sourceUnit];
-    const targetSqft = SQFT_PER_UNIT[toUnit];
+    return (value * SQUARE_METERS_PER_UNIT[sourceUnit]) / SQUARE_METERS_PER_UNIT[toUnit];
+}
 
-    return (value * sourceSqft) / targetSqft;
+// Converts an entered area to the database's square-meter storage unit.
+export function convertAreaToSquareMeters(value: number, fromUnit?: string | null): number {
+    return roundMeasurement(convertAreaValue(value, fromUnit, 'sqm'));
+}
+
+// Keeps converted measurements within the database's ten decimal places.
+function roundMeasurement(value: number): number {
+    return Number(value.toFixed(10));
 }
 

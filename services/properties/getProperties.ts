@@ -1,5 +1,6 @@
 import prisma from '@neup/core/database/prisma';
 import { legacyPricingFromProperty } from '@/services/properties/pricing';
+import { convertAreaValue } from '@/services/properties/area-units';
 import type { PropertyType } from '@/prisma/generated/client/client';
 import type { PropertyFilterPayload } from './filterPayload';
 
@@ -9,6 +10,12 @@ export async function getProperties(filterPayload: PropertyFilterPayload = {}) {
     const pricedOnly = filterPayload.pricedOnly !== false;
     const limit = filterPayload.limit ?? 60;
     const locationFilters = filterPayload.locations?.filter(Boolean) ?? [];
+    const minSizeSqm = filterPayload.minSize === undefined
+        ? undefined
+        : convertAreaValue(filterPayload.minSize, filterPayload.sizeUnit || 'sqm', 'sqm');
+    const maxSizeSqm = filterPayload.maxSize === undefined
+        ? undefined
+        : convertAreaValue(filterPayload.maxSize, filterPayload.sizeUnit || 'sqm', 'sqm');
 
     const dbProperties = await prisma.property.findMany({
         where: {
@@ -36,10 +43,9 @@ export async function getProperties(filterPayload: PropertyFilterPayload = {}) {
             ...(filterPayload.listedBy ? { listedBy: { type: filterPayload.listedBy } } : {}),
             ...(filterPayload.minSize !== undefined || filterPayload.maxSize !== undefined ? { features: { is: {
                 builtUpArea: {
-                    ...(filterPayload.minSize !== undefined ? { gte: filterPayload.minSize } : {}),
-                    ...(filterPayload.maxSize !== undefined ? { lte: filterPayload.maxSize } : {}),
+                    ...(minSizeSqm !== undefined ? { gte: minSizeSqm } : {}),
+                    ...(maxSizeSqm !== undefined ? { lte: maxSizeSqm } : {}),
                 },
-                ...(filterPayload.sizeUnit ? { builtUpAreaUnit: filterPayload.sizeUnit } : {}),
             } } } : {}),
             ...(onlyMappable ? { OR: [
                 {
@@ -93,11 +99,15 @@ export async function getProperties(filterPayload: PropertyFilterPayload = {}) {
             : 'Unspecified';
 
         const specs = property.features
-            ? `${property.features.bedrooms || 0}BHK • ${property.features.bathrooms || 0} Bath • ${property.features.builtUpArea || 0} ${property.features.builtUpAreaUnit || ''}`
+            ? `${property.features.bedrooms || 0}BHK • ${property.features.bathrooms || 0} Bath • ${property.features.builtUpArea || 0} m²`
             : 'Details unspecified';
 
         return {
             ...property,
+            features: property.features ? {
+                ...property.features,
+                builtUpArea: property.features.builtUpArea == null ? null : Number(property.features.builtUpArea),
+            } : null,
             roadSize: property.roadSize == null ? null : Number(property.roadSize),
             price_listed: listedPrice,
             pricing: legacyPricingFromProperty(property),

@@ -67,7 +67,7 @@ export default async function SellPage({ searchParams }: { searchParams: Promise
             if (canSeedFromProperty) {
                 draft = await db.propertyDraft.create({
                     data: {
-                        changes: mergeDraftDefaults(createPropertyDraftChangesFromProperty(property, purpose), agencyConfig),
+                        changes: mergeDraftDefaults(createPropertyDraftChangesFromProperty(property, purpose, agencyConfig), agencyConfig),
                         doing: 'edit',
                         status: 'draft',
                         created_by: userId,

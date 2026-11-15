@@ -35,7 +35,7 @@ export type PropertyFeaturesAvgAggregateOutputType = {
   livingRooms: number | null
   floorNumber: number | null
   totalFloors: number | null
-  builtUpArea: number | null
+  builtUpArea: runtime.Decimal | null
 }
 
 export type PropertyFeaturesSumAggregateOutputType = {
@@ -47,7 +47,7 @@ export type PropertyFeaturesSumAggregateOutputType = {
   livingRooms: number | null
   floorNumber: number | null
   totalFloors: number | null
-  builtUpArea: number | null
+  builtUpArea: runtime.Decimal | null
 }
 
 export type PropertyFeaturesMinAggregateOutputType = {
@@ -60,8 +60,7 @@ export type PropertyFeaturesMinAggregateOutputType = {
   floorNumber: number | null
   totalFloors: number | null
   furnishing: string | null
-  builtUpArea: number | null
-  builtUpAreaUnit: string | null
+  builtUpArea: runtime.Decimal | null
   parkingAvailable: boolean | null
   elevator: boolean | null
   security: boolean | null
@@ -79,8 +78,7 @@ export type PropertyFeaturesMaxAggregateOutputType = {
   floorNumber: number | null
   totalFloors: number | null
   furnishing: string | null
-  builtUpArea: number | null
-  builtUpAreaUnit: string | null
+  builtUpArea: runtime.Decimal | null
   parkingAvailable: boolean | null
   elevator: boolean | null
   security: boolean | null
@@ -99,7 +97,6 @@ export type PropertyFeaturesCountAggregateOutputType = {
   totalFloors: number
   furnishing: number
   builtUpArea: number
-  builtUpAreaUnit: number
   parkingAvailable: number
   elevator: number
   security: number
@@ -144,7 +141,6 @@ export type PropertyFeaturesMinAggregateInputType = {
   totalFloors?: true
   furnishing?: true
   builtUpArea?: true
-  builtUpAreaUnit?: true
   parkingAvailable?: true
   elevator?: true
   security?: true
@@ -163,7 +159,6 @@ export type PropertyFeaturesMaxAggregateInputType = {
   totalFloors?: true
   furnishing?: true
   builtUpArea?: true
-  builtUpAreaUnit?: true
   parkingAvailable?: true
   elevator?: true
   security?: true
@@ -182,7 +177,6 @@ export type PropertyFeaturesCountAggregateInputType = {
   totalFloors?: true
   furnishing?: true
   builtUpArea?: true
-  builtUpAreaUnit?: true
   parkingAvailable?: true
   elevator?: true
   security?: true
@@ -287,8 +281,7 @@ export type PropertyFeaturesGroupByOutputType = {
   floorNumber: number | null
   totalFloors: number | null
   furnishing: string | null
-  builtUpArea: number | null
-  builtUpAreaUnit: string | null
+  builtUpArea: runtime.Decimal | null
   parkingAvailable: boolean | null
   elevator: boolean | null
   security: boolean | null
@@ -329,8 +322,7 @@ export type PropertyFeaturesWhereInput = {
   floorNumber?: Prisma.IntNullableFilter<"PropertyFeatures"> | number | null
   totalFloors?: Prisma.IntNullableFilter<"PropertyFeatures"> | number | null
   furnishing?: Prisma.StringNullableFilter<"PropertyFeatures"> | string | null
-  builtUpArea?: Prisma.FloatNullableFilter<"PropertyFeatures"> | number | null
-  builtUpAreaUnit?: Prisma.StringNullableFilter<"PropertyFeatures"> | string | null
+  builtUpArea?: Prisma.DecimalNullableFilter<"PropertyFeatures"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   parkingAvailable?: Prisma.BoolNullableFilter<"PropertyFeatures"> | boolean | null
   elevator?: Prisma.BoolNullableFilter<"PropertyFeatures"> | boolean | null
   security?: Prisma.BoolNullableFilter<"PropertyFeatures"> | boolean | null
@@ -350,7 +342,6 @@ export type PropertyFeaturesOrderByWithRelationInput = {
   totalFloors?: Prisma.SortOrderInput | Prisma.SortOrder
   furnishing?: Prisma.SortOrderInput | Prisma.SortOrder
   builtUpArea?: Prisma.SortOrderInput | Prisma.SortOrder
-  builtUpAreaUnit?: Prisma.SortOrderInput | Prisma.SortOrder
   parkingAvailable?: Prisma.SortOrderInput | Prisma.SortOrder
   elevator?: Prisma.SortOrderInput | Prisma.SortOrder
   security?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -372,8 +363,7 @@ export type PropertyFeaturesWhereUniqueInput = Prisma.AtLeast<{
   floorNumber?: Prisma.IntNullableFilter<"PropertyFeatures"> | number | null
   totalFloors?: Prisma.IntNullableFilter<"PropertyFeatures"> | number | null
   furnishing?: Prisma.StringNullableFilter<"PropertyFeatures"> | string | null
-  builtUpArea?: Prisma.FloatNullableFilter<"PropertyFeatures"> | number | null
-  builtUpAreaUnit?: Prisma.StringNullableFilter<"PropertyFeatures"> | string | null
+  builtUpArea?: Prisma.DecimalNullableFilter<"PropertyFeatures"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   parkingAvailable?: Prisma.BoolNullableFilter<"PropertyFeatures"> | boolean | null
   elevator?: Prisma.BoolNullableFilter<"PropertyFeatures"> | boolean | null
   security?: Prisma.BoolNullableFilter<"PropertyFeatures"> | boolean | null
@@ -393,7 +383,6 @@ export type PropertyFeaturesOrderByWithAggregationInput = {
   totalFloors?: Prisma.SortOrderInput | Prisma.SortOrder
   furnishing?: Prisma.SortOrderInput | Prisma.SortOrder
   builtUpArea?: Prisma.SortOrderInput | Prisma.SortOrder
-  builtUpAreaUnit?: Prisma.SortOrderInput | Prisma.SortOrder
   parkingAvailable?: Prisma.SortOrderInput | Prisma.SortOrder
   elevator?: Prisma.SortOrderInput | Prisma.SortOrder
   security?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -419,8 +408,7 @@ export type PropertyFeaturesScalarWhereWithAggregatesInput = {
   floorNumber?: Prisma.IntNullableWithAggregatesFilter<"PropertyFeatures"> | number | null
   totalFloors?: Prisma.IntNullableWithAggregatesFilter<"PropertyFeatures"> | number | null
   furnishing?: Prisma.StringNullableWithAggregatesFilter<"PropertyFeatures"> | string | null
-  builtUpArea?: Prisma.FloatNullableWithAggregatesFilter<"PropertyFeatures"> | number | null
-  builtUpAreaUnit?: Prisma.StringNullableWithAggregatesFilter<"PropertyFeatures"> | string | null
+  builtUpArea?: Prisma.DecimalNullableWithAggregatesFilter<"PropertyFeatures"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   parkingAvailable?: Prisma.BoolNullableWithAggregatesFilter<"PropertyFeatures"> | boolean | null
   elevator?: Prisma.BoolNullableWithAggregatesFilter<"PropertyFeatures"> | boolean | null
   security?: Prisma.BoolNullableWithAggregatesFilter<"PropertyFeatures"> | boolean | null
@@ -436,8 +424,7 @@ export type PropertyFeaturesCreateInput = {
   floorNumber?: number | null
   totalFloors?: number | null
   furnishing?: string | null
-  builtUpArea?: number | null
-  builtUpAreaUnit?: string | null
+  builtUpArea?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   parkingAvailable?: boolean | null
   elevator?: boolean | null
   security?: boolean | null
@@ -456,8 +443,7 @@ export type PropertyFeaturesUncheckedCreateInput = {
   floorNumber?: number | null
   totalFloors?: number | null
   furnishing?: string | null
-  builtUpArea?: number | null
-  builtUpAreaUnit?: string | null
+  builtUpArea?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   parkingAvailable?: boolean | null
   elevator?: boolean | null
   security?: boolean | null
@@ -473,8 +459,7 @@ export type PropertyFeaturesUpdateInput = {
   floorNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalFloors?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   furnishing?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  builtUpArea?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  builtUpAreaUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  builtUpArea?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   parkingAvailable?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   elevator?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   security?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -493,8 +478,7 @@ export type PropertyFeaturesUncheckedUpdateInput = {
   floorNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalFloors?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   furnishing?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  builtUpArea?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  builtUpAreaUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  builtUpArea?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   parkingAvailable?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   elevator?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   security?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -512,8 +496,7 @@ export type PropertyFeaturesCreateManyInput = {
   floorNumber?: number | null
   totalFloors?: number | null
   furnishing?: string | null
-  builtUpArea?: number | null
-  builtUpAreaUnit?: string | null
+  builtUpArea?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   parkingAvailable?: boolean | null
   elevator?: boolean | null
   security?: boolean | null
@@ -529,8 +512,7 @@ export type PropertyFeaturesUpdateManyMutationInput = {
   floorNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalFloors?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   furnishing?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  builtUpArea?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  builtUpAreaUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  builtUpArea?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   parkingAvailable?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   elevator?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   security?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -548,8 +530,7 @@ export type PropertyFeaturesUncheckedUpdateManyInput = {
   floorNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalFloors?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   furnishing?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  builtUpArea?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  builtUpAreaUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  builtUpArea?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   parkingAvailable?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   elevator?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   security?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -573,7 +554,6 @@ export type PropertyFeaturesCountOrderByAggregateInput = {
   totalFloors?: Prisma.SortOrder
   furnishing?: Prisma.SortOrder
   builtUpArea?: Prisma.SortOrder
-  builtUpAreaUnit?: Prisma.SortOrder
   parkingAvailable?: Prisma.SortOrder
   elevator?: Prisma.SortOrder
   security?: Prisma.SortOrder
@@ -604,7 +584,6 @@ export type PropertyFeaturesMaxOrderByAggregateInput = {
   totalFloors?: Prisma.SortOrder
   furnishing?: Prisma.SortOrder
   builtUpArea?: Prisma.SortOrder
-  builtUpAreaUnit?: Prisma.SortOrder
   parkingAvailable?: Prisma.SortOrder
   elevator?: Prisma.SortOrder
   security?: Prisma.SortOrder
@@ -623,7 +602,6 @@ export type PropertyFeaturesMinOrderByAggregateInput = {
   totalFloors?: Prisma.SortOrder
   furnishing?: Prisma.SortOrder
   builtUpArea?: Prisma.SortOrder
-  builtUpAreaUnit?: Prisma.SortOrder
   parkingAvailable?: Prisma.SortOrder
   elevator?: Prisma.SortOrder
   security?: Prisma.SortOrder
@@ -675,14 +653,6 @@ export type PropertyFeaturesUncheckedUpdateOneWithoutPropertyNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PropertyFeaturesUpdateToOneWithWhereWithoutPropertyInput, Prisma.PropertyFeaturesUpdateWithoutPropertyInput>, Prisma.PropertyFeaturesUncheckedUpdateWithoutPropertyInput>
 }
 
-export type NullableFloatFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type PropertyFeaturesCreateWithoutPropertyInput = {
   bedrooms?: number | null
   bathrooms?: number | null
@@ -691,8 +661,7 @@ export type PropertyFeaturesCreateWithoutPropertyInput = {
   floorNumber?: number | null
   totalFloors?: number | null
   furnishing?: string | null
-  builtUpArea?: number | null
-  builtUpAreaUnit?: string | null
+  builtUpArea?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   parkingAvailable?: boolean | null
   elevator?: boolean | null
   security?: boolean | null
@@ -709,8 +678,7 @@ export type PropertyFeaturesUncheckedCreateWithoutPropertyInput = {
   floorNumber?: number | null
   totalFloors?: number | null
   furnishing?: string | null
-  builtUpArea?: number | null
-  builtUpAreaUnit?: string | null
+  builtUpArea?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   parkingAvailable?: boolean | null
   elevator?: boolean | null
   security?: boolean | null
@@ -742,8 +710,7 @@ export type PropertyFeaturesUpdateWithoutPropertyInput = {
   floorNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalFloors?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   furnishing?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  builtUpArea?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  builtUpAreaUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  builtUpArea?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   parkingAvailable?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   elevator?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   security?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -760,8 +727,7 @@ export type PropertyFeaturesUncheckedUpdateWithoutPropertyInput = {
   floorNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalFloors?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   furnishing?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  builtUpArea?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  builtUpAreaUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  builtUpArea?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   parkingAvailable?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   elevator?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   security?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -782,7 +748,6 @@ export type PropertyFeaturesSelect<ExtArgs extends runtime.Types.Extensions.Inte
   totalFloors?: boolean
   furnishing?: boolean
   builtUpArea?: boolean
-  builtUpAreaUnit?: boolean
   parkingAvailable?: boolean
   elevator?: boolean
   security?: boolean
@@ -802,7 +767,6 @@ export type PropertyFeaturesSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   totalFloors?: boolean
   furnishing?: boolean
   builtUpArea?: boolean
-  builtUpAreaUnit?: boolean
   parkingAvailable?: boolean
   elevator?: boolean
   security?: boolean
@@ -822,7 +786,6 @@ export type PropertyFeaturesSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   totalFloors?: boolean
   furnishing?: boolean
   builtUpArea?: boolean
-  builtUpAreaUnit?: boolean
   parkingAvailable?: boolean
   elevator?: boolean
   security?: boolean
@@ -842,7 +805,6 @@ export type PropertyFeaturesSelectScalar = {
   totalFloors?: boolean
   furnishing?: boolean
   builtUpArea?: boolean
-  builtUpAreaUnit?: boolean
   parkingAvailable?: boolean
   elevator?: boolean
   security?: boolean
@@ -850,7 +812,7 @@ export type PropertyFeaturesSelectScalar = {
   electricity?: boolean
 }
 
-export type PropertyFeaturesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "propertyId" | "bedrooms" | "bathrooms" | "kitchens" | "livingRooms" | "floorNumber" | "totalFloors" | "furnishing" | "builtUpArea" | "builtUpAreaUnit" | "parkingAvailable" | "elevator" | "security" | "waterSupply" | "electricity", ExtArgs["result"]["propertyFeatures"]>
+export type PropertyFeaturesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "propertyId" | "bedrooms" | "bathrooms" | "kitchens" | "livingRooms" | "floorNumber" | "totalFloors" | "furnishing" | "builtUpArea" | "parkingAvailable" | "elevator" | "security" | "waterSupply" | "electricity", ExtArgs["result"]["propertyFeatures"]>
 export type PropertyFeaturesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   property?: boolean | Prisma.PropertyDefaultArgs<ExtArgs>
 }
@@ -876,8 +838,7 @@ export type $PropertyFeaturesPayload<ExtArgs extends runtime.Types.Extensions.In
     floorNumber: number | null
     totalFloors: number | null
     furnishing: string | null
-    builtUpArea: number | null
-    builtUpAreaUnit: string | null
+    builtUpArea: runtime.Decimal | null
     parkingAvailable: boolean | null
     elevator: boolean | null
     security: boolean | null
@@ -1316,8 +1277,7 @@ export interface PropertyFeaturesFieldRefs {
   readonly floorNumber: Prisma.FieldRef<"PropertyFeatures", 'Int'>
   readonly totalFloors: Prisma.FieldRef<"PropertyFeatures", 'Int'>
   readonly furnishing: Prisma.FieldRef<"PropertyFeatures", 'String'>
-  readonly builtUpArea: Prisma.FieldRef<"PropertyFeatures", 'Float'>
-  readonly builtUpAreaUnit: Prisma.FieldRef<"PropertyFeatures", 'String'>
+  readonly builtUpArea: Prisma.FieldRef<"PropertyFeatures", 'Decimal'>
   readonly parkingAvailable: Prisma.FieldRef<"PropertyFeatures", 'Boolean'>
   readonly elevator: Prisma.FieldRef<"PropertyFeatures", 'Boolean'>
   readonly security: Prisma.FieldRef<"PropertyFeatures", 'Boolean'>

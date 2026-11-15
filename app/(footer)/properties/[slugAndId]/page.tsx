@@ -188,8 +188,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         return Number.isInteger(value) ? String(value) : String(value);
     };
     const formatCountLabel = (count: string, label: string) => `${count} ${label.toLowerCase()}`;
-    const builtUpUnit = property.features?.builtUpAreaUnit || 'sqft';
-    const builtUpAreaNumeric = property.features?.builtUpArea ?? null;
+    const builtUpAreaNumeric = property.features?.builtUpArea == null ? null : Number(property.features.builtUpArea);
     const builtUpValue = formatNumberValue(builtUpAreaNumeric);
     const facingDirection = (property.locationData as { facingDirection?: string } | null)?.facingDirection || '-';
     const overviewItems = [
@@ -197,7 +196,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
         { icon: '/icons/info.svg', value: formatNumberValue(property.features?.bathrooms), label: 'bathrooms', displayValue: formatCountLabel(formatNumberValue(property.features?.bathrooms), 'bathrooms') },
         { icon: '/icons/land-layer-location.svg', value: builtUpValue, label: 'area', displayValue: `${builtUpValue} ${builtUpUnit.toLowerCase()}` },
         { icon: '/icons/calendar.svg', value: String(new Date(property.created_on).getFullYear()), label: 'Year', displayValue: String(new Date(property.created_on).getFullYear()) },
-        { icon: '/icons/land-location.svg', value: property.roadSize != null ? String(property.roadSize) : '-', label: 'Road Access', displayValue: property.roadSize != null ? String(property.roadSize) : '-' },
+        { icon: '/icons/land-location.svg', value: property.roadSize != null ? String(Number(property.roadSize).toFixed(2)) : '-', label: 'Road Access', displayValue: property.roadSize != null ? `${Number(property.roadSize).toFixed(2)} m` : '-' },
         { icon: '/icons/three-direction.svg', value: facingDirection, label: 'Facing', displayValue: facingDirection },
         { icon: '/icons/apartment.svg', value: formatNumberValue(property.features?.totalFloors), label: 'floors', displayValue: formatCountLabel(formatNumberValue(property.features?.totalFloors), 'floors') },
         { icon: '/icons/note.svg', value: property.features?.furnishing || '-', label: 'Furnish Status', displayValue: String(property.features?.furnishing || '-').toLowerCase() }
@@ -210,7 +209,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     if (property.features?.waterSupply) amenityMainFeatures.push({ icon: '/icons/faucet.svg', label: 'Water Supply' });
     if (property.features?.electricity) amenityMainFeatures.push({ icon: '/icons/plug-alt.svg', label: 'Electricity' });
     if (property.roadType) amenityMainFeatures.push({ icon: '/icons/land-location.svg', label: 'Road Type', detail: property.roadType });
-    if (property.roadSize) amenityMainFeatures.push({ icon: '/icons/land-layer-location.svg', label: 'Road Size', detail: String(property.roadSize) });
+    if (property.roadSize) amenityMainFeatures.push({ icon: '/icons/land-layer-location.svg', label: 'Road Size', detail: `${Number(property.roadSize).toFixed(2)} m` });
     if (amenityMainFeatures.length === 0) {
         amenityMainFeatures.push(
             { icon: '/icons/faucet.svg', label: 'Water Supply' },
@@ -1018,7 +1017,6 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                             <PropertyOverviewGrid
                                 items={overviewItems}
                                 builtUpAreaValue={builtUpAreaNumeric}
-                                builtUpAreaUnit={builtUpUnit}
                             />
                         </div>
 

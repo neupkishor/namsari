@@ -30,7 +30,7 @@ export interface CreatePropertyInput {
 
     // Road and Entrance
     roadType?: string;
-    roadSize?: string;
+    roadSize?: number;
     facingDirection?: string;
 
     // Location Information
@@ -79,7 +79,6 @@ export interface CreatePropertyInput {
         totalFloors?: number;
         furnishing?: string;
         builtUpArea?: number;
-        builtUpAreaUnit?: string;
         parkingAvailable?: boolean;
         elevator?: boolean;
         security?: boolean;

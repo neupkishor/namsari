@@ -231,7 +231,7 @@ model Property {
 
   // Road and Entrance
   roadType RoadType?
-  roadSize Decimal?  @db.Decimal(15, 10)
+  roadSize Decimal?  @db.Decimal(18, 10) // meters
 
   // Location Information
   location PropertyLocation?
@@ -355,8 +355,7 @@ model PropertyFeatures {
   furnishing  String? // Unfurnished, Semi-furnished, Full-furnished
 
   // Size/Area details (Additional to Pricing)
-  builtUpArea     Float?
-  builtUpAreaUnit String? // sqft, sqm, aana, ropani
+  builtUpArea     Decimal? @db.Decimal(18, 10) // square meters
 
   // Commercial/Space specific
   parkingAvailable Boolean?
@@ -370,7 +369,7 @@ model PropertyDetailsLand {
   id          Int      @id @default(autoincrement())
   propertyId  Int      @unique
   property    Property @relation(fields: [propertyId], references: [id])
-  landArea    Decimal  @db.Decimal(18, 10)
+  landArea    Decimal  @db.Decimal(18, 10) // square meters
   dimension   String   @db.VarChar(48)
   plotNumber  String
   moreDetails Json     @db.JsonB
@@ -382,7 +381,7 @@ model PropertyDetailsHouse {
   id          Int             @id @default(autoincrement())
   propertyId  Int             @unique
   property    Property        @relation(fields: [propertyId], references: [id])
-  builtUpArea Decimal         @db.Decimal(18, 10)
+  builtUpArea Decimal         @db.Decimal(18, 10) // square meters
   bedrooms    Int             @db.SmallInt
   bathrooms   Int             @db.SmallInt
   kitchens    Int             @db.SmallInt
@@ -408,7 +407,7 @@ model PropertyDetailsApartment {
   id          Int                 @id @default(autoincrement())
   propertyId  Int                 @unique
   property    Property            @relation(fields: [propertyId], references: [id])
-  builtUpArea Decimal             @db.Decimal(18, 10)
+  builtUpArea Decimal             @db.Decimal(18, 10) // square meters
   bedrooms    Int                 @db.SmallInt
   bathrooms   Int                 @db.SmallInt
   kitchens    Int                 @db.SmallInt
@@ -435,7 +434,7 @@ model PropertyDetailsSpace {
   propertyId  Int             @unique
   property    Property        @relation(fields: [propertyId], references: [id])
   spaceType   String          @db.VarChar
-  totalArea   Decimal         @db.Decimal(18, 10)
+  totalArea   Decimal         @db.Decimal(18, 10) // square meters
   onFloor     Int             @db.SmallInt
   furnishing  SpaceFurnishing
   bathrooms   Int             @db.SmallInt

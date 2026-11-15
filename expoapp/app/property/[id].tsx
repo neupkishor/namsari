@@ -46,7 +46,7 @@ type Property = {
   features?: {
     bedrooms?: number; bathrooms?: number; kitchens?: number; livingRooms?: number;
     floorNumber?: number; totalFloors?: number; furnishing?: string;
-    builtUpArea?: number; builtUpAreaUnit?: string; parkingAvailable?: boolean;
+    builtUpArea?: number | string; parkingAvailable?: boolean;
     elevator?: boolean; security?: boolean; waterSupply?: boolean; electricity?: boolean;
   };
   amenities?: Array<{ name?: string; type?: string; distance?: string }>;
@@ -135,11 +135,11 @@ export default function PropertyDetailScreen() {
     property.features?.bedrooms ? ['Bedrooms', String(property.features.bedrooms)] : null,
     property.features?.bathrooms ? ['Bathrooms', String(property.features.bathrooms)] : null,
     property.features?.kitchens ? ['Kitchens', String(property.features.kitchens)] : null,
-    property.features?.builtUpArea ? ['Built-up area', `${property.features.builtUpArea} ${property.features.builtUpAreaUnit || ''}`] : null,
+    property.features?.builtUpArea ? ['Built-up area', `${property.features.builtUpArea} m²`] : null,
     property.features?.totalFloors ? ['Floors', String(property.features.totalFloors)] : null,
     property.features?.furnishing ? ['Furnishing', property.features.furnishing] : null,
     property.facingDirection ? ['Facing', property.facingDirection] : null,
-    property.roadType ? ['Road', [property.roadType, property.roadSize].filter(Boolean).join(' · ')] : null,
+    property.roadType ? ['Road', [property.roadType, property.roadSize ? `${property.roadSize} m` : ''].filter(Boolean).join(' · ')] : null,
   ].filter(Boolean) as string[][];
 
   const shareProperty = () => Share.share({ title: property.title, message: `${property.title || 'Property on Namsari'}\n${API_BASE_URL}/properties/${property.slug || 'property'}-${property.id}` });

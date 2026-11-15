@@ -117,7 +117,7 @@ export default function SearchClient({ children, initialUser, initialQuery = '',
             const propertyNatures = (property.property_natures || []).map((item: string) => normalize(item).replace(/\s+/g, '-'));
             const matchesCategory = !categoryFilter || propertyNatures.some((item: string) => item === categoryFilter);
             const propertyArea = Number.isFinite(Number(property.features?.builtUpArea))
-                ? convertAreaValue(Number(property.features?.builtUpArea), property.features?.builtUpAreaUnit, activeSizeUnit)
+                ? convertAreaValue(Number(property.features?.builtUpArea), 'sqm', activeSizeUnit)
                 : null;
             const matchesSize = (minSize === null || propertyArea === null || propertyArea >= minSize) && (maxSize === null || propertyArea === null || propertyArea <= maxSize);
             const propertyPrice = getListedPrice(property);
