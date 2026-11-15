@@ -189,7 +189,7 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
     };
 
     return (
-        <main className="min-h-screen bg-[#f7f8fa] pb-14">
+        <main className="min-h-screen bg-[#f7f8fa] pb-14 pt-[var(--header-height)]">
             <section className="relative overflow-hidden border-b border-border bg-white">
                 <div className="pointer-events-none absolute -right-24 -top-32 h-80 w-80 rounded-full bg-[color:var(--color-primary)]/[0.045] blur-3xl" />
                 <div className="relative mx-auto max-w-[var(--container-max)] px-4 py-9 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
@@ -228,8 +228,13 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
                                 </button>
                             </div>
 
-                                <Link href="/maps" className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-border bg-white px-5 text-xs font-black uppercase tracking-[0.12em] text-text-main outline-none transition hover:border-[color:var(--color-primary)]/30 hover:text-[color:var(--color-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)]/25">
-                                <span aria-hidden="true">⌖</span> Map view
+                                <Link href="/maps" className="inline-flex h-11 shrink-0 self-center items-center justify-center gap-2 rounded-full bg-[color:var(--color-primary)] px-4 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(10,107,255,0.28)] transition-all hover:opacity-90">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                        <path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2V6z" />
+                                        <path d="M9 4v14" />
+                                        <path d="M15 6v14" />
+                                    </svg>
+                                    <span>Search in maps</span>
                             </Link>
                     </div>
 
