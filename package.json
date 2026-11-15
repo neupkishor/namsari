@@ -15,7 +15,7 @@
     "prebuild": "npm run setup -- --mode prebuild",
     "postbuild": "npm run setup -- --mode postbuild",
     "predev": "npm run setup -- --mode predev",
-    "dev": "next dev --experimental-https --hostname --port 6267",
+    "dev": "next dev --experimental-https --port 6267",
     "build": "next build",
     "start": "next start --port 6267",
     "lint": "eslint .",
