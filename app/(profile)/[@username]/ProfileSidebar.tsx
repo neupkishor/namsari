@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { User } from '@prisma/client';
+import { User } from '@/prisma/generated/client/client';
 import Link from 'next/link';
 import { logoutAction } from '@/services/auth/actions';
 

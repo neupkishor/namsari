@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { User } from '@prisma/client';
+import { User } from '@/prisma/generated/client/client';
 import {
     beginSensitiveProfileUpdate,
     completeSensitiveProfileUpdate,

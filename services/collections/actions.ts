@@ -4,7 +4,7 @@ import prisma from '@neup/core/database/prisma';
 import { getSession } from '@/services/auth/session';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@/prisma/generated/client/client';
 
 type CollectionCriteria = {
     types: string[];

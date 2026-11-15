@@ -3,7 +3,7 @@ import {
     Property,
     PropertyLocation,
     PropertyOpenHouse
-} from '@prisma/client';
+} from '@/prisma/generated/client/client';
 import {
     LegacyPricingInput,
     PropertyPriceInput,

@@ -1,6 +1,6 @@
 import prisma from '@neup/core/database/prisma';
 import { legacyPricingFromProperty } from '@/services/properties/pricing';
-import type { PropertyType } from '@prisma/client';
+import type { PropertyType } from '@/prisma/generated/client/client';
 import type { PropertyFilterPayload } from './filterPayload';
 
 // Loads property listings using the shared domain filter payload.

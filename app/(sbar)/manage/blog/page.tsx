@@ -4,7 +4,7 @@ import { getBlogPosts } from '@/services/content/blog';
 import BlogListClient from '@/app/(sbar)/manage/blog/BlogListClient';
 import { getCurrentUser } from '@/services/auth/actions';
 import { redirect } from 'next/navigation';
-import { BlogPost } from '@prisma/client';
+import { BlogPost } from '@/prisma/generated/client/client';
 
 export default async function BlogManagementPage() {
     const user = await getCurrentUser();

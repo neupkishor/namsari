@@ -2,7 +2,7 @@ import prisma from '@neup/core/database/prisma';
 import { NextResponse } from 'next/server';
 import { legacyPricingFromProperty } from '@/services/properties/pricing';
 
-import { Property, User } from '@prisma/client';
+import { Property, User } from '@/prisma/generated/client/client';
 import { getSession } from '@/services/auth/session';
 import { createPropertyListing } from '@/services/properties/property';
 

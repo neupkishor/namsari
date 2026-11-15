@@ -4,7 +4,7 @@ import prisma from '@neup/core/database/prisma';
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
 import { getSession } from '@/services/auth/session';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@/prisma/generated/client/client';
 
 export async function createAgencyAgent(data: FormData) {
     const name = data.get('name') as string;

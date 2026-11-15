@@ -3,7 +3,7 @@
 import prisma from '@neup/core/database/prisma';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/services/auth/session';
-import type { PropertyPriceBasis } from '@prisma/client';
+import type { PropertyPriceBasis } from '@/prisma/generated/client/client';
 
 const PROPERTY_PRICE_BASES: PropertyPriceBasis[] = [
   'total', 'perUnit', 'perMonth', 'perYear', 'perUnitPerMonth', 'perUnitPerYear',

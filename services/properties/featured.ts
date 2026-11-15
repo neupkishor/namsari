@@ -2,7 +2,7 @@
 
 import prisma from '@neup/core/database/prisma';
 import { revalidatePath } from 'next/cache';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@/prisma/generated/client/client';
 
 export async function toggleFeatured(propertyId: number) {
     const property = await prisma.property.findUnique({
