@@ -1,14 +1,12 @@
 import Link from 'next/link';
-import { loginAction } from '@/services/auth/actions';
 import { getSession } from '@/services/auth/session';
 import { redirect } from 'next/navigation';
 
 import prisma from '@neup/core/database/prisma';
-import { Input } from '@/components/ui';
-
 import { Header } from '@/components/menu/Header';
+import { LoginForm } from './LoginForm';
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+export default async function LoginPage() {
     const session = await getSession();
     if (session) {
         const user = await prisma.user.findUnique({
@@ -19,9 +17,6 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             redirect('/');
         }
     }
-
-    // In Next.js 15, searchParams is a promise
-    const { error } = await searchParams;
 
     return (
         <main className="min-h-screen bg-gray-50">
@@ -37,49 +32,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
                         <p style={{ color: '#64748b', marginTop: '8px' }}>Log in to manage your real estate assets.</p>
                     </div>
 
-                    <form action={loginAction} className="card" style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {error && (
-                            <div style={{ padding: '12px', background: '#fee2e2', color: '#b91c1c', borderRadius: '8px', fontSize: '0.9rem', marginBottom: '16px', border: '1px solid #fecaca' }}>
-                                {decodeURIComponent(error)}
-                            </div>
-                        )}
-
-                        <Input
-                            label="Username, Email or Phone"
-                            name="username"
-                            type="text"
-                            placeholder="Enter username, email or phone"
-                            required
-                        />
-
-                        <Input
-                            label="Password"
-                            name="password"
-                            type="password"
-                            placeholder="Enter your password"
-                            required
-                        />
-
-                        <button
-                            type="submit"
-                            style={{
-                                marginTop: '8px',
-                                padding: '14px',
-                                background: 'var(--color-primary)',
-                                color: 'white',
-                                fontWeight: '700',
-                                borderRadius: '8px',
-                                border: 'none',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Log In
-                        </button>
-
-                        <p style={{ textAlign: 'center', fontSize: '0.9rem', color: '#64748b', marginTop: '8px' }}>
-                            Don't have an account? <Link href="/auth/register" style={{ color: 'var(--color-primary)', fontWeight: '600' }}>Create one</Link>
-                        </p>
-                    </form>
+                    <LoginForm />
                 </div>
             </div>
         </main>

@@ -181,15 +181,54 @@ export async function registerAction(formData: FormData) {
     }
 }
 
-export async function loginAction(formData: FormData) {
+export async function checkLoginAccount(identifier: string) {
+    if (!identifier.trim()) return { found: false };
+
+    const user = await prisma.user.findFirst({
+        where: {
+            OR: [
+                { email: identifier },
+                { username: identifier },
+                { contact_number: identifier },
+            ],
+        },
+        select: { id: true },
+    });
+
+    return { found: Boolean(user) };
+}
+
+export async function loginAction(_previousState: { error?: string } | undefined, formData: FormData) {
     const identifier = formData.get('username') as string;
     const password = formData.get('password') as string;
 
     if (!identifier || !password) {
-        return redirect(`/auth/login?error=${encodeURIComponent("Credentials are required")}`);
+        return { error: "Credentials are required" };
     }
 
     try {
+        const user = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    { email: identifier },
+                    { username: identifier },
+                    { contact_number: identifier },
+                ],
+            },
+            select: { id: true },
+        });
+
+        if (!user) return { error: "Invalid Credentials" };
+
+        const account = await prisma.account.findUnique({
+            where: { id: user.id.toString() },
+            select: { password_hash: true },
+        });
+        const bcrypt = await import('bcryptjs');
+        if (!account?.password_hash || !(await bcrypt.compare(password, account.password_hash))) {
+            return { error: "Invalid Password" };
+        }
+
         await signIn("credentials", {
             identifier,
             password,
@@ -201,14 +240,7 @@ export async function loginAction(formData: FormData) {
             throw error;
         }
         
-        let errorMessage = "Invalid credentials";
-        if (error.type === "CredentialsSignin") {
-            errorMessage = "Invalid credentials";
-        } else if (error.message) {
-            errorMessage = error.message;
-        }
-
-        return redirect(`/auth/login?error=${encodeURIComponent(errorMessage)}`);
+        return { error: error.type === "CredentialsSignin" ? "Invalid Credentials" : "Unable to log in. Please try again." };
     }
 }
 
