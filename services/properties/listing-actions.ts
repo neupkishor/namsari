@@ -37,7 +37,8 @@ export async function createListing(formData: FormData) {
     const remarks = formData.get('remarks') as string || undefined;
 
     // 3. Road and Entrance
-    const roadType = formData.get('roadType') as string || undefined;
+    const roadTypeValue = String(formData.get('roadType') || '');
+    const roadType = roadTypeValue || null;
     const roadSizeInput = formData.get('roadSize');
     const roadSizeUnit = formData.get('roadSizeUnit') as string || getConfiguredDefaultUnit(agencyConfig, 'roadSize') || 'ft';
     const roadSizeValue = roadSizeInput ? Number(roadSizeInput) : undefined;
@@ -180,7 +181,7 @@ export async function createListing(formData: FormData) {
     const draftId = draftIdValue ? Number(draftIdValue) : null;
 
     try {
-        await createPropertyListing({
+        const createdProperty = await createPropertyListing({
             title,
             types,
             purpose,
@@ -248,10 +249,11 @@ export async function createListing(formData: FormData) {
                 console.warn('Failed to mark property draft as published:', draftError);
             }
         }
+
+        redirect(`/properties/${createdProperty.slug || 'property'}--${createdProperty.id}`);
     } catch (error: any) {
+        if (error?.digest?.startsWith('NEXT_REDIRECT')) throw error;
         console.error("Failed to add property:", error);
         throw new Error("Failed to create listing: " + (error.message || error));
     }
-
-    redirect('/');
 }

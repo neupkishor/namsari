@@ -27,8 +27,9 @@ export function createBlankPropertyDraftChanges(initialPurpose?: string, agencyC
         ward: '',
         landmark: '',
         nearbyLocations: [],
-        roadType: 'Blacktopped',
+        roadType: '',
         roadSize: '',
+        roadSizeUnit: 'ft',
         facingDirection: 'East',
         furnishing: 'Unfurnished',
         builtUpAreaUnit: 'sqft',
@@ -80,10 +81,11 @@ export function createPropertyDraftChangesFromProperty(property: any, initialPur
             location.latitude != null && location.longitude != null
                 ? `${location.latitude}, ${location.longitude}`
                 : '',
-        roadType: property.roadType || 'Blacktopped',
+        roadType: property.roadType ?? '',
         roadSize: property.roadSize != null
-            ? String(convertLengthValue(Number(property.roadSize), getConfiguredDefaultUnit(agencyConfig, 'roadSize') || 'ft'))
+            ? String(convertLengthValue(Number(property.roadSize), 'ft'))
             : '',
+        roadSizeUnit: 'ft',
         facingDirection: property.facingDirection || 'East',
         furnishing: features.furnishing || 'Unfurnished',
         builtUpAreaUnit: getConfiguredDefaultUnit(agencyConfig, 'builtUpArea') || 'sqft',

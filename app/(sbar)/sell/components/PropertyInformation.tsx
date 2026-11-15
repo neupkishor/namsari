@@ -18,6 +18,7 @@ interface PropertyInformationProps {
     builtUpAreaUnit: string;
     setBuiltUpAreaUnit: (val: string) => void;
     roadSizeUnit: string;
+    setRoadSizeUnit: (val: string) => void;
     roadSize: string;
     setRoadSize: (val: string) => void;
     bedrooms: string;
@@ -69,6 +70,7 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
     builtUpAreaUnit,
     setBuiltUpAreaUnit,
     roadSizeUnit,
+    setRoadSizeUnit,
     roadSize,
     setRoadSize,
     bedrooms,
@@ -112,16 +114,30 @@ export const PropertyInformation: React.FC<PropertyInformationProps> = ({
                 <div className={styles.subBlock}>
                     <FormLabel>Road Type</FormLabel>
                     <FormGrid minWidth="150px" gap="10px">
-                        {['Blacktopped', 'Gravel', 'Soil', 'Paved'].map(val => (
-                            <SelectableRadioCard key={val} name="roadType" value={val} label={val} selected={roadType === val} onClick={() => setRoadType(val)} />
+                        {[
+                            { label: 'Unknown / N/A', value: '' },
+                            { label: 'Blacktopped', value: 'blacktopped' },
+                            { label: 'Concrete', value: 'concrete' },
+                            { label: 'Paved Block', value: 'paved_block' },
+                            { label: 'Gravel / Murrum', value: 'gravel_murrum' },
+                            { label: 'Earth / Dirt', value: 'earth_dirt' },
+                            { label: 'Stone Paved', value: 'stone_paved' },
+                            { label: 'Brick Paved', value: 'brick_paved' },
+                        ].map(option => (
+                            <SelectableRadioCard key={option.label} name="roadType" value={option.value} label={option.label} selected={roadType === option.value} onClick={() => setRoadType(option.value)} />
                         ))}
                     </FormGrid>
                 </div>
 
                 <div className={styles.subBlock}>
-                    <Input label="Road Size" name="roadSize" type="number" placeholder={`e.g. 13 ${roadSizeUnit || 'ft'}`} value={roadSize} onChange={(e) => setRoadSize(e.target.value)} />
-                    <input type="hidden" name="roadSizeUnit" value={roadSizeUnit || 'ft'} />
-                    <div className={styles.helper}>Default unit: {roadSizeUnit || 'ft'}</div>
+                    <FormLabel>Road Size</FormLabel>
+                    <div className={styles.measurementInput}>
+                        <Input label="" name="roadSize" type="number" placeholder={`e.g. 13 ${roadSizeUnit === 'm' ? 'm' : 'ft'}`} value={roadSize} onChange={(e) => setRoadSize(e.target.value)} />
+                        <button className={styles.unitToggle} type="button" onClick={() => setRoadSizeUnit(roadSizeUnit === 'm' ? 'ft' : 'm')} aria-label={`Road size unit: ${roadSizeUnit === 'm' ? 'meters' : 'feet'}. Click to change unit`}>
+                            {roadSizeUnit === 'm' ? 'Meters' : 'Feet'}
+                        </button>
+                    </div>
+                    <input type="hidden" name="roadSizeUnit" value={roadSizeUnit} />
                 </div>
 
                 <div className={styles.subBlock}>

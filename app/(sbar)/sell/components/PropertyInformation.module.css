@@ -27,6 +27,32 @@
     margin-top: 4px;
 }
 
+.measurementInput {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+}
+
+.measurementInput > :first-child {
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+.unitToggle {
+    min-width: 90px;
+    align-self: stretch;
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    color: #334155;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
 .featureCard {
     margin-bottom: 40px;
 }

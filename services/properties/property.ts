@@ -29,7 +29,7 @@ export interface CreatePropertyInput {
     remarks?: string;
 
     // Road and Entrance
-    roadType?: string;
+    roadType?: string | null;
     roadSize?: number;
     facingDirection?: string;
 
@@ -180,6 +180,7 @@ export async function createPropertyListing(input: CreatePropertyInput) {
         types,
         purpose,
         natures,
+        facingDirection,
         ...propertyData
     } = input;
 
@@ -206,8 +207,6 @@ export async function createPropertyListing(input: CreatePropertyInput) {
         rate: getDefaultPropertyPriceRate(types, [purpose]),
     });
 
-
-    const mainMedia = images && images.length > 0 ? images[0].url : undefined;
 
     // 3. Wrap in a transaction to ensure atomic operations across multiple tables
     return await prisma.$transaction(async (tx) => {
@@ -263,8 +262,9 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                         ]
                     }
                 } : undefined,
-                mainMedia,
-                locationData,
+                locationData: facingDirection
+                    ? { ...(locationData || {}), facingDirection }
+                    : locationData,
             },
             include: {
                 location: true,

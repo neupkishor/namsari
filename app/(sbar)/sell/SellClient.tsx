@@ -66,9 +66,9 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
     const [nearbyLocations, setNearbyLocations] = useState<Array<{ id: string; name: string; distance: number }>>(Array.isArray(draftValues.nearbyLocations) ? draftValues.nearbyLocations : []);
 
     // Property Details
-    const [roadType, setRoadType] = useState(String(draftValues.roadType || 'Blacktopped'));
+    const [roadType, setRoadType] = useState(String(draftValues.roadType ?? ''));
     const [roadSize, setRoadSize] = useState(String(draftValues.roadSize || ''));
-    const roadSizeUnit = getConfiguredDefaultUnit(agencyConfig, 'roadSize') || 'ft';
+    const [roadSizeUnit, setRoadSizeUnit] = useState(String(draftValues.roadSizeUnit || 'ft'));
     const [facingDirection, setFacingDirection] = useState(String(draftValues.facingDirection || 'East'));
     const [furnishing, setFurnishing] = useState(String(draftValues.furnishing || 'Unfurnished'));
     const [builtUpAreaUnit, setBuiltUpAreaUnit] = useState(String(draftValues.builtUpAreaUnit || 'sqft'));
@@ -397,6 +397,7 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
         nearbyLocations,
         roadType,
         roadSize,
+        roadSizeUnit,
         facingDirection,
         furnishing,
         builtUpAreaUnit,
@@ -606,6 +607,7 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
                         builtUpAreaUnit={builtUpAreaUnit}
                         setBuiltUpAreaUnit={setBuiltUpAreaUnit}
                         roadSizeUnit={roadSizeUnit}
+                        setRoadSizeUnit={setRoadSizeUnit}
                         roadSize={roadSize}
                         setRoadSize={setRoadSize}
                         bedrooms={bedrooms}

@@ -139,7 +139,7 @@ export default function PropertyDetailScreen() {
     property.features?.totalFloors ? ['Floors', String(property.features.totalFloors)] : null,
     property.features?.furnishing ? ['Furnishing', property.features.furnishing] : null,
     property.facingDirection ? ['Facing', property.facingDirection] : null,
-    property.roadType ? ['Road', [property.roadType, property.roadSize ? `${property.roadSize} m` : ''].filter(Boolean).join(' · ')] : null,
+    ['Road', [property.roadType || 'Unknown / N/A', property.roadSize ? `${property.roadSize} m` : ''].filter(Boolean).join(' · ')],
   ].filter(Boolean) as string[][];
 
   const shareProperty = () => Share.share({ title: property.title, message: `${property.title || 'Property on Namsari'}\n${API_BASE_URL}/properties/${property.slug || 'property'}-${property.id}` });
