@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { loginAction } from '@/actions/auth';
+import { loginAction } from '@/services/auth/actions';
 import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 

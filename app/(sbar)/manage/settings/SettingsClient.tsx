@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { updatePropertyTypeCount, syncPropertyTypeCounts } from '@/actions/settings';
+import { updatePropertyTypeCount, syncPropertyTypeCounts } from '@/services/site/settings';
 
 export default function SettingsClient({ propertyTypes }: { propertyTypes: any[] }) {
     const [loading, setLoading] = useState(false);

@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { getSupportArticles } from '@/actions/support';
+import { getSupportArticles } from '@/services/content/support';
 
 export default async function SupportPage() {
     let articles: any[] = [];

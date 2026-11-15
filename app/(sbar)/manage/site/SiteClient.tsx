@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { updateSiteSettings } from '@/actions/settings';
+import { updateSiteSettings } from '@/services/site/settings';
 
 const SECTIONS = [
     { key: 'show_featured_properties', label: 'Featured Properties', description: 'Showcase highlighted property listings.' },

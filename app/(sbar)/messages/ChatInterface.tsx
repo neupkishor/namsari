@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { sendMessage } from '@/actions/ai';
+import { sendMessage } from '@/services/chat/actions';
 
 interface Message {
     id: number;

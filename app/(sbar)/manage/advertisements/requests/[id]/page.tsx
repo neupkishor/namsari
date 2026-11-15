@@ -1,4 +1,4 @@
-import { getAdDetails } from '@/actions/ads';
+import { getAdDetails } from '@/services/advertisements/ads';
 import { notFound, redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import AdApprovalActions from '@/components/ads/AdApprovalActions';

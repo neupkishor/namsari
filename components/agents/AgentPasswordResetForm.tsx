@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import { resetAgentPassword } from '@/actions/agents';
+import { resetAgentPassword } from '@/services/agencies/agents';
 
 interface AgentPasswordResetFormProps {
   agentId: number;

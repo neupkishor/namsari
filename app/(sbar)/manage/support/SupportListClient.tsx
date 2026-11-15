@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { deleteSupportArticle } from '@/actions/support';
+import { deleteSupportArticle } from '@/services/content/support';
 
 export default function SupportListClient({ initialArticles }: { initialArticles: any[] }) {
     const [articles, setArticles] = useState(initialArticles);

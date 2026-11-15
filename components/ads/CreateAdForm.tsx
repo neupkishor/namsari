@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createAd, getAdRates } from '@/actions/ads';
+import { createAd, getAdRates } from '@/services/advertisements/ads';
 import imageCompression from 'browser-image-compression';
 import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
 import { logUploadError } from '@/lib/client-error-logger';

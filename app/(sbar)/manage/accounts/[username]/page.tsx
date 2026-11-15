@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getSession } from '@/lib/auth';
-import { toggleAgencyVerification } from '@/actions/agencies';
+import { toggleAgencyVerification } from '@/services/agencies/actions';
 
 export default async function UserDetailsPage({ params }: { params: Promise<{ username: string }> }) {
     const session = await getSession();

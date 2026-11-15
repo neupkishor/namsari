@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { deleteBlogPost, updateBlogPost } from '@/actions/blog';
+import { deleteBlogPost, updateBlogPost } from '@/services/content/blog';
 import { useRouter } from 'next/navigation';
 
 export default function BlogListClient({ initialPosts }: { initialPosts: any[] }) {

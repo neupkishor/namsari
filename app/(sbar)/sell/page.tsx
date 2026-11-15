@@ -12,8 +12,8 @@ import {
 import {
     getLatestPropertyDraftForUser,
     getPropertyDraftById,
-} from './actions/drafts';
-import { getAgencyConfigByAgencyId } from '@/actions/agency-config';
+} from '@/services/properties/drafts';
+import { getAgencyConfigByAgencyId } from '@/services/agencies/config';
 import { resolveActiveAgencyId, mergeDraftDefaults } from '@/lib/agency-config';
 
 export default async function SellPage({ searchParams }: { searchParams: Promise<{ purpose?: string; id?: string }> }) {

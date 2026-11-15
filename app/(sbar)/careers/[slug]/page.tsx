@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
-import { getJobListingBySlug } from '@/actions/careers';
+import { getJobListingBySlug } from '@/services/careers/actions';
 import JobApplicationForm from './JobApplicationForm';
 import { cookies } from 'next/headers';
 

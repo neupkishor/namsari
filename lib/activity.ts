@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import { getCurrentUser } from '@/actions/auth';
+import { getCurrentUser } from '@/services/auth/actions';
 import { headers, cookies } from 'next/headers';
 
 interface ActivityLogParams {

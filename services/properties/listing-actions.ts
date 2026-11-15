@@ -3,10 +3,10 @@
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
-import { createPropertyListing } from '@/lib/services/property';
+import { createPropertyListing } from '@/services/properties/property';
 import { logActivity } from '@/lib/activity';
-import { publishPropertyDraft } from './drafts';
-import { getAgencyConfigByAgencyId } from '@/actions/agency-config';
+import { publishPropertyDraft } from '@/services/properties/drafts';
+import { getAgencyConfigByAgencyId } from '@/services/agencies/config';
 import { formatRoadSizeValue, getConfiguredDefaultUnit, normalizeAgencyConfig, resolveActiveAgencyId } from '@/lib/agency-config';
 
 export async function createListing(formData: FormData) {

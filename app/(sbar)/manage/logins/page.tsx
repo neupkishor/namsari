@@ -1,5 +1,5 @@
 import React from 'react';
-import { getUserSessions } from '@/actions/auth';
+import { getUserSessions } from '@/services/auth/actions';
 import LoginsClient from './LoginsClient';
 
 export default async function LoginsPage() {

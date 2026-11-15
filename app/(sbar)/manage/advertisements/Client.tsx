@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import { createAdvertisement, toggleAdvertisementStatus, deleteAdvertisement } from '@/actions/advertisements';
+import { createAdvertisement, toggleAdvertisementStatus, deleteAdvertisement } from '@/services/advertisements/actions';
 import imageCompression from 'browser-image-compression';
 import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
 import { logUploadError } from '@/lib/client-error-logger';

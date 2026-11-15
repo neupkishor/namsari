@@ -1,4 +1,4 @@
-import { getSiteSettings } from '@/actions/settings';
+import { getSiteSettings } from '@/services/site/settings';
 import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import SiteClient from './SiteClient';

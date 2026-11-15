@@ -1,6 +1,6 @@
 'use client';
 
-import { updateAdStatus, updateAdDetails } from '@/actions/ads';
+import { updateAdStatus, updateAdDetails } from '@/services/advertisements/ads';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 

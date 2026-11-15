@@ -1,4 +1,4 @@
-import { getAdDetails, getAdAnalytics } from '@/actions/ads';
+import { getAdDetails, getAdAnalytics } from '@/services/advertisements/ads';
 import { notFound, redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import AdminAdControls from '@/components/ads/AdminAdControls';

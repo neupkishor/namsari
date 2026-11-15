@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { updateAboutContent } from '@/actions/about';
+import { updateAboutContent } from '@/services/content/about';
 import { useRouter } from 'next/navigation';
 
 export default function AboutManagementClient({ initialData }: { initialData: any }) {

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { createCollection, deleteCollection } from '@/actions/collections';
+import { createCollection, deleteCollection } from '@/services/collections/actions';
 import Link from 'next/link';
 
 import { PaginationControl } from '@/components/ui';

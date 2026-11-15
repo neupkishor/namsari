@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import imageCompression from 'browser-image-compression';
-import { createListing } from './actions/listing';
-import { discardPropertyDraft, savePropertyDraft } from './actions/drafts';
+import { createListing } from '@/services/properties/listing-actions';
+import { discardPropertyDraft, savePropertyDraft } from '@/services/properties/drafts';
 import { BasicInformation } from './components/BasicInformation';
 import { LocationInformation } from './components/LocationInformation';
 import { NearbyLocationInformation } from './components/NearbyLocationInformation';

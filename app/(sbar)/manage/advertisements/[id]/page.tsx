@@ -1,4 +1,4 @@
-import { getAdDetails, getAdAnalytics } from '@/actions/ads';
+import { getAdDetails, getAdAnalytics } from '@/services/advertisements/ads';
 import { notFound } from 'next/navigation';
 import DateFilter from '@/components/ads/DateFilter';
 

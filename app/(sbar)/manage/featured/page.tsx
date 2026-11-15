@@ -1,7 +1,7 @@
 import React from 'react';
 import prisma from '@/lib/prisma';
 import FeaturedManagementClient from '@/app/(sbar)/manage/featured/FeaturedManagementClient';
-import { getCurrentUser } from '@/actions/auth';
+import { getCurrentUser } from '@/services/auth/actions';
 import { redirect } from 'next/navigation';
 
 export default async function FeaturedManagementPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { deleteAllErrorLogs } from "@/actions/errors";
+import { deleteAllErrorLogs } from "@/services/monitoring/errors";
 
 export function DeleteAllErrorLogsButton({ disabled }: { disabled: boolean }) {
     const [isPending, startTransition] = useTransition();

@@ -1,4 +1,4 @@
-import { getCachedListingStats, refreshAndCacheListingStats } from '@/actions/listing-stats';
+import { getCachedListingStats, refreshAndCacheListingStats } from '@/services/properties/listing-stats';
 
 export default async function ManageStatPage() {
     const { stats, updatedAt } = await getCachedListingStats();

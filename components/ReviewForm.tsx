@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { submitReview } from '@/actions/reviews';
+import { submitReview } from '@/services/users/reviews';
 
 interface ReviewFormProps {
     receiverId: number;

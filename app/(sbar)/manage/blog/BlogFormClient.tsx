@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { createBlogPost, updateBlogPost } from '@/actions/blog';
+import { createBlogPost, updateBlogPost } from '@/services/content/blog';
 import { uploadFileWithIntent } from '@/lib/uploader';
 import 'react-quill-new/dist/quill.snow.css';
 

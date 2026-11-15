@@ -1,7 +1,7 @@
 import React from 'react';
 import SearchClient from './layout.client';
 import { getSession } from '@/lib/auth';
-import { getBrowseProperties } from '@/lib/services/property-browser';
+import { getProperties } from '@/services/properties/getProperties';
 
 export const metadata = {
     title: 'Search | Namsari',
@@ -12,7 +12,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ q?: st
     const searchParams = await props.searchParams;
     const session = await getSession();
     const user = session ? await import('@/lib/prisma').then(({ default: db }) => db.user.findUnique({ where: { id: Number(session.id) } })) : null;
-    const properties = await getBrowseProperties(200, { pricedOnly: false });
+    const properties = await getProperties({ limit: 200, pricedOnly: false });
 
     return (
         <SearchClient

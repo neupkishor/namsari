@@ -2,8 +2,8 @@ import React from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
-import { getCurrentUser } from "@/actions/auth";
-import { deleteErrorLog } from "@/actions/errors";
+import { getCurrentUser } from "@/services/auth/actions";
+import { deleteErrorLog } from "@/services/monitoring/errors";
 import { PaginationControl } from "@/components/ui";
 import { DeleteAllErrorLogsButton } from "./DeleteAllErrorLogsButton";
 

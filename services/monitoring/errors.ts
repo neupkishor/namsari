@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
-import { getCurrentUser } from "@/actions/auth";
+import { getCurrentUser } from "@/services/auth/actions";
 import { createErrorLog } from "@/lib/error-logger";
 
 type ErrorLogInput = {

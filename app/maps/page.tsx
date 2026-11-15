@@ -1,7 +1,7 @@
 import React from 'react';
 import MapsClient from './MapsClient';
 import { getSession } from '@/lib/auth';
-import { getBrowseProperties } from '@/lib/services/property-browser';
+import { getProperties } from '@/services/properties/getProperties';
 
 export const metadata = {
     title: 'Maps | Namsari',
@@ -12,7 +12,7 @@ export default async function MapsPage(props: { searchParams: Promise<{ q?: stri
     const searchParams = await props.searchParams;
     const session = await getSession();
     const user = session ? await import('@/lib/prisma').then(({ default: db }) => db.user.findUnique({ where: { id: Number(session.id) } })) : null;
-    const properties = await getBrowseProperties(80, { onlyMappable: true });
+    const properties = await getProperties({ limit: 80, onlyMappable: true });
 
     return (
         <MapsClient

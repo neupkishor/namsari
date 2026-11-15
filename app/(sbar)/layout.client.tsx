@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/menu/Sidebar';
-import { getCurrentUser } from '@/actions/auth';
+import { getCurrentUser } from '@/services/auth/actions';
 
 // Renders the sidebar shell and loads the signed-in user in the browser.
 export default function ClientLayout({ children }: { children: React.ReactNode }) {

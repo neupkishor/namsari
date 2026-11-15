@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getJobListing } from '@/actions/careers';
+import { getJobListing } from '@/services/careers/actions';
 import JobDetailClient from '@/app/(sbar)/manage/careers/[id]/JobDetailClient';
 
 export default async function JobEditPage({ params }: { params: Promise<{ id: string }> }) {

@@ -2,9 +2,9 @@
 import HomeClient from './HomeClient';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { getActiveAdvertisements } from '@/actions/advertisements';
-import { getPropertyTypeCounts, getSiteSettings } from '@/actions/settings';
-import { getCachedListingStats } from '@/actions/listing-stats';
+import { getActiveAdvertisements } from '@/services/advertisements/actions';
+import { getPropertyTypeCounts, getSiteSettings } from '@/services/site/settings';
+import { getCachedListingStats } from '@/services/properties/listing-stats';
 import { legacyPricingFromProperty } from '@/lib/pricing';
 
 export default async function HomePage() {
@@ -46,7 +46,7 @@ export default async function HomePage() {
                 }
             }
         }),
-        import('@/actions/search').then(mod => mod.getTrendingSearches()),
+        import('@/services/search/actions').then(mod => mod.getTrendingSearches()),
         prisma.property.findMany({
             where: { isFeatured: true, price_listed: { not: null } },
             take: 4,

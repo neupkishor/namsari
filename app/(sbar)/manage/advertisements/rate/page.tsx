@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getAdRates, createAdRate } from '@/actions/ads';
+import { getAdRates, createAdRate } from '@/services/advertisements/ads';
 
 export default function AdRatesPage() {
     const [loading, setLoading] = useState(true);

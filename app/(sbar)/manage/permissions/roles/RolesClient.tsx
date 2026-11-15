@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { createRole, deleteRole } from '@/actions/permissions';
+import { createRole, deleteRole } from '@/services/users/permissions';
 import { useRouter } from 'next/navigation';
 
 const RESOURCES = [

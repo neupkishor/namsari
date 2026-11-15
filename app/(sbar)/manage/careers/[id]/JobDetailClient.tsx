@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import JobFormClient from '@/app/(sbar)/manage/careers/JobFormClient';
-import { updateApplicationStatus } from '@/actions/careers';
+import { updateApplicationStatus } from '@/services/careers/actions';
 
 export default function JobDetailClient({ job }: { job: any }) {
     const [activeTab, setActiveTab] = useState<'edit' | 'applicants'>('applicants');

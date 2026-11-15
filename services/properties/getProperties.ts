@@ -1,13 +1,46 @@
 import prisma from '@/lib/prisma';
 import { legacyPricingFromProperty } from '@/lib/pricing';
+import type { PropertyType } from '@prisma/client';
+import type { PropertyFilterPayload } from './filterPayload';
 
-export async function getBrowseProperties(limit = 60, options?: { onlyMappable?: boolean; pricedOnly?: boolean }) {
-    const onlyMappable = options?.onlyMappable === true;
-    const pricedOnly = options?.pricedOnly !== false;
+// Loads property listings using the shared domain filter payload.
+export async function getProperties(filterPayload: PropertyFilterPayload = {}) {
+    const onlyMappable = filterPayload.onlyMappable === true;
+    const pricedOnly = filterPayload.pricedOnly !== false;
+    const limit = filterPayload.limit ?? 60;
+    const locationFilters = filterPayload.locations?.filter(Boolean) ?? [];
 
     const dbProperties = await prisma.property.findMany({
         where: {
             ...(pricedOnly ? { price_listed: { not: null } } : {}),
+            ...((filterPayload.query || locationFilters.length) ? { AND: [
+                ...(filterPayload.query ? [{ OR: [
+                    { title: { contains: filterPayload.query, mode: 'insensitive' as const } },
+                    { location: { is: { area: { contains: filterPayload.query, mode: 'insensitive' as const } } } },
+                    { location: { is: { cityVillage: { contains: filterPayload.query, mode: 'insensitive' as const } } } },
+                    { location: { is: { district: { contains: filterPayload.query, mode: 'insensitive' as const } } } },
+                ] }] : []),
+                ...(locationFilters.length ? [{ OR: locationFilters.map((location) => ({
+                    location: { is: {
+                        OR: [
+                            { area: { contains: location, mode: 'insensitive' as const } },
+                            { cityVillage: { contains: location, mode: 'insensitive' as const } },
+                            { district: { contains: location, mode: 'insensitive' as const } },
+                        ],
+                    } },
+                })) }] : []),
+            ] } : {}),
+            ...(filterPayload.types?.length ? { types: { hasSome: filterPayload.types as PropertyType[] } } : {}),
+            ...(filterPayload.category ? { natures: { some: { name: { equals: filterPayload.category, mode: 'insensitive' as const } } } } : {}),
+            ...(filterPayload.minPrice !== undefined || filterPayload.maxPrice !== undefined ? { price_listed: { ...(filterPayload.minPrice !== undefined ? { gte: filterPayload.minPrice } : {}), ...(filterPayload.maxPrice !== undefined ? { lte: filterPayload.maxPrice } : {}) } } : {}),
+            ...(filterPayload.listedBy ? { listedBy: { type: filterPayload.listedBy } } : {}),
+            ...(filterPayload.minSize !== undefined || filterPayload.maxSize !== undefined ? { features: { is: {
+                builtUpArea: {
+                    ...(filterPayload.minSize !== undefined ? { gte: filterPayload.minSize } : {}),
+                    ...(filterPayload.maxSize !== undefined ? { lte: filterPayload.maxSize } : {}),
+                },
+                ...(filterPayload.sizeUnit ? { builtUpAreaUnit: filterPayload.sizeUnit } : {}),
+            } } } : {}),
             ...(onlyMappable ? { OR: [
                 {
                     location: {
@@ -44,7 +77,7 @@ export async function getBrowseProperties(limit = 60, options?: { onlyMappable?:
             },
             property_likes: true
         },
-        orderBy: { created_on: 'desc' },
+        orderBy: filterPayload.sortBy === 'price' ? { price_listed: 'asc' } : { created_on: 'desc' },
         take: limit,
     });
 

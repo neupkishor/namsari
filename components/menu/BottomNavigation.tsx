@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { logoutAction } from '@/actions/auth';
+import { logoutAction } from '@/services/auth/actions';
 import { bottomNavItems, sidebarMenuGroups, managementMenuGroups } from './menu-config';
 import { MenuIcon } from './MenuIcon';
 import { setPopupActive, usePopupActive } from '@/lib/ui/popup-visibility';

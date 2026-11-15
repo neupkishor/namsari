@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createJobListing, updateJobListing } from '@/actions/careers';
+import { createJobListing, updateJobListing } from '@/services/careers/actions';
 
 export default function JobFormClient({ initialData, isEdit = false }: { initialData?: any, isEdit?: boolean }) {
     const router = useRouter();

@@ -6,7 +6,7 @@ import {
     beginSensitiveProfileUpdate,
     completeSensitiveProfileUpdate,
     updateProfile
-} from '@/actions/profile-client';
+} from '@/services/users/profile';
 import { useRouter } from 'next/navigation';
 
 type SensitiveKind = 'email' | 'phone' | 'password';

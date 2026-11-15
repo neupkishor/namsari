@@ -1,8 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
-import { getBlogPosts } from '@/actions/blog';
+import { getBlogPosts } from '@/services/content/blog';
 import BlogListClient from '@/app/(sbar)/manage/blog/BlogListClient';
-import { getCurrentUser } from '@/actions/auth';
+import { getCurrentUser } from '@/services/auth/actions';
 import { redirect } from 'next/navigation';
 import { BlogPost } from '@prisma/client';
 

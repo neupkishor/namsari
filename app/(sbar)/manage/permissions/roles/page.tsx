@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { getRoles } from '@/actions/permissions';
+import { getRoles } from '@/services/users/permissions';
 import RolesClient from './RolesClient';
 
 export default async function RolesPage() {

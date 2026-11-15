@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
-import { createPropertyListing } from '@/lib/services/property';
+import { createPropertyListing } from '@/services/properties/property';
 import { getDefaultPropertyPriceRate } from '@/lib/pricing';
 import { revalidatePath } from 'next/cache';
 

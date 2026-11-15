@@ -1,4 +1,4 @@
-import { getAds } from '@/actions/ads';
+import { getAds } from '@/services/advertisements/ads';
 import { getSession } from '@/lib/auth';
 import CreateAdForm from '@/components/ads/CreateAdForm';
 import AdActions from '@/components/ads/AdActions';

@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { getUserPermissions, getRoles } from '@/actions/permissions';
+import { getUserPermissions, getRoles } from '@/services/users/permissions';
 import UserPermissionClient from './UserPermissionClient';
 import { notFound } from 'next/navigation';
 

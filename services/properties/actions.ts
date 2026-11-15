@@ -3,7 +3,7 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/auth';
-import { getAgencyConfigByAgencyId } from '@/actions/agency-config';
+import { getAgencyConfigByAgencyId } from '@/services/agencies/config';
 
 // Helper to verify property access
 async function checkPropertyAccess(propertyId: number): Promise<boolean> {

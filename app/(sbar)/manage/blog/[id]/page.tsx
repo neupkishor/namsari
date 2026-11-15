@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getBlogPost } from '@/actions/blog';
+import { getBlogPost } from '@/services/content/blog';
 import BlogFormClient from '@/app/(sbar)/manage/blog/BlogFormClient';
 
 export default async function EditBlogPage({ params }: { params: Promise<{ id: string }> }) {

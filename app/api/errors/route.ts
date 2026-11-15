@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { logError } from "@/actions/errors";
+import { logError } from "@/services/monitoring/errors";
 
 export async function POST(request: Request) {
     try {

@@ -1,6 +1,6 @@
 import React from 'react';
-import { getDashboardStats } from '@/actions/dashboard';
-import { switchProfileAction } from '@/actions/auth';
+import { getDashboardStats } from '@/services/analytics/dashboard';
+import { switchProfileAction } from '@/services/auth/actions';
 import {
     PropertyStats,
     RequirementStats,

@@ -3,7 +3,7 @@
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
-import { PropertyDraftChanges, normalizePropertyDraftChanges } from '../draft-utils';
+import { PropertyDraftChanges, normalizePropertyDraftChanges } from '@/app/(sbar)/sell/draft-utils';
 
 async function getCurrentUserId() {
     const session = await getSession();

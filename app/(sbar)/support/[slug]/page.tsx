@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getSupportArticleBySlug } from '@/actions/support';
+import { getSupportArticleBySlug } from '@/services/content/support';
 
 export default async function SupportArticlePage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;

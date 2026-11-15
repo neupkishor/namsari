@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { getJobListings } from '@/actions/careers';
+import { getJobListings } from '@/services/careers/actions';
 
 export default async function CareersPage() {
     let positions: any[] = [];

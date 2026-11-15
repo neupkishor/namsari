@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getSupportArticle } from '@/actions/support';
+import { getSupportArticle } from '@/services/content/support';
 import SupportFormClient from '@/app/(sbar)/manage/support/SupportFormClient';
 
 export default async function EditSupportPage({ params }: { params: Promise<{ id: string }> }) {

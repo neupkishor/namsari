@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { getUsersWithRoles } from '@/actions/permissions';
-import { getCurrentUser } from '@/actions/auth';
+import { getUsersWithRoles } from '@/services/users/permissions';
+import { getCurrentUser } from '@/services/auth/actions';
 import { redirect } from 'next/navigation';
 
 export default async function PermissionsPage() {

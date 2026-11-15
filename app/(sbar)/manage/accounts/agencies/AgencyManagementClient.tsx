@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { createAgency, deleteAgency, toggleAgencyVerification } from '@/actions/agencies';
+import { createAgency, deleteAgency, toggleAgencyVerification } from '@/services/agencies/actions';
 import imageCompression from 'browser-image-compression';
 
 import { PaginationControl } from '@/components/ui';

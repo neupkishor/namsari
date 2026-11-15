@@ -193,7 +193,7 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialT
 
         if (trimmedQuery) {
             params.set('rawQuery', trimmedQuery);
-            import('@/actions/search').then(mod => mod.recordSearch(trimmedQuery)).catch(() => null);
+            import('@/services/search/actions').then(mod => mod.recordSearch(trimmedQuery)).catch(() => null);
         } else {
             params.delete('rawQuery');
         }

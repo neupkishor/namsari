@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { trackImpression, trackClick } from '@/actions/ads';
+import { trackImpression, trackClick } from '@/services/advertisements/ads';
 
 interface Ad {
     id: number;

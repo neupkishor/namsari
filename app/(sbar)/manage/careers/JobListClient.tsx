@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { deleteJobListing } from '@/actions/careers';
+import { deleteJobListing } from '@/services/careers/actions';
 
 export default function JobListClient({ initialJobs }: { initialJobs: any[] }) {
     const [jobs, setJobs] = useState(initialJobs);

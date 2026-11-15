@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { getBlogPosts } from '@/actions/blog';
+import { getBlogPosts } from '@/services/content/blog';
 
 export default async function BlogPage() {
     let posts: any[] = [];

@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import { updateBank, deleteBank, addBankRate } from '@/actions/banks';
+import { updateBank, deleteBank, addBankRate } from '@/services/banks/actions';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 

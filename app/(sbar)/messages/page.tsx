@@ -1,7 +1,7 @@
 import React from 'react';
 import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import { getConversationHistory } from '@/actions/ai';
+import { getConversationHistory } from '@/services/chat/actions';
 import ChatInterface from './ChatInterface';
 
 export default async function MessagesPage() {

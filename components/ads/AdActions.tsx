@@ -1,6 +1,6 @@
 'use client';
 
-import { approveAd, rejectAd } from '@/actions/ads';
+import { approveAd, rejectAd } from '@/services/advertisements/ads';
 import { useState } from 'react';
 import Link from 'next/link';
 

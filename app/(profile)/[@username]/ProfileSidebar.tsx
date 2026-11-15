@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { User } from '@prisma/client';
 import Link from 'next/link';
-import { logoutAction } from '@/actions/auth';
+import { logoutAction } from '@/services/auth/actions';
 
 export default function ProfileSidebar({ user, listingsCount, rating = 0, reviewCount = 0, isOwner = false }: { user: User, listingsCount: number, rating?: number, reviewCount?: number, isOwner?: boolean }) {
     const pathname = usePathname();

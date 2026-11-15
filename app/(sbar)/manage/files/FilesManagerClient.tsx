@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { deleteMedia } from '@/actions/media';
+import { deleteMedia } from '@/services/media/actions';
 import { getMedia, uploadFileWithIntent } from '@/lib/uploader';
 
 type MediaItem = {

@@ -1,7 +1,7 @@
 import React from 'react';
-import { getAboutContent } from '@/actions/about';
+import { getAboutContent } from '@/services/content/about';
 import AboutManagementClient from '@/app/(sbar)/manage/about/AboutManagementClient';
-import { getCurrentUser } from '@/actions/auth';
+import { getCurrentUser } from '@/services/auth/actions';
 import { redirect } from 'next/navigation';
 
 export default async function ManageAboutPage() {

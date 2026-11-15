@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { revokeSessionAction } from '@/actions/auth';
+import { revokeSessionAction } from '@/services/auth/actions';
 
 interface LoginsClientProps {
     sessions: any[];

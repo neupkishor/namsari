@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { logoutAction } from '@/actions/auth';
+import { logoutAction } from '@/services/auth/actions';
 import { sidebarMenuGroups } from './menu-config';
 import { MenuIcon } from './MenuIcon';
 import { setPopupActive } from '@/lib/ui/popup-visibility';

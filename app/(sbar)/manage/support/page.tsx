@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { getSupportArticles } from '@/actions/support';
+import { getSupportArticles } from '@/services/content/support';
 import SupportListClient from '@/app/(sbar)/manage/support/SupportListClient';
 import { SupportArticle } from '@prisma/client';
 

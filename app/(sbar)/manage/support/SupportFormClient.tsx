@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { createSupportArticle, updateSupportArticle } from '@/actions/support';
+import { createSupportArticle, updateSupportArticle } from '@/services/content/support';
 import 'react-quill-new/dist/quill.snow.css';
 
 // Dynamic import for React Quill to avoid SSR issues

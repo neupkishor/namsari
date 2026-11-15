@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
-import { toggleLike, addComment } from '@/actions/social';
+import { toggleLike, addComment } from '@/services/social/actions';
 import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
 
 export function SocialCollectionView({ properties, user }: { properties: any[], user: any }) {

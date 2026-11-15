@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { assignRoleToUser, grantUserPermission, revokeUserPermission } from '@/actions/permissions';
+import { assignRoleToUser, grantUserPermission, revokeUserPermission } from '@/services/users/permissions';
 import { useRouter } from 'next/navigation';
 
 export default function UserPermissionClient({ user, roles }: { user: any, roles: any[] }) {

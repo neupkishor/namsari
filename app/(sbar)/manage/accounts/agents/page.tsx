@@ -2,7 +2,7 @@ import React from 'react';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { PaginationControl } from '@/components/ui';
-import { getCurrentUser } from '@/actions/auth';
+import { getCurrentUser } from '@/services/auth/actions';
 import { redirect } from 'next/navigation';
 import CreateAgentForm from '@/components/agents/CreateAgentForm';
 import AgentPasswordResetForm from '@/components/agents/AgentPasswordResetForm';

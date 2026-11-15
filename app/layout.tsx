@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Outfit } from 'next/font/google';
 import '@/app/globals.css';
-import { getCurrentUser } from '@/actions/auth';
+import { getCurrentUser } from '@/services/auth/actions';
 import { Header } from '@/components/menu/Header';
 import ServerLayout from './layout.server';
 import ClientLayout from './layout.client';

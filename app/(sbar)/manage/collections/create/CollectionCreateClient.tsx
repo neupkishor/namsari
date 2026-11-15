@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { createCollection } from '@/actions/collections';
+import { createCollection } from '@/services/collections/actions';
 
 type PropertyOption = {
     id: number;

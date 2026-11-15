@@ -4,7 +4,7 @@ import { legacyPricingFromProperty } from '@/lib/pricing';
 
 import { Property, User } from '@prisma/client';
 import { getSession } from '@/lib/auth';
-import { createPropertyListing } from '@/lib/services/property';
+import { createPropertyListing } from '@/services/properties/property';
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);

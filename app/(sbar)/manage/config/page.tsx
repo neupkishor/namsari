@@ -2,7 +2,7 @@ import React from 'react';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import { saveAgencyConfig } from '@/actions/agency-config';
+import { saveAgencyConfig } from '@/services/agencies/config';
 import { normalizeAgencyConfig, resolveActiveAgencyId } from '@/lib/agency-config';
 
 export default async function ManageConfigPage() {

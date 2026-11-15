@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createAgencyAgent, addExistingAgent } from '@/actions/agents';
+import { createAgencyAgent, addExistingAgent } from '@/services/agencies/agents';
 
 export default function CreateAgentForm({ agencyId }: { agencyId: number }) {
     const [isOpen, setIsOpen] = useState(false);

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getJobListings } from '@/actions/careers';
+import { getJobListings } from '@/services/careers/actions';
 import JobListClient from '@/app/(sbar)/manage/careers/JobListClient';
 
 export default async function CareersPage() {

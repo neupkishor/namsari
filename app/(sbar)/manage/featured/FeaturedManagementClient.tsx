@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { toggleFeatured } from '@/actions/featured';
+import { toggleFeatured } from '@/services/properties/featured';
 import { useRouter } from 'next/navigation';
 
 import { PaginationControl } from '@/components/ui';

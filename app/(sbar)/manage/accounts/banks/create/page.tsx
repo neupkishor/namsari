@@ -1,6 +1,6 @@
 'use client';
 
-import { createBank } from '@/actions/banks';
+import { createBank } from '@/services/banks/actions';
 
 export default function CreateBankPage() {
     return (

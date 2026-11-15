@@ -3,7 +3,7 @@ import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { removePropertyFromCollectionWithSlug } from '@/actions/collections';
+import { removePropertyFromCollectionWithSlug } from '@/services/collections/actions';
 import { LoginPromptCard } from '@/components/cards/LoginPromptCard';
 import { legacyPricingFromProperty } from '@/lib/pricing';
 

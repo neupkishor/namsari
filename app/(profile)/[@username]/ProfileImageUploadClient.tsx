@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import imageCompression from 'browser-image-compression';
-import { updateUserProfilePicture } from '@/actions/profile-client';
+import { updateUserProfilePicture } from '@/services/users/profile';
 import { useRouter } from 'next/navigation';
 import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
 import { logUploadError } from '@/lib/client-error-logger';

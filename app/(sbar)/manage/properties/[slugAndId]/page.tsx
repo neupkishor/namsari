@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import PropertyManageClient from '@/app/(sbar)/manage/properties/[slugAndId]/PropertyManageClient';
 import { getSession } from '@/lib/auth';
-import { getAgencyConfigByAgencyId } from '@/actions/agency-config';
+import { getAgencyConfigByAgencyId } from '@/services/agencies/config';
 import { resolveActiveAgencyId } from '@/lib/agency-config';
 import { legacyPricingFromProperty } from '@/lib/pricing';
 
