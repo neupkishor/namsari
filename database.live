@@ -129,6 +129,19 @@ Fields:
 > name: string;
 > status: string;
 
+Table: master_data__nearby_locations, Model: MasterDataNearbyLocation
+Fields:
+> id: uuid, primary key, default uuid;
+> name: text, unique;
+> icon: text;
+
+Table: property_nearby_locations, Model: PropertyNearbyLocation
+Fields:
+> id: uuid, primary key, default uuid;
+> location_id: uuid, references master_data__nearby_locations.id;
+> property_id: int, references Property.id, cascade delete;
+> distance: text;
+
 Table: Media, Model: Media
 Fields:
 > id: int, primary key, auto incremental;

@@ -50,6 +50,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             },
             features: true,
             propertyAmmenities: { include: { ammenity: true } },
+            nearbyLocations: { include: { location: true } },
             comments: {
                 include: { user: true },
                 orderBy: { created_at: 'desc' }
@@ -289,9 +290,13 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             { icon: '/icons/bridge-water.svg', label: 'Drainage' }
         );
     }
-    const nearbyAmenities = (property.propertyAmmenities || [])
-        .filter((amenity) => amenity.status === 'active')
-        .map((amenity) => ({ id: amenity.id, name: amenity.ammenity.name, type: amenity.ammenity.name }));
+    const nearbyAmenities = property.nearbyLocations.map((nearbyLocation) => ({
+        id: nearbyLocation.id,
+        name: nearbyLocation.location.name,
+        type: nearbyLocation.location.name,
+        distance: nearbyLocation.distance,
+        icon: nearbyLocation.location.icon,
+    }));
 
     return (
         <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', paddingBottom: '100px', paddingTop: 'var(--header-height, 72px)', overflowX: 'clip' }}>

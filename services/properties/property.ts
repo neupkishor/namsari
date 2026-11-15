@@ -101,6 +101,19 @@ export interface CreatePropertyInput {
     }>;
 }
 
+// Resolves the shared icon path stored for each nearby location name.
+function getNearbyLocationIcon(name: string): string {
+    const normalizedName = name.toLowerCase();
+    if (/(hospital|clinic|medical|health|nursing)/.test(normalizedName)) return '/icons/land-location.svg';
+    if (/(school|college|campus|university|academy)/.test(normalizedName)) return '/icons/apartment.svg';
+    if (/(park|garden|ground|playground|stadium)/.test(normalizedName)) return '/icons/land-layer-location.svg';
+    if (/(gym|fitness|workout|sports)/.test(normalizedName)) return '/icons/house-chimney.svg';
+    if (/(restaurant|cafe|coffee|food|eatery|bakery)/.test(normalizedName)) return '/icons/note.svg';
+    if (/(hotel|resort|lodge|inn)/.test(normalizedName)) return '/icons/concierge-bell.svg';
+    if (/(market|bazaar|mall|shopping|store|mart)/.test(normalizedName)) return '/icons/land-layer-location.svg';
+    return '/icons/land-location.svg';
+}
+
 /**
  * Converts a number to its word representation (Nepalese context: Lakh, Crore).
  */
@@ -244,6 +257,17 @@ export async function createPropertyListing(input: CreatePropertyInput) {
                     create: amenities.map((amenity) => ({
                         ammenity: { connectOrCreate: { where: { id: Number((amenity as any).id) || -1 }, create: { name: String((amenity as any).name || amenity.type || ''), status: 'active' } } },
                         status: String((amenity as any).status || 'active').slice(0, 24),
+                    })),
+                } : undefined,
+                nearbyLocations: amenities && amenities.some((amenity) => amenity.distance) ? {
+                    create: amenities.filter((amenity) => amenity.distance).map((amenity) => ({
+                        distance: amenity.distance!,
+                        location: {
+                            connectOrCreate: {
+                                where: { name: amenity.name || amenity.type },
+                                create: { name: amenity.name || amenity.type, icon: getNearbyLocationIcon(amenity.name || amenity.type) },
+                            },
+                        },
                     })),
                 } : undefined,
                 propertyMedia: images || videos ? {

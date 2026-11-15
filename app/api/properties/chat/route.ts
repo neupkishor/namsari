@@ -436,6 +436,21 @@ export async function PATCH(request: Request) {
                     status: String(amenity.status || 'active').slice(0, 24),
                 })),
             } : undefined,
+            nearbyLocations: amenities ? {
+                deleteMany: {},
+                create: amenities.filter((amenity: any) => typeof amenity.distance === 'string').map((amenity: any) => ({
+                    distance: amenity.distance,
+                    location: {
+                        connectOrCreate: {
+                            where: { name: String(amenity.name || amenity.type || '') },
+                            create: {
+                                name: String(amenity.name || amenity.type || ''),
+                                icon: '/icons/land-location.svg',
+                            },
+                        },
+                    },
+                })),
+            } : undefined,
             media: mediaPayload,
             mainMedia: images && images.length > 0 ? images[0].url : undefined,
             types: relationUpdate(types),

@@ -7,6 +7,7 @@ export type Amenity = {
     type: string;
     name?: string | null;
     distance?: string | null;
+    icon?: string | null;
 };
 
 export function NearbyAmenitiesSection({ amenities }: { amenities: Amenity[] }) {
@@ -25,8 +26,8 @@ export function NearbyAmenitiesSection({ amenities }: { amenities: Amenity[] }) 
                                     aria-hidden="true"
                                     className="nearby-amenity-icon"
                                     style={{
-                                        WebkitMaskImage: `url(${getAmenityIcon(amenity.type, amenity.name)})`,
-                                        maskImage: `url(${getAmenityIcon(amenity.type, amenity.name)})`
+                                        WebkitMaskImage: `url(${amenity.icon || getAmenityIcon(amenity.type, amenity.name)})`,
+                                        maskImage: `url(${amenity.icon || getAmenityIcon(amenity.type, amenity.name)})`
                                     }}
                                 />
                             </span>

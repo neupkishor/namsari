@@ -255,6 +255,7 @@ model Property {
   propertyMedia      PropertyMedia[]
   saleStatuses       PropertySaleStatus[]
   propertyAmmenities PropertyAmmenity[]
+  nearbyLocations    PropertyNearbyLocation[]
 
   // Ownership Details
   listedById Int
@@ -332,6 +333,29 @@ model MasterAmmenity {
   ammenities PropertyAmmenity[]
 
   @@map("master_ammenities")
+}
+
+model MasterDataNearbyLocation {
+  id         String                   @id @default(uuid()) @db.Uuid
+  name       String
+  icon       String
+  properties PropertyNearbyLocation[]
+
+  @@unique([name])
+  @@map("master_data__nearby_locations")
+}
+
+model PropertyNearbyLocation {
+  id         String                  @id @default(uuid()) @db.Uuid
+  locationId String                  @map("location_id") @db.Uuid
+  location   MasterDataNearbyLocation @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  propertyId Int                     @map("property_id")
+  property   Property                @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  distance   String
+
+  @@index([propertyId])
+  @@index([locationId])
+  @@map("property_nearby_locations")
 }
 
 model PropertyNature {
