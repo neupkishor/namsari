@@ -8,15 +8,20 @@
     "npm": "12.2.2"
   },
   "scripts": {
-    "dev": "next dev -p 6267 --experimental-https",
-    "build": "prisma generate && next build",
-    "db:push": "prisma db push",
-    "db:migrate:deploy": "prisma migrate deploy",
-    "start": "next start -p 6267",
-    "lint": "eslint",
-    "clean-install": "rm -rf node_modules node_modules/.prisma prisma/generated && npm install && npx prisma generate",
+    "neup.cloner": "test -d ./@neup/setup || (mkdir -p ./@neup && cd ./@neup && git clone --depth 1 --single-branch --branch main https://github.com/neupgroup/nextjs.setup.git nextjs.setup && mv nextjs.setup setup)",
+    "setup": "npm run neup.cloner && cd ./@neup && chmod +x ./setup/index.sh && ./setup/index.sh",
+    "preinstall": "npm run setup -- --mode preinstall",
+    "postinstall": "npm run setup -- --mode postinstall",
+    "prebuild": "npm run setup -- --mode prebuild",
+    "postbuild": "npm run setup -- --mode postbuild",
+    "predev": "npm run setup -- --mode predev",
+    "dev": "next dev --experimental-https --hostname dev.neupgroup.com --port 6267",
+    "build": "next build",
+    "start": "next start --port 6267",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "filebrowser:install": "chmod +x ./setup.sh && ./setup.sh",
-    "setup": "cd /home/ubuntu/uploads && sudo filebrowser setup"
+    "filebrowser:setup": "cd /home/ubuntu/uploads && sudo filebrowser setup"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
