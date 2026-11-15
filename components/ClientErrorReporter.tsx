@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { errorToPayload, logClientError } from "@/lib/client-error-logger";
+import { errorToPayload, logClientError } from "@/components/client-error-logger";
 
 export function ClientErrorReporter() {
     useEffect(() => {

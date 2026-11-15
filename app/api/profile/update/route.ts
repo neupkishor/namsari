@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import { getSession } from '@/services/auth/session';
+import prisma from '@neup/core/database/prisma';
 
 export async function POST(req: Request) {
     try {

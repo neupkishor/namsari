@@ -1,12 +1,12 @@
 'use server';
 
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { Prisma } from '@prisma/client';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 import { revalidatePath } from 'next/cache';
 import {
     resolveActiveAgencyId,
-} from '@/lib/agency-config';
+} from '@/services/agencies/agency-config';
 
 export async function getAgencyConfigByAgencyId(agencyId: number) {
     return prisma.agencyConfig.findUnique({

@@ -1,7 +1,7 @@
 import React from 'react';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 import { redirect } from 'next/navigation';
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { Header } from '@/components/menu/Header';
 import RegisterClient from '@/app/auth/register/RegisterClient';
 

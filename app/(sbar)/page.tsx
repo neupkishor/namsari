@@ -1,11 +1,11 @@
 
 import HomeClient from './HomeClient';
-import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import { getSession } from '@/services/auth/session';
+import prisma from '@neup/core/database/prisma';
 import { getActiveAdvertisements } from '@/services/advertisements/actions';
 import { getPropertyTypeCounts, getSiteSettings } from '@/services/site/settings';
 import { getCachedListingStats } from '@/services/properties/listing-stats';
-import { legacyPricingFromProperty } from '@/lib/pricing';
+import { legacyPricingFromProperty } from '@/services/properties/pricing';
 
 export default async function HomePage() {
     const session = await getSession();

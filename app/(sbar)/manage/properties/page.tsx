@@ -1,10 +1,10 @@
 import React from 'react';
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import Link from 'next/link';
 import { PaginationControl } from '@/components/ui';
 import { getCurrentUser } from '@/services/auth/actions';
 import { redirect } from 'next/navigation';
-import { legacyPricingFromPrice } from '@/lib/pricing';
+import { legacyPricingFromPrice } from '@/services/properties/pricing';
 import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
 
 export default async function ManagePropertiesPage({ searchParams }: { searchParams: Promise<{ page?: string; view?: string }> }) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { getCurrentUser } from '@/services/auth/actions';
 import { redirect } from 'next/navigation';
 import { PaginationControl } from '@/components/ui';

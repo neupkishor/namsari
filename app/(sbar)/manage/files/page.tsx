@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import prisma from "@/lib/prisma";
+import prisma from "@neup/core/database/prisma";
 import { getCurrentUser } from "@/services/auth/actions";
 import { PaginationControl } from "@/components/ui";
 import { FilesManagerClient } from "./FilesManagerClient";

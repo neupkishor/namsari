@@ -1,12 +1,12 @@
 import React from 'react';
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import PropertyManageClient from '@/app/(sbar)/manage/properties/[slugAndId]/PropertyManageClient';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 import { getAgencyConfigByAgencyId } from '@/services/agencies/config';
-import { resolveActiveAgencyId } from '@/lib/agency-config';
-import { legacyPricingFromProperty } from '@/lib/pricing';
+import { resolveActiveAgencyId } from '@/services/agencies/agency-config';
+import { legacyPricingFromProperty } from '@/services/properties/pricing';
 
 export default async function ManagePropertyDetailPage({ params }: { params: Promise<{ slugAndId: string }> }) {
     const resolvedParams = await params;

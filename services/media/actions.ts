@@ -1,9 +1,9 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import prisma from '@/lib/prisma';
-import { deleteAssetByRelativePath } from '@/lib/assets';
-import { getSession } from '@/lib/auth';
+import prisma from '@neup/core/database/prisma';
+import { deleteAssetByRelativePath } from '@/services/media/assets';
+import { getSession } from '@/services/auth/session';
 
 async function requireAdmin() {
     const session = await getSession();

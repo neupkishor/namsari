@@ -1,6 +1,6 @@
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { notFound } from 'next/navigation';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 
 // Holds the server side of the profile layout boundary.
 export default function ServerLayout({ children }: { children: React.ReactNode }) {

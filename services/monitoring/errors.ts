@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import prisma from "@/lib/prisma";
+import prisma from "@neup/core/database/prisma";
 import { getCurrentUser } from "@/services/auth/actions";
-import { createErrorLog } from "@/lib/error-logger";
+import { createErrorLog } from "@/services/monitoring/error-logger";
 
 type ErrorLogInput = {
     message: string;

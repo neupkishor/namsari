@@ -1,6 +1,6 @@
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { notFound, redirect } from 'next/navigation';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 import { SavedPropertyCard } from '@/components/cards/SavedPropertyCard';
 
 interface PageProps {

@@ -1,7 +1,7 @@
 'use server';
 
-import prisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import prisma from '@neup/core/database/prisma';
+import { getSession } from '@/services/auth/session';
 import { revalidatePath } from 'next/cache';
 
 export async function submitReview(receiverId: number, rating: number, comment: string) {

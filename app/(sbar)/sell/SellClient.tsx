@@ -14,9 +14,9 @@ import { PropertyInformation } from './components/PropertyInformation';
 import { PropertyDraftChanges, normalizePropertyDraftChanges } from './draft-utils';
 
 import { Header } from '@/components/menu/Header';
-import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
-import { logUploadError } from '@/lib/client-error-logger';
-import { getConfiguredDefaultUnit, mergeDraftDefaults } from '@/lib/agency-config';
+import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/services/media/uploader';
+import { logUploadError } from '@/components/client-error-logger';
+import { getConfiguredDefaultUnit, mergeDraftDefaults } from '@/services/agencies/agency-config';
 import styles from './SellClient.module.css';
 
 type UploadProgress = {

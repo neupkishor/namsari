@@ -1,9 +1,9 @@
 'use server';
 
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { revalidatePath } from 'next/cache';
-import { getSession } from '@/lib/auth';
-import { logActivity } from '@/lib/activity';
+import { getSession } from '@/services/auth/session';
+import { logActivity } from '@/services/analytics/activity';
 
 export async function getAdvertisements() {
     try {

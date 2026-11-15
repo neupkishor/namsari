@@ -1,7 +1,7 @@
 'use server';
 
-import prisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import prisma from '@neup/core/database/prisma';
+import { getSession } from '@/services/auth/session';
 import { revalidatePath } from 'next/cache';
 
 const PROPERTY_TYPE_COUNT_TTL_MS = 24 * 60 * 60 * 1000;

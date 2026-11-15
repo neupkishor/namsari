@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
-import { signIn } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import { signIn } from '@/services/auth/session';
+import prisma from '@neup/core/database/prisma';
 import {
     createAvailableUsername,
     jsonError,

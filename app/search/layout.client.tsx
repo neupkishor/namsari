@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
-import { convertAreaValue, normalizeAreaUnit } from '@/lib/area-units';
-import { matchesAnyLocationFilter, splitLocationFilterValues } from '@/lib/location-filters';
+import { convertAreaValue, normalizeAreaUnit } from '@/services/properties/area-units';
+import { matchesAnyLocationFilter, splitLocationFilterValues } from '@/services/properties/location-filters';
 
 function normalize(value: unknown) {
     return String(value || '').toLowerCase();

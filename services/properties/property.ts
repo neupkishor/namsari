@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import {
     Property,
     PropertyLocation,
@@ -9,7 +9,7 @@ import {
     PropertyPriceInput,
     getDefaultPropertyPriceRate,
     normalizePropertyPriceInput,
-} from '@/lib/pricing';
+} from '@/services/properties/pricing';
 
 export interface CreatePropertyInput {
     // General Details

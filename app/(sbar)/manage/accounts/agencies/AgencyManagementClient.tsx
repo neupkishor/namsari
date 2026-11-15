@@ -6,8 +6,8 @@ import { createAgency, deleteAgency, toggleAgencyVerification } from '@/services
 import imageCompression from 'browser-image-compression';
 
 import { PaginationControl } from '@/components/ui';
-import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
-import { logUploadError } from '@/lib/client-error-logger';
+import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/services/media/uploader';
+import { logUploadError } from '@/components/client-error-logger';
 
 interface AgencyManagementClientProps {
     yourAgencies: any[];

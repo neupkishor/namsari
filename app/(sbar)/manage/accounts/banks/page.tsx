@@ -1,8 +1,8 @@
 import React from 'react';
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import Link from 'next/link';
 import { PaginationControl } from '@/components/ui';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser } from '@/services/auth/session';
 import { redirect } from 'next/navigation';
 
 export default async function ManageBanksPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {

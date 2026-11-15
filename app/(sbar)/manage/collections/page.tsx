@@ -1,5 +1,5 @@
-import { getSession } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { getSession } from "@/services/auth/session";
+import prisma from "@neup/core/database/prisma";
 import { CollectionsClient } from "@/app/(sbar)/manage/collections/CollectionsClient";
 import { LoginPromptCard } from "@/components/cards/LoginPromptCard";
 import { redirect } from 'next/navigation';

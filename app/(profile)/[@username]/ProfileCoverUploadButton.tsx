@@ -4,8 +4,8 @@ import { useState } from 'react';
 import imageCompression from 'browser-image-compression';
 import { useRouter } from 'next/navigation';
 import { updateUserCoverImage } from '@/services/users/profile';
-import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
-import { logUploadError } from '@/lib/client-error-logger';
+import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/services/media/uploader';
+import { logUploadError } from '@/components/client-error-logger';
 
 interface ProfileCoverUploadButtonProps {
     userId: number;

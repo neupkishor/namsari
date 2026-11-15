@@ -1,6 +1,6 @@
 'use server';
 
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 
 export async function getConversationHistory() {
     const session = await getSession();

@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { createAd, getAdRates } from '@/services/advertisements/ads';
 import imageCompression from 'browser-image-compression';
-import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
-import { logUploadError } from '@/lib/client-error-logger';
+import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/services/media/uploader';
+import { logUploadError } from '@/components/client-error-logger';
 
 export default function CreateAdForm() {
     const [isOpen, setIsOpen] = useState(false);

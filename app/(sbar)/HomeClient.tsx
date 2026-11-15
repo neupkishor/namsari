@@ -10,10 +10,10 @@ import { HeroCarouselAd, FeedAd } from '@/components/cards/AdvertisementCard';
 import { SectionTitleFeed } from '@/components/sections/SectionTitleFeed';
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
 import { PropertySet } from '@/components/PropertySet';
-import { AreaUnit, areaUnitLabel } from '@/lib/area-units';
-import { formatNPR } from '@/lib/formatters';
-import { matchesAnyLocationFilter } from '@/lib/location-filters';
-import { setBackgroundScrollLocked, setPopupActive } from '@/lib/ui/popup-visibility';
+import { AreaUnit, areaUnitLabel } from '@/services/properties/area-units';
+import { formatNPR } from '@/services/shared/formatters';
+import { matchesAnyLocationFilter } from '@/services/properties/location-filters';
+import { setBackgroundScrollLocked, setPopupActive } from '@/components/ui/popup-visibility';
 
 const FEATURED_FALLBACK_IMAGES = [
     'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',

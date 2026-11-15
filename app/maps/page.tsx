@@ -1,6 +1,6 @@
 import React from 'react';
 import MapsClient from './MapsClient';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 import { getProperties } from '@/services/properties/getProperties';
 
 export const metadata = {
@@ -11,7 +11,7 @@ export const metadata = {
 export default async function MapsPage(props: { searchParams: Promise<{ q?: string; rawQuery?: string; type?: string }> }) {
     const searchParams = await props.searchParams;
     const session = await getSession();
-    const user = session ? await import('@/lib/prisma').then(({ default: db }) => db.user.findUnique({ where: { id: Number(session.id) } })) : null;
+    const user = session ? await import('@neup/core/database/prisma').then(({ default: db }) => db.user.findUnique({ where: { id: Number(session.id) } })) : null;
     const properties = await getProperties({ limit: 80, onlyMappable: true });
 
     return (

@@ -1,8 +1,8 @@
 import React from 'react';
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 import { toggleAgencyVerification } from '@/services/agencies/actions';
 
 export default async function UserDetailsPage({ params }: { params: Promise<{ username: string }> }) {

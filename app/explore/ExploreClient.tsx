@@ -7,8 +7,8 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Header } from '@/components/menu/Header';
 import { PropertyCard } from '@/components/cards/PropertyCard';
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
-import { convertAreaValue, normalizeAreaUnit } from '@/lib/area-units';
-import { matchesAnyLocationFilter, splitLocationFilterValues } from '@/lib/location-filters';
+import { convertAreaValue, normalizeAreaUnit } from '@/services/properties/area-units';
+import { matchesAnyLocationFilter, splitLocationFilterValues } from '@/services/properties/location-filters';
 
 // Dynamically import map to avoid SSR issues
 const MapComponent = dynamic(() => import('./MapComponent'), {

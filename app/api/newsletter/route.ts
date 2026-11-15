@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import { prisma } from '@neup/core/database/prisma';
+import { getSession } from '@/services/auth/session';
 
 export async function GET(req: Request) {
     try {

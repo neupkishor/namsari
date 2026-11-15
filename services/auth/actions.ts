@@ -1,7 +1,7 @@
 "use server";
 
-import prisma from '@/lib/prisma';
-import { getSession, switchProfile, revokeSession as revokeSessionLib, signIn, signOut } from '@/lib/auth';
+import prisma from '@neup/core/database/prisma';
+import { getSession, switchProfile, revokeSession as revokeSessionLib, signIn, signOut } from '@/services/auth/session';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 

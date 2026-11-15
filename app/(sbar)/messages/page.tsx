@@ -1,5 +1,5 @@
 import React from 'react';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 import { redirect } from 'next/navigation';
 import { getConversationHistory } from '@/services/chat/actions';
 import ChatInterface from './ChatInterface';

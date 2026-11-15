@@ -1,8 +1,8 @@
 'use server';
 
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { revalidatePath } from 'next/cache';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 import { getAgencyConfigByAgencyId } from '@/services/agencies/config';
 
 // Helper to verify property access

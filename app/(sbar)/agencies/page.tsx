@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import Link from 'next/link';
 
 export default async function AgenciesPage() {

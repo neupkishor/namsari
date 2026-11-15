@@ -3,7 +3,7 @@
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteMedia } from '@/services/media/actions';
-import { getMedia, uploadFileWithIntent } from '@/lib/uploader';
+import { getMedia, uploadFileWithIntent } from '@/services/media/uploader';
 
 type MediaItem = {
     id: number;

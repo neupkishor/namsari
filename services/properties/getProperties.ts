@@ -1,5 +1,5 @@
-import prisma from '@/lib/prisma';
-import { legacyPricingFromProperty } from '@/lib/pricing';
+import prisma from '@neup/core/database/prisma';
+import { legacyPricingFromProperty } from '@/services/properties/pricing';
 import type { PropertyType } from '@prisma/client';
 import type { PropertyFilterPayload } from './filterPayload';
 

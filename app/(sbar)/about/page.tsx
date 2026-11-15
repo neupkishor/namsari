@@ -1,5 +1,5 @@
 import React from 'react';
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 
 export default async function AboutPage() {
     let content = null;

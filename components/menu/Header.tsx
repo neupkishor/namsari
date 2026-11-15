@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { HeaderProfile } from '../HeaderProfile';
 import { MobileMenu } from './MobileMenu';
-import { usePopupActive } from '@/lib/ui/popup-visibility';
+import { usePopupActive } from '@/components/ui/popup-visibility';
 
 export function Header({ user, fullWidth: propFullWidth, children }: { user?: any, fullWidth?: boolean, children?: React.ReactNode }) {
     const pathname = usePathname();

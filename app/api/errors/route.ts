@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { auth } from "@/services/auth/session";
 import { logError } from "@/services/monitoring/errors";
 
 export async function POST(request: Request) {

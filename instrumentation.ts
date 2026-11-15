@@ -1,4 +1,4 @@
-import { createErrorLog } from "@/lib/error-logger";
+import { createErrorLog } from "@/services/monitoring/error-logger";
 
 export async function onRequestError(error: unknown, request: any, context: any) {
     const err = error instanceof Error ? error : new Error(String(error));

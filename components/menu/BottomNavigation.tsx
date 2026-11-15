@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { logoutAction } from '@/services/auth/actions';
 import { bottomNavItems, sidebarMenuGroups, managementMenuGroups } from './menu-config';
 import { MenuIcon } from './MenuIcon';
-import { setPopupActive, usePopupActive } from '@/lib/ui/popup-visibility';
+import { setPopupActive, usePopupActive } from '@/components/ui/popup-visibility';
 
 const EXPLORE_VIEW_HOLD_MS = 1000;
 const EXPLORE_VIEW_FEEDBACK_MS = 200;

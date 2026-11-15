@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import { updateUser } from '@/services/users/admin';
 import imageCompression from 'browser-image-compression';
 import { useRouter } from 'next/navigation';
-import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
-import { logUploadError } from '@/lib/client-error-logger';
+import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/services/media/uploader';
+import { logUploadError } from '@/components/client-error-logger';
 
 interface EditUserClientProps {
     user: any;

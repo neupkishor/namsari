@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import Link from 'next/link';
 import imageCompression from 'browser-image-compression';
-import { getDefaultPropertyPriceRate, type PropertyPriceRate } from '@/lib/pricing';
-import { logUploadError } from '@/lib/client-error-logger';
-import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
+import { getDefaultPropertyPriceRate, type PropertyPriceRate } from '@/services/properties/pricing';
+import { logUploadError } from '@/components/client-error-logger';
+import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/services/media/uploader';
 
 type ChatMessage = {
     role: 'assistant' | 'user';

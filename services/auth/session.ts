@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@neup/core/database/prisma";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { createHmac } from "node:crypto";

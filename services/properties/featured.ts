@@ -1,6 +1,6 @@
 'use server';
 
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { revalidatePath } from 'next/cache';
 import { Prisma } from '@prisma/client';
 

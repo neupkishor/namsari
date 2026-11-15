@@ -1,9 +1,9 @@
 import React from 'react';
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { notFound } from 'next/navigation';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 import { SocialCollectionView } from './views/SocialCollectionView';
-import { legacyPricingFromProperty } from '@/lib/pricing';
+import { legacyPricingFromProperty } from '@/services/properties/pricing';
 
 export default async function CollectionPublicPage(props: { params: Promise<{ slug: string }>, searchParams: Promise<{ view?: string }> }) {
     const params = await props.params;

@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { createBlogPost, updateBlogPost } from '@/services/content/blog';
-import { uploadFileWithIntent } from '@/lib/uploader';
+import { uploadFileWithIntent } from '@/services/media/uploader';
 import 'react-quill-new/dist/quill.snow.css';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), {

@@ -1,7 +1,7 @@
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { formatNPR } from '@/lib/formatters';
+import { formatNPR } from '@/services/shared/formatters';
 
 interface PageProps {
     params: Promise<{

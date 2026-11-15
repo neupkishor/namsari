@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { loginAction } from '@/services/auth/actions';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 import { redirect } from 'next/navigation';
 
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { Input } from '@/components/ui';
 
 import { Header } from '@/components/menu/Header';

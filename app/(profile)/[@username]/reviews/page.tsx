@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
@@ -9,7 +9,7 @@ interface PageProps {
 }
 
 import ReviewForm from '@/components/ReviewForm';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 
 export default async function ProfileReviewsPage({ params }: PageProps) {
     const resolvedParams = await params;

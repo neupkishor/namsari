@@ -1,5 +1,5 @@
 import { getAds } from '@/services/advertisements/ads';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 import CreateAdForm from '@/components/ads/CreateAdForm';
 import AdActions from '@/components/ads/AdActions';
 import Link from 'next/link';

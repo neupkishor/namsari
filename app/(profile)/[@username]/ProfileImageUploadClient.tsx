@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import imageCompression from 'browser-image-compression';
 import { updateUserProfilePicture } from '@/services/users/profile';
 import { useRouter } from 'next/navigation';
-import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
-import { logUploadError } from '@/lib/client-error-logger';
+import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/services/media/uploader';
+import { logUploadError } from '@/components/client-error-logger';
 
 interface ProfileImageUploadProps {
     userId: number;

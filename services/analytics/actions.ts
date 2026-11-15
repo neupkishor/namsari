@@ -1,8 +1,8 @@
 'use server';
 
 import { headers } from 'next/headers';
-import prisma from '@/lib/prisma';
-import { logActivity } from '@/lib/activity';
+import prisma from '@neup/core/database/prisma';
+import { logActivity } from '@/services/analytics/activity';
 
 export async function trackVisit(sessionId: string, path: string) {
     try {

@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { jsonError, parseUserId } from '../../_lib';
 
 export const runtime = 'nodejs';

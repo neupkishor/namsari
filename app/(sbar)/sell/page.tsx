@@ -1,6 +1,6 @@
 import React from 'react';
-import prisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import prisma from '@neup/core/database/prisma';
+import { getSession } from '@/services/auth/session';
 import SellClient from './SellClient';
 import { LoginPromptCard } from '@/components/cards/LoginPromptCard';
 import { redirect } from 'next/navigation';
@@ -14,7 +14,7 @@ import {
     getPropertyDraftById,
 } from '@/services/properties/drafts';
 import { getAgencyConfigByAgencyId } from '@/services/agencies/config';
-import { resolveActiveAgencyId, mergeDraftDefaults } from '@/lib/agency-config';
+import { resolveActiveAgencyId, mergeDraftDefaults } from '@/services/agencies/agency-config';
 
 export default async function SellPage({ searchParams }: { searchParams: Promise<{ purpose?: string; id?: string }> }) {
     const { purpose, id } = await searchParams;

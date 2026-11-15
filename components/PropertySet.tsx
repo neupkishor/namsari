@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
-import { formatNPR } from '@/lib/formatters';
+import { formatNPR } from '@/services/shared/formatters';
 
 export interface PropertySetItem {
     id: number | string;

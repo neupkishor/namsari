@@ -1,4 +1,4 @@
-import { getConfiguredDefaultUnit, mergeDraftDefaults } from '@/lib/agency-config';
+import { getConfiguredDefaultUnit, mergeDraftDefaults } from '@/services/agencies/agency-config';
 
 export type PropertyDraftChanges = Record<string, any>;
 

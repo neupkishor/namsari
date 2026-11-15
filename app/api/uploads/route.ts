@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import prisma from '@/lib/prisma';
-import { uploadFileToAssetServer } from '@/lib/remote-uploader';
+import { auth } from '@/services/auth/session';
+import prisma from '@neup/core/database/prisma';
+import { uploadFileToAssetServer } from '@/services/media/remote-uploader';
 import { authenticatedUserId } from '@/app/bridge/api.v1/user/_lib';
 
 export const runtime = 'nodejs';

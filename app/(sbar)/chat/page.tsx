@@ -1,5 +1,5 @@
-import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import { getSession } from '@/services/auth/session';
+import prisma from '@neup/core/database/prisma';
 import { redirect } from 'next/navigation';
 import { LoginPromptCard } from '@/components/cards/LoginPromptCard';
 import ChatListingClient from './ChatListingClient';

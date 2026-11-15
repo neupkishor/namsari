@@ -1,6 +1,6 @@
 import React from 'react';
-import prisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import prisma from '@neup/core/database/prisma';
+import { getSession } from '@/services/auth/session';
 import AgencyManagementClient from './AgencyManagementClient';
 
 export default async function AgencyManagementPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {

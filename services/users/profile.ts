@@ -1,9 +1,9 @@
 'use server';
 
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { revalidatePath } from 'next/cache';
-import { logActivity } from '@/lib/activity';
-import { getSession } from '@/lib/auth';
+import { logActivity } from '@/services/analytics/activity';
+import { getSession } from '@/services/auth/session';
 
 import bcrypt from 'bcryptjs';
 import { createHmac, timingSafeEqual } from 'crypto';

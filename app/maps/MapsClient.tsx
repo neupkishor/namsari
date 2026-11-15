@@ -4,8 +4,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PropertyPost } from '@/components/cards/PropertyFeedCard';
-import { convertAreaValue, normalizeAreaUnit } from '@/lib/area-units';
-import { matchesAnyLocationFilter, splitLocationFilterValues } from '@/lib/location-filters';
+import { convertAreaValue, normalizeAreaUnit } from '@/services/properties/area-units';
+import { matchesAnyLocationFilter, splitLocationFilterValues } from '@/services/properties/location-filters';
 
 const MapComponent = dynamic(() => import('@/app/explore/MapComponent'), {
     ssr: false,

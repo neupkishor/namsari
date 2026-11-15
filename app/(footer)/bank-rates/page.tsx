@@ -1,4 +1,4 @@
-import Prisma from '@/lib/prisma';
+import Prisma from '@neup/core/database/prisma';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';

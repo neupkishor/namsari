@@ -1,6 +1,6 @@
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import NewsletterClient from '@/app/(sbar)/manage/newsletter/NewsletterClient';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser } from '@/services/auth/session';
 import { redirect } from 'next/navigation';
 
 export default async function NewsletterPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {

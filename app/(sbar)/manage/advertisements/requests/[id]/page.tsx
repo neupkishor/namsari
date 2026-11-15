@@ -1,6 +1,6 @@
 import { getAdDetails } from '@/services/advertisements/ads';
 import { notFound, redirect } from 'next/navigation';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 import AdApprovalActions from '@/components/ads/AdApprovalActions';
 import Link from 'next/link';
 

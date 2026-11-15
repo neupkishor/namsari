@@ -8,13 +8,13 @@ import { NearbyAmenitiesSection } from './NearbyAmenitiesSection';
 import type { Amenity } from './NearbyAmenitiesSection';
 import PropertyOverviewGrid from './PropertyOverviewGrid';
 import { Header } from '@/components/menu/Header';
-import prisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import prisma from '@neup/core/database/prisma';
+import { getSession } from '@/services/auth/session';
 import { RecommendedProperties } from '@/components/sections/RecommendedProperties';
 import { PropertyEmiSection } from '@/components/sections/PropertyEmiSection';
 import { SectionTitleFeed } from '@/components/sections/SectionTitleFeed';
 import { AutoScrollCarousel } from '@/components/ui/AutoScrollCarousel';
-import { legacyPricingFromProperty } from '@/lib/pricing';
+import { legacyPricingFromProperty } from '@/services/properties/pricing';
 
 function isAmenity(value: unknown): value is Amenity {
     if (!value || typeof value !== 'object') return false;

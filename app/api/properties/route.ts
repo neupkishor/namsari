@@ -1,9 +1,9 @@
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { NextResponse } from 'next/server';
-import { legacyPricingFromProperty } from '@/lib/pricing';
+import { legacyPricingFromProperty } from '@/services/properties/pricing';
 
 import { Property, User } from '@prisma/client';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 import { createPropertyListing } from '@/services/properties/property';
 
 export async function GET(request: Request) {

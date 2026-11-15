@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { InternalPropertyLink } from '@/components/navigation/InternalPropertyLink';
-import { formatPrice } from '@/lib/formatters';
+import { formatPrice } from '@/services/shared/formatters';
 
 interface PropertyCardProps {
     property: {

@@ -1,6 +1,6 @@
 import React from 'react';
-import prisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import prisma from '@neup/core/database/prisma';
+import { getSession } from '@/services/auth/session';
 import RequirementsClient from './RequirementsClient';
 
 export const metadata = {

@@ -1,11 +1,11 @@
 import React from 'react';
-import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import { getSession } from '@/services/auth/session';
+import prisma from '@neup/core/database/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { removePropertyFromCollectionWithSlug } from '@/services/collections/actions';
 import { LoginPromptCard } from '@/components/cards/LoginPromptCard';
-import { legacyPricingFromProperty } from '@/lib/pricing';
+import { legacyPricingFromProperty } from '@/services/properties/pricing';
 
 export default async function CollectionManagePage(props: { params: Promise<{ slug: string }> }) {
     const params = await props.params;

@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { NextResponse } from 'next/server';
 
 export async function GET() {

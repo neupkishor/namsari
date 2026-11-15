@@ -1,5 +1,5 @@
 import { getPropertyTypeCounts, updatePropertyTypeCount, syncPropertyTypeCounts } from '@/services/site/settings';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 import { redirect } from 'next/navigation';
 import SettingsClient from './SettingsClient';
 

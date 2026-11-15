@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { usePopupActive } from '@/lib/ui/popup-visibility';
+import { usePopupActive } from '@/components/ui/popup-visibility';
 
 export function FloatingActionButton() {
     const pathname = usePathname();

@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { legacyPricingFromPrice } from '@/lib/pricing';
+import { legacyPricingFromPrice } from '@/services/properties/pricing';
 
 export const propertyInclude = {
     listedBy: true,

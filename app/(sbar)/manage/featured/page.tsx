@@ -1,5 +1,5 @@
 import React from 'react';
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import FeaturedManagementClient from '@/app/(sbar)/manage/featured/FeaturedManagementClient';
 import { getCurrentUser } from '@/services/auth/actions';
 import { redirect } from 'next/navigation';

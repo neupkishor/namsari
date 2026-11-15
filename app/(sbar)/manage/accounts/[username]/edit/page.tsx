@@ -1,5 +1,5 @@
 import React from 'react';
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import EditUserClient from '@/app/(sbar)/manage/accounts/[username]/edit/EditUserClient';
 import { notFound } from 'next/navigation';
 

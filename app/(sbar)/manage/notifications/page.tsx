@@ -1,6 +1,6 @@
 import React from 'react';
-import prisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import prisma from '@neup/core/database/prisma';
+import { getSession } from '@/services/auth/session';
 import { redirect } from 'next/navigation';
 import NotificationsList from '@/app/(sbar)/manage/notifications/NotificationsList';
 import { PaginationControl } from '@/components/ui';

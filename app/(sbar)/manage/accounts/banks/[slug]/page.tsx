@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { notFound } from 'next/navigation';
 import { updateBank, deleteBank, addBankRate } from '@/services/banks/actions';
 import Link from 'next/link';

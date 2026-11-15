@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import prisma from '@neup/core/database/prisma';
+import { getSession } from '@/services/auth/session';
 import { createPropertyListing } from '@/services/properties/property';
-import { getDefaultPropertyPriceRate } from '@/lib/pricing';
+import { getDefaultPropertyPriceRate } from '@/services/properties/pricing';
 import { revalidatePath } from 'next/cache';
 
 function inferNatures(types: string[]) {

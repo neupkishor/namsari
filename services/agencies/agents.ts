@@ -1,9 +1,9 @@
 'use server';
 
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/services/auth/session';
 import { Prisma } from '@prisma/client';
 
 export async function createAgencyAgent(data: FormData) {

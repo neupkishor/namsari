@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import { addPropertyImage, deletePropertyListing, removePropertyImage, reorderPropertyImages, updatePropertyStatus, updateSoldStatus } from '@/services/properties/actions';
 import { useRouter } from 'next/navigation';
 import imageCompression from 'browser-image-compression';
-import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/lib/uploader';
-import { logUploadError } from '@/lib/client-error-logger';
+import { resolveUploadedFileUrl, uploadFileWithIntent } from '@/services/media/uploader';
+import { logUploadError } from '@/components/client-error-logger';
 import { updatePropertyPrice } from '@/services/properties/prices';
 
 const PROPERTY_PRICE_BASES = ['total', 'perUnit', 'perMonth', 'perYear', 'perUnitPerMonth', 'perUnitPerYear'] as const;

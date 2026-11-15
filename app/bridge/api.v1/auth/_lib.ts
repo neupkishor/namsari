@@ -1,5 +1,5 @@
 import { createHmac } from 'node:crypto';
-import prisma from '@/lib/prisma';
+import prisma from '@neup/core/database/prisma';
 
 export const publicUserSelect = {
     id: true,
