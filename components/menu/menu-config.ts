@@ -22,12 +22,14 @@ export const sidebarMenuGroups = (user: any): MenuGroup[] => [
     {
         title: 'Platform',
         items: [
-            { label: 'Profile', icon: '/icons/info.svg', href: user ? `/@${user.username}` : '/auth/login' },
-            { label: 'Houses', icon: '/icons/house-chimney.svg', href: '/find/houses' },
-            { label: 'Commercial Buildings', icon: '/icons/apartment.svg', href: '/find/commercial-buildings' },
+            ...(user ? [{ label: 'Profile', icon: '/icons/info.svg', href: `/@${user.username}` }] : []),
+            { label: 'Houses', icon: '/icons/house-chimney.svg', href: '/search?types=house' },
+            { label: 'Commercial Buildings', icon: '/icons/apartment.svg', href: '/search?category=commercial' },
             { label: 'Agencies', icon: '/icons/land-location.svg', href: '/agencies' },
-            { label: 'Chat', icon: '/icons/note.svg', href: user ? '/chat' : '/auth/login' },
-            { label: 'Favourites', icon: '/icons/note.svg', href: user ? `/@${user.username}/saved` : '/auth/login' },
+            ...(user ? [
+                { label: 'Chat', icon: '/icons/note.svg', href: '/chat' },
+                { label: 'Favourites', icon: '/icons/note.svg', href: `/@${user.username}/saved` },
+            ] : []),
             ...(user ? [{ label: 'Manage', icon: '/icons/info.svg', href: '/manage' }] : []),
         ]
     },
