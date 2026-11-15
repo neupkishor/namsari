@@ -8,7 +8,7 @@
 # PropertyNature, PropertyOpenHouse, PropertySaleStatus, Requirement, Review, Role,
 # RolePermission, SearchTerm, Subscriber, SupportArticle, SystemSettings,
 # Visitor, _PropertyToPropertyNature, _prisma_migrations, accounts,
-# agency_config, errors, listing_stats_cache, location, permissions,
+# agency_config, listing_stats_cache, location, permissions,
 # property_drafts, role_permission_map, sessions, users, verification_tokens.
 
 Table: property_details_land, Model: PropertyDetailsLand

@@ -46,7 +46,6 @@ model User {
 
   // Notifications
   notifications         Notification[]
-  errorLogs             ErrorLog[]
   media                 Media[]
   propertyDraftsCreated PropertyDraft[] @relation("PropertyDraftCreatedBy")
   propertyDraftsAccount PropertyDraft[] @relation("PropertyDraftAccount")
@@ -920,21 +919,3 @@ model ActivityLog {
   device_type String? // mobile, tablet, desktop
 }
 
-model ErrorLog {
-  id          String   @id @default(cuid())
-  message     String
-  source      String
-  page        String?
-  stack       String?
-  log         Json?
-  occurred_at DateTime @default(now())
-  created_at  DateTime @default(now())
-
-  userId Int?
-  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@index([occurred_at])
-  @@index([source])
-  @@index([userId])
-  @@map("errors")
-}
