@@ -338,6 +338,13 @@ export type EnumAccountProviderNullableWithAggregatesFilter<$PrismaModel = never
   _max?: Prisma.NestedEnumAccountProviderNullableFilter<$PrismaModel>
 }
 
+export type EnumPropertyPurposeFilter<$PrismaModel = never> = {
+  equals?: $Enums.PropertyPurpose | Prisma.EnumPropertyPurposeFieldRefInput<$PrismaModel>
+  in?: $Enums.PropertyPurpose[] | Prisma.ListEnumPropertyPurposeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PropertyPurpose[] | Prisma.ListEnumPropertyPurposeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPropertyPurposeFilter<$PrismaModel> | $Enums.PropertyPurpose
+}
+
 export type BoolFilter<$PrismaModel = never> = {
   equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
   not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
@@ -366,6 +373,16 @@ export type EnumPropertyPriceBasisFilter<$PrismaModel = never> = {
   in?: $Enums.PropertyPriceBasis[] | Prisma.ListEnumPropertyPriceBasisFieldRefInput<$PrismaModel>
   notIn?: $Enums.PropertyPriceBasis[] | Prisma.ListEnumPropertyPriceBasisFieldRefInput<$PrismaModel>
   not?: Prisma.NestedEnumPropertyPriceBasisFilter<$PrismaModel> | $Enums.PropertyPriceBasis
+}
+
+export type EnumPropertyPurposeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PropertyPurpose | Prisma.EnumPropertyPurposeFieldRefInput<$PrismaModel>
+  in?: $Enums.PropertyPurpose[] | Prisma.ListEnumPropertyPurposeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PropertyPurpose[] | Prisma.ListEnumPropertyPurposeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPropertyPurposeWithAggregatesFilter<$PrismaModel> | $Enums.PropertyPurpose
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPropertyPurposeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPropertyPurposeFilter<$PrismaModel>
 }
 
 export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -827,6 +844,13 @@ export type NestedEnumAccountProviderNullableWithAggregatesFilter<$PrismaModel =
   _max?: Prisma.NestedEnumAccountProviderNullableFilter<$PrismaModel>
 }
 
+export type NestedEnumPropertyPurposeFilter<$PrismaModel = never> = {
+  equals?: $Enums.PropertyPurpose | Prisma.EnumPropertyPurposeFieldRefInput<$PrismaModel>
+  in?: $Enums.PropertyPurpose[] | Prisma.ListEnumPropertyPurposeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PropertyPurpose[] | Prisma.ListEnumPropertyPurposeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPropertyPurposeFilter<$PrismaModel> | $Enums.PropertyPurpose
+}
+
 export type NestedBoolFilter<$PrismaModel = never> = {
   equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
   not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
@@ -855,6 +879,16 @@ export type NestedEnumPropertyPriceBasisFilter<$PrismaModel = never> = {
   in?: $Enums.PropertyPriceBasis[] | Prisma.ListEnumPropertyPriceBasisFieldRefInput<$PrismaModel>
   notIn?: $Enums.PropertyPriceBasis[] | Prisma.ListEnumPropertyPriceBasisFieldRefInput<$PrismaModel>
   not?: Prisma.NestedEnumPropertyPriceBasisFilter<$PrismaModel> | $Enums.PropertyPriceBasis
+}
+
+export type NestedEnumPropertyPurposeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PropertyPurpose | Prisma.EnumPropertyPurposeFieldRefInput<$PrismaModel>
+  in?: $Enums.PropertyPurpose[] | Prisma.ListEnumPropertyPurposeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PropertyPurpose[] | Prisma.ListEnumPropertyPurposeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPropertyPurposeWithAggregatesFilter<$PrismaModel> | $Enums.PropertyPurpose
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPropertyPurposeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPropertyPurposeFilter<$PrismaModel>
 }
 
 export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {

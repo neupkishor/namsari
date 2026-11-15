@@ -260,7 +260,7 @@ export const PropertyScalarFieldEnum = {
   id: 'id',
   propertyId: 'propertyId',
   types: 'types',
-  purposes: 'purposes',
+  purpose: 'purpose',
   status: 'status',
   isFeatured: 'isFeatured',
   isExclusive: 'isExclusive',

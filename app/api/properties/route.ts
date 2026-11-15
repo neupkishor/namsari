@@ -132,12 +132,13 @@ export async function POST(request: Request) {
         const session = await getSession();
         if (!session?.id) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
         const body = await request.json();
-        const required = ['title', 'types', 'purposes', 'natures', 'location'];
+        const required = ['title', 'types', 'purpose', 'natures', 'location'];
         if (required.some((key) => !body[key] || (Array.isArray(body[key]) && body[key].length === 0))) {
             return NextResponse.json({ error: 'Missing required listing fields' }, { status: 400 });
         }
         const property = await createPropertyListing({
             ...body,
+            purpose: body.purpose === 'sale' ? 'sell' : body.purpose,
             listedById: Number(session.id),
             images: Array.isArray(body.images) ? body.images : [],
         });

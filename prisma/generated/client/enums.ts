@@ -44,7 +44,7 @@ export type PropertyType = (typeof PropertyType)[keyof typeof PropertyType]
 
 
 export const PropertyPurpose = {
-  sale: 'sale',
+  sell: 'sell',
   rent: 'rent'
 } as const
 

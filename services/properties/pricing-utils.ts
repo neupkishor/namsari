@@ -9,7 +9,7 @@ export type Pricing = {
 };
 
 export function getDefaultPricing(propertyTypes: string[], purposes: string[]): Pricing {
-    const isSale = purposes.includes('sale');
+    const isSale = purposes.includes('sell') || purposes.includes('sale');
     const isRent = purposes.includes('rent');
     const isHouse = propertyTypes.includes('house') || propertyTypes.includes('bungalow') || propertyTypes.includes('apartment') || propertyTypes.includes('villa') || propertyTypes.includes('penthouse');
     const isLand = propertyTypes.includes('land');

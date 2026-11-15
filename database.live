@@ -85,7 +85,7 @@ Fields:
 > views: int, default 0;
 > shares: int, default 0;
 > locationData: jsonb, optional;
-> purposes: PropertyPurpose[], enum array, default empty;
+> purpose: enum PropertyPurpose (sell, rent);
 > types: PropertyType[], enum array, default empty;
 > price_basis: enum PropertyPriceBasis, default total;
 > price_listed: numeric(18,2), optional;

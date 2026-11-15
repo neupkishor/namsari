@@ -50,7 +50,6 @@ export default async function SellPage({ searchParams }: { searchParams: Promise
                 where: { id: draftId },
                 include: {
                     listedBy: true,
-                    purposes: true,
                     natures: true,
                     location: true,
                     features: true,

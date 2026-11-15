@@ -34,6 +34,7 @@ export default async function ChatPage() {
                 id: true,
                 title: true,
                 status: true,
+                purpose: true,
                 location: {
                     select: {
                         district: true,

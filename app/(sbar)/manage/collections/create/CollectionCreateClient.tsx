@@ -106,7 +106,7 @@ function matchesPreviewCriteria(property: PropertyOption, criteria: CriteriaStat
 
     if (criteria.status && property.status !== criteria.status) return false;
     if (!includesAny(property.types, criteria.selectedTypes)) return false;
-    if (!includesAny(property.purposes, criteria.selectedPurposes)) return false;
+    if (!includesAny(property.purposes, criteria.selectedPurposes.map((value) => value === 'sale' ? 'sell' : value))) return false;
     if (!includesAny(property.natures, criteria.selectedNatures)) return false;
     if (!includesText(property.location?.district, criteria.district)) return false;
     if (!includesText(property.location?.cityVillage, criteria.city)) return false;

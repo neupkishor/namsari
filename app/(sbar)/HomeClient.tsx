@@ -365,7 +365,7 @@ function RequirementFeedSkeleton() {
 function HomeSearchHero() {
     const router = useRouter();
     const [query, setQuery] = useState('');
-    const [purposes, setPurposes] = useState<Set<'sale' | 'rent'>>(new Set(['sale']));
+    const [purposes, setPurposes] = useState<Set<'sell' | 'rent'>>(new Set(['sell']));
     const [activePanel, setActivePanel] = useState<HomeSearchPanel>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [priceMin, setPriceMin] = useState('');
@@ -466,7 +466,7 @@ function HomeSearchHero() {
     }, [activePanel]);
 
     const currentPriceLabel = priceMin || priceMax
-        ? `${priceMin ? formatDevanagariComma(priceMin) : 'Any'} - ${priceMax ? formatDevanagariComma(priceMax) : 'Any'}${(purposes.has('rent') && !purposes.has('sale')) ? '/mo' : ` (${AREA_PRICE_UNIT_LABELS[areaPriceUnit]})`}`
+        ? `${priceMin ? formatDevanagariComma(priceMin) : 'Any'} - ${priceMax ? formatDevanagariComma(priceMax) : 'Any'}${purposes.has('rent') ? '/mo' : ` (${AREA_PRICE_UNIT_LABELS[areaPriceUnit]})`}`
         : 'Any budget';
 
     const currentPriceLabelShort = (() => {
@@ -499,7 +499,7 @@ function HomeSearchHero() {
         : 'Any type';
     const currentSortLabel = sortBy === 'price' ? 'Price' : sortBy === 'date' ? 'Date Posted' : 'Any sort';
 
-    const HOME_PROPERTY_TYPE_OPTIONS = purposes.has('rent') && !purposes.has('sale')
+    const HOME_PROPERTY_TYPE_OPTIONS = purposes.has('rent')
         ? HOME_PROPERTY_TYPE_OPTIONS_RENT
         : HOME_PROPERTY_TYPE_OPTIONS_SALE;
 
@@ -590,7 +590,7 @@ function HomeSearchHero() {
                             )}
                         </div>
                     </div>
-                    {(purposes.has('sale') || purposes.size === 0) && (
+                    {(purposes.has('sell') || purposes.size === 0) && (
                         <div className="space-y-2">
                             <div className="text-[13px] font-bold text-slate-600">Unit</div>
                             <div className="flex gap-2">
@@ -881,7 +881,7 @@ function HomeSearchHero() {
                     {/* Purpose pills */}
                     <div className="w-full max-w-[1100px]">
                         <div className="inline-flex overflow-hidden rounded-t-[14px] border border-b-0 border-slate-200 bg-white">
-                            {([['sale', 'For Sale'], ['rent', 'For Rent']] as ['sale' | 'rent', string][]).map(([val, lbl], index, arr) => {
+                            {([['sell', 'For Sale'], ['rent', 'For Rent']] as ['sell' | 'rent', string][]).map(([val, lbl], index, arr) => {
                                 const isActive = purposes.has(val);
                                 const togglePurpose = () => {
                                     setPurposes(new Set([val]));
@@ -1449,10 +1449,10 @@ function ExploreCategoriesSection({
         {
             label: 'Property types',
             items: [
-                { icon: '/icons/house-chimney.svg', label: 'House', count: scopedStats?.house.sale ?? stats.forSale.house ?? 0, href: withCategory('/search?purposes=sale&types=house') },
-                { icon: '/icons/land-location.svg', label: 'Land', count: scopedStats?.land.sale ?? stats.forSale.land ?? 0, href: withCategory('/search?purposes=sale&types=land') },
-                { icon: '/icons/apartment.svg', label: 'Apartment', count: scopedStats?.apartment.sale ?? stats.forSale.apartment ?? stats.forSale.building ?? 0, href: withCategory('/search?purposes=sale&types=apartment') },
-                { icon: '/icons/growth-chart-invest.svg', label: 'Commercial Buildings', count: scopedStats?.building.sale ?? stats.byTypePurpose.building.sale ?? 0, href: withCategory('/search?purposes=sale&types=building') },
+                { icon: '/icons/house-chimney.svg', label: 'House', count: scopedStats?.house.sale ?? stats.forSale.house ?? 0, href: withCategory('/search?purposes=sell&types=house') },
+                { icon: '/icons/land-location.svg', label: 'Land', count: scopedStats?.land.sale ?? stats.forSale.land ?? 0, href: withCategory('/search?purposes=sell&types=land') },
+                { icon: '/icons/apartment.svg', label: 'Apartment', count: scopedStats?.apartment.sale ?? stats.forSale.apartment ?? stats.forSale.building ?? 0, href: withCategory('/search?purposes=sell&types=apartment') },
+                { icon: '/icons/growth-chart-invest.svg', label: 'Commercial Buildings', count: scopedStats?.building.sale ?? stats.byTypePurpose.building.sale ?? 0, href: withCategory('/search?purposes=sell&types=building') },
                 { icon: '/icons/apartment.svg', label: 'Flat', count: scopedStats?.flat.rent ?? stats.forRent.flat ?? 0, href: withCategory('/search?purposes=rent&types=flat') },
                 { icon: '/icons/note.svg', label: 'Office Space', count: scopedStats?.officeSpace.rent ?? stats.forRent.officeSpace ?? 0, href: withCategory('/search?purposes=rent&types=office-space') },
                 { icon: '/icons/growth-chart-invest.svg', label: 'Shop', count: scopedStats?.business.rent ?? stats.forRent.business ?? 0, href: withCategory('/search?purposes=rent&types=business') },
@@ -1628,7 +1628,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
 
     const filteredProperties = properties.filter((property: any) => {
         if (!includesAny(collectNamedValues(property.types), selectedRequirementTypes)) return false;
-        if (!includesAny(collectNamedValues(property.purposes), selectedPurposeFilters)) return false;
+                if (!includesAny(property.purpose ? [property.purpose] : [], selectedPurposeFilters.map((value) => value === 'sale' ? 'sell' : value))) return false;
         const propertyCategories = collectNamedValues(property.natures).map((value) => value.replace(/\s+/g, '-'));
         if (!includesAny(propertyCategories, selectedCategoryFilter ? [selectedCategoryFilter] : [])) return false;
         if (!includesAny(normalizeQueryList([property.facingDirection, property.facing]), selectedFacingFilters)) return false;

@@ -15,7 +15,7 @@ export interface CreatePropertyInput {
     // General Details
     propertyId?: string;
     types: string[]; // house, land, etc.
-    purposes: string[]; // sale, rent
+    purpose: string; // sell, rent
     natures: string[]; // commercial, residential, etc.
     title: string;
     slug?: string;
@@ -178,7 +178,7 @@ export async function createPropertyListing(input: CreatePropertyInput) {
         images,
         videos,
         types,
-        purposes,
+        purpose,
         natures,
         ...propertyData
     } = input;
@@ -194,7 +194,7 @@ export async function createPropertyListing(input: CreatePropertyInput) {
             rate: pricing.pricingType === 'flat'
                 ? 'total'
                 : pricing.pricingType === 'perUnit' ? 'perUnit'
-                    : getDefaultPropertyPriceRate(types, purposes),
+                    : getDefaultPropertyPriceRate(types, [purpose]),
             unit: pricing.unit,
             totalUnit: pricing.pricingType === 'flat' ? Number(pricing.price || pricing.rentPrice || 0) : undefined,
             totalPrice: pricing.pricingType === 'flat' ? Number(pricing.price || pricing.rentPrice || 0) : undefined,
@@ -203,7 +203,7 @@ export async function createPropertyListing(input: CreatePropertyInput) {
 
     const primaryPrice = normalizePropertyPriceInput(price || legacyPrice || {
         price: 0,
-        rate: getDefaultPropertyPriceRate(types, purposes),
+        rate: getDefaultPropertyPriceRate(types, [purpose]),
     });
 
 
@@ -216,9 +216,9 @@ export async function createPropertyListing(input: CreatePropertyInput) {
             data: {
                 ...propertyData,
                 slug,
-                // Handle multi-select relations
+                // Store the single listing purpose and multi-select type relations.
                 types,
-                purposes,
+                purpose: purpose === 'sale' ? 'sell' : purpose,
                 natures: {
                     connectOrCreate: natures.map(name => ({
                         where: { name },

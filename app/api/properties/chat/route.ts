@@ -135,20 +135,20 @@ function numericValuesMatch(left: unknown, right: unknown) {
 function existingPropertySummary(property: any) {
     const location = [property.location?.area, property.location?.cityVillage, property.location?.district].filter(Boolean).join(', ');
     const types = property.types?.map((type: any) => type.name).filter(Boolean).join(', ');
-    const purposes = property.purposes?.map((purpose: any) => purpose.name).filter(Boolean).join(', ');
+    const purpose = property.purpose;
     const price = comparableNumber(property.price_listed);
 
     return [
         property.title ? `#${property.id} ${property.title}` : `#${property.id}`,
         location ? `at ${location}` : '',
-        types ? `(${[types, purposes].filter(Boolean).join(' / ')})` : '',
+        types ? `(${[types, purpose].filter(Boolean).join(' / ')})` : '',
         price !== undefined ? `priced at ${price}` : '',
     ].filter(Boolean).join(' ');
 }
 
 function isLikelyDuplicateProperty(input: {
     types: string[];
-    purposes: string[];
+    purpose: string;
     location: any;
     price: any;
     features: any;
@@ -157,11 +157,11 @@ function isLikelyDuplicateProperty(input: {
     facingDirection?: unknown;
 }, existing: any) {
     const existingTypes = normalizeTextArray(existing.types?.map((type: any) => type.name));
-    const existingPurposes = normalizeTextArray(existing.purposes?.map((purpose: any) => purpose.name));
+    const existingPurpose = normalizeText(existing.purpose);
     const inputTypes = normalizeTextArray(input.types);
-    const inputPurposes = normalizeTextArray(input.purposes);
+    const inputPurpose = normalizeText(input.purpose);
 
-    if (!arraysOverlap(inputTypes, existingTypes) || !arraysOverlap(inputPurposes, existingPurposes)) {
+    if (!arraysOverlap(inputTypes, existingTypes) || inputPurpose !== existingPurpose) {
         return false;
     }
 
@@ -212,7 +212,7 @@ function isLikelyDuplicateProperty(input: {
 async function findLikelyDuplicateProperty(input: {
     listedById: number;
     types: string[];
-    purposes: string[];
+    purpose: string;
     location: any;
     price: any;
     features: any;
@@ -253,18 +253,19 @@ export async function POST(request: Request) {
     const body = await request.json();
     const title = String(body.title || '').trim();
     const types = Array.isArray(body.types) ? body.types.filter(Boolean).map(String) : [];
-    const purposes = Array.isArray(body.purposes) ? body.purposes.filter(Boolean).map(String) : [];
+    const purposeValue = String(body.purpose || body.purposes?.[0] || '');
+    const purpose = purposeValue === 'sale' ? 'sell' : purposeValue;
     const location = body.location || {};
-    const primaryRate = String(body.price?.rate || getDefaultPropertyPriceRate(types, purposes));
+    const primaryRate = String(body.price?.rate || getDefaultPropertyPriceRate(types, [purpose]));
 
-    if (!title || types.length === 0 || purposes.length === 0 || !String(location.district || '').trim() || !String(location.cityVillage || '').trim()) {
+    if (!title || types.length === 0 || !['sell', 'rent'].includes(purpose) || !String(location.district || '').trim() || !String(location.cityVillage || '').trim()) {
         return NextResponse.json({ error: 'Missing required listing information' }, { status: 400 });
     }
 
     const duplicate = await findLikelyDuplicateProperty({
         listedById: userId,
         types,
-        purposes,
+        purpose,
         location,
         price: body.price,
         features: body.features || {},
@@ -293,7 +294,7 @@ export async function POST(request: Request) {
     const created = await createPropertyListing({
         title,
         types,
-        purposes,
+        purpose,
         natures: Array.isArray(body.natures) && body.natures.length > 0 ? body.natures : inferNatures(types),
         remarks: body.remarks || undefined,
         roadType: body.roadType || undefined,
@@ -366,7 +367,8 @@ export async function PATCH(request: Request) {
     }
 
     const types = normalizeStringArray(body.types);
-    const purposes = normalizeStringArray(body.purposes);
+    const purposeValue = String(body.purpose || body.purposes?.[0] || '');
+    const purpose = purposeValue === 'sale' ? 'sell' : purposeValue;
     const natures = normalizeStringArray(body.natures);
     const title = typeof body.title === 'string' && body.title.trim() ? body.title.trim() : undefined;
     const location = body.location || undefined;
@@ -437,7 +439,7 @@ export async function PATCH(request: Request) {
             media: mediaPayload,
             mainMedia: images && images.length > 0 ? images[0].url : undefined,
             types: relationUpdate(types),
-            purposes: relationUpdate(purposes),
+            purpose,
             natures: relationUpdate(natures),
             location: location
                 ? {

@@ -7,7 +7,9 @@ export type PropertyDraftChanges = Record<string, any>;
 export function createBlankPropertyDraftChanges(initialPurpose?: string, agencyConfig?: any): PropertyDraftChanges {
     const base = {
         selectedTypes: [],
-        selectedPurposes: initialPurpose === 'sale' || initialPurpose === 'rent' ? [initialPurpose] : [],
+        selectedPurposes: initialPurpose === 'sale' || initialPurpose === 'sell' || initialPurpose === 'rent'
+            ? [initialPurpose === 'sale' ? 'sell' : initialPurpose]
+            : [],
         selectedNatures: [],
         pricingType: 'flat',
         pricingUnit: 'aana',
@@ -61,7 +63,7 @@ export function createPropertyDraftChangesFromProperty(property: any, initialPur
         ...createBlankPropertyDraftChanges(initialPurpose, agencyConfig),
         doing: 'edit',
         selectedTypes: (property.types || []).map((item: any) => item.name).filter(Boolean),
-        selectedPurposes: (property.purposes || []).map((item: any) => item.name).filter(Boolean),
+        selectedPurposes: property.purpose ? [property.purpose === 'sale' ? 'sell' : property.purpose] : [],
         selectedNatures: (property.natures || []).map((item: any) => item.name).filter(Boolean),
         title: property.title || '',
         province: location.province || '',

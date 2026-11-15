@@ -20,13 +20,14 @@ export type LegacyPricingInput = {
 };
 
 const DEFAULT_RATE_BY_PURPOSE: Record<string, PropertyPriceRate> = {
+    sell: 'total',
     sale: 'total',
     rent: 'perMonth',
 };
 
 export function getDefaultPropertyPriceRate(types: string[] = [], purposes: string[] = []): PropertyPriceRate {
     const normalizedTypes = types.map((type) => type.toLowerCase());
-    const normalizedPurposes = purposes.map((purpose) => purpose.toLowerCase());
+    const normalizedPurposes = purposes.map((purpose) => (purpose === 'sale' ? 'sell' : purpose).toLowerCase());
 
     if (normalizedTypes.includes('commercial space')) {
         return 'perUnitPerMonth';
@@ -40,7 +41,7 @@ export function getDefaultPropertyPriceRate(types: string[] = [], purposes: stri
         return normalizedPurposes.includes('rent') ? 'perMonth' : 'total';
     }
 
-    return DEFAULT_RATE_BY_PURPOSE[normalizedPurposes[0] || 'sale'] || 'total';
+    return DEFAULT_RATE_BY_PURPOSE[normalizedPurposes[0] || 'sell'] || 'total';
 }
 
 export function normalizePropertyPriceInput(input: PropertyPriceInput): PropertyPriceInput {

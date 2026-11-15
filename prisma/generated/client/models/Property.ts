@@ -47,6 +47,7 @@ export type PropertySumAggregateOutputType = {
 export type PropertyMinAggregateOutputType = {
   id: number | null
   propertyId: string | null
+  purpose: $Enums.PropertyPurpose | null
   status: string | null
   isFeatured: boolean | null
   isExclusive: boolean | null
@@ -69,6 +70,7 @@ export type PropertyMinAggregateOutputType = {
 export type PropertyMaxAggregateOutputType = {
   id: number | null
   propertyId: string | null
+  purpose: $Enums.PropertyPurpose | null
   status: string | null
   isFeatured: boolean | null
   isExclusive: boolean | null
@@ -92,7 +94,7 @@ export type PropertyCountAggregateOutputType = {
   id: number
   propertyId: number
   types: number
-  purposes: number
+  purpose: number
   status: number
   isFeatured: number
   isExclusive: number
@@ -136,6 +138,7 @@ export type PropertySumAggregateInputType = {
 export type PropertyMinAggregateInputType = {
   id?: true
   propertyId?: true
+  purpose?: true
   status?: true
   isFeatured?: true
   isExclusive?: true
@@ -158,6 +161,7 @@ export type PropertyMinAggregateInputType = {
 export type PropertyMaxAggregateInputType = {
   id?: true
   propertyId?: true
+  purpose?: true
   status?: true
   isFeatured?: true
   isExclusive?: true
@@ -181,7 +185,7 @@ export type PropertyCountAggregateInputType = {
   id?: true
   propertyId?: true
   types?: true
-  purposes?: true
+  purpose?: true
   status?: true
   isFeatured?: true
   isExclusive?: true
@@ -293,7 +297,7 @@ export type PropertyGroupByOutputType = {
   id: number
   propertyId: string | null
   types: $Enums.PropertyType[]
-  purposes: $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status: string
   isFeatured: boolean
   isExclusive: boolean
@@ -341,7 +345,7 @@ export type PropertyWhereInput = {
   id?: Prisma.IntFilter<"Property"> | number
   propertyId?: Prisma.StringNullableFilter<"Property"> | string | null
   types?: Prisma.EnumPropertyTypeNullableListFilter<"Property">
-  purposes?: Prisma.EnumPropertyPurposeNullableListFilter<"Property">
+  purpose?: Prisma.EnumPropertyPurposeFilter<"Property"> | $Enums.PropertyPurpose
   status?: Prisma.StringFilter<"Property"> | string
   isFeatured?: Prisma.BoolFilter<"Property"> | boolean
   isExclusive?: Prisma.BoolFilter<"Property"> | boolean
@@ -382,7 +386,7 @@ export type PropertyOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   propertyId?: Prisma.SortOrderInput | Prisma.SortOrder
   types?: Prisma.SortOrder
-  purposes?: Prisma.SortOrder
+  purpose?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isFeatured?: Prisma.SortOrder
   isExclusive?: Prisma.SortOrder
@@ -426,7 +430,7 @@ export type PropertyWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.PropertyWhereInput[]
   NOT?: Prisma.PropertyWhereInput | Prisma.PropertyWhereInput[]
   types?: Prisma.EnumPropertyTypeNullableListFilter<"Property">
-  purposes?: Prisma.EnumPropertyPurposeNullableListFilter<"Property">
+  purpose?: Prisma.EnumPropertyPurposeFilter<"Property"> | $Enums.PropertyPurpose
   status?: Prisma.StringFilter<"Property"> | string
   isFeatured?: Prisma.BoolFilter<"Property"> | boolean
   isExclusive?: Prisma.BoolFilter<"Property"> | boolean
@@ -467,7 +471,7 @@ export type PropertyOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   propertyId?: Prisma.SortOrderInput | Prisma.SortOrder
   types?: Prisma.SortOrder
-  purposes?: Prisma.SortOrder
+  purpose?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isFeatured?: Prisma.SortOrder
   isExclusive?: Prisma.SortOrder
@@ -500,7 +504,7 @@ export type PropertyScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"Property"> | number
   propertyId?: Prisma.StringNullableWithAggregatesFilter<"Property"> | string | null
   types?: Prisma.EnumPropertyTypeNullableListFilter<"Property">
-  purposes?: Prisma.EnumPropertyPurposeNullableListFilter<"Property">
+  purpose?: Prisma.EnumPropertyPurposeWithAggregatesFilter<"Property"> | $Enums.PropertyPurpose
   status?: Prisma.StringWithAggregatesFilter<"Property"> | string
   isFeatured?: Prisma.BoolWithAggregatesFilter<"Property"> | boolean
   isExclusive?: Prisma.BoolWithAggregatesFilter<"Property"> | boolean
@@ -524,7 +528,7 @@ export type PropertyScalarWhereWithAggregatesInput = {
 export type PropertyCreateInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -564,7 +568,7 @@ export type PropertyUncheckedCreateInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -603,7 +607,7 @@ export type PropertyUncheckedCreateInput = {
 export type PropertyUpdateInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -643,7 +647,7 @@ export type PropertyUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -683,7 +687,7 @@ export type PropertyCreateManyInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -707,7 +711,7 @@ export type PropertyCreateManyInput = {
 export type PropertyUpdateManyMutationInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -731,7 +735,7 @@ export type PropertyUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -770,19 +774,11 @@ export type EnumPropertyTypeNullableListFilter<$PrismaModel = never> = {
   isEmpty?: boolean
 }
 
-export type EnumPropertyPurposeNullableListFilter<$PrismaModel = never> = {
-  equals?: $Enums.PropertyPurpose[] | Prisma.ListEnumPropertyPurposeFieldRefInput<$PrismaModel> | null
-  has?: $Enums.PropertyPurpose | Prisma.EnumPropertyPurposeFieldRefInput<$PrismaModel> | null
-  hasEvery?: $Enums.PropertyPurpose[] | Prisma.ListEnumPropertyPurposeFieldRefInput<$PrismaModel>
-  hasSome?: $Enums.PropertyPurpose[] | Prisma.ListEnumPropertyPurposeFieldRefInput<$PrismaModel>
-  isEmpty?: boolean
-}
-
 export type PropertyCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   propertyId?: Prisma.SortOrder
   types?: Prisma.SortOrder
-  purposes?: Prisma.SortOrder
+  purpose?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isFeatured?: Prisma.SortOrder
   isExclusive?: Prisma.SortOrder
@@ -815,6 +811,7 @@ export type PropertyAvgOrderByAggregateInput = {
 export type PropertyMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   propertyId?: Prisma.SortOrder
+  purpose?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isFeatured?: Prisma.SortOrder
   isExclusive?: Prisma.SortOrder
@@ -837,6 +834,7 @@ export type PropertyMaxOrderByAggregateInput = {
 export type PropertyMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   propertyId?: Prisma.SortOrder
+  purpose?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isFeatured?: Prisma.SortOrder
   isExclusive?: Prisma.SortOrder
@@ -916,18 +914,13 @@ export type PropertyCreatetypesInput = {
   set: $Enums.PropertyType[]
 }
 
-export type PropertyCreatepurposesInput = {
-  set: $Enums.PropertyPurpose[]
-}
-
 export type PropertyUpdatetypesInput = {
   set?: $Enums.PropertyType[]
   push?: $Enums.PropertyType | $Enums.PropertyType[]
 }
 
-export type PropertyUpdatepurposesInput = {
-  set?: $Enums.PropertyPurpose[]
-  push?: $Enums.PropertyPurpose | $Enums.PropertyPurpose[]
+export type EnumPropertyPurposeFieldUpdateOperationsInput = {
+  set?: $Enums.PropertyPurpose
 }
 
 export type BoolFieldUpdateOperationsInput = {
@@ -1187,7 +1180,7 @@ export type PropertyUpdateOneRequiredWithoutCollectionsNestedInput = {
 export type PropertyCreateWithoutListedByInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -1226,7 +1219,7 @@ export type PropertyUncheckedCreateWithoutListedByInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -1294,7 +1287,7 @@ export type PropertyScalarWhereInput = {
   id?: Prisma.IntFilter<"Property"> | number
   propertyId?: Prisma.StringNullableFilter<"Property"> | string | null
   types?: Prisma.EnumPropertyTypeNullableListFilter<"Property">
-  purposes?: Prisma.EnumPropertyPurposeNullableListFilter<"Property">
+  purpose?: Prisma.EnumPropertyPurposeFilter<"Property"> | $Enums.PropertyPurpose
   status?: Prisma.StringFilter<"Property"> | string
   isFeatured?: Prisma.BoolFilter<"Property"> | boolean
   isExclusive?: Prisma.BoolFilter<"Property"> | boolean
@@ -1318,7 +1311,7 @@ export type PropertyScalarWhereInput = {
 export type PropertyCreateWithoutSaleStatusesInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -1357,7 +1350,7 @@ export type PropertyUncheckedCreateWithoutSaleStatusesInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -1411,7 +1404,7 @@ export type PropertyUpdateToOneWithWhereWithoutSaleStatusesInput = {
 export type PropertyUpdateWithoutSaleStatusesInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1450,7 +1443,7 @@ export type PropertyUncheckedUpdateWithoutSaleStatusesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1488,7 +1481,7 @@ export type PropertyUncheckedUpdateWithoutSaleStatusesInput = {
 export type PropertyCreateWithoutPropertyAmmenitiesInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -1527,7 +1520,7 @@ export type PropertyUncheckedCreateWithoutPropertyAmmenitiesInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -1581,7 +1574,7 @@ export type PropertyUpdateToOneWithWhereWithoutPropertyAmmenitiesInput = {
 export type PropertyUpdateWithoutPropertyAmmenitiesInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1620,7 +1613,7 @@ export type PropertyUncheckedUpdateWithoutPropertyAmmenitiesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1658,7 +1651,7 @@ export type PropertyUncheckedUpdateWithoutPropertyAmmenitiesInput = {
 export type PropertyCreateWithoutNaturesInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -1697,7 +1690,7 @@ export type PropertyUncheckedCreateWithoutNaturesInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -1756,7 +1749,7 @@ export type PropertyUpdateManyWithWhereWithoutNaturesInput = {
 export type PropertyCreateWithoutFeaturesInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -1795,7 +1788,7 @@ export type PropertyUncheckedCreateWithoutFeaturesInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -1849,7 +1842,7 @@ export type PropertyUpdateToOneWithWhereWithoutFeaturesInput = {
 export type PropertyUpdateWithoutFeaturesInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1888,7 +1881,7 @@ export type PropertyUncheckedUpdateWithoutFeaturesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1926,7 +1919,7 @@ export type PropertyUncheckedUpdateWithoutFeaturesInput = {
 export type PropertyCreateWithoutLandDetailsInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -1965,7 +1958,7 @@ export type PropertyUncheckedCreateWithoutLandDetailsInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -2019,7 +2012,7 @@ export type PropertyUpdateToOneWithWhereWithoutLandDetailsInput = {
 export type PropertyUpdateWithoutLandDetailsInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2058,7 +2051,7 @@ export type PropertyUncheckedUpdateWithoutLandDetailsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2096,7 +2089,7 @@ export type PropertyUncheckedUpdateWithoutLandDetailsInput = {
 export type PropertyCreateWithoutHouseDetailsInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -2135,7 +2128,7 @@ export type PropertyUncheckedCreateWithoutHouseDetailsInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -2189,7 +2182,7 @@ export type PropertyUpdateToOneWithWhereWithoutHouseDetailsInput = {
 export type PropertyUpdateWithoutHouseDetailsInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2228,7 +2221,7 @@ export type PropertyUncheckedUpdateWithoutHouseDetailsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2266,7 +2259,7 @@ export type PropertyUncheckedUpdateWithoutHouseDetailsInput = {
 export type PropertyCreateWithoutApartmentDetailsInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -2305,7 +2298,7 @@ export type PropertyUncheckedCreateWithoutApartmentDetailsInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -2359,7 +2352,7 @@ export type PropertyUpdateToOneWithWhereWithoutApartmentDetailsInput = {
 export type PropertyUpdateWithoutApartmentDetailsInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2398,7 +2391,7 @@ export type PropertyUncheckedUpdateWithoutApartmentDetailsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2436,7 +2429,7 @@ export type PropertyUncheckedUpdateWithoutApartmentDetailsInput = {
 export type PropertyCreateWithoutSpaceDetailsInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -2475,7 +2468,7 @@ export type PropertyUncheckedCreateWithoutSpaceDetailsInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -2529,7 +2522,7 @@ export type PropertyUpdateToOneWithWhereWithoutSpaceDetailsInput = {
 export type PropertyUpdateWithoutSpaceDetailsInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2568,7 +2561,7 @@ export type PropertyUncheckedUpdateWithoutSpaceDetailsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2606,7 +2599,7 @@ export type PropertyUncheckedUpdateWithoutSpaceDetailsInput = {
 export type PropertyCreateWithoutLocationInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -2645,7 +2638,7 @@ export type PropertyUncheckedCreateWithoutLocationInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -2699,7 +2692,7 @@ export type PropertyUpdateToOneWithWhereWithoutLocationInput = {
 export type PropertyUpdateWithoutLocationInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2738,7 +2731,7 @@ export type PropertyUncheckedUpdateWithoutLocationInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2776,7 +2769,7 @@ export type PropertyUncheckedUpdateWithoutLocationInput = {
 export type PropertyCreateWithoutOpenHouseInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -2815,7 +2808,7 @@ export type PropertyUncheckedCreateWithoutOpenHouseInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -2869,7 +2862,7 @@ export type PropertyUpdateToOneWithWhereWithoutOpenHouseInput = {
 export type PropertyUpdateWithoutOpenHouseInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2908,7 +2901,7 @@ export type PropertyUncheckedUpdateWithoutOpenHouseInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2946,7 +2939,7 @@ export type PropertyUncheckedUpdateWithoutOpenHouseInput = {
 export type PropertyCreateWithoutPropertyMediaInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -2985,7 +2978,7 @@ export type PropertyUncheckedCreateWithoutPropertyMediaInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -3039,7 +3032,7 @@ export type PropertyUpdateToOneWithWhereWithoutPropertyMediaInput = {
 export type PropertyUpdateWithoutPropertyMediaInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3078,7 +3071,7 @@ export type PropertyUncheckedUpdateWithoutPropertyMediaInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3116,7 +3109,7 @@ export type PropertyUncheckedUpdateWithoutPropertyMediaInput = {
 export type PropertyCreateWithoutFeatured_historyInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -3155,7 +3148,7 @@ export type PropertyUncheckedCreateWithoutFeatured_historyInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -3209,7 +3202,7 @@ export type PropertyUpdateToOneWithWhereWithoutFeatured_historyInput = {
 export type PropertyUpdateWithoutFeatured_historyInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3248,7 +3241,7 @@ export type PropertyUncheckedUpdateWithoutFeatured_historyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3286,7 +3279,7 @@ export type PropertyUncheckedUpdateWithoutFeatured_historyInput = {
 export type PropertyCreateWithoutCommentsInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -3325,7 +3318,7 @@ export type PropertyUncheckedCreateWithoutCommentsInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -3379,7 +3372,7 @@ export type PropertyUpdateToOneWithWhereWithoutCommentsInput = {
 export type PropertyUpdateWithoutCommentsInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3418,7 +3411,7 @@ export type PropertyUncheckedUpdateWithoutCommentsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3456,7 +3449,7 @@ export type PropertyUncheckedUpdateWithoutCommentsInput = {
 export type PropertyCreateWithoutProperty_likesInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -3495,7 +3488,7 @@ export type PropertyUncheckedCreateWithoutProperty_likesInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -3549,7 +3542,7 @@ export type PropertyUpdateToOneWithWhereWithoutProperty_likesInput = {
 export type PropertyUpdateWithoutProperty_likesInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3588,7 +3581,7 @@ export type PropertyUncheckedUpdateWithoutProperty_likesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3626,7 +3619,7 @@ export type PropertyUncheckedUpdateWithoutProperty_likesInput = {
 export type PropertyCreateWithoutCollectionsInput = {
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -3665,7 +3658,7 @@ export type PropertyUncheckedCreateWithoutCollectionsInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -3719,7 +3712,7 @@ export type PropertyUpdateToOneWithWhereWithoutCollectionsInput = {
 export type PropertyUpdateWithoutCollectionsInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3758,7 +3751,7 @@ export type PropertyUncheckedUpdateWithoutCollectionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3797,7 +3790,7 @@ export type PropertyCreateManyListedByInput = {
   id?: number
   propertyId?: string | null
   types?: Prisma.PropertyCreatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyCreatepurposesInput | $Enums.PropertyPurpose[]
+  purpose: $Enums.PropertyPurpose
   status?: string
   isFeatured?: boolean
   isExclusive?: boolean
@@ -3820,7 +3813,7 @@ export type PropertyCreateManyListedByInput = {
 export type PropertyUpdateWithoutListedByInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3859,7 +3852,7 @@ export type PropertyUncheckedUpdateWithoutListedByInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3898,7 +3891,7 @@ export type PropertyUncheckedUpdateManyWithoutListedByInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3921,7 +3914,7 @@ export type PropertyUncheckedUpdateManyWithoutListedByInput = {
 export type PropertyUpdateWithoutNaturesInput = {
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3960,7 +3953,7 @@ export type PropertyUncheckedUpdateWithoutNaturesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3999,7 +3992,7 @@ export type PropertyUncheckedUpdateManyWithoutNaturesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   propertyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   types?: Prisma.PropertyUpdatetypesInput | $Enums.PropertyType[]
-  purposes?: Prisma.PropertyUpdatepurposesInput | $Enums.PropertyPurpose[]
+  purpose?: Prisma.EnumPropertyPurposeFieldUpdateOperationsInput | $Enums.PropertyPurpose
   status?: Prisma.StringFieldUpdateOperationsInput | string
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isExclusive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4118,7 +4111,7 @@ export type PropertySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   propertyId?: boolean
   types?: boolean
-  purposes?: boolean
+  purpose?: boolean
   status?: boolean
   isFeatured?: boolean
   isExclusive?: boolean
@@ -4160,7 +4153,7 @@ export type PropertySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   propertyId?: boolean
   types?: boolean
-  purposes?: boolean
+  purpose?: boolean
   status?: boolean
   isFeatured?: boolean
   isExclusive?: boolean
@@ -4186,7 +4179,7 @@ export type PropertySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   propertyId?: boolean
   types?: boolean
-  purposes?: boolean
+  purpose?: boolean
   status?: boolean
   isFeatured?: boolean
   isExclusive?: boolean
@@ -4212,7 +4205,7 @@ export type PropertySelectScalar = {
   id?: boolean
   propertyId?: boolean
   types?: boolean
-  purposes?: boolean
+  purpose?: boolean
   status?: boolean
   isFeatured?: boolean
   isExclusive?: boolean
@@ -4233,7 +4226,7 @@ export type PropertySelectScalar = {
   shares?: boolean
 }
 
-export type PropertyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "propertyId" | "types" | "purposes" | "status" | "isFeatured" | "isExclusive" | "isVerified" | "remarks" | "roadType" | "roadSize" | "price_basis" | "price_listed" | "price_negotiable" | "listedById" | "title" | "slug" | "locationData" | "created_on" | "updated_at" | "views" | "shares", ExtArgs["result"]["property"]>
+export type PropertyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "propertyId" | "types" | "purpose" | "status" | "isFeatured" | "isExclusive" | "isVerified" | "remarks" | "roadType" | "roadSize" | "price_basis" | "price_listed" | "price_negotiable" | "listedById" | "title" | "slug" | "locationData" | "created_on" | "updated_at" | "views" | "shares", ExtArgs["result"]["property"]>
 export type PropertyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   natures?: boolean | Prisma.Property$naturesArgs<ExtArgs>
   location?: boolean | Prisma.Property$locationArgs<ExtArgs>
@@ -4284,7 +4277,7 @@ export type $PropertyPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: number
     propertyId: string | null
     types: $Enums.PropertyType[]
-    purposes: $Enums.PropertyPurpose[]
+    purpose: $Enums.PropertyPurpose
     status: string
     isFeatured: boolean
     isExclusive: boolean
@@ -4745,7 +4738,7 @@ export interface PropertyFieldRefs {
   readonly id: Prisma.FieldRef<"Property", 'Int'>
   readonly propertyId: Prisma.FieldRef<"Property", 'String'>
   readonly types: Prisma.FieldRef<"Property", 'PropertyType[]'>
-  readonly purposes: Prisma.FieldRef<"Property", 'PropertyPurpose[]'>
+  readonly purpose: Prisma.FieldRef<"Property", 'PropertyPurpose'>
   readonly status: Prisma.FieldRef<"Property", 'String'>
   readonly isFeatured: Prisma.FieldRef<"Property", 'Boolean'>
   readonly isExclusive: Prisma.FieldRef<"Property", 'Boolean'>

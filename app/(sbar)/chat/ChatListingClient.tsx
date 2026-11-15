@@ -20,7 +20,7 @@ type ChatDraft = {
     duplicatePropertyDifferentiator?: string;
     title?: string;
     types?: string[];
-    purposes?: string[];
+    purpose?: string;
     natures?: string[];
     location?: {
         country?: string;
@@ -116,7 +116,7 @@ function MicrophoneIcon({ active = false }: { active?: boolean }) {
 }
 
 function localPriceRateFromDraft(draft: ChatDraft): PropertyPriceRate {
-    return getDefaultPropertyPriceRate(draft.types || [], draft.purposes || []);
+    return getDefaultPropertyPriceRate(draft.types || [], draft.purpose ? [draft.purpose] : []);
 }
 
 function formatMessageText(text: string) {
@@ -305,7 +305,7 @@ export default function ChatListingClient({
 
         return [
             { label: 'Location', value: location },
-            { label: 'Purpose', value: draft.purposes?.join(', ') },
+            { label: 'Purpose', value: draft.purpose },
             { label: 'Property', value: draft.types?.join(', ') },
             { label: 'Price', value: typeof draft.price?.price === 'number' ? `${draft.price.price}${draft.price.unit ? ` / ${draft.price.unit}` : ''}` : '' },
             { label: 'Rate', value: draft.price?.rate || defaultRate },
@@ -686,7 +686,7 @@ export default function ChatListingClient({
                                 <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-slate-700">
                                     <span>District: <b>{draft.location?.district || '-'}</b></span>
                                     <span>City: <b>{draft.location?.cityVillage || '-'}</b></span>
-                                    <span>Purpose: <b>{draft.purposes?.[0] || '-'}</b></span>
+                                    <span>Purpose: <b>{draft.purpose || '-'}</b></span>
                                     <span>Type: <b>{draft.types?.[0] || '-'}</b></span>
                                 </div>
                             </div>

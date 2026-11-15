@@ -81,11 +81,11 @@ export const BasicInformation: React.FC<BasicInformationProps> = ({
             <div style={{ marginBottom: '40px' }}>
                 <FormLabel>Property Purpose</FormLabel>
                 <FormGrid minWidth="180px" gap="12px">
-                    {['sale', 'rent'].map(opt => (
+                    {(['sell', 'rent'] as const).map(opt => (
                         <SelectableCheckboxCard
                             key={opt}
                             value={opt}
-                            label={opt === 'sale' ? 'For Sale' : 'For Rent'}
+                            label={opt === 'sell' ? 'For Sale' : 'For Rent'}
                             name="propertyPurpose"
                             checked={selectedPurposes.includes(opt)}
                             onClick={() => {

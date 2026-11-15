@@ -110,8 +110,8 @@ export default async function RequirementPage({ params }: PageProps) {
     purposes.forEach((purpose) => {
         const normalizedPurpose = purpose.toLowerCase();
         suggestionLinks.push({
-            label: normalizedPurpose === 'rent' ? 'See rental properties' : normalizedPurpose === 'sale' ? 'See properties on sale' : `See ${purpose} properties`,
-            href: buildHomeHref({ tab: 'property', purpose: normalizedPurpose }),
+            label: normalizedPurpose === 'rent' ? 'See rental properties' : normalizedPurpose === 'sale' || normalizedPurpose === 'sell' ? 'See properties on sale' : `See ${purpose} properties`,
+            href: buildHomeHref({ tab: 'property', purpose: normalizedPurpose === 'sale' ? 'sell' : normalizedPurpose }),
             tone: 'muted',
         });
     });

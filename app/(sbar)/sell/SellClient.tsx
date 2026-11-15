@@ -108,7 +108,7 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
 
         const natures = joinWithAnd(selectedNatures.map(formatLabel));
         const types = joinWithAnd(selectedTypes.map(formatLabel));
-        const purposes = joinWithAnd(selectedPurposes.map(p => p === 'sale' ? 'Sale' : 'Rent'));
+        const purposes = joinWithAnd(selectedPurposes.map(p => p === 'sell' ? 'Sale' : 'Rent'));
 
         let autoTitle = '';
         if (natures) autoTitle += natures + ' ';
@@ -185,9 +185,7 @@ export default function SellClient({ currentUser, initialPurpose, initialDraft, 
 
 
     const handlePurposeChange = (val: string) => {
-        setSelectedPurposes(prev =>
-            prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
-        );
+        setSelectedPurposes([val]);
     };
 
     const handleNatureChange = (val: string) => {

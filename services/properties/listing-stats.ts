@@ -432,7 +432,7 @@ async function countPropertyByTypeAndPurpose(typeName: string, purposeName: stri
         where: {
             status: 'approved',
             types: { has: type },
-            purposes: { has: purposeName as any },
+            purpose: (purposeName === 'sale' ? 'sell' : purposeName) as any,
         },
     });
 }
@@ -444,7 +444,7 @@ async function countPropertyByTypeAndPurposeAndNature(typeName: string, purposeN
         where: {
             status: 'approved',
             types: { has: type },
-            purposes: { has: purposeName as any },
+            purpose: (purposeName === 'sale' ? 'sell' : purposeName) as any,
             natures: {
                 some: {
                     name: { equals: natureName },
@@ -570,7 +570,7 @@ export async function computeListingStats(): Promise<ListingStats> {
         prisma.property.count({
             where: {
                 status: 'approved',
-                purposes: { has: 'rent' },
+                purpose: 'rent',
             },
         }),
         prisma.requirement.count({ where: { status: 'active' } }),

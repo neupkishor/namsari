@@ -30,7 +30,7 @@ export async function createListing(formData: FormData) {
     // 1. Basic Details
     const title = formData.get('title') as string;
     const types = formData.getAll('propertyType') as string[];
-    const purposes = formData.getAll('propertyPurpose') as string[];
+    const purpose = String(formData.get('propertyPurpose') || '');
     const natures = formData.getAll('propertyNature') as string[];
 
     // 2. Listing Flags (Admin flags removed from UI)
@@ -112,7 +112,7 @@ export async function createListing(formData: FormData) {
 
     const requiredFieldValues: Record<string, unknown> = {
         propertyType: types,
-        propertyPurpose: purposes,
+        propertyPurpose: purpose,
         propertyNature: natures,
         title,
         province,
@@ -183,7 +183,7 @@ export async function createListing(formData: FormData) {
         await createPropertyListing({
             title,
             types,
-            purposes,
+            purpose,
             natures,
             remarks,
             roadType,

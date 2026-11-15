@@ -75,7 +75,7 @@ export default async function CollectionsPage({ searchParams }: { searchParams: 
                     select: { resourceUrl: true }
                 },
                 types: true,
-                purposes: true,
+                purpose: true,
                 natures: { select: { name: true } },
                 features: {
                     select: {
@@ -88,7 +88,7 @@ export default async function CollectionsPage({ searchParams }: { searchParams: 
             take: 200
         }),
         Promise.resolve(['apartment', 'bungalow', 'commercial_space', 'house', 'land', 'penthouse', 'villa'].map((name, id) => ({ id: id + 1, name }))),
-        Promise.resolve(['sale', 'rent'].map((name, id) => ({ id: id + 1, name }))),
+        Promise.resolve(['sell', 'rent'].map((name, id) => ({ id: id + 1, name }))),
         prisma.propertyNature.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } })
     ]);
 
@@ -97,7 +97,7 @@ export default async function CollectionsPage({ searchParams }: { searchParams: 
         price: { price: Number(property.price_listed || 0) },
         images: property.propertyMedia.map((media) => ({ url: media.resourceUrl })),
         types: property.types.map((name) => ({ name })),
-        purposes: property.purposes.map((name) => ({ name }))
+        purposes: property.purpose ? [{ name: property.purpose }] : []
     }));
 
     const totalPages = Math.ceil(totalCount / limit);

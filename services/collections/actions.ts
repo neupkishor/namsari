@@ -129,7 +129,7 @@ export async function createCollection(formData: FormData) {
                 ...(criteria.isExclusive != null ? { isExclusive: criteria.isExclusive } : {}),
                 ...(criteria.isVerified != null ? { isVerified: criteria.isVerified } : {}),
                 ...(criteria.types.length ? { types: { hasSome: criteria.types.map((value) => value.replace(' ', '_')) as any } } : {}),
-                ...(criteria.purposes.length ? { purposes: { hasSome: criteria.purposes as any } } : {}),
+                ...(criteria.purposes.length ? { purpose: { in: criteria.purposes.map((value) => value === 'sale' ? 'sell' : value) as any } } : {}),
                 ...(criteria.natures.length ? { natures: { some: { name: { in: criteria.natures, mode: 'insensitive' } } } } : {}),
                 ...((criteria.district || criteria.cityVillage || criteria.area) ? {
                     location: {
