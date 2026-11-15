@@ -1,11 +1,7 @@
-import React from 'react';
-import ScrollToTop from '@/components/ScrollToTop';
+import ServerLayout from './layout.server';
+import ClientLayout from './layout.client';
 
+// Merges the manage route's server and client shells.
 export default function ManageLayout({ children }: { children: React.ReactNode }) {
-    return (
-        <div style={{ backgroundColor: '#ffffff', minHeight: '100%' }}>
-            <ScrollToTop />
-            {children}
-        </div>
-    );
+  return <ServerLayout><ClientLayout>{children}</ClientLayout></ServerLayout>;
 }

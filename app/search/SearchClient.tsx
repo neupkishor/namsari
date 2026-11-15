@@ -27,10 +27,18 @@ function sortProperties(properties: any[], sortBy: string | null) {
             return new Date(right.created_on || right.createdAt || 0).getTime() - new Date(left.created_on || left.createdAt || 0).getTime();
         }
 
-        const leftPrice = Number(left.pricing?.price || left.price || 0);
-        const rightPrice = Number(right.pricing?.price || right.price || 0);
+        const leftPrice = getListedPrice(left) ?? Number.POSITIVE_INFINITY;
+        const rightPrice = getListedPrice(right) ?? Number.POSITIVE_INFINITY;
         return leftPrice - rightPrice;
     });
+}
+
+// Returns the listing's numeric price, independent of its formatted card label.
+function getListedPrice(property: any): number | null {
+    const rawPrice = property.price_listed ?? property.pricing?.price;
+    if (rawPrice == null || rawPrice === '') return null;
+    const listedPrice = Number(rawPrice);
+    return Number.isFinite(listedPrice) ? listedPrice : null;
 }
 
 export default function SearchClient({ initialUser, initialQuery = '', initialProperties = [] }: { initialUser: any, initialQuery?: string, initialProperties?: any[] }) {
@@ -89,8 +97,8 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
                 ? convertAreaValue(Number(property.features?.builtUpArea), property.features?.builtUpAreaUnit, sizeUnit)
                 : null;
             const matchesSize = (minSize === null || propertyArea === null || propertyArea >= minSize) && (maxSize === null || propertyArea === null || propertyArea <= maxSize);
-            const propertyPrice = Number(property.pricing?.price || property.price || NaN);
-            const matchesPrice = (minPrice === null || Number.isNaN(propertyPrice) || propertyPrice >= minPrice) && (maxPrice === null || Number.isNaN(propertyPrice) || propertyPrice <= maxPrice);
+            const propertyPrice = getListedPrice(property);
+            const matchesPrice = (minPrice === null || (propertyPrice !== null && propertyPrice >= minPrice)) && (maxPrice === null || (propertyPrice !== null && propertyPrice <= maxPrice));
 
             return matchesQuery && matchesLocation && matchesListedBy && matchesType && matchesCategory && matchesSize && matchesPrice;
         }), sortBy);
@@ -116,104 +124,77 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
     };
 
     return (
-        <main className="min-h-screen bg-surface pb-12">
-            <section className="mx-auto max-w-[var(--container-max)] px-4 sm:px-6 lg:px-8 pt-6 lg:pt-8">
-                <div className="rounded-[2rem] border border-border bg-white p-5 sm:p-6 shadow-sm">
-                    <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr] xl:items-start">
-                        <div className="space-y-5">
-                            <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-primary)]/15 bg-[color:var(--color-primary)]/5 px-3 py-1 text-[11px] font-black uppercase tracking-[0.2em] text-[color:var(--color-primary)]">
-                                Feed search
-                                <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--color-primary)]" />
-                            </div>
-
-                            <div>
-                                <div className="text-sm font-bold text-[color:var(--color-primary)]/80">
-                                    {initialUser?.name ? `Welcome back, ${initialUser.name.split(' ')[0]}` : 'Search the market'}
-                                </div>
-                                <h1 className="mt-1 text-3xl sm:text-4xl font-black tracking-tight text-text-main">
-                                    Search properties without leaving the feed.
-                                </h1>
-                                <p className="mt-2 max-w-2xl text-sm sm:text-base text-text-muted">
-                                    Browse listings in a familiar card layout, then jump to the map when location matters more than the scroll.
-                                </p>
-                            </div>
-
-                            <div className="flex flex-col gap-3 sm:flex-row">
-                                <div className="relative flex-1">
-                                    <input
-                                        value={query}
-                                        onChange={(event) => setQuery(event.target.value)}
-                                        onKeyDown={(event) => {
-                                            if (event.key === 'Enter') submitSearch();
-                                        }}
-                                        placeholder="Search by location, title, price, or type"
-                                        className="w-full rounded-full border border-border bg-surface px-5 py-4 pr-14 text-[15px] font-medium text-text-main shadow-sm outline-none transition focus:border-[color:var(--color-primary)] focus:ring-4 focus:ring-[color:var(--color-primary)]/10"
-                                    />
-                                    <button
-                                        onClick={submitSearch}
-                                        aria-label="Search properties"
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-white shadow-lg shadow-[color:var(--color-primary)]/20 transition hover:bg-[color:var(--color-primary-light)] active:scale-95"
-                                    >
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
-                                            <circle cx="11" cy="11" r="8" />
-                                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                                        </svg>
-                                    </button>
-                                </div>
-
-                                <Link href="/maps" className="inline-flex items-center justify-center rounded-full border border-border bg-white px-5 py-4 text-sm font-black uppercase tracking-widest text-text-main shadow-sm transition hover:border-[color:var(--color-primary)]/20 hover:text-[color:var(--color-primary)]">
-                                    Open maps
-                                </Link>
-                            </div>
-
-                            <div className="flex flex-wrap gap-2">
-                                {categoryLinks.map((item) => (
-                                    <Link
-                                        key={item.label}
-                                        href={item.href}
-                                        className="rounded-full border border-border bg-white px-4 py-2 text-[13px] font-semibold text-text-main transition hover:border-[color:var(--color-primary)]/25 hover:bg-[color:var(--color-primary)]/5"
-                                    >
-                                        {item.label}
-                                    </Link>
-                                ))}
-                            </div>
+        <main className="min-h-screen bg-[#f7f8fa] pb-14">
+            <section className="relative overflow-hidden border-b border-border bg-white">
+                <div className="pointer-events-none absolute -right-24 -top-32 h-80 w-80 rounded-full bg-[color:var(--color-primary)]/[0.045] blur-3xl" />
+                <div className="relative mx-auto max-w-[var(--container-max)] px-4 py-9 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
+                    <div className="mx-auto max-w-4xl text-center">
+                        <div className="inline-flex max-w-full items-center gap-2 rounded-full bg-[color:var(--color-primary)]/10 px-3.5 py-2 text-[10px] font-black uppercase leading-none tracking-[0.16em] text-[color:var(--color-primary)]">
+                            Find your next place <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--color-primary)]" />
                         </div>
+                        <h1 className="mt-4 text-3xl font-black tracking-tight text-text-main sm:text-4xl lg:text-5xl">
+                            Search properties across Nepal
+                        </h1>
+                        <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-text-muted sm:text-base">
+                            Search by place, property type, or price, then browse the listings that fit.
+                        </p>
 
-                        <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-1">
-                            <div className="rounded-[1.5rem] border border-border bg-surface p-5 shadow-sm">
-                                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-text-muted">Results</div>
-                                <div className="mt-2 text-3xl font-black text-text-main">{filteredProperties.length}</div>
-                                <div className="mt-1 text-xs text-text-muted">Listings matching your feed query</div>
+                        <div className="mx-auto mt-7 flex max-w-3xl flex-col gap-3 sm:flex-row">
+                            <div className="relative flex-1">
+                                <input
+                                    value={query}
+                                    onChange={(event) => setQuery(event.target.value)}
+                                    onKeyDown={(event) => {
+                                        if (event.key === 'Enter') submitSearch();
+                                    }}
+                                    placeholder="Try Kathmandu, land, apartment..."
+                                    aria-label="Search properties by location, title, price, or type"
+                                        className="h-14 w-full rounded-2xl border border-border bg-white px-5 pr-16 text-[15px] font-medium text-text-main shadow-[0_5px_20px_rgba(15,23,42,0.06)] [outline:none] transition placeholder:text-text-muted/70 focus:border-[color:var(--color-primary)] focus:outline-none focus:ring-4 focus:ring-[color:var(--color-primary)]/10"
+                                />
+                                <button
+                                    onClick={submitSearch}
+                                    aria-label="Search properties"
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-10 w-12 items-center justify-center rounded-xl bg-[color:var(--color-primary)] text-white shadow-sm outline-none transition hover:bg-[color:var(--color-primary-light)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)]/25 active:scale-95"
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="11" cy="11" r="8" />
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                    </svg>
+                                </button>
                             </div>
-                            <div className="rounded-[1.5rem] border border-border bg-white p-5 shadow-sm">
-                                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-text-muted">View</div>
-                                <div className="mt-2 text-xl font-black text-text-main">Feed-first</div>
-                                <div className="mt-1 text-xs text-text-muted">A scrollable results page built for browsing.</div>
-                            </div>
-                            <div className="rounded-[1.5rem] border border-border bg-white p-5 shadow-sm">
-                                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-text-muted">State</div>
-                                <div className="mt-2 text-xl font-black text-text-main">{loading ? 'Loading' : 'Ready'}</div>
-                                <div className="mt-1 text-xs text-text-muted">Live inventory from the properties API.</div>
-                            </div>
-                            <Link href="/maps" className="rounded-[1.5rem] border border-[color:var(--color-primary)]/15 bg-[linear-gradient(135deg,rgba(130,0,0,0.06),rgba(184,150,12,0.06))] p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-[color:var(--color-primary)]">Switch mode</div>
-                                <div className="mt-2 text-xl font-black text-text-main">Map view</div>
-                                <div className="mt-1 text-xs text-text-muted">See where listings cluster geographically.</div>
+
+                                <Link href="/maps" className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-border bg-white px-5 text-xs font-black uppercase tracking-[0.12em] text-text-main outline-none transition hover:border-[color:var(--color-primary)]/30 hover:text-[color:var(--color-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)]/25">
+                                <span aria-hidden="true">⌖</span> Map view
                             </Link>
+                    </div>
+
+                    <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                            <span className="mr-1 text-[11px] font-bold uppercase tracking-wider text-text-muted">Popular:</span>
+                            {categoryLinks.map((item) => (
+                                <Link
+                                    key={item.label}
+                                    href={item.href}
+                                        className="rounded-full border border-border bg-[#fafafa] px-3.5 py-2 text-xs font-bold text-text-main outline-none transition hover:border-[color:var(--color-primary)]/30 hover:bg-[color:var(--color-primary)]/[0.04] hover:text-[color:var(--color-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)]/20"
+                                >
+                                    {item.label}
+                                </Link>
+                            ))}
                         </div>
                     </div>
-                </div>
+                    </div>
             </section>
 
-            <section className="mx-auto grid max-w-[var(--container-max)] gap-8 px-4 sm:px-6 lg:px-8 pt-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.82fr)]">
+            <section className="mx-auto grid max-w-[var(--container-max)] gap-7 px-4 pt-7 sm:px-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:px-8 lg:pt-9">
                 <div className="min-w-0">
-                    <div className="mb-5 flex items-end justify-between gap-4">
+                    <div className="mb-4 flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-border bg-white px-5 py-4 shadow-sm">
                         <div>
-                            <h2 className="text-2xl font-black tracking-tight text-text-main">Property feed</h2>
-                            <p className="text-sm text-text-muted">Results in a fast, scrollable feed view.</p>
+                            <h2 className="text-lg font-black tracking-tight text-text-main sm:text-xl">Property listings</h2>
+                            <p className="mt-0.5 text-xs text-text-muted sm:text-sm">
+                                {query.trim() ? `Showing matches for “${query.trim()}”` : 'Browse the latest places on the market'}
+                            </p>
                         </div>
-                        <div className="hidden sm:block text-[12px] font-black uppercase tracking-[0.18em] text-text-muted">
-                            {filteredProperties.length} visible
+                        <div className="rounded-full bg-[color:var(--color-primary)]/[0.07] px-3 py-1.5 text-xs font-extrabold text-[color:var(--color-primary)]">
+                            {filteredProperties.length} {filteredProperties.length === 1 ? 'listing' : 'listings'}
                         </div>
                     </div>
 
@@ -223,7 +204,7 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
                                 <div key={index} className="h-[190px] rounded-[1.5rem] bg-white/80 animate-pulse" />
                             ))
                         ) : filteredProperties.length > 0 ? (
-                            <div className="rounded-[28px] border border-slate-300 bg-white shadow-[var(--shadow-card)] overflow-hidden">
+                            <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-[var(--shadow-card)]">
                                 {filteredProperties.map((property, index) => (
                                     <PropertyPost
                                         key={property.id}
@@ -234,8 +215,8 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
                                 ))}
                             </div>
                         ) : (
-                            <div className="rounded-[1.5rem] border border-border bg-white p-8 text-center shadow-sm">
-                                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[color:var(--color-primary)]/5 text-2xl">⌕</div>
+                            <div className="rounded-2xl border border-border bg-white px-6 py-14 text-center shadow-sm sm:px-10">
+                                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[color:var(--color-primary)]/[0.07] text-2xl text-[color:var(--color-primary)]">⌕</div>
                                 <h3 className="text-lg font-black text-text-main">No listings matched</h3>
                                 <p className="mt-2 text-sm text-text-muted">Try a broader search term or clear the query to see the full feed.</p>
                             </div>
@@ -244,7 +225,7 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
                 </div>
 
                 <aside className="space-y-4 lg:sticky lg:top-[calc(var(--header-height)+24px)] lg:self-start">
-                    <div className="rounded-[1.75rem] border border-border bg-white p-5 shadow-sm">
+                    <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
                         <div className="flex items-center justify-between gap-3">
                             <div>
                                 <div className="text-[11px] font-black uppercase tracking-[0.18em] text-text-muted">Quick jump</div>
@@ -255,7 +236,7 @@ export default function SearchClient({ initialUser, initialQuery = '', initialPr
                             </Link>
                         </div>
                         <p className="mt-3 text-sm leading-6 text-text-muted">
-                            Use the map page when location matters more than the feed. This page stays focused on browsing and comparing listings.
+                            Explore listings by location and see what is nearby on the interactive map.
                         </p>
                     </div>
 

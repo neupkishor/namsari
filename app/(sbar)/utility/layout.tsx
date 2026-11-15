@@ -1,16 +1,7 @@
-import React from 'react';
+import ServerLayout from './layout.server';
+import ClientLayout from './layout.client';
 
-export default async function UtilityLayout({ children }: { children: React.ReactNode }) {
-    return (
-        <main
-            style={{
-                minHeight: '100%',
-                background: 'transparent'
-            }}
-        >
-            <div className="mx-auto w-full max-w-[1400px] px-0.5 pt-3 sm:px-6 lg:px-8" style={{ paddingBottom: '80px' }}>
-                {children}
-            </div>
-        </main>
-    );
+// Merges the utility route's server and client shells.
+export default function UtilityLayout({ children }: { children: React.ReactNode }) {
+  return <ServerLayout><ClientLayout>{children}</ClientLayout></ServerLayout>;
 }

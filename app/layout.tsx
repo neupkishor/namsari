@@ -1,39 +1,27 @@
-import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
-import "@/app/globals.css";
-import Providers from "@/app/providers";
-import { Header } from '@/components/menu/Header';
-import { FloatingActionButton } from '@/components/menu/FloatingActionButton';
+import type { Metadata } from 'next';
+import { Outfit } from 'next/font/google';
+import '@/app/globals.css';
 import { getCurrentUser } from '@/actions/auth';
+import { Header } from '@/components/menu/Header';
+import ServerLayout from './layout.server';
+import ClientLayout from './layout.client';
 
-const outfit = Outfit({
-  subsets: ["latin"],
-  variable: "--font-outfit",
-});
+const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 
 export const metadata: Metadata = {
-  title: "Namsari",
-  description: "Real Estate Application",
+  title: 'Namsari',
+  description: 'Real Estate Application',
 };
 
-import { Tracker } from '@/components/analytics/Tracker';
-
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+// Merges the server and client shells into the Next.js root layout.
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const user = await getCurrentUser();
-
   return (
     <html lang="en">
       <body className={`${outfit.variable} antialiased`}>
-        <Providers>
-            <Tracker />
-            <Header user={user} />
-            {children}
-            <FloatingActionButton />
-        </Providers>
+        <ServerLayout>
+          <ClientLayout header={<Header user={user} />}>{children}</ClientLayout>
+        </ServerLayout>
       </body>
     </html>
   );

@@ -1,12 +1,13 @@
 import prisma from '@/lib/prisma';
 import { legacyPricingFromProperty } from '@/lib/pricing';
 
-export async function getBrowseProperties(limit = 60, options?: { onlyMappable?: boolean }) {
+export async function getBrowseProperties(limit = 60, options?: { onlyMappable?: boolean; pricedOnly?: boolean }) {
     const onlyMappable = options?.onlyMappable === true;
+    const pricedOnly = options?.pricedOnly !== false;
 
     const dbProperties = await prisma.property.findMany({
         where: {
-            price_listed: { not: null },
+            ...(pricedOnly ? { price_listed: { not: null } } : {}),
             ...(onlyMappable ? { OR: [
                 {
                     location: {
