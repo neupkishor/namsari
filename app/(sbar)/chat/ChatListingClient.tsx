@@ -647,7 +647,7 @@ export default function ChatListingClient({
                         <button
                             type="button"
                             onClick={() => setSummaryOpen((value) => !value)}
-                            className="self-start rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-900 hover:bg-slate-50 md:self-auto"
+                            className="self-start rounded-full border border-border px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-900 hover:bg-slate-50 md:self-auto"
                         >
                             {summaryOpen ? 'Hide context' : 'Show context'}
                         </button>
@@ -762,13 +762,13 @@ export default function ChatListingClient({
                                 }
                             }}
                             placeholder="Share everything you have in mind about the property"
-                            className="min-h-12 flex-1 rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-900"
+                            className="min-h-12 flex-1 rounded-2xl border border-border px-4 py-3 text-sm outline-none transition focus:border-slate-900"
                             disabled={loading || creating || uploadingImages}
                         />
                         <button type="button" onClick={() => void handleSend()} disabled={loading || creating || uploadingImages || !input.trim()} className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">
                             Send
                         </button>
-                        <label className={`flex min-h-12 shrink-0 cursor-pointer items-center justify-center rounded-2xl border border-slate-300 px-4 text-sm font-semibold text-slate-800 transition hover:border-slate-900 hover:bg-slate-50 ${loading || creating || uploadingImages ? 'pointer-events-none opacity-60' : ''}`}>
+                        <label className={`flex min-h-12 shrink-0 cursor-pointer items-center justify-center rounded-2xl border border-border px-4 text-sm font-semibold text-slate-800 transition hover:border-slate-900 hover:bg-slate-50 ${loading || creating || uploadingImages ? 'pointer-events-none opacity-60' : ''}`}>
                             Photos
                             <input
                                 type="file"
@@ -785,7 +785,7 @@ export default function ChatListingClient({
                             disabled={loading || creating || uploadingImages}
                             title={recording ? `Stop recording (${recordingSeconds}s)` : 'Record voice note'}
                             aria-label={recording ? `Stop recording, ${recordingSeconds} seconds` : 'Record voice note'}
-                            className={`flex min-h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${recording ? 'bg-red-600 text-white hover:bg-red-500' : 'border border-slate-300 text-slate-800 hover:border-slate-900 hover:bg-slate-50'}`}
+                            className={`flex min-h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${recording ? 'bg-red-600 text-white hover:bg-red-500' : 'border border-border text-slate-800 hover:border-slate-900 hover:bg-slate-50'}`}
                         >
                             <MicrophoneIcon active={recording} />
                         </button>

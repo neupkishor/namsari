@@ -657,7 +657,7 @@ function HomeSearchHero() {
                                                 className={`flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-[13px] font-bold transition-all duration-200 ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]/6 text-[color:var(--color-primary)]' : 'border-[color:var(--color-primary)]/12 bg-white text-slate-700 hover:border-[color:var(--color-primary)]/35'}`}
                                             >
                                                 <span className="pr-3">{location.label}</span>
-                                                <span className={`h-5 w-5 rounded-full border ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]' : 'border-slate-300 bg-white'}`} />
+                                                <span className={`h-5 w-5 rounded-full border ${isSelected ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary)]' : 'border-border bg-white'}`} />
                                             </button>
                                         );
                                     })}
@@ -1008,7 +1008,7 @@ function HomeSearchHero() {
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Modal header */}
-                        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+                        <div className="flex items-center justify-between border-b border-border px-5 py-4">
                             <span className="text-[15px] font-black text-slate-900">
                                 {activePanel === 'type' && 'Type'}
                                 {activePanel === 'price' && 'Price'}
@@ -1037,11 +1037,11 @@ function HomeSearchHero() {
                         </div>
 
                         {/* Modal footer */}
-                        <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-4">
+                        <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-4">
                             <button
                                 type="button"
                                 onClick={closeModal}
-                                className="rounded-full border border-slate-200 bg-white px-5 py-2.5 text-[13px] font-bold text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-800"
+                                className="rounded-full border border-slate-200 bg-white px-5 py-2.5 text-[13px] font-bold text-slate-600 transition-colors hover:border-border hover:text-slate-800"
                             >
                                 Cancel
                             </button>
@@ -1815,7 +1815,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                     <div className="flex flex-col gap-6">
                                         <div className="flex flex-col gap-6">
                                             {activeFeedTab === 'requirements' ? (
-                                                <div className="rounded-[28px] border border-slate-300 bg-white shadow-[var(--shadow-card)] overflow-hidden">
+                                                <div className="rounded-[28px] border border-slate-200 bg-white shadow-[var(--shadow-card)] overflow-hidden">
                                                     {showRequirementSkeleton ? (
                                                         <RequirementFeedSkeleton />
                                                     ) : requirements.length === 0 ? (
@@ -1869,7 +1869,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                                                         </div>
                                                                         <p className="text-[11px] sm:text-[12px] text-slate-400 line-clamp-1 sm:line-clamp-2 mt-0.5 leading-relaxed">{summary || 'No additional remarks shared.'}</p>
                                                                         <div className="text-[14px] sm:text-[15px] font-bold text-slate-900 mt-2">{budgetLabel}</div>
-                                                                        <div className="border-t border-slate-100 mt-1.5" />
+                                                                        <div className="border-t border-border mt-1.5" />
                                                                         <div className="flex items-center justify-between pt-1 pb-0.5 gap-2">
                                                                             <span className="inline-flex items-center gap-2 min-w-0">
                                                                                 {requirement.user?.username ? (
@@ -2035,7 +2035,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
 
                                                     if (item.type === 'property_set') {
                                                         component = (
-                                                            <div className="rounded-[28px] border border-slate-300 bg-white shadow-[var(--shadow-card)] overflow-hidden">
+                                                            <div className="rounded-[28px] border border-slate-200 bg-white shadow-[var(--shadow-card)] overflow-hidden">
                                                                 {item.data.map((property: any, propertyIndexInSet: number) => {
                                                                     const isTrigger = property.id === triggerPropertyId;
                                                                     const isFirstInSet = propertyIndexInSet === 0;
@@ -2084,7 +2084,7 @@ export default function HomeClient({ user, featuredCollections, trendingSearches
                                     )}
 
                                     {!hasAnyFeedFilters && !hasMore && properties.length > 0 && (
-                                        <div className="text-center py-20 border-t border-border/60">
+                                        <div className="text-center py-20 border-t border-border">
                                             <div className="inline-block p-4 rounded-full bg-surface border border-border mb-4">
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted opacity-40"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                                             </div>

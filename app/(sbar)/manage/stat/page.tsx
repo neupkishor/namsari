@@ -75,7 +75,7 @@ export default async function ManageStatPage() {
                             </thead>
                             <tbody>
                                 {Object.entries(stats.byTypePurpose).map(([type, counts]) => (
-                                    <tr key={type} className="border-b border-slate-100 text-slate-700">
+                                    <tr key={type} className="border-b border-border text-slate-700">
                                         <td className="px-2 py-2 capitalize font-semibold">{type}</td>
                                         <td className="px-2 py-2 font-semibold text-[color:var(--color-primary)]">{counts.sale}</td>
                                         <td className="px-2 py-2 font-semibold text-[color:var(--color-primary)]">{counts.rent}</td>

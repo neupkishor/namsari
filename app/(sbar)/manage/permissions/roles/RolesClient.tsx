@@ -135,7 +135,7 @@ export default function RolesClient({ roles }: { roles: any[] }) {
                         minHeight: '200px',
                         transition: 'all 0.2s'
                     }}
-                    className="hover:bg-slate-100 hover:border-slate-400"
+                    className="hover:bg-slate-100 hover:border-border"
                 >
                     <div style={{ textAlign: 'center', color: '#64748b' }}>
                         <div style={{ fontSize: '2rem', marginBottom: '8px' }}>+</div>

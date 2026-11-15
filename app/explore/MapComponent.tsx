@@ -367,7 +367,7 @@ export default function MapComponent({
                                         <div className="text-xs text-slate-500 flex items-center gap-1">
                                             <span>📍</span> {p.location}
                                         </div>
-                                        <div className="mt-3 pt-2 border-t border-slate-100">
+                                        <div className="mt-3 pt-2 border-t border-border">
                                             <InternalPropertyLink
                                                 href={`/properties/${p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${p.id}`}
                                                 className="text-gold no-underline font-bold text-xs hover:text-gold/80 transition-colors"

@@ -431,7 +431,7 @@ export default function ExploreClient({ initialUser, initialQuery = '', initialT
 
                         {/* No More Properties */}
                         {!isLoading && !isLoadingMore && !hasMore && filteredProperties.length > 0 && (
-                            <div className="text-center py-16 border-t border-border/60">
+                            <div className="text-center py-16 border-t border-border">
                                 <div className="inline-block p-4 rounded-full bg-surface border border-border mb-4">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted opacity-40"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                                 </div>

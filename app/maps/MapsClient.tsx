@@ -199,7 +199,7 @@ export default function MapsClient({ initialUser: _initialUser, initialQuery = '
                                 <div key={index} className="h-[102px] rounded-[1.5rem] bg-white animate-pulse" />
                             ))
                         ) : visibleProperties.length > 0 ? (
-                            <div className="rounded-[28px] border border-slate-300 bg-white shadow-[var(--shadow-card)] overflow-hidden">
+                            <div className="rounded-[28px] border border-border bg-white shadow-[var(--shadow-card)] overflow-hidden">
                                 {visibleProperties.map((property, index) => (
                                     <div
                                         key={property.id}

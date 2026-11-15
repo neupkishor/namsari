@@ -217,7 +217,7 @@ export default async function ProfileOverviewPage({ params }: PageProps) {
                 {/* Properties Feed */}
                 <div>
                     {enrichedProperties.length > 0 ? (
-                        <div className="rounded-[28px] border border-slate-300 bg-white shadow-[var(--shadow-card)] overflow-hidden">
+                        <div className="rounded-[28px] border border-border bg-white shadow-[var(--shadow-card)] overflow-hidden">
                             <PropertySet properties={enrichedProperties} />
                         </div>
                     ) : (

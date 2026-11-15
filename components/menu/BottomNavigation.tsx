@@ -256,7 +256,7 @@ export function BottomNavigation({ user }: { user?: any }) {
 
                             {/* Logout Option */}
                             {user && (
-                                <div className="pt-4 border-t border-slate-100">
+                                <div className="pt-4 border-t border-border">
                                     <button
                                         onClick={() => {
                                             logoutAction();
@@ -272,7 +272,7 @@ export function BottomNavigation({ user }: { user?: any }) {
                                 </div>
                             )}
                             
-                            <div className="px-5 py-6 mt-2 rounded-3xl bg-slate-50 border border-slate-100">
+                            <div className="px-5 py-6 mt-2 rounded-3xl bg-slate-50 border border-border">
                                 <p className="text-[12px] text-slate-400 font-medium leading-relaxed">
                                     Namsari &copy; 2026<br /> 
                                     <span className="opacity-60">Designed by </span>
