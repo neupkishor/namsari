@@ -15,6 +15,8 @@ import { PropertyEmiSection } from '@/components/sections/PropertyEmiSection';
 import { SectionTitleFeed } from '@/components/sections/SectionTitleFeed';
 import { AutoScrollCarousel } from '@/components/ui/AutoScrollCarousel';
 import { legacyPricingFromProperty } from '@/services/properties/pricing';
+import { getLocationPolygons } from '@/services/properties/location-boundaries';
+import type { LocationPolygons } from '@/services/properties/location-boundaries';
 
 function isAmenity(value: unknown): value is Amenity {
     if (!value || typeof value !== 'object') return false;
@@ -78,11 +80,81 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
     const locationStr = property.location
         ? `${property.location.area}, ${property.location.district}`
         : 'Unspecified';
-    const priceValue = propertyWithLegacyPricing.pricing?.price || 0;
-    const storedPriceDisplay = property.price_listed?.toString();
-    const formattedNumericPrice = storedPriceDisplay && /^\s*\d+(?:\.\d+)?\s*$/.test(String(storedPriceDisplay))
-        ? new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(Number(storedPriceDisplay)).replace('NPR', 'Rs.')
-        : storedPriceDisplay || new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(priceValue).replace('NPR', 'Rs.');
+    const locationData = property.locationData && typeof property.locationData === 'object' && !Array.isArray(property.locationData)
+        ? property.locationData as Record<string, unknown>
+        : {};
+    const readCoordinate = (value: unknown) => value == null || value === '' ? null : Number(value);
+    const propertyLatitude = property.location?.latitude ?? readCoordinate(locationData.latitude);
+    const propertyLongitude = property.location?.longitude ?? readCoordinate(locationData.longitude);
+    const hasPropertyCoordinates = Number.isFinite(propertyLatitude) && Number.isFinite(propertyLongitude);
+    const locationPolygonLevels = [
+        { name: property.location?.area, types: ['area'] },
+        { name: property.location?.cityVillage, types: ['city', 'village', 'city/village'] },
+        { name: property.location?.district, types: ['district'] },
+        { name: property.location?.province, types: ['province'] },
+        { name: property.location?.country, types: ['country'] },
+    ].filter((level): level is { name: string; types: string[] } => Boolean(level.name?.trim()));
+    let propertyLocationPolygons: LocationPolygons | null = null;
+
+    if (!hasPropertyCoordinates && locationPolygonLevels.length > 0) {
+        const locationRows = await prisma.location.findMany({
+            where: { name: { in: locationPolygonLevels.map((level) => level.name), mode: 'insensitive' } },
+            select: { id: true, name: true, type: true, parentId: true, details: true },
+        });
+        const locationHierarchyRows = await prisma.location.findMany({
+            select: { id: true, name: true, type: true, parentId: true },
+        });
+        const locationById = new Map(locationHierarchyRows.map((row) => [row.id, row] as const));
+
+        for (const [levelIndex, level] of locationPolygonLevels.entries()) {
+            const matchingLocations = locationRows.filter((row) =>
+                row.name.toLowerCase() === level.name.toLowerCase() && level.types.includes(row.type.toLowerCase())
+            );
+
+            for (const matchingLocation of matchingLocations) {
+                let parentId = matchingLocation.parentId;
+                let followsPropertyHierarchy = true;
+
+                for (const ancestorLevel of locationPolygonLevels.slice(levelIndex + 1)) {
+                    const visitedAncestorIds = new Set<number>();
+                    let foundExpectedAncestor = false;
+                    let currentId = parentId;
+                    while (currentId != null && !visitedAncestorIds.has(currentId)) {
+                        visitedAncestorIds.add(currentId);
+                        const ancestor = locationById.get(currentId);
+                        if (!ancestor) break;
+                        if (ancestor.name.toLowerCase() === ancestorLevel.name.toLowerCase() && ancestorLevel.types.includes(ancestor.type.toLowerCase())) {
+                            parentId = ancestor.parentId;
+                            foundExpectedAncestor = true;
+                            break;
+                        }
+                        currentId = ancestor.parentId;
+                    }
+
+                    if (!foundExpectedAncestor) {
+                        followsPropertyHierarchy = false;
+                        break;
+                    }
+                }
+
+                if (!followsPropertyHierarchy) continue;
+                const polygons = getLocationPolygons(matchingLocation.details);
+                if (polygons) {
+                    propertyLocationPolygons = polygons;
+                    break;
+                }
+            }
+
+            if (propertyLocationPolygons) break;
+        }
+    }
+    const canShowPropertyMap = hasPropertyCoordinates || Boolean(propertyLocationPolygons?.length);
+    const storedPriceValue = property.price_listed == null ? null : Number(property.price_listed);
+    const hasValidStoredPrice = storedPriceValue !== null && Number.isFinite(storedPriceValue) && storedPriceValue > 0;
+    const priceValue = hasValidStoredPrice ? storedPriceValue : 0;
+    const formattedNumericPrice = hasValidStoredPrice
+        ? new Intl.NumberFormat('en-NP', { style: 'currency', currency: 'NPR', maximumFractionDigits: 0 }).format(storedPriceValue).replace('NPR', 'Rs.')
+        : 'Price on Request';
     const formatReadableAmount = (value: number) => {
         if (!Number.isFinite(value) || value <= 0) return '';
         const units = [[1_00_00_000, 'Crore'], [1_00_000, 'Lakhs'], [1_000, 'Thousand']] as const;
@@ -1087,25 +1159,28 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
                         {nearbyAmenities.length > 0 && <NearbyAmenitiesSection amenities={nearbyAmenities} />}
 
-                        <div style={{ marginBottom: '40px' }}>
-                            <h2 className="section-title">Where you'll be</h2>
-                            <div style={{ height: '400px', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
-                                <PropertyMap
-                                    property={{
-                                        id: property.id,
-                                        title: property.title,
-                                        price: priceValue,
-                                        latitude: property.location?.latitude || 27.7172,
-                                        longitude: property.location?.longitude || 85.3240,
-                                        location: locationStr
-                                    }}
-                                    images={images}
-                                />
+                        {canShowPropertyMap && (
+                            <div style={{ marginBottom: '40px' }}>
+                                <h2 className="section-title">Where you'll be</h2>
+                                <div style={{ height: '400px', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
+                                    <PropertyMap
+                                        property={{
+                                            id: property.id,
+                                            title: property.title,
+                                            price: priceValue,
+                                            latitude: hasPropertyCoordinates ? propertyLatitude! : undefined,
+                                            longitude: hasPropertyCoordinates ? propertyLongitude! : undefined,
+                                            location: locationStr
+                                        }}
+                                        images={images}
+                                        polygons={hasPropertyCoordinates ? null : propertyLocationPolygons}
+                                    />
+                                </div>
+                                <div style={{ marginTop: '16px', fontSize: '0.95rem', color: '#4b5563' }}>
+                                    <strong>{property.location?.area}</strong>, {property.location?.district}
+                                </div>
                             </div>
-                            <div style={{ marginTop: '16px', fontSize: '0.95rem', color: '#4b5563' }}>
-                                <strong>{property.location?.area}</strong>, {property.location?.district}
-                            </div>
-                        </div>
+                        )}
                     </div>
 
                     {/* Sidebar */}

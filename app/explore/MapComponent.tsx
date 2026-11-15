@@ -25,11 +25,13 @@ const UserLocationIcon = L.divIcon({
 L.Marker.prototype.options.icon = DefaultIcon;
 
 function getCompactPriceLabel(price: unknown): string {
+    if (price === null || price === undefined || price === '') return 'Price on Request';
+
     const numeric = typeof price === 'number'
         ? price
         : Number(String(price ?? '').replace(/[^0-9.]/g, ''));
 
-    if (!Number.isFinite(numeric) || numeric <= 0) return 'NRs';
+    if (!Number.isFinite(numeric) || numeric <= 0) return 'Price on Request';
 
     return `Rs ${formatPrice(numeric, true)}`;
 }
@@ -62,6 +64,7 @@ interface Property {
     id: number;
     title: string;
     price: string;
+    price_listed?: number | string | null;
     latitude: number | null;
     longitude: number | null;
     location: string;
@@ -330,7 +333,7 @@ export default function MapComponent({
                         <Marker
                             key={p.id}
                             position={displayPosition}
-                            icon={createPricePointerIcon((p as any).pricing?.price ?? p.price, isSelected)}
+                            icon={createPricePointerIcon(p.price_listed !== undefined ? p.price_listed : p.price, isSelected)}
                             zIndexOffset={isSelected ? 1000 : 0}
                             ref={(instance) => {
                                 if (instance) {
